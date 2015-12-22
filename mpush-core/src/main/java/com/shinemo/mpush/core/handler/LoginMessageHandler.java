@@ -10,7 +10,7 @@ import com.shinemo.mpush.core.message.LoginMessage;
 public class LoginMessageHandler extends BaseMessageHandler<LoginMessage> {
     @Override
     public LoginMessage decodeBody(Packet packet) {
-        return null;
+        return new LoginMessage();
     }
 
     @Override
