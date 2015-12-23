@@ -1,4 +1,4 @@
-package com.shinemo.mpush.connection;
+package com.shinemo.mpush.connection.netty.handler;
 
 
 import com.shinemo.mpush.api.protocol.Packet;

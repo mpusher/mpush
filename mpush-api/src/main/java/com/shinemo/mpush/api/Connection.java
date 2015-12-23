@@ -14,4 +14,9 @@ public interface Connection {
     boolean isClosed();
 
     boolean isOpen();
+    
+    void refreshLastReadTime(long lastReadTime);
+    
+    void close();
+    
 }

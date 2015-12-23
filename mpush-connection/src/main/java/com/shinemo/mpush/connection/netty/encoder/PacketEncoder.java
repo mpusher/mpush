@@ -1,6 +1,8 @@
-package com.shinemo.mpush.api.protocol;
+package com.shinemo.mpush.connection.netty.encoder;
 
 import com.shinemo.mpush.api.Constants;
+import com.shinemo.mpush.api.protocol.Packet;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;

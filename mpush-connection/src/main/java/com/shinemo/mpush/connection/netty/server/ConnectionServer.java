@@ -1,7 +1,15 @@
-package com.shinemo.mpush.connection;
+package com.shinemo.mpush.connection.netty.server;
 
-import com.shinemo.mpush.api.protocol.PacketDecoder;
-import com.shinemo.mpush.api.protocol.PacketEncoder;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.shinemo.mpush.connection.netty.NettySharedHolder;
+import com.shinemo.mpush.connection.netty.encoder.PacketDecoder;
+import com.shinemo.mpush.connection.netty.encoder.PacketEncoder;
+import com.shinemo.mpush.connection.netty.handler.ConnectionHandler;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -15,6 +23,11 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
  * Created by ohun on 2015/12/22.
  */
 public class ConnectionServer {
+	
+	private static final Logger log = LoggerFactory.getLogger(ConnectionServer.class);
+	
+    private final AtomicBoolean startFlag = new AtomicBoolean(false);
+    
     private final int port;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
@@ -24,11 +37,18 @@ public class ConnectionServer {
     }
 
     public void stop() {
+    	log.info("netty server stop now");
+        this.startFlag.set(false);
         if (workerGroup != null) workerGroup.shutdownGracefully();
         if (bossGroup != null) bossGroup.shutdownGracefully();
     }
 
     public void start() {
+    	
+        if (!startFlag.compareAndSet(false, true)) {
+            return;
+        }
+    	
         /***
          * NioEventLoopGroup 是用来处理I/O操作的多线程事件循环器，
          * Netty提供了许多不同的EventLoopGroup的实现用来处理不同传输协议。
@@ -88,13 +108,17 @@ public class ConnectionServer {
              * 请参考ChannelOption和详细的ChannelConfig实现的接口文档以此可以对ChannelOptions的有一个大概的认识。
              */
             b.option(ChannelOption.SO_BACKLOG, 1024);
-
+            
             /***
              * option()是提供给NioServerSocketChannel用来接收进来的连接。
              * childOption()是提供给由父管道ServerChannel接收到的连接，
              * 在这个例子中也是NioServerSocketChannel。
              */
             b.childOption(ChannelOption.SO_KEEPALIVE, true);
+            
+		    b.option(ChannelOption.ALLOCATOR, NettySharedHolder.byteBufAllocator);
+		    b.childOption(ChannelOption.ALLOCATOR, NettySharedHolder.byteBufAllocator);
+            
 
             /***
              * 绑定端口并启动去接收进来的连接
@@ -105,9 +129,11 @@ public class ConnectionServer {
              * 这里会一直等待，直到socket被关闭
              */
             f.channel().closeFuture().sync();
+            
+            log.info("server start ok on:"+port);
+            
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
+        	log.error("server start exception",e);
             /***
              * 优雅关闭
              */
