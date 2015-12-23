@@ -1,5 +1,7 @@
 package com.shinemo.mpush.connection;
 
+import com.shinemo.mpush.api.protocol.PacketDecoder;
+import com.shinemo.mpush.api.protocol.PacketEncoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -12,18 +14,21 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 /**
  * Created by ohun on 2015/12/22.
  */
-public class ConnectionServer implements Runnable {
-    private int port;
+public class ConnectionServer {
+    private final int port;
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workerGroup;
 
-    public void start() {
-
+    public ConnectionServer(int port) {
+        this.port = port;
     }
 
     public void stop() {
-
+        if (workerGroup != null) workerGroup.shutdownGracefully();
+        if (bossGroup != null) bossGroup.shutdownGracefully();
     }
 
-    public void run() {
+    public void start() {
         /***
          * NioEventLoopGroup 是用来处理I/O操作的多线程事件循环器，
          * Netty提供了许多不同的EventLoopGroup的实现用来处理不同传输协议。
@@ -70,8 +75,8 @@ public class ConnectionServer implements Runnable {
             b.childHandler(new ChannelInitializer<SocketChannel>() { // (4)
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
-                    ch.pipeline().addLast(new PacketDecode());
-                    ch.pipeline().addLast(new PacketEncode());
+                    ch.pipeline().addLast(new PacketDecoder());
+                    ch.pipeline().addLast(PacketEncoder.INSTANCE);
                     ch.pipeline().addLast(new ConnectionHandler());
                 }
             });
@@ -106,8 +111,7 @@ public class ConnectionServer implements Runnable {
             /***
              * 优雅关闭
              */
-            workerGroup.shutdownGracefully();
-            bossGroup.shutdownGracefully();
+            stop();
         }
     }
 }
