@@ -1,4 +1,13 @@
-/.idea
-/*.iml
-/*/*.iml
-/*/target
+*.class
+*.classpath
+*.project
+*/.settings/*
+*/target/*
+*/bin/*
+*/WebContent/*
+
+.idea/*
+*.jar
+*.war
+*.ear
+*.iml
