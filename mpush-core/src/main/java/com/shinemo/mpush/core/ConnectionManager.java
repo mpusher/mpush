@@ -1,6 +1,7 @@
 package com.shinemo.mpush.core;
 
-import com.shinemo.mpush.api.protocol.Connection;
+
+import com.shinemo.mpush.api.Connection;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

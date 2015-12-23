@@ -27,6 +27,7 @@ public class ConnectionHandler extends ChannelHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
+        ConnectionManager.INSTANCE.remove(connection);
     }
 
     @Override

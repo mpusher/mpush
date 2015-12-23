@@ -30,6 +30,11 @@ public class Request {
     }
 
     public Response getResponse() {
+        Packet packet = new Packet();
+        packet.command = message.command;
+        packet.msgId = message.msgId;
+        packet.version = message.version;
+        packet.msgType = message.msgType;
         return new Response(packet, connection);
     }
 }

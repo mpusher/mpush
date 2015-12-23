@@ -1,6 +1,6 @@
 package com.shinemo.mpush.core;
 
-import com.shinemo.mpush.api.protocol.Connection;
+import com.shinemo.mpush.api.Connection;
 import com.shinemo.mpush.api.ConnectionInfo;
 import com.shinemo.mpush.api.protocol.Packet;
 import io.netty.channel.Channel;
@@ -23,8 +23,9 @@ public class ConnectionImpl implements Connection {
         return channel.id().asShortText();
     }
 
-    public ChannelFuture send(Packet packet) {
-        return null;
+    @Override
+    public void send(Packet packet) {
+
     }
 
     public ChannelFuture close() {

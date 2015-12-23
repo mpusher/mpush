@@ -14,6 +14,7 @@
         <module>mpush-gateway</module>
         <module>mpush-core</module>
         <module>mpush-client</module>
+        <module>mpush-tools</module>
     </modules>
 
     <dependencies>
@@ -21,6 +22,11 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <version>5.0.0.Alpha2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>19.0</version>
         </dependency>
     </dependencies>
 
