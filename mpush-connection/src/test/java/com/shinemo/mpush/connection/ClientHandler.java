@@ -24,17 +24,17 @@ public class ClientHandler extends ChannelHandlerAdapter {
         packet.msgId = 1;
         packet.body = "hello word".getBytes(Constants.UTF_8);
         ctx.writeAndFlush(packet);
-        logger.info("client,",ctx.channel().remoteAddress().toString(),"channelActive");
+        logger.info("client,"+ctx.channel().remoteAddress().toString(),"channelActive");
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-        logger.info("client,",ctx.channel().remoteAddress().toString(),"channelInactive");
+        logger.info("client,"+ctx.channel().remoteAddress().toString(),"channelInactive");
     }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         super.channelRead(ctx, msg);
-        logger.info("client,",ctx.channel().remoteAddress().toString(),"channelRead",msg);
+        logger.info("client,"+ctx.channel().remoteAddress().toString(),"channelRead",msg);
     }
 }

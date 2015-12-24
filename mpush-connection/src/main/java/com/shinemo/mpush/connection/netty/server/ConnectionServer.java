@@ -133,12 +133,12 @@ public class ConnectionServer {
              */
             ChannelFuture f = b.bind(port).sync();
 
+            log.info("server start ok on:"+port);
+            
             /**
              * 这里会一直等待，直到socket被关闭
              */
             f.channel().closeFuture().sync();
-            
-            log.info("server start ok on:"+port);
             
         } catch (Exception e) {
         	log.error("server start exception",e);

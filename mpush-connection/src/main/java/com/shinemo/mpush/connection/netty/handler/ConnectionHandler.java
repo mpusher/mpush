@@ -32,7 +32,7 @@ public class ConnectionHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-    	log.warn("",ctx.channel().remoteAddress()+",  channelRead");
+    	log.warn(ctx.channel().remoteAddress()+",  channelRead");
     	Connection connection = ConnectionManager.INSTANCE.get(ctx.channel());
         receiver.onMessage(new Request((Packet) msg, connection));
     }
@@ -45,7 +45,7 @@ public class ConnectionHandler extends ChannelHandlerAdapter {
 
     @Override
     public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) throws Exception {
-    	log.warn("",ctx.channel().remoteAddress()+",  connect");
+    	log.warn(ctx.channel().remoteAddress()+",  connect");
     	super.connect(ctx, remoteAddress, localAddress, promise);
         Connection connection = new NettyConnection();
         connection.init(ctx.channel());
@@ -54,26 +54,26 @@ public class ConnectionHandler extends ChannelHandlerAdapter {
     
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    	log.warn("",ctx.channel().remoteAddress()+",  channelActive");
+    	log.warn(ctx.channel().remoteAddress()+",  channelActive");
     	super.channelActive(ctx);
     }
     
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    	log.warn("",ctx.channel().remoteAddress()+",  channelInactive");
+    	log.warn(ctx.channel().remoteAddress()+",  channelInactive");
     	super.channelInactive(ctx);
     }
 
     @Override
     public void disconnect(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
-    	log.warn("",ctx.channel().remoteAddress()+",  disconnect");
+    	log.warn(ctx.channel().remoteAddress()+",  disconnect");
         super.disconnect(ctx, promise);
         ConnectionManager.INSTANCE.remove(ctx.channel());
     }
 
     @Override
     public void close(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
-    	log.warn("",ctx.channel().remoteAddress()+", close");
+    	log.warn(ctx.channel().remoteAddress()+", close");
         super.close(ctx, promise);
         ConnectionManager.INSTANCE.remove(ctx.channel());
     }
