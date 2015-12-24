@@ -1,5 +1,7 @@
 package com.shinemo.mpush.api;
 
+import io.netty.channel.Channel;
+
 import com.shinemo.mpush.api.protocol.Packet;
 
 /**
@@ -15,8 +17,14 @@ public interface Connection {
 
     boolean isOpen();
     
-    void refreshLastReadTime(long lastReadTime);
+    int getHbTimes();
     
     void close();
+
+	boolean isConnected();
+
+	boolean isEnable();
+
+	void init(Channel channel);
     
 }
