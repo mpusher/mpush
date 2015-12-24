@@ -1,7 +1,10 @@
 package com.shinemo.mpush.connection;
 
-import com.shinemo.mpush.api.protocol.PacketDecoder;
-import com.shinemo.mpush.api.protocol.PacketEncoder;
+import org.junit.Test;
+
+import com.shinemo.mpush.connection.netty.encoder.PacketDecoder;
+import com.shinemo.mpush.connection.netty.encoder.PacketEncoder;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -15,8 +18,9 @@ import io.netty.channel.socket.nio.NioSocketChannel;
  * Created by ohun on 2015/12/24.
  */
 public class ClientTest {
-    @org.junit.Test
-    public void testClient() {
+
+	@Test
+	public void testClient() {
         String host = "127.0.0.1";
         int port = 3000;
         EventLoopGroup workerGroup = new NioEventLoopGroup();
