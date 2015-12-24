@@ -3,6 +3,7 @@ package com.shinemo.mpush.core;
 
 import com.shinemo.mpush.api.Connection;
 
+import io.netty.channel.Channel;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 
 import java.util.concurrent.ConcurrentMap;
@@ -46,13 +47,27 @@ public class ConnectionManager {
     	return connections.get(channelId);
     	
     }
+    
+    public Connection get(final Channel channel){
+    	return connections.get(channel.id().asLongText());
+    }
 
     public void add(Connection connection) {
     	connections.putIfAbsent(connection.getId(), connection);
     }
+    
+    public void add(Channel channel){
+        Connection connection = new NettyConnection();
+        connection.init(channel);
+        connections.putIfAbsent(connection.getId(), connection);
+    }
 
     public void remove(Connection connection) {
     	connections.remove(connection.getId());
+    }
+    
+    public void remove(Channel channel){
+    	connections.remove(channel.id().asLongText());
     }
     
 }

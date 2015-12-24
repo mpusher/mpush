@@ -31,7 +31,7 @@ public class NettyConnection implements Connection {
 
 	@Override
 	public String getId() {
-		return channel.id().asShortText();
+		return channel.id().asLongText();
 	}
 
 	@Override
