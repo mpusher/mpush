@@ -2,10 +2,12 @@ package com.shinemo.mpush.connection.netty.handler;
 
 
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.api.Connection;
 import com.shinemo.mpush.api.Request;
-import com.shinemo.mpush.core.ConnectionImpl;
 import com.shinemo.mpush.core.ConnectionManager;
 import com.shinemo.mpush.core.MessageReceiver;
+import com.shinemo.mpush.core.NettyConnection;
+
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
@@ -17,7 +19,7 @@ import java.net.SocketAddress;
  */
 public class ConnectionHandler extends ChannelHandlerAdapter {
     private MessageReceiver receiver = new MessageReceiver();
-    private ConnectionImpl connection = new ConnectionImpl();
+    private Connection connection = new NettyConnection();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {

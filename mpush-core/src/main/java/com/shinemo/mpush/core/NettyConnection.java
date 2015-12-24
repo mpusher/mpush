@@ -22,8 +22,9 @@ public class NettyConnection implements Connection {
 	private Channel channel;
 	private int status = 0;
 
-	private volatile long lastReadTime = System.currentTimeMillis();
-
+	private int hbTimes;
+	
+	@Override
 	public void init(Channel channel) {
 		this.channel = channel;
 	}
@@ -76,9 +77,12 @@ public class NettyConnection implements Connection {
 		return channel;
 	}
 
-	@Override
-	public void refreshLastReadTime(long lastReadTime) {
-		this.lastReadTime = lastReadTime;
+	public int increaseAndGetHbTimes(){
+		return ++hbTimes;
+	}
+	
+	public void resetHbTimes(){
+		hbTimes = 0;
 	}
 
 	public int getStatus() {
@@ -89,13 +93,6 @@ public class NettyConnection implements Connection {
 		this.status = status;
 	}
 
-	public long getLastReadTime() {
-		return lastReadTime;
-	}
-
-	public void setLastReadTime(long lastReadTime) {
-		this.lastReadTime = lastReadTime;
-	}
 
 	public void setChannel(Channel channel) {
 		this.channel = channel;
@@ -104,5 +101,20 @@ public class NettyConnection implements Connection {
 	@Override
 	public void close() {
 		this.channel.close();
+	}
+
+	@Override
+	public int getHbTimes() {
+		return hbTimes;
+	}
+	
+	@Override
+	public boolean isConnected(){
+		return channel.isActive();
+	}
+	
+	@Override
+	public boolean isEnable(){
+		return channel.isWritable();
 	}
 }
