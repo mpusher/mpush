@@ -19,22 +19,23 @@ import java.net.SocketAddress;
  */
 public class ConnectionHandler extends ChannelHandlerAdapter {
     private MessageReceiver receiver = new MessageReceiver();
-    private Connection connection = new NettyConnection();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    	Connection connection = ConnectionManager.INSTANCE.get(ctx.channel());
         receiver.onMessage(new Request((Packet) msg, connection));
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
-        ConnectionManager.INSTANCE.remove(connection);
+        ConnectionManager.INSTANCE.remove(ctx.channel());
     }
 
     @Override
     public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) throws Exception {
         super.connect(ctx, remoteAddress, localAddress, promise);
+        Connection connection = new NettyConnection();
         connection.init(ctx.channel());
         ConnectionManager.INSTANCE.add(connection);
     }
@@ -42,12 +43,12 @@ public class ConnectionHandler extends ChannelHandlerAdapter {
     @Override
     public void disconnect(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
         super.disconnect(ctx, promise);
-        ConnectionManager.INSTANCE.remove(connection);
+        ConnectionManager.INSTANCE.remove(ctx.channel());
     }
 
     @Override
     public void close(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
         super.close(ctx, promise);
-        ConnectionManager.INSTANCE.remove(connection);
+        ConnectionManager.INSTANCE.remove(ctx.channel());
     }
 }
