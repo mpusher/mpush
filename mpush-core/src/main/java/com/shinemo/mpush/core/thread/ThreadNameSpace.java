@@ -16,5 +16,9 @@ public class ThreadNameSpace {
 	 * connection 定期检测线程
 	 */
 	public static final String NETTY_TIMER = "mg-timer";
+	
+	public static final String getUniqueName(String serviceName){
+		return "mg-sn-"+serviceName;
+	}
 
 }
