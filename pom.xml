@@ -36,7 +36,6 @@
         <ql-version>1.0.0-SNAPSHOT</ql-version>
         <core-version>1.0.0-SNAPSHOT</core-version>
         <netty.version>5.0.0.Alpha2</netty.version>
-
     </properties>
 
 
@@ -145,7 +144,21 @@
 
         </dependencies>
     </dependencyManagement>
-
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+        </dependency>
+    </dependencies>
 
     <!-- 编译配置 -->
     <build>
