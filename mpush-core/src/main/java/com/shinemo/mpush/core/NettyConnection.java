@@ -40,17 +40,22 @@ public class NettyConnection implements Connection {
 			if (channel.isWritable()) {
 				ChannelFuture wf = channel.writeAndFlush(packet);
 				wf.addListener(new ChannelFutureListener() {
+					
+					@Override
 					public void operationComplete(ChannelFuture future) throws Exception {
-						if (!future.isSuccess()) {
-							log.error("server write response error,request id is: " + packet.toString());
-							if (!channel.isActive()) {
-								channel.close();
+						if(!future.isSuccess()){
+							if(!channel.isActive()){
+								log.warn("send msg false:"+channel.remoteAddress().toString()+","+packet+",channel is not active");
+								ConnectionManager.INSTANCE.remove(channel);
 							}
+							log.warn("send msg false:"+channel.remoteAddress().toString()+","+packet);
+						}else{
+							log.warn("send msg success:"+channel.remoteAddress().toString()+","+packet);
 						}
 					}
 				});
 			}else{
-				//TODO 
+				log.warn("send msg false:"+channel.remoteAddress().toString()+","+packet+", channel is not writable");
 			}
 		}
 	}
