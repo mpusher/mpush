@@ -59,6 +59,12 @@
                 <artifactId>guava</artifactId>
                 <version>19.0</version>
             </dependency>
+            <!--  junit -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.10</version>
+            </dependency>
 
             <!-- ======================================== -->
             <!-- 子项目依赖 -->
