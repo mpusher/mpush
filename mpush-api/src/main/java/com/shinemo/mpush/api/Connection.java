@@ -26,5 +26,7 @@ public interface Connection {
 	boolean isEnable();
 
 	void init(Channel channel);
+	
+	String remoteIp();
     
 }

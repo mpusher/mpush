@@ -117,4 +117,9 @@ public class NettyConnection implements Connection {
 	public boolean isEnable(){
 		return channel.isWritable();
 	}
+
+	@Override
+	public String remoteIp() {
+		return channel.remoteAddress().toString();
+	}
 }

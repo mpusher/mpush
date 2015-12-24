@@ -11,4 +11,5 @@ public interface Constants {
     int HEADER_LEN = 13;
     byte MAGIC_NUM1 = (byte) 33;
     byte MAGIC_NUM2 = (byte) 99;
+    long TIME_DELAY = 58L;
 }
