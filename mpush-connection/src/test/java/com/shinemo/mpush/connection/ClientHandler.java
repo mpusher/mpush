@@ -5,17 +5,14 @@ import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.SocketAddress;
 
 /**
  * Created by ohun on 2015/12/24.
  */
 public class ClientHandler extends ChannelHandlerAdapter {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -27,18 +24,17 @@ public class ClientHandler extends ChannelHandlerAdapter {
         packet.msgId = 1;
         packet.body = "hello word".getBytes(Constants.UTF_8);
         ctx.writeAndFlush(packet);
-        System.out.println("client connect");
+        logger.info("client,",ctx.channel().remoteAddress().toString(),"channelActive");
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-        System.out.println("client channelInactive");
+        logger.info("client,",ctx.channel().remoteAddress().toString(),"channelInactive");
     }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         super.channelRead(ctx, msg);
-        System.out.println(msg);
-        logger.debug("channelRead msg=" + msg);
+        logger.info("client,",ctx.channel().remoteAddress().toString(),"channelRead",msg);
     }
 }
