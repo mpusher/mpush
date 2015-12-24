@@ -4,6 +4,7 @@ import com.shinemo.mpush.api.MessageHandler;
 import com.shinemo.mpush.api.Receiver;
 import com.shinemo.mpush.api.Request;
 import com.shinemo.mpush.core.handler.BindHandler;
+import com.shinemo.mpush.core.handler.HeartBeatHandler;
 import com.shinemo.mpush.core.handler.LoginHandler;
 
 /**
@@ -12,11 +13,13 @@ import com.shinemo.mpush.core.handler.LoginHandler;
 public class MessageReceiver implements Receiver {
     public static final MessageHandler LOGIN_HANDLER = new LoginHandler();
     public static final MessageHandler BIND_HANDLER = new BindHandler();
+    public static final HeartBeatHandler HEART_HANDLER = new HeartBeatHandler();
 
     @Override
     public void onMessage(Request request) {
         switch (request.getCommand()) {
             case Heartbeat:
+            	HEART_HANDLER.handle(request);
                 break;
             case Handshake:
                 break;
