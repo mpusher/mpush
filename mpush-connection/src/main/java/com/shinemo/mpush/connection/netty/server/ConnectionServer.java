@@ -11,9 +11,11 @@ import com.shinemo.mpush.connection.netty.NettySharedHolder;
 import com.shinemo.mpush.connection.netty.encoder.PacketDecoder;
 import com.shinemo.mpush.connection.netty.encoder.PacketEncoder;
 import com.shinemo.mpush.connection.netty.handler.ConnectionHandler;
+import com.shinemo.mpush.core.MessageReceiver;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -84,6 +86,10 @@ public class ConnectionServer {
              * 这里告诉Channel如何获取新的连接.
              */
             b.channel(NioServerSocketChannel.class);
+            
+            MessageReceiver receiver = new MessageReceiver();
+            
+            final ConnectionHandler connectionHandler = new ConnectionHandler(receiver);
 
             /***
              * 这里的事件处理类经常会被用来处理一个最近的已经接收的Channel。
@@ -99,7 +105,7 @@ public class ConnectionServer {
                 public void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(new PacketDecoder());
                     ch.pipeline().addLast(PacketEncoder.INSTANCE);
-                    ch.pipeline().addLast(new ConnectionHandler());
+                    ch.pipeline().addLast(connectionHandler);
                 }
             });
 
