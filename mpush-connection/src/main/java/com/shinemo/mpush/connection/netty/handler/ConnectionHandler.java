@@ -24,7 +24,11 @@ public class ConnectionHandler extends ChannelHandlerAdapter {
 	
 	private static final Logger log = LoggerFactory.getLogger(ConnectionHandler.class);
 	
-    private MessageReceiver receiver = new MessageReceiver();
+    private MessageReceiver receiver;
+    
+    public ConnectionHandler(MessageReceiver receiver) {
+    	this.receiver = receiver;
+	}
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
