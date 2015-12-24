@@ -73,4 +73,6 @@ public class ConnectionHandler extends ChannelHandlerAdapter {
         super.close(ctx, promise);
         ConnectionManager.INSTANCE.remove(ctx.channel());
     }
+    
+    
 }
