@@ -11,7 +11,8 @@ import com.shinemo.mpush.api.protocol.Packet;
 public abstract class BaseMessageHandler<T> implements MessageHandler {
     @Override
     public void handle(Request request) {
-
+        T t = decodeBody(request.getMessage());
+        handle(t, request);
     }
 
     public abstract T decodeBody(Packet packet);

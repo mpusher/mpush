@@ -11,6 +11,7 @@ public enum Command {
     Bind(5),
     Unbind(6),
     Kick(7),
+    FastConnect(8),
     Unknown(-1);
 
     Command(int cmd) {
@@ -20,7 +21,7 @@ public enum Command {
     public final byte cmd;
 
     public static Command toCMD(byte b) {
-        if (b > 0 && b < values().length - 1) return values()[b - 1];
+        if (b > 0 && b < values().length) return values()[b - 1];
         return Unknown;
     }
 }

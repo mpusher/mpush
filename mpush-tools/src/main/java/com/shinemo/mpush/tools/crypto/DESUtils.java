@@ -19,6 +19,10 @@ public final class DESUtils {
         return encryptDES(encryptBytes, 0, encryptBytes.length, encryptKey);
     }
 
+    public static byte[] decryptDES(byte[] byteMi, String decryptKey) {
+        return decryptDES(byteMi, 0, byteMi.length, decryptKey);
+    }
+
     public static byte[] encryptDES(byte[] encryptBytes, int offset, int length, String encryptKey) {
         IvParameterSpec zeroIv = new IvParameterSpec(iv);
         SecretKeySpec key = new SecretKeySpec(encryptKey.getBytes(Constants.UTF_8), "DES");
@@ -30,10 +34,6 @@ public final class DESUtils {
             LOGGER.error("encryptDES ex, decryptKey=" + encryptKey, e);
         }
         return Constants.EMPTY_BYTES;
-    }
-
-    public static byte[] decryptDES(byte[] byteMi, String decryptKey) {
-        return decryptDES(byteMi, 0, byteMi.length, decryptKey);
     }
 
     public static byte[] decryptDES(byte[] byteMi, int offset, int length, String decryptKey) {

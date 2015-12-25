@@ -3,20 +3,24 @@ package com.shinemo.mpush.core.security;
 import com.shinemo.mpush.api.SessionInfo;
 import com.shinemo.mpush.tools.crypto.MD5Utils;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Created by ohun on 2015/12/25.
  */
 public class ReusableTokenManager {
     public static final ReusableTokenManager INSTANCE = new ReusableTokenManager();
     private static final int EXPIRE_TIME = 24 * 60 * 60 * 1000;
-
+    private final Map<String, ReusableToken> tokenCache = new ConcurrentHashMap<String, ReusableToken>();
 
     public boolean saveToken(ReusableToken token) {
+        tokenCache.put(token.tokenId, token);
         return true;
     }
 
-    public ReusableToken getToken() {
-        return new ReusableToken();
+    public ReusableToken getToken(String tokenId) {
+        return tokenCache.get(tokenId);
     }
 
     public ReusableToken genToken(SessionInfo info) {

@@ -53,9 +53,10 @@ public class ClientTest {
 				}
 			});
 			ChannelFuture future = b.connect(host, port).sync(); // (5)
-
+			future.channel().closeFuture().sync();
 			if (future.awaitUninterruptibly(4000) && future.isSuccess()) {
 				final Channel channel = future.channel();
+
 				startHeartBeat(channel);
 			} else {
 				future.cancel(true);
