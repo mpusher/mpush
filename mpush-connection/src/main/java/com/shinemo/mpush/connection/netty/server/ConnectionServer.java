@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.shinemo.mpush.api.Server;
 import com.shinemo.mpush.connection.netty.NettySharedHolder;
 import com.shinemo.mpush.connection.netty.encoder.PacketDecoder;
 import com.shinemo.mpush.connection.netty.encoder.PacketEncoder;
@@ -20,18 +21,19 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by ohun on 2015/12/22.
  */
-public class ConnectionServer {
-	
-	private static final Logger log = LoggerFactory.getLogger(ConnectionServer.class);
-	
+public class ConnectionServer implements Server {
+
+    private static final Logger log = LoggerFactory.getLogger(ConnectionServer.class);
+
     private final AtomicBoolean startFlag = new AtomicBoolean(false);
-    
-    
-    
     private final int port;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
@@ -40,19 +42,30 @@ public class ConnectionServer {
         this.port = port;
     }
 
+    @Override
+    public void init() {
+
+    }
+
+    @Override
+    public boolean isRunning() {
+        return startFlag.get();
+    }
+
+    @Override
     public void stop() {
-    	log.info("netty server stop now");
+        log.info("netty server stop now");
         this.startFlag.set(false);
         if (workerGroup != null) workerGroup.shutdownGracefully();
         if (bossGroup != null) bossGroup.shutdownGracefully();
     }
 
+    @Override
     public void start() {
-    	
         if (!startFlag.compareAndSet(false, true)) {
             return;
         }
-    	
+
         /***
          * NioEventLoopGroup 是用来处理I/O操作的多线程事件循环器，
          * Netty提供了许多不同的EventLoopGroup的实现用来处理不同传输协议。
@@ -64,8 +77,8 @@ public class ConnectionServer {
          * 如何知道多少个线程已经被使用，如何映射到已经创建的Channels上都需要依赖于EventLoopGroup的实现，
          * 并且可以通过构造函数来配置他们的关系。
          */
-        this.bossGroup = new NioEventLoopGroup(0,ThreadPoolUtil.getBossExecutor());
-        this.workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(),ThreadPoolUtil.getWorkExecutor());
+        this.bossGroup = new NioEventLoopGroup(0, ThreadPoolUtil.getBossExecutor());
+        this.workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(), ThreadPoolUtil.getWorkExecutor());
 
         try {
 
@@ -86,10 +99,8 @@ public class ConnectionServer {
              * 这里告诉Channel如何获取新的连接.
              */
             b.channel(NioServerSocketChannel.class);
-            
-            MessageReceiver receiver = new MessageReceiver();
-            
-            final ConnectionHandler connectionHandler = new ConnectionHandler(receiver);
+
+            final ConnectionHandler connectionHandler = new ConnectionHandler(new MessageReceiver());
 
             /***
              * 这里的事件处理类经常会被用来处理一个最近的已经接收的Channel。
@@ -97,7 +108,7 @@ public class ConnectionServer {
              * 他的目的是帮助使用者配置一个新的Channel。
              * 也许你想通过增加一些处理类比如NettyServerHandler来配置一个新的Channel
              * 或者其对应的ChannelPipeline来实现你的网络程序。
-             * 当你的程序变的复杂时，可能你会增加更多的处理类到pipline上，
+             * 当你的程序变的复杂时，可能你会增加更多的处理类到pipeline上，
              * 然后提取这些匿名类到最顶层的类上。
              */
             b.childHandler(new ChannelInitializer<SocketChannel>() { // (4)
@@ -116,33 +127,35 @@ public class ConnectionServer {
              * 请参考ChannelOption和详细的ChannelConfig实现的接口文档以此可以对ChannelOptions的有一个大概的认识。
              */
             b.option(ChannelOption.SO_BACKLOG, 1024);
-            
+
             /***
              * option()是提供给NioServerSocketChannel用来接收进来的连接。
              * childOption()是提供给由父管道ServerChannel接收到的连接，
              * 在这个例子中也是NioServerSocketChannel。
              */
             b.childOption(ChannelOption.SO_KEEPALIVE, true);
-            
-		    b.option(ChannelOption.ALLOCATOR, NettySharedHolder.byteBufAllocator);
-		    b.childOption(ChannelOption.ALLOCATOR, NettySharedHolder.byteBufAllocator);
-            
+
+            b.option(ChannelOption.ALLOCATOR, NettySharedHolder.byteBufAllocator);
+            b.childOption(ChannelOption.ALLOCATOR, NettySharedHolder.byteBufAllocator);
+
 
             /***
              * 绑定端口并启动去接收进来的连接
              */
             ChannelFuture f = b.bind(port).sync();
 
-            log.info("server start ok on:"+port);
-            
-            
+            log.info("server start ok on:" + port);
+
+
             /**
              * 这里会一直等待，直到socket被关闭
              */
             f.channel().closeFuture().sync();
-            
+
+            log.info("server start ok on:" + port);
+
         } catch (Exception e) {
-        	log.error("server start exception",e);
+            log.error("server start exception", e);
             /***
              * 优雅关闭
              */

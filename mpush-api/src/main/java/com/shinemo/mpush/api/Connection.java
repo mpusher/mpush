@@ -9,6 +9,8 @@ import com.shinemo.mpush.api.protocol.Packet;
  */
 public interface Connection {
 
+    void setConnectionInfo(ConnectionInfo info);
+
     String getId();
 
     void send(Packet packet);
@@ -16,17 +18,18 @@ public interface Connection {
     boolean isClosed();
 
     boolean isOpen();
-    
+
     int getHbTimes();
-    
+
     void close();
 
-	boolean isConnected();
+    boolean isConnected();
 
-	boolean isEnable();
+    boolean isEnable();
 
-	void init(Channel channel);
-	
-	String remoteIp();
-    
+    void init(Channel channel);
+
+    String remoteIp();
+
+
 }
