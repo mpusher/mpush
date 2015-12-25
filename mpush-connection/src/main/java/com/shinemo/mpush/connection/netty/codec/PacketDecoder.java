@@ -1,4 +1,4 @@
-package com.shinemo.mpush.connection.netty.encoder;
+package com.shinemo.mpush.connection.netty.codec;
 
 import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.exception.DecodeException;

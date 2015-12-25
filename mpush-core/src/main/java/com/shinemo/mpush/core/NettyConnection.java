@@ -8,7 +8,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
 import com.shinemo.mpush.api.Connection;
-import com.shinemo.mpush.api.ConnectionInfo;
+import com.shinemo.mpush.api.SessionInfo;
 import com.shinemo.mpush.api.protocol.Packet;
 
 /**
@@ -16,115 +16,116 @@ import com.shinemo.mpush.api.protocol.Packet;
  */
 public class NettyConnection implements Connection {
 
-	private static final Logger log = LoggerFactory.getLogger(NettyConnection.class);
+    private static final Logger log = LoggerFactory.getLogger(NettyConnection.class);
 
-	private ConnectionInfo info;
-	private Channel channel;
-	private int status = 0;
+    private SessionInfo info;
+    private Channel channel;
+    private int status = 0;
 
-	private int hbTimes;
-	
-	@Override
-	public void init(Channel channel) {
-		this.channel = channel;
-	}
+    private int hbTimes;
 
-	@Override
-	public String getId() {
-		return channel.id().asLongText();
-	}
+    @Override
+    public void init(Channel channel) {
+        this.channel = channel;
+    }
 
-	@Override
-	public void send(final Packet packet) {
-		if (packet != null) {
-			if (channel.isWritable()) {
-				ChannelFuture wf = channel.writeAndFlush(packet);
-				wf.addListener(new ChannelFutureListener() {
-					
-					@Override
-					public void operationComplete(ChannelFuture future) throws Exception {
-						if(!future.isSuccess()){
-							if(!channel.isActive()){
-								log.warn("send msg false:"+channel.remoteAddress().toString()+","+packet+",channel is not active");
-								ConnectionManager.INSTANCE.remove(channel);
-							}
-							log.warn("send msg false:"+channel.remoteAddress().toString()+","+packet);
-						}else{
-							log.warn("send msg success:"+channel.remoteAddress().toString()+","+packet);
-						}
-					}
-				});
-			}else{
-				log.warn("send msg false:"+channel.remoteAddress().toString()+","+packet+", channel is not writable");
-			}
-		}
-	}
+    @Override
+    public void setSessionInfo(SessionInfo info) {
+        this.info = info;
+    }
 
-	@Override
-	public boolean isClosed() {
-		return false;
-	}
+    @Override
+    public SessionInfo getSessionInfo() {
+        return info;
+    }
 
-	@Override
-	public boolean isOpen() {
-		return false;
-	}
+    @Override
+    public String getId() {
+        return channel.id().asLongText();
+    }
 
-	public ConnectionInfo getInfo() {
-		return info;
-	}
+    @Override
+    public void send(final Packet packet) {
+        if (packet != null) {
+            if (channel.isWritable()) {
+                ChannelFuture wf = channel.writeAndFlush(packet);
+                wf.addListener(new ChannelFutureListener() {
 
-	public void setInfo(ConnectionInfo info) {
-		this.info = info;
-	}
+                    @Override
+                    public void operationComplete(ChannelFuture future) throws Exception {
+                        if (!future.isSuccess()) {
+                            if (!channel.isActive()) {
+                                log.warn("send msg false:" + channel.remoteAddress().toString() + "," + packet + ",channel is not active");
+                                ConnectionManager.INSTANCE.remove(channel);
+                            }
+                            log.warn("send msg false:" + channel.remoteAddress().toString() + "," + packet);
+                        } else {
+                            log.warn("send msg success:" + channel.remoteAddress().toString() + "," + packet);
+                        }
+                    }
+                });
+            } else {
+                log.warn("send msg false:" + channel.remoteAddress().toString() + "," + packet + ", channel is not writable");
+            }
+        }
+    }
 
-	public Channel getChannel() {
-		return channel;
-	}
+    @Override
+    public boolean isClosed() {
+        return false;
+    }
 
-	public int increaseAndGetHbTimes(){
-		return ++hbTimes;
-	}
-	
-	public void resetHbTimes(){
-		hbTimes = 0;
-	}
+    @Override
+    public boolean isOpen() {
+        return false;
+    }
 
-	public int getStatus() {
-		return status;
-	}
+    public Channel getChannel() {
+        return channel;
+    }
 
-	public void setStatus(int status) {
-		this.status = status;
-	}
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
 
+    public int increaseAndGetHbTimes() {
+        return ++hbTimes;
+    }
 
-	public void setChannel(Channel channel) {
-		this.channel = channel;
-	}
+    public void resetHbTimes() {
+        hbTimes = 0;
+    }
 
-	@Override
-	public void close() {
-		this.channel.close();
-	}
+    public int getStatus() {
+        return status;
+    }
 
-	@Override
-	public int getHbTimes() {
-		return hbTimes;
-	}
-	
-	@Override
-	public boolean isConnected(){
-		return channel.isActive();
-	}
-	
-	@Override
-	public boolean isEnable(){
-		return channel.isWritable();
-	}
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
-	@Override
-	public String remoteIp() {
-		return channel.remoteAddress().toString();
-	}
+    @Override
+    public void close() {
+        this.channel.close();
+    }
+
+    @Override
+    public int getHbTimes() {
+        return hbTimes;
+    }
+
+    @Override
+    public boolean isConnected() {
+        return channel.isActive();
+    }
+
+    @Override
+    public boolean isEnable() {
+        return channel.isWritable();
+    }
+
+    @Override
+    public String remoteIp() {
+        return channel.remoteAddress().toString();
+    }
 }

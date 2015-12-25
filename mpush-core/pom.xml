@@ -67,7 +67,10 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.shinemo.mpush</groupId>
+            <artifactId>mpush-tools</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
