@@ -1,6 +1,6 @@
 package com.shinemo.mpush.core.security;
 
-import com.shinemo.mpush.api.ConnectionInfo;
+import com.shinemo.mpush.api.ClientInfo;
 import com.shinemo.mpush.tools.crypto.MD5Utils;
 
 /**
@@ -19,7 +19,7 @@ public class ReusableTokenManager {
         return new ReusableToken();
     }
 
-    public ReusableToken genToken(ConnectionInfo info) {
+    public ReusableToken genToken(ClientInfo info) {
         /**
          * 先生成key，需要保证半个周期内同一个设备生成的key是相同的
          */

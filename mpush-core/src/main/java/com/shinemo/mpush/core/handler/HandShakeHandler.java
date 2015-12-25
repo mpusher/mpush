@@ -1,6 +1,6 @@
 package com.shinemo.mpush.core.handler;
 
-import com.shinemo.mpush.api.ConnectionInfo;
+import com.shinemo.mpush.api.ClientInfo;
 import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.Request;
 import com.shinemo.mpush.api.protocol.Packet;
@@ -29,16 +29,17 @@ public class HandShakeHandler extends BaseMessageHandler<HandShakeMessage> {
     public HandShakeMessage decodeBody(Packet packet) {
         RSAPrivateKey privateKey = CredentialManager.INSTANCE.getPrivateKey();
         byte[] unwarp = RSAUtils.decryptByPrivateKey(packet.body, privateKey);
+
         return new HandShakeMessage();
     }
 
     @Override
     public void handle(HandShakeMessage body, Request request) {
         String serverKey = RandomStringUtils.randomAscii(CryptoUtils.DES_KEY_SIZE);
-        String clientKey = CryptoUtils.fill2Length(body.clientKey, CryptoUtils.DES_KEY_SIZE);
+        String clientKey = body.clientKey;
         String desKey = CryptoUtils.mixString(clientKey, serverKey);//生成混淆密钥
-        ConnectionInfo info = new ConnectionInfo(body.osName, body.osVersion, body.clientVersion, body.deviceId, desKey);
-        request.getConnection().setConnectionInfo(info);
+        ClientInfo info = new ClientInfo(body.osName, body.osVersion, body.clientVersion, body.deviceId, desKey);
+        request.getConnection().setInfo(info);
         ReusableToken token = ReusableTokenManager.INSTANCE.genToken(info);
         ReusableTokenManager.INSTANCE.saveToken(token);
         Map<String, Serializable> resp = new HashMap<String, Serializable>();
@@ -48,7 +49,7 @@ public class HandShakeHandler extends BaseMessageHandler<HandShakeMessage> {
         resp.put("heartbeat", Constants.HEARTBEAT_TIME);
         resp.put("tokenId", token.tokenId);
         resp.put("tokenExpire", token.expireTime);
-        byte[] responseData = DESUtils.decryptDES(Jsons.toJson(resp).getBytes(Constants.UTF_8), desKey);
-        request.getResponse().send(responseData);
+        byte[] responseData = DESUtils.decryptDES(Jsons.toJson(resp).getBytes(Constants.UTF_8), clientKey);
+        request.getResponse().sendRaw(responseData);
     }
 }

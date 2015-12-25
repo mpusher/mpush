@@ -8,7 +8,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
 import com.shinemo.mpush.api.Connection;
-import com.shinemo.mpush.api.ConnectionInfo;
+import com.shinemo.mpush.api.ClientInfo;
 import com.shinemo.mpush.api.protocol.Packet;
 
 /**
@@ -18,7 +18,7 @@ public class NettyConnection implements Connection {
 
 	private static final Logger log = LoggerFactory.getLogger(NettyConnection.class);
 
-	private ConnectionInfo info;
+	private ClientInfo info;
 	private Channel channel;
 	private int status = 0;
 
@@ -30,7 +30,7 @@ public class NettyConnection implements Connection {
 	}
 
 	@Override
-	public void setConnectionInfo(ConnectionInfo info) {
+	public void setClientInfo(ClientInfo info) {
 		this.info = info;
 	}
 
@@ -75,12 +75,8 @@ public class NettyConnection implements Connection {
 		return false;
 	}
 
-	public ConnectionInfo getInfo() {
+	public ClientInfo getClientInfo() {
 		return info;
-	}
-
-	public void setInfo(ConnectionInfo info) {
-		this.info = info;
 	}
 
 	public Channel getChannel() {

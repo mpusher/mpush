@@ -23,7 +23,7 @@ public class ConnectionHandler extends ChannelHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         System.out.println("channelRead msg=" + msg);
         logger.debug("channelRead msg=" + msg);
-        receiver.onMessage(new Request((Packet) msg, connection));
+        receiver.onMessage((Packet) msg, connection);
     }
 
     @Override
