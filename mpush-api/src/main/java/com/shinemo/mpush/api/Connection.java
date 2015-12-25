@@ -9,7 +9,9 @@ import com.shinemo.mpush.api.protocol.Packet;
  */
 public interface Connection {
 
-    void setConnectionInfo(ConnectionInfo info);
+    void setClientInfo(ClientInfo info);
+
+    ClientInfo getClientInfo();
 
     String getId();
 
