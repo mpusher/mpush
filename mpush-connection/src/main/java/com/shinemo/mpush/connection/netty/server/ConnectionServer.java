@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.api.Server;
 import com.shinemo.mpush.connection.netty.NettySharedHolder;
-import com.shinemo.mpush.connection.netty.encoder.PacketDecoder;
-import com.shinemo.mpush.connection.netty.encoder.PacketEncoder;
+import com.shinemo.mpush.connection.netty.codec.PacketDecoder;
+import com.shinemo.mpush.connection.netty.codec.PacketEncoder;
 import com.shinemo.mpush.connection.netty.handler.ConnectionHandler;
 import com.shinemo.mpush.core.MessageReceiver;
 import com.shinemo.mpush.core.thread.ThreadPoolUtil;
@@ -21,10 +21,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by ohun on 2015/12/22.
