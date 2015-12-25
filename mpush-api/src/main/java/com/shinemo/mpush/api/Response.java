@@ -1,26 +1,13 @@
 package com.shinemo.mpush.api;
 
-import com.shinemo.mpush.api.protocol.Packet;
-
 /**
  * Created by ohun on 2015/12/22.
  */
-public class Response {
-    private final Packet packet;
-    private final Connection connection;
+public interface Response {
 
-    public Response(Packet packet, Connection connection) {
-        this.packet = packet;
-        this.connection = connection;
-    }
+    void send(byte[] body);
 
-    public void send(byte[] body) {
-        packet.body = body;
-        connection.send(packet);
-    }
+    void sendRaw(byte[] body);
 
-
-    public void sendError(byte[] reson) {
-
-    }
+    void sendError(byte[] reason);
 }

@@ -16,5 +16,5 @@ public abstract class BaseMessageHandler<T> implements MessageHandler {
 
     public abstract T decodeBody(Packet packet);
 
-    public abstract void handle(T t, Request request);
+    public abstract void handle(T body, Request request);
 }

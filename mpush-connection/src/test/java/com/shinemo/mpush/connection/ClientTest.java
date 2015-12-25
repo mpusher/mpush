@@ -10,8 +10,8 @@ import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.connection.netty.NettySharedHolder;
-import com.shinemo.mpush.connection.netty.encoder.PacketDecoder;
-import com.shinemo.mpush.connection.netty.encoder.PacketEncoder;
+import com.shinemo.mpush.connection.netty.codec.PacketDecoder;
+import com.shinemo.mpush.connection.netty.codec.PacketEncoder;
 import com.shinemo.mpush.core.ConnectionManager;
 
 import io.netty.bootstrap.Bootstrap;
