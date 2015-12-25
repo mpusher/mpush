@@ -16,7 +16,16 @@ public class ConnectionServerTest {
 
 	@Test
     public void testStart() throws Exception {
-        ConnectionServer server = new ConnectionServer(3000);
+        final ConnectionServer server = new ConnectionServer(3000);
         server.start();
+        
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                try {
+                	server.stop();
+                } catch (Exception e) {
+                }
+            }
+        });
     }
 }

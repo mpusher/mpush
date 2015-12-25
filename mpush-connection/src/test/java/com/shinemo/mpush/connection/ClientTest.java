@@ -83,6 +83,8 @@ public class ClientTest {
 				future.cancel(true);
 				future.channel().close();
 			}
+			
+			log.error("for test");
 
 		} catch (Exception e) {
 			e.printStackTrace();

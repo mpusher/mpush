@@ -32,7 +32,7 @@ public class ConnectionHandler extends ChannelHandlerAdapter {
 	
     private MessageReceiver receiver;
     
-    private static Executor executor = ThreadPoolUtil.getThreadPoolManager().getThreadExecutor(ThreadNameSpace.NETTY_WORKER);
+    
     
     public ConnectionHandler(MessageReceiver receiver) {
     	this.receiver = receiver;
