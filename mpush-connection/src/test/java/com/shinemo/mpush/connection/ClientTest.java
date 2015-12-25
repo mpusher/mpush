@@ -13,7 +13,6 @@ import com.shinemo.mpush.connection.netty.NettySharedHolder;
 import com.shinemo.mpush.connection.netty.encoder.PacketDecoder;
 import com.shinemo.mpush.connection.netty.encoder.PacketEncoder;
 import com.shinemo.mpush.core.ConnectionManager;
-import com.shinemo.mpush.core.message.HeartBeatMessage;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -57,28 +56,7 @@ public class ClientTest {
 
 			if (future.awaitUninterruptibly(4000) && future.isSuccess()) {
 				final Channel channel = future.channel();
-				NettySharedHolder.timer.newTimeout(new TimerTask() {
-					@Override
-					public void run(Timeout timeout) throws Exception {
-						final Packet packet = buildHeartBeat();
-						ChannelFuture channelFuture = channel.writeAndFlush(packet);
-						channelFuture.addListener(new ChannelFutureListener() {
-							
-							@Override
-							public void operationComplete(ChannelFuture future) throws Exception {
-								if(!future.isSuccess()){
-									if(!channel.isActive()){
-										log.warn("client send msg false:"+channel.remoteAddress().toString()+","+packet+",channel is not active");
-										ConnectionManager.INSTANCE.remove(channel);
-									}
-									log.warn("client send msg false:"+channel.remoteAddress().toString()+","+packet);
-								}else{
-									log.warn("client send msg success:"+channel.remoteAddress().toString()+","+packet);
-								}
-							}
-						});
-					}
-				}, Constants.TIME_DELAY, TimeUnit.SECONDS);
+				startHeartBeat(channel);
 			} else {
 				future.cancel(true);
 				future.channel().close();
@@ -93,7 +71,36 @@ public class ClientTest {
 		}
 
 	}
-
+	
+	public void startHeartBeat(final Channel channel){
+		NettySharedHolder.timer.newTimeout(new TimerTask() {
+			@Override
+			public void run(Timeout timeout) throws Exception {
+				try{
+					final Packet packet = buildHeartBeat();
+					ChannelFuture channelFuture = channel.writeAndFlush(packet);
+					channelFuture.addListener(new ChannelFutureListener() {
+						
+						@Override
+						public void operationComplete(ChannelFuture future) throws Exception {
+							if(!future.isSuccess()){
+								if(!channel.isActive()){
+									log.warn("client send msg false:"+channel.remoteAddress().toString()+","+packet+",channel is not active");
+									ConnectionManager.INSTANCE.remove(channel);
+								}
+								log.warn("client send msg false:"+channel.remoteAddress().toString()+","+packet);
+							}else{
+								log.warn("client send msg success:"+channel.remoteAddress().toString()+","+packet);
+							}
+						}
+					});
+				}finally{
+					NettySharedHolder.timer.newTimeout(this, Constants.TIME_DELAY, TimeUnit.SECONDS);
+				}
+			}
+		}, Constants.TIME_DELAY, TimeUnit.SECONDS);
+	}
+	
 	private static Packet buildHeartBeat() {
 		Packet packet = new Packet();
 		packet.command = Command.Heartbeat.cmd;
@@ -102,4 +109,7 @@ public class ClientTest {
 		packet.msgId = 1;
 		return packet;
 	}
+
+
+
 }
