@@ -26,6 +26,8 @@ import com.shinemo.mpush.core.util.JVMUtil;
 
 public class ThreadPoolManager {
 	
+	private static final Logger log = LoggerFactory.getLogger(ThreadPoolManager.class);
+	
 	private static final long keepAliveTime = 300L;
 	
 	private final RejectedExecutionHandler handler = new IgnoreRunsPolicy();
@@ -131,6 +133,44 @@ public class ThreadPoolManager {
         }
     }
 	
+    /**
+     * 不存在，则创建
+     * @param serviceUniqueName
+     * @param corePoolSize
+     * @param maximumPoolSize
+     * @return
+     * @throws Exception
+     */
+    public Executor getThreadExecutor(String serviceUniqueName,int corePoolSize, int maximumPoolSize) {
+        if (!poolCache.isEmpty()) {
+            ThreadPoolExecutor executor = poolCache.get(serviceUniqueName);
+            if (executor != null) {
+                return executor;
+            }else{
+            	try{
+                	allocThreadpool(serviceUniqueName, corePoolSize, maximumPoolSize);
+            	}catch(Exception e){
+            		log.error("allocThreadPool exception",e);
+            	}
+            }
+            executor = poolCache.get(serviceUniqueName);
+            if(executor!=null){
+            	return executor;
+            }
+        }else{
+        	try{
+            	allocThreadpool(serviceUniqueName, corePoolSize, maximumPoolSize);
+        	}catch(Exception e){
+        		log.error("allocThreadPool exception",e);
+        	}
+        	 ThreadPoolExecutor executor = poolCache.get(serviceUniqueName);
+             if (executor != null) {
+                 return executor;
+             }
+        }
+        return defaultPoolExecutor;
+    }
+    
     public Executor getThreadExecutor(String serviceUniqueName) {
         if (!poolCache.isEmpty()) {
             ThreadPoolExecutor executor = poolCache.get(serviceUniqueName);

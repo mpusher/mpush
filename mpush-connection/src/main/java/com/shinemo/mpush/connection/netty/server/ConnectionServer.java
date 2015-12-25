@@ -1,21 +1,19 @@
 package com.shinemo.mpush.connection.netty.server;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.connection.netty.NettySharedHolder;
 import com.shinemo.mpush.connection.netty.encoder.PacketDecoder;
 import com.shinemo.mpush.connection.netty.encoder.PacketEncoder;
 import com.shinemo.mpush.connection.netty.handler.ConnectionHandler;
 import com.shinemo.mpush.core.MessageReceiver;
+import com.shinemo.mpush.core.thread.ThreadPoolUtil;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -31,6 +29,8 @@ public class ConnectionServer {
 	private static final Logger log = LoggerFactory.getLogger(ConnectionServer.class);
 	
     private final AtomicBoolean startFlag = new AtomicBoolean(false);
+    
+    
     
     private final int port;
     private EventLoopGroup bossGroup;
@@ -64,8 +64,8 @@ public class ConnectionServer {
          * 如何知道多少个线程已经被使用，如何映射到已经创建的Channels上都需要依赖于EventLoopGroup的实现，
          * 并且可以通过构造函数来配置他们的关系。
          */
-        this.bossGroup = new NioEventLoopGroup();
-        this.workerGroup = new NioEventLoopGroup();
+        this.bossGroup = new NioEventLoopGroup(0,ThreadPoolUtil.getBossExecutor());
+        this.workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(),ThreadPoolUtil.getWorkExecutor());
 
         try {
 
@@ -134,6 +134,7 @@ public class ConnectionServer {
             ChannelFuture f = b.bind(port).sync();
 
             log.info("server start ok on:"+port);
+            
             
             /**
              * 这里会一直等待，直到socket被关闭
