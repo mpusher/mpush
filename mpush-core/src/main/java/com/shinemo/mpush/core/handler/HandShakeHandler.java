@@ -1,6 +1,6 @@
 package com.shinemo.mpush.core.handler;
 
-import com.shinemo.mpush.api.ClientInfo;
+import com.shinemo.mpush.api.SessionInfo;
 import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.Request;
 import com.shinemo.mpush.api.protocol.Packet;
@@ -38,8 +38,8 @@ public class HandShakeHandler extends BaseMessageHandler<HandShakeMessage> {
         String serverKey = RandomStringUtils.randomAscii(CryptoUtils.DES_KEY_SIZE);
         String clientKey = body.clientKey;
         String desKey = CryptoUtils.mixString(clientKey, serverKey);//生成混淆密钥
-        ClientInfo info = new ClientInfo(body.osName, body.osVersion, body.clientVersion, body.deviceId, desKey);
-        request.getConnection().setInfo(info);
+        SessionInfo info = new SessionInfo(body.osName, body.osVersion, body.clientVersion, body.deviceId, desKey);
+        request.getConnection().setClientInfo(info);
         ReusableToken token = ReusableTokenManager.INSTANCE.genToken(info);
         ReusableTokenManager.INSTANCE.saveToken(token);
         Map<String, Serializable> resp = new HashMap<String, Serializable>();

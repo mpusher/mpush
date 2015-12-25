@@ -5,7 +5,9 @@ import com.shinemo.mpush.tools.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.math.BigInteger;
 import java.security.*;
@@ -83,24 +85,19 @@ public class RSAUtils {
      * @return
      * @throws Exception
      */
-    public static byte[] encryptByPublicKey(byte[] data, RSAPublicKey publicKey)
-            throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-        // 模长
-        int key_len = publicKey.getModulus().bitLength() / 8;
-        // 加密数据长度 <= 模长-11
-        byte[][] arrays = splitArray(data, key_len - 11);
-        //如果明文长度大于模长-11则要分组加密
-        byte[] result = new byte[0];
-        for (byte[] arr : arrays) {
-            byte[] buffer = cipher.doFinal(arr);
-            byte[] tmp = new byte[result.length + buffer.length];
-            System.arraycopy(result, 0, tmp, 0, result.length);
-            System.arraycopy(buffer, 0, tmp, result.length, tmp.length);
-            result = tmp;
+    public static byte[] encryptByPublicKey(byte[] data, RSAPublicKey publicKey) {
+        try {
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            // 模长
+            int key_len = publicKey.getModulus().bitLength() / 8;
+            // 加密数据长度 <= 模长-11
+            byte[][] arrays = splitArray(data, key_len - 11);
+            //如果明文长度大于模长-11则要分组加密
+            return doFinal(cipher, arrays);
+        } catch (Exception e) {
         }
-        return result;
+        return Constants.EMPTY_BYTES;
     }
 
     /**
@@ -117,21 +114,49 @@ public class RSAUtils {
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             //模长
             int key_len = privateKey.getModulus().bitLength() / 8;
-            // byte[] bcd = ASCII_To_BCD(data, data.length);
+            //byte[] bcd = ASCII_To_BCD(data, data.length);
             //如果密文长度大于模长则要分组解密
             byte[][] arrays = splitArray(data, key_len);
-            byte[] result = new byte[0];
-            for (byte[] arr : arrays) {
-                byte[] buffer = cipher.doFinal(arr);
-                byte[] tmp = new byte[result.length + buffer.length];
-                System.arraycopy(result, 0, tmp, 0, result.length);
-                System.arraycopy(buffer, 0, tmp, result.length, tmp.length);
-                result = tmp;
-            }
-            return result;
+            return doFinal(cipher, arrays);
         } catch (Exception e) {
         }
-        return new byte[0];
+        return Constants.EMPTY_BYTES;
+    }
+
+    private static byte[] doFinal(Cipher cipher, byte[][] arrays) throws BadPaddingException, IllegalBlockSizeException {
+        byte[] result = new byte[0];
+        for (byte[] arr : arrays) {
+            byte[] buffer = cipher.doFinal(arr);
+            byte[] tmp = new byte[result.length + buffer.length];
+            System.arraycopy(result, 0, tmp, 0, result.length);
+            System.arraycopy(buffer, 0, tmp, result.length, tmp.length);
+            result = tmp;
+        }
+        return result;
+    }
+
+    /**
+     * 拆分数组
+     */
+    public static byte[][] splitArray(byte[] data, int len) {
+        int x = data.length / len;
+        int y = data.length % len;
+        int z = 0;
+        if (y != 0) {
+            z = 1;
+        }
+        byte[][] arrays = new byte[x + z][];
+        byte[] arr;
+        for (int i = 0; i < x + z; i++) {
+            arr = new byte[len];
+            if (i == x + z - 1 && y != 0) {
+                System.arraycopy(data, i * len, arr, 0, y);
+            } else {
+                System.arraycopy(data, i * len, arr, 0, len);
+            }
+            arrays[i] = arr;
+        }
+        return arrays;
     }
 
     /**
@@ -200,37 +225,12 @@ public class RSAUtils {
         return strings;
     }
 
-    /**
-     * 拆分数组
-     */
-    public static byte[][] splitArray(byte[] data, int len) {
-        int x = data.length / len;
-        int y = data.length % len;
-        int z = 0;
-        if (y != 0) {
-            z = 1;
-        }
-        byte[][] arrays = new byte[x + z][];
-        byte[] arr;
-        for (int i = 0; i < x + z; i++) {
-            arr = new byte[len];
-            if (i == x + z - 1 && y != 0) {
-                System.arraycopy(data, i * len, arr, 0, y);
-            } else {
-                System.arraycopy(data, i * len, arr, 0, len);
-            }
-            arrays[i] = arr;
-        }
-        return arrays;
-    }
 
     public static void main(String[] args) throws Exception {
-        // TODO Auto-generated method stub
         Pair<RSAPublicKey, RSAPrivateKey> pair = RSAUtils.getKeys();
         //生成公钥和私钥
         RSAPublicKey publicKey = pair.key;
         RSAPrivateKey privateKey = pair.value;
-
         //模
         String modulus = publicKey.getModulus().toString();
         //公钥指数
@@ -239,14 +239,15 @@ public class RSAUtils {
         String private_exponent = privateKey.getPrivateExponent().toString();
         //明文
         byte[] ming = "123456789".getBytes(Constants.UTF_8);
+        System.out.println("明文：" + new String(ming, Constants.UTF_8));
         //使用模和指数生成公钥和私钥
         RSAPublicKey pubKey = RSAUtils.getPublicKey(modulus, public_exponent);
         RSAPrivateKey priKey = RSAUtils.getPrivateKey(modulus, private_exponent);
         //加密后的密文
         byte[] mi = RSAUtils.encryptByPublicKey(ming, pubKey);
-        System.err.println(new String(mi, Constants.UTF_8));
+        System.out.println("密文：" + new String(mi, Constants.UTF_8));
         //解密后的明文
         ming = RSAUtils.decryptByPrivateKey(mi, priKey);
-        System.err.println(new String(ming, Constants.UTF_8));
+        System.out.println("解密：" + new String(ming, Constants.UTF_8));
     }
 }
