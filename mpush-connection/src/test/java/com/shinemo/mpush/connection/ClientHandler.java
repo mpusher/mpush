@@ -32,6 +32,7 @@ public class ClientHandler extends ChannelHandlerAdapter {
         super.channelInactive(ctx);
         logger.info("client,"+ctx.channel().remoteAddress().toString(),"channelInactive");
     }
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         super.channelRead(ctx, msg);

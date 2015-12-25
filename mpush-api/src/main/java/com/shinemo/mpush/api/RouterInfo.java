@@ -4,20 +4,20 @@ package com.shinemo.mpush.api;
  * Created by ohun on 2015/12/23.
  */
 public class RouterInfo {
-    private String ip;
-    private String os;
+    private String serverIp;
+    private String osName;
     private String clientVer;
 
-    public RouterInfo(String ip) {
-        this.ip = ip;
+    public RouterInfo(String serverIp) {
+        this.serverIp = serverIp;
     }
 
-    public String getOs() {
-        return os;
+    public String getOsName() {
+        return osName;
     }
 
-    public void setOs(String os) {
-        this.os = os;
+    public void setOsName(String osName) {
+        this.osName = osName;
     }
 
     public String getClientVer() {
@@ -28,11 +28,11 @@ public class RouterInfo {
         this.clientVer = clientVer;
     }
 
-    public String getIp() {
-        return ip;
+    public String getServerIp() {
+        return serverIp;
     }
 
-    public void setIp(String ip) {
-        this.ip = ip;
+    public void setServerIp(String serverIp) {
+        this.serverIp = serverIp;
     }
 }

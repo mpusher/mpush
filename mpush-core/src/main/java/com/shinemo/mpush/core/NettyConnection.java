@@ -30,6 +30,11 @@ public class NettyConnection implements Connection {
 	}
 
 	@Override
+	public void setConnectionInfo(ConnectionInfo info) {
+		this.info = info;
+	}
+
+	@Override
 	public String getId() {
 		return channel.id().asLongText();
 	}

@@ -147,7 +147,16 @@
                 <artifactId>spring-data-redis</artifactId>
                 <version>1.6.1.RELEASE</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.4</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.5</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
