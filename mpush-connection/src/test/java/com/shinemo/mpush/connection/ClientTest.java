@@ -95,7 +95,9 @@ public class ClientTest {
 						}
 					});
 				}finally{
-					NettySharedHolder.timer.newTimeout(this, Constants.TIME_DELAY, TimeUnit.SECONDS);
+					if(channel.isActive()){
+						NettySharedHolder.timer.newTimeout(this, Constants.TIME_DELAY, TimeUnit.SECONDS);
+					}
 				}
 			}
 		}, Constants.TIME_DELAY, TimeUnit.SECONDS);
