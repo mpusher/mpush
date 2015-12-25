@@ -1,5 +1,8 @@
 package com.shinemo.mpush.api.protocol;
 
+import com.google.common.base.Strings;
+import com.shinemo.mpush.api.Constants;
+
 import java.io.Serializable;
 
 import java.util.Arrays;
@@ -20,6 +23,9 @@ public class Packet implements Serializable {
         return body == null ? 0 : body.length;
     }
 
+    public String getStringBody() {
+        return body == null ? "" : new String(body, Constants.UTF_8);
+    }
 
     @Override
     public String toString() {

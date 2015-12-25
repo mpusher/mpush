@@ -14,6 +14,8 @@ import com.shinemo.mpush.tools.crypto.CryptoUtils;
 import com.shinemo.mpush.tools.crypto.DESUtils;
 import com.shinemo.mpush.tools.crypto.RSAUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.security.interfaces.RSAPrivateKey;
@@ -24,13 +26,13 @@ import java.util.Map;
  * Created by ohun on 2015/12/24.
  */
 public class HandShakeHandler extends BaseMessageHandler<HandShakeMessage> {
+    public static final Logger LOGGER = LoggerFactory.getLogger(HandShakeHandler.class);
 
     @Override
     public HandShakeMessage decodeBody(Packet packet) {
         RSAPrivateKey privateKey = CredentialManager.INSTANCE.getPrivateKey();
-        byte[] unwarp = RSAUtils.decryptByPrivateKey(packet.body, privateKey);
-
-        return new HandShakeMessage();
+        byte[] rawData = RSAUtils.decryptByPrivateKey(packet.body, privateKey);
+        return Jsons.fromJson(new String(rawData, Constants.UTF_8), HandShakeMessage.class);
     }
 
     @Override
@@ -39,7 +41,7 @@ public class HandShakeHandler extends BaseMessageHandler<HandShakeMessage> {
         String clientKey = body.clientKey;
         String desKey = CryptoUtils.mixString(clientKey, serverKey);//生成混淆密钥
         SessionInfo info = new SessionInfo(body.osName, body.osVersion, body.clientVersion, body.deviceId, desKey);
-        request.getConnection().setClientInfo(info);
+        request.getConnection().setSessionInfo(info);
         ReusableToken token = ReusableTokenManager.INSTANCE.genToken(info);
         ReusableTokenManager.INSTANCE.saveToken(token);
         Map<String, Serializable> resp = new HashMap<String, Serializable>();
@@ -49,7 +51,9 @@ public class HandShakeHandler extends BaseMessageHandler<HandShakeMessage> {
         resp.put("heartbeat", Constants.HEARTBEAT_TIME);
         resp.put("tokenId", token.tokenId);
         resp.put("tokenExpire", token.expireTime);
-        byte[] responseData = DESUtils.decryptDES(Jsons.toJson(resp).getBytes(Constants.UTF_8), clientKey);
+        byte[] responseData = DESUtils.encryptDES(Jsons.toJson(resp).getBytes(Constants.UTF_8), clientKey);
         request.getResponse().sendRaw(responseData);
+        LOGGER.info("会话密钥：{}，clientKey={}, serverKey={}", desKey, clientKey, serverKey);
+
     }
 }

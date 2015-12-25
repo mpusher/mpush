@@ -34,13 +34,13 @@ public class ConnectionHandler extends ChannelHandlerAdapter {
         log.warn(ctx.channel().remoteAddress() + ",  channelRead");
         Connection connection = ConnectionManager.INSTANCE.get(ctx.channel());
 
-        receiver.onMessage(new Request((Packet) msg, connection));
+        receiver.onMessage((Packet) msg, connection);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         ConnectionManager.INSTANCE.remove(ctx.channel());
-        log.warn(ctx.channel().remoteAddress() + ", exceptionCaught");
+        log.error(ctx.channel().remoteAddress() + ", exceptionCaught", cause);
     }
 
     @Override

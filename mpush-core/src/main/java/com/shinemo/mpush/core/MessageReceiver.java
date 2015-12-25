@@ -5,9 +5,7 @@ import com.shinemo.mpush.api.MessageHandler;
 import com.shinemo.mpush.api.Receiver;
 import com.shinemo.mpush.api.Request;
 import com.shinemo.mpush.api.protocol.Packet;
-import com.shinemo.mpush.core.handler.BindHandler;
-import com.shinemo.mpush.core.handler.HeartBeatHandler;
-import com.shinemo.mpush.core.handler.LoginHandler;
+import com.shinemo.mpush.core.handler.*;
 import com.shinemo.mpush.core.message.NettyRequest;
 
 /**
@@ -16,7 +14,9 @@ import com.shinemo.mpush.core.message.NettyRequest;
 public class MessageReceiver implements Receiver {
     public static final MessageHandler LOGIN_HANDLER = new LoginHandler();
     public static final MessageHandler BIND_HANDLER = new BindHandler();
-    public static final HeartBeatHandler HEART_HANDLER = new HeartBeatHandler();
+    public static final MessageHandler HEART_HANDLER = new HeartBeatHandler();
+    public static final MessageHandler HAND_SHAKE_HANDLER = new HandShakeHandler();
+    public static final MessageHandler FAST_CONNECT_HANDLER = new FastConnectHandler();
 
     @Override
     public void onMessage(Packet packet, Connection connection) {
@@ -26,6 +26,7 @@ public class MessageReceiver implements Receiver {
                 HEART_HANDLER.handle(request);
                 break;
             case Handshake:
+                HAND_SHAKE_HANDLER.handle(request);
                 break;
             case Login:
                 LOGIN_HANDLER.handle(request);
@@ -34,6 +35,9 @@ public class MessageReceiver implements Receiver {
                 BIND_HANDLER.handle(request);
                 break;
             case Kick:
+                break;
+            case FastConnect:
+                FAST_CONNECT_HANDLER.handle(request);
                 break;
             case Unknown:
                 break;
