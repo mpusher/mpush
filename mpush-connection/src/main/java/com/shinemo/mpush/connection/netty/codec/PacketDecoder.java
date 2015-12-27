@@ -83,5 +83,4 @@ public class PacketDecoder extends ByteToMessageDecoder {
         packet.body = body;
         return packet;
     }
-
 }

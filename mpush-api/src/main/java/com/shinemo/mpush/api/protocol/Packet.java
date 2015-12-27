@@ -27,6 +27,14 @@ public class Packet implements Serializable {
         return body == null ? "" : new String(body, Constants.UTF_8);
     }
 
+    public void setFlag(byte flag) {
+        this.flags |= flag;
+    }
+
+    public boolean hasFlag(byte flag) {
+        return (flags & flag) != 0;
+    }
+
     @Override
     public String toString() {
         return "Packet{" +

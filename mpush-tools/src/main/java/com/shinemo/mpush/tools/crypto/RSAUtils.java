@@ -20,12 +20,7 @@ import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 /**
- * * <p>
  * RSA公钥/私钥/签名工具包
- * </p>
- * <p>
- * 罗纳德·李维斯特（Ron [R]ivest）、阿迪·萨莫尔（Adi [S]hamir）和伦纳德·阿德曼（Leonard [A]dleman）
- * </p>
  * <p>
  * 字符串格式的密钥在未在特殊说明情况下都为BASE64编码格式<br/>
  * 由于非对称加密速度极其缓慢，一般文件不使用它来加密而是使用对称加密，<br/>
@@ -33,10 +28,20 @@ import java.security.spec.X509EncodedKeySpec;
  */
 public class RSAUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(RSAUtils.class);
+
+    /**
+     * 密钥位数
+     */
+    private static final int RAS_KEY_SIZE = 1024;
+
     /**
      * 加密算法RSA
      */
     public static final String KEY_ALGORITHM = "RSA";
+
+    /**
+     * 填充方式
+     */
     public static final String KEY_ALGORITHM_PADDING = "RSA/ECB/PKCS1Padding";
 
     /**
@@ -45,14 +50,15 @@ public class RSAUtils {
     public static final String SIGNATURE_ALGORITHM = "MD5withRSA";
 
     /**
-     * RSA最大加密明文大小
-     */
-    private static final int MAX_ENCRYPT_BLOCK = 117;
-
-    /**
      * RSA最大解密密文大小
      */
     private static final int MAX_DECRYPT_BLOCK = 128;
+
+    /**
+     * RSA最大加密明文大小
+     */
+    private static final int MAX_ENCRYPT_BLOCK = 128 - 11;
+
 
     /**
      * 生成公钥和私钥
@@ -62,7 +68,7 @@ public class RSAUtils {
     public static Pair<RSAPublicKey, RSAPrivateKey> genKeyPair() {
         try {
             KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(KEY_ALGORITHM);
-            keyPairGen.initialize(1024);
+            keyPairGen.initialize(RAS_KEY_SIZE);
             KeyPair keyPair = keyPairGen.generateKeyPair();
             RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
             RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
@@ -73,11 +79,24 @@ public class RSAUtils {
         return null;
     }
 
-
+    /**
+     * 编码密钥，便于存储
+     *
+     * @param key
+     * @return
+     * @throws Exception
+     */
     public static String encodeBase64(Key key) throws Exception {
         return Base64Utils.encode(key.getEncoded());
     }
 
+    /**
+     * 从字符串解码私钥
+     *
+     * @param key
+     * @return
+     * @throws Exception
+     */
     public static PrivateKey decodePrivateKey(String key) throws Exception {
         byte[] keyBytes = Base64Utils.decode(key);
         PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
@@ -85,6 +104,13 @@ public class RSAUtils {
         return keyFactory.generatePrivate(pkcs8KeySpec);
     }
 
+    /**
+     * 从字符串解码公钥
+     *
+     * @param publicKey
+     * @return
+     * @throws Exception
+     */
     public static PublicKey decodePublicKey(String publicKey) throws Exception {
         byte[] keyBytes = Base64Utils.decode(publicKey);
         X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
@@ -94,9 +120,7 @@ public class RSAUtils {
 
 
     /**
-     * <p>
      * 用私钥对信息生成数字签名
-     * </p>
      *
      * @param data       已加密数据
      * @param privateKey 私钥(BASE64编码)
@@ -111,9 +135,7 @@ public class RSAUtils {
     }
 
     /**
-     * <p>
      * 校验数字签名
-     * </p>
      *
      * @param data      已加密数据
      * @param publicKey 公钥(BASE64编码)
@@ -131,7 +153,8 @@ public class RSAUtils {
 
     /**
      * 使用模和指数生成RSA公钥
-     * 注意：【此代码用了默认补位方式，为RSA/None/PKCS1Padding，不同JDK默认的补位方式可能不同，如Android默认是RSA
+     * 注意：【此代码用了默认补位方式，为RSA/None/PKCS1Padding，
+     * 不同JDK默认的补位方式可能不同，如Android默认是RSA
      * /None/NoPadding】
      *
      * @param modulus  模
@@ -153,7 +176,8 @@ public class RSAUtils {
 
     /**
      * 使用模和指数生成RSA私钥
-     * 注意：【此代码用了默认补位方式，为RSA/None/PKCS1Padding，不同JDK默认的补位方式可能不同，如Android默认是RSA
+     * 注意：【此代码用了默认补位方式，为RSA/None/PKCS1Padding，
+     * 不同JDK默认的补位方式可能不同，如Android默认是RSA
      * /None/NoPadding】
      *
      * @param modulus  模
@@ -219,7 +243,9 @@ public class RSAUtils {
     }
 
     /**
-     * 注意：RSA加密明文最大长度117字节，解密要求密文最大长度为128字节，所以在加密和解密的过程中需要分块进行。
+     * 注意：RSA加密明文最大长度117字节，
+     * 解密要求密文最大长度为128字节，
+     * 所以在加密和解密的过程中需要分块进行。
      *
      * @param cipher
      * @param data
@@ -241,9 +267,7 @@ public class RSAUtils {
     }
 
     /**
-     * <P>
      * 私钥解密
-     * </p>
      *
      * @param data       已加密数据
      * @param privateKey 私钥(BASE64编码)
@@ -258,9 +282,7 @@ public class RSAUtils {
     }
 
     /**
-     * <p>
      * 公钥解密
-     * </p>
      *
      * @param data      已加密数据
      * @param publicKey 公钥(BASE64编码)
@@ -275,9 +297,7 @@ public class RSAUtils {
     }
 
     /**
-     * <p>
      * 公钥加密
-     * </p>
      *
      * @param data      源数据
      * @param publicKey 公钥(BASE64编码)
@@ -293,9 +313,7 @@ public class RSAUtils {
     }
 
     /**
-     * <p>
      * 私钥加密
-     * </p>
      *
      * @param data       源数据
      * @param privateKey 私钥(BASE64编码)
