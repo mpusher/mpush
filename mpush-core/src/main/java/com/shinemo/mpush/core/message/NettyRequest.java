@@ -1,31 +1,51 @@
 package com.shinemo.mpush.core.message;
 
-import com.shinemo.mpush.api.Connection;
-import com.shinemo.mpush.api.Request;
-import com.shinemo.mpush.api.Response;
+import com.shinemo.mpush.api.*;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.tools.IOUtils;
+import com.shinemo.mpush.tools.crypto.AESUtils;
 
 /**
  * Created by ohun on 2015/12/22.
  */
-public class NettyRequest implements Request{
-    private final Command command;
+public class NettyRequest implements Request {
     private final Packet message;
     private final Connection connection;
+    private Command command;
+    private byte[] body;
 
     public NettyRequest(Packet message, Connection connection) {
         this.message = message;
         this.connection = connection;
-        this.command = Command.toCMD(message.cmd);
     }
 
     public Command getCommand() {
-        return command;
+        return command == null ? command = Command.toCMD(message.cmd) : command;
     }
 
-    public Packet getMessage() {
-        return message;
+    public byte[] getBody() {
+        if (message.body == null) return null;
+        if (body == null) {
+            //1.解密
+            byte[] tmp = message.body;
+            if (message.hasFlag(Constants.CRYPTO_FLAG)) {
+                SessionInfo info = connection.getSessionInfo();
+                if (info != null && info.sessionKey != null) {
+                    tmp = AESUtils.decrypt(tmp, info.sessionKey, info.iv);
+                }
+            }
+
+            //2.解压
+            if (message.hasFlag(Constants.COMPRESS_FLAG)) {
+                byte[] result = IOUtils.uncompress(tmp);
+                if (result.length > 0) {
+                    tmp = result;
+                }
+            }
+            this.body = tmp;
+        }
+        return body;
     }
 
     public Connection getConnection() {
@@ -34,8 +54,8 @@ public class NettyRequest implements Request{
 
     public Response getResponse() {
         Packet packet = new Packet();
-        packet.cmd = message.cmd;
-        packet.sessionId = message.sessionId;
+        packet.cmd = this.message.cmd;
+        packet.sessionId = this.message.sessionId;
         return new NettyResponse(packet, connection);
     }
 }

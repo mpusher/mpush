@@ -18,8 +18,8 @@ import java.util.Map;
  */
 public class FastConnectHandler extends BaseMessageHandler<FastConnectMessage> {
     @Override
-    public FastConnectMessage decodeBody(Packet packet) {
-        return Jsons.fromJson(packet.getStringBody(), FastConnectMessage.class);
+    public FastConnectMessage decodeBody(byte[] body) {
+        return Jsons.fromJson(body, FastConnectMessage.class);
     }
 
     @Override
