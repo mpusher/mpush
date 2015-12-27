@@ -2,11 +2,10 @@ package com.shinemo.mpush.core.handler;
 
 import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.Request;
-import com.shinemo.mpush.api.SessionInfo;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.core.message.FastConnectMessage;
-import com.shinemo.mpush.core.security.ReusableToken;
-import com.shinemo.mpush.core.security.ReusableTokenManager;
+import com.shinemo.mpush.core.security.ReusableSession;
+import com.shinemo.mpush.core.security.ReusableSessionManager;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.MPushUtil;
 
@@ -25,14 +24,13 @@ public class FastConnectHandler extends BaseMessageHandler<FastConnectMessage> {
 
     @Override
     public void handle(FastConnectMessage body, Request request) {
-        ReusableToken token = ReusableTokenManager.INSTANCE.getToken(body.tokenId);
-        if (token == null) {
+        ReusableSession session = ReusableSessionManager.INSTANCE.getSession(body.tokenId);
+        if (session == null) {
             request.getResponse().sendRaw("token expire".getBytes(Constants.UTF_8));
-        } else if (!token.deviceId.equals(body.deviceId)) {
+        } else if (!session.sessionInfo.deviceId.equals(body.deviceId)) {
             request.getResponse().sendRaw("error device".getBytes(Constants.UTF_8));
         } else {
-            SessionInfo info = new SessionInfo(token.osName, token.osVersion, token.clientVersion, token.deviceId, token.desKey);
-            request.getConnection().setSessionInfo(info);
+            request.getConnection().setSessionInfo(session.sessionInfo);
             Map<String, Serializable> resp = new HashMap<String, Serializable>();
             resp.put("serverHost", MPushUtil.getLocalIp());
             resp.put("serverTime", System.currentTimeMillis());

@@ -37,6 +37,7 @@ public class RSAUtils {
      * 加密算法RSA
      */
     public static final String KEY_ALGORITHM = "RSA";
+    public static final String KEY_ALGORITHM_PADDING = "RSA/ECB/PKCS1Padding";
 
     /**
      * 签名算法
@@ -182,7 +183,7 @@ public class RSAUtils {
      */
     public static byte[] encryptByPublicKey(byte[] data, RSAPublicKey publicKey) {
         try {
-            Cipher cipher = Cipher.getInstance(KEY_ALGORITHM);
+            Cipher cipher = Cipher.getInstance(KEY_ALGORITHM_PADDING);
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             // 模长
             int key_len = publicKey.getModulus().bitLength() / 8;
@@ -205,7 +206,7 @@ public class RSAUtils {
      */
     public static byte[] decryptByPrivateKey(byte[] data, RSAPrivateKey privateKey) {
         try {
-            Cipher cipher = Cipher.getInstance(KEY_ALGORITHM);
+            Cipher cipher = Cipher.getInstance(KEY_ALGORITHM_PADDING);
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             //模长
             int key_len = privateKey.getModulus().bitLength() / 8;
@@ -250,9 +251,8 @@ public class RSAUtils {
      * @throws Exception
      */
     public static byte[] decryptByPrivateKey(byte[] data, String privateKey) throws Exception {
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
         PrivateKey key = decodePrivateKey(privateKey);
-        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
+        Cipher cipher = Cipher.getInstance(KEY_ALGORITHM_PADDING);
         cipher.init(Cipher.DECRYPT_MODE, key);
         return doFinal(cipher, data, MAX_DECRYPT_BLOCK);
     }
@@ -269,7 +269,7 @@ public class RSAUtils {
      */
     public static byte[] decryptByPublicKey(byte[] data, String publicKey) throws Exception {
         PublicKey key = decodePublicKey(publicKey);
-        Cipher cipher = Cipher.getInstance(KEY_ALGORITHM);
+        Cipher cipher = Cipher.getInstance(KEY_ALGORITHM_PADDING);
         cipher.init(Cipher.DECRYPT_MODE, key);
         return doFinal(cipher, data, MAX_DECRYPT_BLOCK);
     }
@@ -287,7 +287,7 @@ public class RSAUtils {
     public static byte[] encryptByPublicKey(byte[] data, String publicKey) throws Exception {
         PublicKey key = decodePublicKey(publicKey);
         // 对数据加密
-        Cipher cipher = Cipher.getInstance(KEY_ALGORITHM);
+        Cipher cipher = Cipher.getInstance(KEY_ALGORITHM_PADDING);
         cipher.init(Cipher.ENCRYPT_MODE, key);
         return doFinal(cipher, data, MAX_ENCRYPT_BLOCK);
     }
@@ -304,7 +304,7 @@ public class RSAUtils {
      */
     public static byte[] encryptByPrivateKey(byte[] data, String privateKey) throws Exception {
         PrivateKey key = decodePrivateKey(privateKey);
-        Cipher cipher = Cipher.getInstance(KEY_ALGORITHM);
+        Cipher cipher = Cipher.getInstance(KEY_ALGORITHM_PADDING);
         cipher.init(Cipher.ENCRYPT_MODE, key);
         return doFinal(cipher, data, MAX_ENCRYPT_BLOCK);
     }

@@ -4,39 +4,39 @@ import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.core.message.FastConnectMessage;
-import com.shinemo.mpush.core.message.HandShakeMessage;
-import com.shinemo.mpush.core.security.CredentialManager;
+import com.shinemo.mpush.core.message.HandshakeMessage;
+import com.shinemo.mpush.core.message.HandshakeSuccessMsg;
+import com.shinemo.mpush.core.security.CipherManager;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.Strings;
 import com.shinemo.mpush.tools.crypto.CryptoUtils;
-import com.shinemo.mpush.tools.crypto.DESUtils;
+import com.shinemo.mpush.tools.crypto.AESUtils;
 import com.shinemo.mpush.tools.crypto.RSAUtils;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.security.interfaces.RSAPublicKey;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by ohun on 2015/12/24.
  */
 public class ClientHandler extends ChannelHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientHandler.class);
-    private String clientKey = RandomStringUtils.randomAscii(CryptoUtils.DES_KEY_SIZE);
+    private byte[] clientKey = CipherManager.INSTANCE.randomAESKey();
+    private byte[] iv = CipherManager.INSTANCE.randomAESIV();
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         String token = getToken();
-        if (Strings.isBlank(token)) {
-            RSAPublicKey publicKey = CredentialManager.INSTANCE.getPublicKey();
-            HandShakeMessage message = new HandShakeMessage();
+        if (!Strings.isBlank(token)) {
+            RSAPublicKey publicKey = CipherManager.INSTANCE.getPublicKey();
+            HandshakeMessage message = new HandshakeMessage();
             message.clientKey = clientKey;
+            message.iv = iv;
             message.clientVersion = "1.0.1";
             message.deviceId = "1111111111111";
             message.osName = "android";
@@ -44,10 +44,8 @@ public class ClientHandler extends ChannelHandlerAdapter {
             message.timestamp = System.currentTimeMillis();
 
             Packet packet = new Packet();
-            packet.command = Command.Handshake.cmd;
-            packet.version = 0;
-            packet.flags = 0;
-            packet.msgId = 1;
+            packet.cmd = Command.Handshake.cmd;
+            packet.sessionId = 1;
             packet.body = RSAUtils.encryptByPublicKey(Jsons.toJson(message).getBytes(Constants.UTF_8), publicKey);
             ctx.writeAndFlush(packet);
         } else {
@@ -55,10 +53,8 @@ public class ClientHandler extends ChannelHandlerAdapter {
             message.deviceId = "1111111111111";
             message.tokenId = token;
             Packet packet = new Packet();
-            packet.command = Command.FastConnect.cmd;
-            packet.version = 0;
-            packet.flags = 0;
-            packet.msgId = 1;
+            packet.cmd = Command.FastConnect.cmd;
+            packet.sessionId = 1;
             packet.body = Jsons.toJson(message).getBytes(Constants.UTF_8);
             ctx.writeAndFlush(packet);
         }
@@ -77,14 +73,14 @@ public class ClientHandler extends ChannelHandlerAdapter {
         LOGGER.info("client," + ctx.channel().remoteAddress().toString(), "channelRead", msg);
         if (msg instanceof Packet) {
             Packet packet = (Packet) msg;
-            Command command = Command.toCMD(packet.command);
+            Command command = Command.toCMD(packet.cmd);
             if (command == Command.Handshake) {
-                String raw = new String(DESUtils.decryptDES(packet.body, clientKey), Constants.UTF_8);
-                Map<String, Serializable> resp = Jsons.fromJson(raw, Map.class);
+                String raw = new String(AESUtils.decrypt(packet.body, clientKey, iv), Constants.UTF_8);
+                HandshakeSuccessMsg resp = Jsons.fromJson(raw, HandshakeSuccessMsg.class);
                 LOGGER.info("hand shake success, message=" + raw);
-                String desKey = CryptoUtils.mixString(clientKey, (String) resp.get("serverKey"));
-                LOGGER.info("会话密钥：{}，clientKey={}, serverKey={}", desKey, clientKey, resp.get("serverKey"));
-                saveToken((String) resp.get("tokenId"));
+                byte[] sessionKey = CipherManager.INSTANCE.mixKey(clientKey, resp.serverKey);
+                LOGGER.info("会话密钥：{}，clientKey={}, serverKey={}", sessionKey, clientKey, resp.serverKey);
+                saveToken(resp.sessionId);
             } else if (command == Command.FastConnect) {
                 LOGGER.info("fast connect success, message=" + packet.getStringBody());
             }

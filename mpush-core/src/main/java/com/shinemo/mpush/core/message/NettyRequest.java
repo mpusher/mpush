@@ -17,7 +17,7 @@ public class NettyRequest implements Request{
     public NettyRequest(Packet message, Connection connection) {
         this.message = message;
         this.connection = connection;
-        this.command = Command.toCMD(message.command);
+        this.command = Command.toCMD(message.cmd);
     }
 
     public Command getCommand() {
@@ -34,9 +34,8 @@ public class NettyRequest implements Request{
 
     public Response getResponse() {
         Packet packet = new Packet();
-        packet.command = message.command;
-        packet.msgId = message.msgId;
-        packet.version = message.version;
+        packet.cmd = message.cmd;
+        packet.sessionId = message.sessionId;
         return new NettyResponse(packet, connection);
     }
 }
