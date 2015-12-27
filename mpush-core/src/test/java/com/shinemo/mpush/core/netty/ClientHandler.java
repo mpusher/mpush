@@ -5,7 +5,7 @@ import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Handler;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.core.message.FastConnectMessage;
-import com.shinemo.mpush.core.message.HandshakeMessage;
+import com.shinemo.mpush.core.message.HandShakeMessage;
 import com.shinemo.mpush.core.message.HandshakeSuccessMsg;
 import com.shinemo.mpush.core.security.CipherManager;
 import com.shinemo.mpush.tools.Jsons;
@@ -36,7 +36,7 @@ public class ClientHandler implements Handler {
         String token = getToken();
         if (!Strings.isBlank(token)) {
             RSAPublicKey publicKey = CipherManager.INSTANCE.getPublicKey();
-            HandshakeMessage message = new HandshakeMessage();
+            HandShakeMessage message = new HandShakeMessage();
             message.clientKey = clientKey;
             message.iv = iv;
             message.clientVersion = "1.0.1";

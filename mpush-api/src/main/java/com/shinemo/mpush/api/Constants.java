@@ -12,6 +12,9 @@ public interface Constants {
     int HEADER_LEN = 13;
     short MAGIC_NUM = 1122;
     byte HB = '\n';
+    int COMPRESS_LIMIT = 1024 * 10;
+    byte CRYPTO_FLAG = 0x01;
+    byte COMPRESS_FLAG = 0x02;
     long TIME_DELAY = 1L;
 
     String JVM_LOG_PATH = "/opt/";

@@ -9,7 +9,7 @@ import com.shinemo.mpush.api.protocol.Packet;
 public class HeartBeatHandler extends BaseMessageHandler<Void> {
 
     @Override
-    public Void decodeBody(Packet packet) {
+    public Void decodeBody(byte[] body) {
         return null;
     }
 

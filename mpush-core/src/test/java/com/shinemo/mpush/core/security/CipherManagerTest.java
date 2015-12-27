@@ -20,8 +20,8 @@ public class CipherManagerTest {
             byte[] clientKey = CipherManager.INSTANCE.randomAESKey();
             byte[] serverKey = CipherManager.INSTANCE.randomAESKey();
             byte[] sessionKey = CipherManager.INSTANCE.mixKey(clientKey, serverKey);
-            System.out.println("clientKey:" + Arrays.toString(clientKey));
-            System.out.println("serverKey:" + Arrays.toString(serverKey));
+            //System.out.println("clientKey:" + Arrays.toString(clientKey));
+            //System.out.println("serverKey:" + Arrays.toString(serverKey));
             System.out.println("sessionKey:" + Arrays.toString(sessionKey));
 
         }

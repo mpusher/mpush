@@ -10,7 +10,7 @@ public interface Request {
 
     Command getCommand();
 
-    Packet getMessage();
+    byte[] getBody();
 
     Connection getConnection();
 

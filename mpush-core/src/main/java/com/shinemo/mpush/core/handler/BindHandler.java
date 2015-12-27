@@ -10,8 +10,8 @@ import com.shinemo.mpush.gateway.router.RouterCenter;
  */
 public class BindHandler extends BaseMessageHandler<String> {
     @Override
-    public String decodeBody(Packet packet) {
-        return new String(packet.body, Constants.UTF_8);
+    public String decodeBody(byte[] body) {
+        return new String(body, Constants.UTF_8);
     }
 
     @Override

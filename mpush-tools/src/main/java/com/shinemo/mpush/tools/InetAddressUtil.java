@@ -1,4 +1,4 @@
-package com.shinemo.mpush.core.util;
+package com.shinemo.mpush.tools;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
