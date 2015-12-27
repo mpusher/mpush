@@ -36,6 +36,10 @@ public final class Jsons {
         return null;
     }
 
+    public static <T> T fromJson(byte[] json, Class<T> clazz) {
+        return fromJson(new String(json, Constants.UTF_8), clazz);
+    }
+
     public static <T> T fromJson(String json, Type type) {
         try {
             return GSON.fromJson(json, type);

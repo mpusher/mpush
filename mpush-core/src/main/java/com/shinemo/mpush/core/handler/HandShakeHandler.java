@@ -1,59 +1,57 @@
 package com.shinemo.mpush.core.handler;
 
-import com.shinemo.mpush.api.SessionInfo;
 import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.Request;
+import com.shinemo.mpush.api.SessionInfo;
 import com.shinemo.mpush.api.protocol.Packet;
-import com.shinemo.mpush.core.message.HandShakeMessage;
-import com.shinemo.mpush.core.security.CredentialManager;
-import com.shinemo.mpush.core.security.ReusableToken;
-import com.shinemo.mpush.core.security.ReusableTokenManager;
+import com.shinemo.mpush.core.message.HandshakeMessage;
+import com.shinemo.mpush.core.message.HandshakeSuccessMsg;
+import com.shinemo.mpush.core.security.CipherManager;
+import com.shinemo.mpush.core.security.ReusableSession;
+import com.shinemo.mpush.core.security.ReusableSessionManager;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.MPushUtil;
-import com.shinemo.mpush.tools.crypto.CryptoUtils;
-import com.shinemo.mpush.tools.crypto.DESUtils;
+import com.shinemo.mpush.tools.crypto.AESUtils;
 import com.shinemo.mpush.tools.crypto.RSAUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.security.interfaces.RSAPrivateKey;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by ohun on 2015/12/24.
  */
-public class HandShakeHandler extends BaseMessageHandler<HandShakeMessage> {
-    public static final Logger LOGGER = LoggerFactory.getLogger(HandShakeHandler.class);
+public class HandshakeHandler extends BaseMessageHandler<HandshakeMessage> {
+    public static final Logger LOGGER = LoggerFactory.getLogger(HandshakeHandler.class);
 
     @Override
-    public HandShakeMessage decodeBody(Packet packet) {
-        RSAPrivateKey privateKey = CredentialManager.INSTANCE.getPrivateKey();
-        byte[] rawData = RSAUtils.decryptByPrivateKey(packet.body, privateKey);
-        return Jsons.fromJson(new String(rawData, Constants.UTF_8), HandShakeMessage.class);
+    public HandshakeMessage decodeBody(byte[] body) {
+        RSAPrivateKey privateKey = CipherManager.INSTANCE.getPrivateKey();
+        byte[] rawData = RSAUtils.decryptByPrivateKey(body, privateKey);
+        return Jsons.fromJson(new String(rawData, Constants.UTF_8), HandshakeMessage.class);
     }
 
     @Override
-    public void handle(HandShakeMessage body, Request request) {
-        String serverKey = RandomStringUtils.randomAscii(CryptoUtils.DES_KEY_SIZE);
-        String clientKey = body.clientKey;
-        String desKey = CryptoUtils.mixString(clientKey, serverKey);//生成混淆密钥
-        SessionInfo info = new SessionInfo(body.osName, body.osVersion, body.clientVersion, body.deviceId, desKey);
+    public void handle(HandshakeMessage body, Request request) {
+        byte[] iv = body.iv;
+        byte[] clientKey = body.clientKey;
+        byte[] serverKey = CipherManager.INSTANCE.randomAESKey();
+        byte[] sessionKey = CipherManager.INSTANCE.mixKey(clientKey, serverKey);//会话密钥混淆 Client random
+        SessionInfo info = new SessionInfo(body.osName, body.osVersion, body.clientVersion,
+                body.deviceId, sessionKey, iv);
         request.getConnection().setSessionInfo(info);
-        ReusableToken token = ReusableTokenManager.INSTANCE.genToken(info);
-        ReusableTokenManager.INSTANCE.saveToken(token);
-        Map<String, Serializable> resp = new HashMap<String, Serializable>();
-        resp.put("serverKey", serverKey);
-        resp.put("serverHost", MPushUtil.getLocalIp());
-        resp.put("serverTime", System.currentTimeMillis());
-        resp.put("heartbeat", Constants.HEARTBEAT_TIME);
-        resp.put("tokenId", token.tokenId);
-        resp.put("tokenExpire", token.expireTime);
-        byte[] responseData = DESUtils.encryptDES(Jsons.toJson(resp).getBytes(Constants.UTF_8), clientKey);
+        ReusableSession session = ReusableSessionManager.INSTANCE.genSession(info);
+        ReusableSessionManager.INSTANCE.saveSession(session);
+        HandshakeSuccessMsg resp = new HandshakeSuccessMsg();
+        resp.serverKey = serverKey;
+        resp.serverHost = MPushUtil.getLocalIp();
+        resp.serverTime = System.currentTimeMillis();
+        resp.heartbeat = Constants.HEARTBEAT_TIME;
+        resp.sessionId = session.sessionId;
+        resp.expireTime = session.expireTime;
+        byte[] responseData = AESUtils.encrypt(Jsons.toJson(resp).getBytes(Constants.UTF_8), clientKey, iv);
         request.getResponse().sendRaw(responseData);
-        LOGGER.info("会话密钥：{}，clientKey={}, serverKey={}", desKey, clientKey, serverKey);
+        LOGGER.info("会话密钥：{}，clientKey={}, serverKey={}", sessionKey, clientKey, serverKey);
 
     }
 }

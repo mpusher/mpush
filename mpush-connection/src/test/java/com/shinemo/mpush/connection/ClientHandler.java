@@ -9,7 +9,6 @@ import com.shinemo.mpush.core.message.HandshakeSuccessMsg;
 import com.shinemo.mpush.core.security.CipherManager;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.Strings;
-import com.shinemo.mpush.tools.crypto.CryptoUtils;
 import com.shinemo.mpush.tools.crypto.AESUtils;
 import com.shinemo.mpush.tools.crypto.RSAUtils;
 import io.netty.channel.ChannelHandlerAdapter;

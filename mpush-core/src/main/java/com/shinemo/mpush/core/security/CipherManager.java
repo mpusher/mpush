@@ -104,8 +104,8 @@ public class CipherManager {
             byte a = clientKey[i];
             byte b = serverKey[i];
             int sum = Math.abs(a + b);
-            byte c = (sum % 2 == 0) ? a : b;
-            sessionKey[i] = c;
+            int c = (sum % 2 == 0) ? a ^ b : b ^ a;
+            sessionKey[i] = (byte) c;
         }
         return sessionKey;
     }

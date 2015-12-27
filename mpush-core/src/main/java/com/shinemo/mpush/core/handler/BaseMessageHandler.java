@@ -3,7 +3,6 @@ package com.shinemo.mpush.core.handler;
 
 import com.shinemo.mpush.api.MessageHandler;
 import com.shinemo.mpush.api.Request;
-import com.shinemo.mpush.api.protocol.Packet;
 
 /**
  * Created by ohun on 2015/12/22.
@@ -11,11 +10,11 @@ import com.shinemo.mpush.api.protocol.Packet;
 public abstract class BaseMessageHandler<T> implements MessageHandler {
     @Override
     public void handle(Request request) {
-        T t = decodeBody(request.getMessage());
+        T t = decodeBody(request.getBody());
         handle(t, request);
     }
 
-    public abstract T decodeBody(Packet packet);
+    public abstract T decodeBody(byte[] data);
 
     public abstract void handle(T body, Request request);
 }
