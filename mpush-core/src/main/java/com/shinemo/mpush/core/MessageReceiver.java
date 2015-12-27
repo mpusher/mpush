@@ -15,7 +15,7 @@ public class MessageReceiver implements Receiver {
     public static final MessageHandler LOGIN_HANDLER = new LoginHandler();
     public static final MessageHandler BIND_HANDLER = new BindHandler();
     public static final MessageHandler HEART_HANDLER = new HeartBeatHandler();
-    public static final MessageHandler HAND_SHAKE_HANDLER = new HandshakeHandler();
+    public static final MessageHandler HAND_SHAKE_HANDLER = new HandShakeHandler();
     public static final MessageHandler FAST_CONNECT_HANDLER = new FastConnectHandler();
 
     @Override

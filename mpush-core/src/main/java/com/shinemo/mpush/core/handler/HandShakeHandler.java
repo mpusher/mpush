@@ -5,14 +5,11 @@ import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.Request;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.core.message.HandShakeMessage;
-import com.shinemo.mpush.core.security.CredentialManager;
-import com.shinemo.mpush.core.security.ReusableToken;
-import com.shinemo.mpush.core.security.ReusableTokenManager;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.crypto.CryptoUtils;
-import com.shinemo.mpush.tools.crypto.DESUtils;
 import com.shinemo.mpush.tools.crypto.RSAUtils;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
