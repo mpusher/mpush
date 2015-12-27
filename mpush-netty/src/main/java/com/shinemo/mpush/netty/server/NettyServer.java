@@ -39,6 +39,10 @@ public class NettyServer implements Server {
         this.port = port;
         this.channelHandler = channelHandler;
     }
+    
+    public NettyServer(int port) {
+    	this(port,null);
+    }
 
     @Override
     public void init() {
