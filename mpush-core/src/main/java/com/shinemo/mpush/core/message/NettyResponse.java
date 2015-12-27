@@ -4,7 +4,7 @@ import com.shinemo.mpush.api.Connection;
 import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.Response;
 import com.shinemo.mpush.api.protocol.Packet;
-import com.shinemo.mpush.tools.crypto.DESUtils;
+import com.shinemo.mpush.tools.crypto.AESUtils;
 
 /**
  * Created by ohun on 2015/12/22.
@@ -19,7 +19,7 @@ public class NettyResponse implements Response {
     }
 
     public void send(byte[] body) {
-        packet.body = DESUtils.decryptDES(body, connection.getSessionInfo().desKey);
+        packet.body = AESUtils.decrypt(body, connection.getSessionInfo().sessionKey, connection.getSessionInfo().iv);
         connection.send(packet);
     }
 

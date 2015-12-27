@@ -9,34 +9,30 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by ohun on 2015/12/25.
  */
-public class ReusableTokenManager {
-    public static final ReusableTokenManager INSTANCE = new ReusableTokenManager();
+public class ReusableSessionManager {
+    public static final ReusableSessionManager INSTANCE = new ReusableSessionManager();
     private static final int EXPIRE_TIME = 24 * 60 * 60 * 1000;
-    private final Map<String, ReusableToken> tokenCache = new ConcurrentHashMap<String, ReusableToken>();
+    private final Map<String, ReusableSession> tokenCache = new ConcurrentHashMap<String, ReusableSession>();
 
-    public boolean saveToken(ReusableToken token) {
-        tokenCache.put(token.tokenId, token);
+    public boolean saveSession(ReusableSession session) {
+        tokenCache.put(session.sessionId, session);
         return true;
     }
 
-    public ReusableToken getToken(String tokenId) {
-        return tokenCache.get(tokenId);
+    public ReusableSession getSession(String sessionId) {
+        return tokenCache.get(sessionId);
     }
 
-    public ReusableToken genToken(SessionInfo info) {
+    public ReusableSession genSession(SessionInfo info) {
         /**
          * 先生成key，需要保证半个周期内同一个设备生成的key是相同的
          */
         long partition = System.currentTimeMillis() / (EXPIRE_TIME / 2);//把当前时间按照半个周期划分出一个当前所属于的区域
         StringBuilder sb = new StringBuilder();
-        sb.append(info.deviceId).append('_').append(partition).append("_R_S_T");
-        ReusableToken v = new ReusableToken();
-        v.tokenId = MD5Utils.encrypt(sb.toString());
-        v.clientVersion = info.clientVersion;
-        v.deviceId = info.deviceId;
-        v.osName = info.osName;
-        v.osVersion = info.osVersion;
-        v.desKey = info.desKey;
+        sb.append(info.deviceId).append(partition);
+        ReusableSession v = new ReusableSession();
+        v.sessionInfo = info;
+        v.sessionId = MD5Utils.encrypt(sb.toString());
         /**
          * 计算失效时间
          */

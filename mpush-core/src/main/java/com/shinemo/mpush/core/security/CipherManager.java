@@ -1,20 +1,23 @@
 package com.shinemo.mpush.core.security;
 
 import com.shinemo.mpush.tools.Pair;
+import com.shinemo.mpush.tools.crypto.AESUtils;
 import com.shinemo.mpush.tools.crypto.RSAUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.security.SecureRandom;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 /**
  * Created by ohun on 2015/12/24.
  */
-public class CredentialManager {
-    public static final CredentialManager INSTANCE = new CredentialManager();
+public class CipherManager {
+    public static final CipherManager INSTANCE = new CipherManager();
+    private SecureRandom random = new SecureRandom();
+
     private RSAPrivateKey privateKey;
     private RSAPublicKey publicKey;
 
@@ -83,4 +86,27 @@ public class CredentialManager {
         return INSTANCE.publicKey;
     }
 
+    public byte[] randomAESKey() {
+        byte[] bytes = new byte[AESUtils.AES_KEY_LENGTH];
+        random.nextBytes(bytes);
+        return bytes;
+    }
+
+    public byte[] randomAESIV() {
+        byte[] bytes = new byte[AESUtils.AES_KEY_LENGTH];
+        random.nextBytes(bytes);
+        return bytes;
+    }
+
+    public byte[] mixKey(byte[] clientKey, byte[] serverKey) {
+        byte[] sessionKey = new byte[AESUtils.AES_KEY_LENGTH];
+        for (int i = 0; i < AESUtils.AES_KEY_LENGTH; i++) {
+            byte a = clientKey[i];
+            byte b = serverKey[i];
+            int sum = Math.abs(a + b);
+            byte c = (sum % 2 == 0) ? a : b;
+            sessionKey[i] = c;
+        }
+        return sessionKey;
+    }
 }

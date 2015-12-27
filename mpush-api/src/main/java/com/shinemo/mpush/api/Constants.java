@@ -10,9 +10,9 @@ public interface Constants {
     byte[] EMPTY_BYTES = new byte[0];
     int MAX_PACKET_SIZE = 1024;
     int HEADER_LEN = 13;
-    byte MAGIC_NUM1 = (byte) 33;
-    byte MAGIC_NUM2 = (byte) 99;
-    long TIME_DELAY = 58L;
+    short MAGIC_NUM = 1122;
+    byte HB = '\n';
+    long TIME_DELAY = 1L;
 
     String JVM_LOG_PATH = "/opt/";
 

@@ -31,9 +31,7 @@ public class ConnectionHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        log.warn(ctx.channel().remoteAddress() + ",  channelRead");
         Connection connection = ConnectionManager.INSTANCE.get(ctx.channel());
-
         receiver.onMessage((Packet) msg, connection);
     }
 
