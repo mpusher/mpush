@@ -5,7 +5,7 @@ import com.shinemo.mpush.api.Message;
 /**
  * Created by ohun on 2015/12/24.
  */
-public class HandshakeMessage implements Message {
+public class HandShakeMessage implements Message {
     public String deviceId;
     public String osName;
     public String osVersion;

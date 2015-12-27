@@ -19,15 +19,15 @@
         <module>mpush-connection</module>
         <module>mpush-gateway</module>
         <module>mpush-core</module>
-        <module>mpush-client</module>
         <module>mpush-tools</module>
+        <module>mpush-netty</module>
     </modules>
 
     <properties>
         <java.version>1.7</java.version>
         <spring-version>4.0.0.RELEASE</spring-version>
         <mpush-api-version>1.0-SNAPSHOT</mpush-api-version>
-        <mpush-client-version>1.0-SNAPSHOT</mpush-client-version>
+        <mpush-netty-version>1.0-SNAPSHOT</mpush-netty-version>
         <mpush-connection-version>1.0-SNAPSHOT</mpush-connection-version>
         <mpush-core-version>1.0-SNAPSHOT</mpush-core-version>
         <mpush-gateway-version>1.0-SNAPSHOT</mpush-gateway-version>
@@ -76,8 +76,8 @@
             </dependency>
             <dependency>
                 <groupId>com.shinemo.mpush</groupId>
-                <artifactId>mpush-client</artifactId>
-                <version>${mpush-client-version}</version>
+                <artifactId>mpush-netty</artifactId>
+                <version>${mpush-netty-version}</version>
             </dependency>
             <dependency>
                 <groupId>com.shinemo.mpush</groupId>

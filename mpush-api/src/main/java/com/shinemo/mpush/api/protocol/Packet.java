@@ -18,7 +18,7 @@ public class Packet implements Serializable {
     public int sessionId;
     public byte lrc;
     public byte[] body;
-
+    
     public int getBodyLength() {
         return body == null ? 0 : body.length;
     }
@@ -26,7 +26,7 @@ public class Packet implements Serializable {
     public String getStringBody() {
         return body == null ? "" : new String(body, Constants.UTF_8);
     }
-
+    
     @Override
     public String toString() {
         return "Packet{" +
