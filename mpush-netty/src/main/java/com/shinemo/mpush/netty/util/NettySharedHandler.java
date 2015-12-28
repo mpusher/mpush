@@ -63,7 +63,7 @@ public class NettySharedHandler extends ChannelHandlerAdapter{
 	
 	@Override
 	public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-		log.warn(ctx.channel().remoteAddress() + ", channelRegistered");
+//		log.warn(ctx.channel().remoteAddress() + ", channelRegistered");
 		if(channelHandler!=null){
 			channelHandler.channelRegistered(ctx);
 		}
@@ -72,7 +72,7 @@ public class NettySharedHandler extends ChannelHandlerAdapter{
 	
 	@Override
 	public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-		log.warn(ctx.channel().remoteAddress() + ", channelUnregistered");
+//		log.warn(ctx.channel().remoteAddress() + ", channelUnregistered");
 		if(channelHandler!=null){
 			channelHandler.channelUnregistered(ctx);
 		}
@@ -86,24 +86,6 @@ public class NettySharedHandler extends ChannelHandlerAdapter{
 			channelHandler.exceptionCaught(ctx, cause);
 		}
 		super.exceptionCaught(ctx, cause);
-	}
-	
-	@Override
-	public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) throws Exception {
-		log.warn(ctx.channel().remoteAddress() + ", connect");
-		if(channelHandler!=null){
-			channelHandler.connect(ctx, remoteAddress, localAddress, promise);
-		}
-		super.connect(ctx, remoteAddress, localAddress, promise);
-	}
-	
-	@Override
-	public void disconnect(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
-		log.warn(ctx.channel().remoteAddress() + ", disconnect");
-		if(channelHandler!=null){
-			channelHandler.disconnect(ctx, promise);
-		}
-		super.disconnect(ctx, promise);
 	}
 	
 

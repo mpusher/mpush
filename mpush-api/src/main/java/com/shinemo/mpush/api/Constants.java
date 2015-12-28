@@ -15,7 +15,7 @@ public interface Constants {
     int COMPRESS_LIMIT = 1024 * 10;
     byte CRYPTO_FLAG = 0x01;
     byte COMPRESS_FLAG = 0x02;
-    long TIME_DELAY = 1L;
+    long TIME_DELAY = 120L;
 
     String JVM_LOG_PATH = "/opt/";
 

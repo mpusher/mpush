@@ -1,6 +1,8 @@
 package com.shinemo.mpush.core.netty;
 
 
+import java.util.concurrent.locks.LockSupport;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Test;
@@ -27,7 +29,10 @@ public class NettyClientTest {
     	
     	Client client = NettyClientFactory.instance.get(host, port, handler);
     	
-    	Thread.sleep(1000);
+    	
+    	LockSupport.park();
+    	
+    	client.close("");
     	
     	log.error(ToStringBuilder.reflectionToString(client, ToStringStyle.MULTI_LINE_STYLE));
     	
