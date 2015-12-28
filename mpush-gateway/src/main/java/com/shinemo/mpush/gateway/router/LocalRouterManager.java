@@ -10,19 +10,22 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by ohun on 2015/12/23.
  */
 public class LocalRouterManager implements RouterManager {
-    private final Map<Long, Router> routerMap = new ConcurrentHashMap<Long, Router>();
+    private final Map<String, Router> routerMap = new ConcurrentHashMap<>();
 
-    public boolean publish(long userId, Router route) {
+    @Override
+    public boolean publish(String userId, Router route) {
         routerMap.put(userId, route);
         return true;
     }
 
-    public boolean unPublish(long userId) {
+    @Override
+    public boolean unPublish(String userId) {
         routerMap.remove(userId);
         return true;
     }
 
-    public Router getRouter(long userId) {
+    @Override
+    public Router getRouter(String userId) {
         return routerMap.get(userId);
     }
 }

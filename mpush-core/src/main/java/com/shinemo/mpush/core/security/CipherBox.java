@@ -14,10 +14,10 @@ import java.security.interfaces.RSAPublicKey;
 /**
  * Created by ohun on 2015/12/24.
  */
-public class CipherBox {
+public final class CipherBox {
+    public static final int AES_KEY_LENGTH = 16;
     public static final CipherBox INSTANCE = new CipherBox();
     private SecureRandom random = new SecureRandom();
-
     private RSAPrivateKey privateKey;
     private RSAPublicKey publicKey;
 
@@ -91,20 +91,20 @@ public class CipherBox {
     }
 
     public byte[] randomAESKey() {
-        byte[] bytes = new byte[AESUtils.AES_KEY_LENGTH];
+        byte[] bytes = new byte[AES_KEY_LENGTH];
         random.nextBytes(bytes);
         return bytes;
     }
 
     public byte[] randomAESIV() {
-        byte[] bytes = new byte[AESUtils.AES_KEY_LENGTH];
+        byte[] bytes = new byte[AES_KEY_LENGTH];
         random.nextBytes(bytes);
         return bytes;
     }
 
     public byte[] mixKey(byte[] clientKey, byte[] serverKey) {
-        byte[] sessionKey = new byte[AESUtils.AES_KEY_LENGTH];
-        for (int i = 0; i < AESUtils.AES_KEY_LENGTH; i++) {
+        byte[] sessionKey = new byte[AES_KEY_LENGTH];
+        for (int i = 0; i < AES_KEY_LENGTH; i++) {
             byte a = clientKey[i];
             byte b = serverKey[i];
             int sum = Math.abs(a + b);

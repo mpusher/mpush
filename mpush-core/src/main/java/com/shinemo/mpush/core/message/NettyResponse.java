@@ -31,9 +31,9 @@ public class NettyResponse implements Response {
             }
         }
         //2.加密
-        SessionContext info = connection.getSessionContext();
-        if (info != null && info.sessionKey != null) {
-            tmp = AESUtils.encrypt(tmp, info.sessionKey, info.iv);
+        SessionContext context = connection.getSessionContext();
+        if (context.cipher != null) {
+            tmp = context.cipher.encrypt(tmp);
             packet.setFlag(Constants.CRYPTO_FLAG);
         }
         packet.body = tmp;

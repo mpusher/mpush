@@ -15,7 +15,7 @@ public class AESUtilsTest {
     public void testEncryptDES() throws Exception {
         String data = "似的士大夫士大夫士大夫首发式发生士大夫";
         System.out.println("原文：\n" + data);
-        byte[] key = new byte[AESUtils.AES_KEY_LENGTH];
+        byte[] key = new byte[16];
         new Random().nextBytes(key);
         byte[] d1 = AESUtils.encrypt(data.getBytes(Constants.UTF_8), key,key);
         System.out.println("加密后：\n" + new String(d1));

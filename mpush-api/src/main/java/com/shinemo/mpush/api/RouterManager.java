@@ -5,9 +5,9 @@ package com.shinemo.mpush.api;
  */
 public interface RouterManager {
 
-    boolean publish(long userId, Router route);
+    boolean publish(String userId, Router route);
 
-    boolean unPublish(long userId);
+    boolean unPublish(String userId);
 
-    Router getRouter(long userId);
+    Router getRouter(String userId);
 }

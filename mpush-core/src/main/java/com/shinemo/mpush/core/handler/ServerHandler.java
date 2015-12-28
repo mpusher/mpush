@@ -30,7 +30,7 @@ public class ServerHandler extends AbstractHandler implements Handler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Connection connection = ConnectionManager.INSTANCE.get(ctx.channel());
-        receiver.onMessage((Packet) msg, connection);
+        receiver.onReceive((Packet) msg, connection);
     }
 
     @Override

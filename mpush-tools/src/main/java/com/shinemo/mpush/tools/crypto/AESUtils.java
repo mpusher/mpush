@@ -13,7 +13,6 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public final class AESUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(AESUtils.class);
-    public static final int AES_KEY_LENGTH = 16;
     public static final String KEY_ALGORITHM = "AES";
     public static final String KEY_ALGORITHM_PADDING = "AES/CBC/PKCS5Padding";
 

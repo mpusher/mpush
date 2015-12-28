@@ -9,9 +9,9 @@ import io.netty.buffer.Unpooled;
 /**
  * Created by ohun on 2015/12/28.
  */
-public abstract class BaseBufferBodyMessage extends BaseMessage {
+public abstract class ByteBufMessage extends BaseMessage {
 
-    public BaseBufferBodyMessage(Packet message, Connection connection) {
+    public ByteBufMessage(Packet message, Connection connection) {
         super(message, connection);
     }
 
@@ -39,6 +39,18 @@ public abstract class BaseBufferBodyMessage extends BaseMessage {
         }
     }
 
+    public void encodeByte(ByteBuf body, byte field) {
+        body.writeByte(field);
+    }
+
+    public void encodeInt(ByteBuf body, int field) {
+        body.writeInt(field);
+    }
+
+    public void encodeLong(ByteBuf body, long field) {
+        body.writeLong(field);
+    }
+
     public void encodeBytes(ByteBuf body, byte[] field) {
         if (field == null || field.length == 0) {
             body.writeShort(0);
@@ -59,5 +71,17 @@ public abstract class BaseBufferBodyMessage extends BaseMessage {
         byte[] bytes = new byte[fieldLength];
         body.readBytes(bytes);
         return bytes;
+    }
+
+    public byte decodeByte(ByteBuf body) {
+        return body.readByte();
+    }
+
+    public int decodeInt(ByteBuf body) {
+        return body.readInt();
+    }
+
+    public long decodeLong(ByteBuf body) {
+        return body.readLong();
     }
 }

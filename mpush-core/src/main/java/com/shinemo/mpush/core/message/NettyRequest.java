@@ -31,8 +31,8 @@ public class NettyRequest implements Request {
             byte[] tmp = message.body;
             if (message.hasFlag(Constants.CRYPTO_FLAG)) {
                 SessionContext info = connection.getSessionContext();
-                if (info != null && info.sessionKey != null) {
-                    tmp = AESUtils.decrypt(tmp, info.sessionKey, info.iv);
+                if (info.cipher != null) {
+                    tmp = info.cipher.decrypt(tmp);
                 }
             }
 
@@ -53,9 +53,7 @@ public class NettyRequest implements Request {
     }
 
     public Response getResponse() {
-        Packet packet = new Packet();
-        packet.cmd = this.message.cmd;
-        packet.sessionId = this.message.sessionId;
+        Packet packet = new Packet(this.message.cmd, this.message.sessionId);
         return new NettyResponse(packet, connection);
     }
 }

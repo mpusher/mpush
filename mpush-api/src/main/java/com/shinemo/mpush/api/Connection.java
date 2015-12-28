@@ -9,13 +9,15 @@ import com.shinemo.mpush.api.protocol.Packet;
  */
 public interface Connection {
 
-    void setSessionInfo(SessionContext context);
+    void init(Channel channel);
 
     SessionContext getSessionContext();
 
-    String getId();
+    void setSessionContext(SessionContext context);
 
     void send(Packet packet);
+
+    String getId();
 
     boolean isClosed();
 
@@ -28,8 +30,6 @@ public interface Connection {
     boolean isConnected();
 
     boolean isEnable();
-
-    void init(Channel channel);
 
     String remoteIp();
 

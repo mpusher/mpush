@@ -20,96 +20,94 @@ import com.shinemo.mpush.netty.util.NettySharedHolder;
 
 public class NettyClient implements Client {
 
-	private static final Logger log = LoggerFactory.getLogger(NettyClient.class);
+    private static final Logger log = LoggerFactory.getLogger(NettyClient.class);
 
-	private final String remoteHost;
-	private final int remotePort;
-	private final Channel channel;
-	private int hbTimes = 0;
+    private final String remoteHost;
+    private final int remotePort;
+    private final Channel channel;
+    private int hbTimes = 0;
 
-	public NettyClient(final String remoteHost, final int remotePort, Channel channel) {
-		this.remoteHost = remoteHost;
-		this.remotePort = remotePort;
-		this.channel = channel;
-	}
+    public NettyClient(final String remoteHost, final int remotePort, Channel channel) {
+        this.remoteHost = remoteHost;
+        this.remotePort = remotePort;
+        this.channel = channel;
+    }
 
-	@Override
-	public void close(String cause) {
-		if (!StringUtils.isBlank(cause) && !"null".equals(cause.trim())) {
-			log.error("close channel:"+cause);
-		}
-		this.channel.close();
-	}
+    @Override
+    public void close(String cause) {
+        if (!StringUtils.isBlank(cause) && !"null".equals(cause.trim())) {
+            log.error("close channel:" + cause);
+        }
+        this.channel.close();
+    }
 
-	@Override
-	public boolean isEnabled() {
-		return channel.isWritable();
-	}
+    @Override
+    public boolean isEnabled() {
+        return channel.isWritable();
+    }
 
-	@Override
-	public boolean isConnected() {
-		return channel.isActive();
-	}
+    @Override
+    public boolean isConnected() {
+        return channel.isActive();
+    }
 
-	@Override
-	public void resetHbTimes() {
-		hbTimes = 0;
-	}
+    @Override
+    public void resetHbTimes() {
+        hbTimes = 0;
+    }
 
-	@Override
-	public int inceaseAndGetHbTimes() {
-		return ++hbTimes;
-	}
+    @Override
+    public int inceaseAndGetHbTimes() {
+        return ++hbTimes;
+    }
 
-	@Override
-	public void startHeartBeat() throws Exception {
-		NettySharedHolder.timer.newTimeout(new TimerTask() {
-			@Override
-			public void run(Timeout timeout) throws Exception {
-				try {
-					final Packet packet = buildHeartBeat();
-					ChannelFuture channelFuture = channel.writeAndFlush(packet);
-					channelFuture.addListener(new ChannelFutureListener() {
+    @Override
+    public void startHeartBeat() throws Exception {
+        NettySharedHolder.timer.newTimeout(new TimerTask() {
+            @Override
+            public void run(Timeout timeout) throws Exception {
+                try {
+                    final Packet packet = buildHeartBeat();
+                    ChannelFuture channelFuture = channel.writeAndFlush(packet);
+                    channelFuture.addListener(new ChannelFutureListener() {
 
-						@Override
-						public void operationComplete(ChannelFuture future) throws Exception {
-							if (!future.isSuccess()) {
-								if (!channel.isActive()) {
-									log.warn("client send hb msg false:" + channel.remoteAddress().toString() + "," + packet + ",channel is not active");
-								}
-								log.warn("client send msg hb false:" + channel.remoteAddress().toString() + "," + packet);
-							} else {
-								log.warn("client send msg hb success:" + channel.remoteAddress().toString() + "," + packet);
-							}
-						}
-					});
-				} finally {
-					if (channel.isActive()) {
-						NettySharedHolder.timer.newTimeout(this, Constants.TIME_DELAY, TimeUnit.SECONDS);
-					}
-				}
-			}
-		}, Constants.TIME_DELAY, TimeUnit.SECONDS);
-	}
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            if (!future.isSuccess()) {
+                                if (!channel.isActive()) {
+                                    log.warn("client send hb msg false:" + channel.remoteAddress().toString() + "," + packet + ",channel is not active");
+                                }
+                                log.warn("client send msg hb false:" + channel.remoteAddress().toString() + "," + packet);
+                            } else {
+                                log.warn("client send msg hb success:" + channel.remoteAddress().toString() + "," + packet);
+                            }
+                        }
+                    });
+                } finally {
+                    if (channel.isActive()) {
+                        NettySharedHolder.timer.newTimeout(this, Constants.TIME_DELAY, TimeUnit.SECONDS);
+                    }
+                }
+            }
+        }, Constants.TIME_DELAY, TimeUnit.SECONDS);
+    }
 
-	private static Packet buildHeartBeat() {
-		Packet packet = new Packet();
-		packet.cmd = Command.Heartbeat.cmd;
-		return packet;
-	}
+    private static Packet buildHeartBeat() {
+        return new Packet(Command.HEARTBEAT.cmd);
+    }
 
-	@Override
-	public String getUrl() {
-		return String.format("%s:%s", remoteHost, remotePort);
-	}
+    @Override
+    public String getUrl() {
+        return String.format("%s:%s", remoteHost, remotePort);
+    }
 
-	@Override
-	public String getRemoteHost() {
-		return remoteHost;
-	}
+    @Override
+    public String getRemoteHost() {
+        return remoteHost;
+    }
 
-	@Override
-	public int getRemotePort() {
-		return remotePort;
-	}
+    @Override
+    public int getRemotePort() {
+        return remotePort;
+    }
 }

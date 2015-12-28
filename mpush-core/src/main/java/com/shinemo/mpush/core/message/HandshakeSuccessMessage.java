@@ -7,7 +7,7 @@ import io.netty.buffer.ByteBuf;
 /**
  * Created by ohun on 2015/12/27.
  */
-public class HandshakeSuccessMessage extends BaseBufferBodyMessage {
+public final class HandshakeSuccessMessage extends ByteBufMessage {
     public byte[] serverKey;
     public String serverHost;
     public long serverTime;
@@ -23,19 +23,53 @@ public class HandshakeSuccessMessage extends BaseBufferBodyMessage {
     public void decode(ByteBuf body) {
         serverKey = decodeBytes(body);
         serverHost = decodeString(body);
-        serverTime = body.readLong();
-        heartbeat = body.readInt();
+        serverTime = decodeLong(body);
+        heartbeat = decodeInt(body);
         sessionId = decodeString(body);
-        expireTime = body.readLong();
+        expireTime = decodeLong(body);
     }
 
     @Override
     public void encode(ByteBuf body) {
         encodeBytes(body, serverKey);
         encodeString(body, serverHost);
-        body.writeLong(serverTime);
-        body.writeInt(heartbeat);
+        encodeLong(body, serverTime);
+        encodeInt(body, heartbeat);
         encodeString(body, sessionId);
-        body.writeLong(expireTime);
+        encodeLong(body, expireTime);
+    }
+
+    public static HandshakeSuccessMessage from(BaseMessage src) {
+        return new HandshakeSuccessMessage(src.createResponse(), src.connection);
+    }
+
+    public HandshakeSuccessMessage setServerKey(byte[] serverKey) {
+        this.serverKey = serverKey;
+        return this;
+    }
+
+    public HandshakeSuccessMessage setServerHost(String serverHost) {
+        this.serverHost = serverHost;
+        return this;
+    }
+
+    public HandshakeSuccessMessage setServerTime(long serverTime) {
+        this.serverTime = serverTime;
+        return this;
+    }
+
+    public HandshakeSuccessMessage setHeartbeat(int heartbeat) {
+        this.heartbeat = heartbeat;
+        return this;
+    }
+
+    public HandshakeSuccessMessage setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+        return this;
+    }
+
+    public HandshakeSuccessMessage setExpireTime(long expireTime) {
+        this.expireTime = expireTime;
+        return this;
     }
 }
