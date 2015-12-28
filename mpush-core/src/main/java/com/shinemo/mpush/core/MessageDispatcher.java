@@ -11,7 +11,7 @@ import com.shinemo.mpush.core.message.NettyRequest;
 /**
  * Created by ohun on 2015/12/22.
  */
-public class MessageReceiver implements Receiver {
+public class MessageDispatcher implements Receiver {
     public static final MessageHandler LOGIN_HANDLER = new LoginHandler();
     public static final MessageHandler BIND_HANDLER = new BindHandler();
     public static final MessageHandler HEART_HANDLER = new HeartBeatHandler();

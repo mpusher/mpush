@@ -12,11 +12,11 @@ import java.util.Arrays;
  */
 public class Packet implements Serializable {
     private static final long serialVersionUID = -2725825199998223372L;
-    public byte cmd;
-    public short cc;
-    public byte flags;
-    public int sessionId;
-    public byte lrc;
+    public byte cmd; //命令
+    public short cc; //校验码 暂时没有用到
+    public byte flags; //特性，如是否加密，是否压缩等
+    public int sessionId; // 会话id。客户端生成。
+    public byte lrc; // 校验，纵向冗余校验。只校验body
     public byte[] body;
     
     public int getBodyLength() {
