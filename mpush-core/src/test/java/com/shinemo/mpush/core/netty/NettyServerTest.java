@@ -2,7 +2,9 @@ package com.shinemo.mpush.core.netty;
 
 import org.junit.Test;
 
+import com.shinemo.mpush.api.Receiver;
 import com.shinemo.mpush.api.protocol.Handler;
+import com.shinemo.mpush.core.MessageDispatcher;
 import com.shinemo.mpush.core.MessageReceiver;
 import com.shinemo.mpush.core.handler.ServerHandler;
 import com.shinemo.mpush.netty.server.NettyServer;
@@ -20,7 +22,7 @@ public class NettyServerTest {
 	@Test
     public void testStart() throws Exception {
 		
-		MessageReceiver receiver = new MessageReceiver();
+		Receiver receiver = new MessageDispatcher();
 		Handler handler = new ServerHandler(receiver);
 		
         final NettyServer server = new NettyServer(3000,handler);
