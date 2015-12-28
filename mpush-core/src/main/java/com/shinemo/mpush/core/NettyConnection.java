@@ -131,4 +131,14 @@ public final class NettyConnection implements Connection {
     public String remoteIp() {
         return channel.remoteAddress().toString();
     }
+
+
+    @Override
+    public String toString() {
+        return "NettyConnection{" +
+                "context=" + context +
+                ", channel=" + channel +
+                ", status=" + status +
+                '}';
+    }
 }
