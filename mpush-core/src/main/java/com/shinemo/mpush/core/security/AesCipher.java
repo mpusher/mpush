@@ -8,7 +8,7 @@ import com.shinemo.mpush.tools.crypto.Base64Utils;
 /**
  * Created by ohun on 2015/12/28.
  */
-public class AesCipher implements Cipher {
+public final class AesCipher implements Cipher {
     private final byte[] key;
     private final byte[] iv;
 
@@ -43,7 +43,7 @@ public class AesCipher implements Cipher {
         try {
             byte[] key = Base64Utils.decode(array[0]);
             byte[] iv = Base64Utils.decode(array[1]);
-            if (key.length == AESUtils.AES_KEY_LENGTH && iv.length == AESUtils.AES_KEY_LENGTH) {
+            if (key.length == CipherBox.AES_KEY_LENGTH && iv.length == CipherBox.AES_KEY_LENGTH) {
                 return new AesCipher(key, iv);
             }
         } catch (Exception e) {

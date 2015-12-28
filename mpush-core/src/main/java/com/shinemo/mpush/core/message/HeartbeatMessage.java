@@ -7,7 +7,7 @@ import com.shinemo.mpush.api.protocol.Command;
 /**
  * Created by ohun on 2015/12/28.
  */
-public class HeartbeatMessage implements Message {
+public final class HeartbeatMessage implements Message {
     private final Connection connection;
 
     public HeartbeatMessage(Connection connection) {

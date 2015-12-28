@@ -21,7 +21,7 @@ public abstract class BaseMessage implements Message {
     }
 
     protected void decodeBody() {
-        if (message.body != null) {
+        if (message.body != null && message.body.length > 0) {
             //1.解密
             byte[] tmp = message.body;
             if (message.hasFlag(Constants.CRYPTO_FLAG)) {
@@ -45,7 +45,7 @@ public abstract class BaseMessage implements Message {
 
     protected void encodeBody() {
         byte[] tmp = encode();
-        if (tmp != null) {
+        if (tmp != null && tmp.length > 0) {
             //1.压缩
             if (tmp.length > Constants.COMPRESS_LIMIT) {
                 byte[] result = IOUtils.compress(tmp);
@@ -54,6 +54,7 @@ public abstract class BaseMessage implements Message {
                     message.setFlag(Constants.COMPRESS_FLAG);
                 }
             }
+
             //2.加密
             SessionContext context = connection.getSessionContext();
             if (context.cipher != null) {
@@ -74,10 +75,7 @@ public abstract class BaseMessage implements Message {
     }
 
     public Packet createResponse() {
-        Packet packet = new Packet();
-        packet.cmd = message.cmd;
-        packet.sessionId = message.sessionId;
-        return packet;
+        return new Packet(message.cmd, message.sessionId);
     }
 
     @Override

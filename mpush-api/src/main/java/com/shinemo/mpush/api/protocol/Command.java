@@ -4,15 +4,16 @@ package com.shinemo.mpush.api.protocol;
  * Created by ohun on 2015/12/22.
  */
 public enum Command {
-    Heartbeat(1),
-    Handshake(2),
-    Login(3),
-    Logout(4),
-    Bind(5),
-    Unbind(6),
-    Kick(7),
-    FastConnect(8),
-    Unknown(-1);
+    HEARTBEAT(1),
+    HANDSHAKE(2),
+    LOGIN(3),
+    LOGOUT(4),
+    BIND(5),
+    UNBIND(6),
+    KICK(7),
+    FAST_CONNECT(8),
+    ERROR(9),
+    UNKNOWN(-1);
 
     Command(int cmd) {
         this.cmd = (byte) cmd;
@@ -22,6 +23,6 @@ public enum Command {
 
     public static Command toCMD(byte b) {
         if (b > 0 && b < values().length) return values()[b - 1];
-        return Unknown;
+        return UNKNOWN;
     }
 }

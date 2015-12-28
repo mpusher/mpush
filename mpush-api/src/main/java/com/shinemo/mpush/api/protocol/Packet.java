@@ -19,6 +19,15 @@ public class Packet implements Serializable {
     public byte lrc; // 校验，纵向冗余校验。只校验body
     public byte[] body;
 
+    public Packet(byte cmd) {
+        this.cmd = cmd;
+    }
+
+    public Packet(byte cmd, int sessionId) {
+        this.cmd = cmd;
+        this.sessionId = sessionId;
+    }
+
     public int getBodyLength() {
         return body == null ? 0 : body.length;
     }

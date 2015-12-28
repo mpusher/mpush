@@ -8,7 +8,7 @@ import io.netty.buffer.ByteBuf;
 /**
  * Created by ohun on 2015/12/24.
  */
-public class HandShakeMessage extends BaseBufferBodyMessage {
+public final class HandShakeMessage extends ByteBufMessage {
     public String deviceId;
     public String osName;
     public String osVersion;
@@ -18,9 +18,7 @@ public class HandShakeMessage extends BaseBufferBodyMessage {
     public long timestamp;
 
     public HandShakeMessage(int sessionId, Connection connection) {
-        super(new Packet(), connection);
-        super.message.cmd = Command.Handshake.cmd;
-        super.message.sessionId = sessionId;
+        super(new Packet(Command.HANDSHAKE.cmd, sessionId), connection);
     }
 
     public HandShakeMessage(Packet message, Connection connection) {
@@ -35,7 +33,7 @@ public class HandShakeMessage extends BaseBufferBodyMessage {
         clientVersion = decodeString(body);
         iv = decodeBytes(body);
         clientKey = decodeBytes(body);
-        timestamp = body.readLong();
+        timestamp = decodeLong(body);
     }
 
     public void encode(ByteBuf body) {
@@ -45,10 +43,6 @@ public class HandShakeMessage extends BaseBufferBodyMessage {
         encodeString(body, clientVersion);
         encodeBytes(body, iv);
         encodeBytes(body, clientKey);
-        body.writeLong(timestamp);
-    }
-
-    public HandshakeSuccessMessage createSuccessMessage() {
-        return new HandshakeSuccessMessage(createResponse(), getConnection());
+        encodeLong(body, timestamp);
     }
 }

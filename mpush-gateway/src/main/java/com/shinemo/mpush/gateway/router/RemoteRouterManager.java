@@ -8,15 +8,18 @@ import com.shinemo.mpush.api.RouterManager;
  */
 public class RemoteRouterManager implements RouterManager {
 
-    public boolean publish(long userId, Router route) {
+    @Override
+    public boolean publish(String userId, Router route) {
         return true;
     }
 
-    public boolean unPublish(long userId) {
+    @Override
+    public boolean unPublish(String userId) {
         return true;
     }
 
-    public Router getRouter(long userId) {
+    @Override
+    public Router getRouter(String userId) {
         return null;
     }
 }

@@ -55,14 +55,14 @@ public class ClientHandler implements Handler {
         if (msg instanceof Packet) {
             Packet packet = (Packet) msg;
             Command command = Command.toCMD(packet.cmd);
-            if (command == Command.Handshake) {
+            if (command == Command.HANDSHAKE) {
                 connection.getSessionContext().changeCipher(new AesCipher(clientKey, iv));
                 HandshakeSuccessMessage resp = new HandshakeSuccessMessage(packet, connection);
                 byte[] sessionKey = CipherBox.INSTANCE.mixKey(clientKey, resp.serverKey);
                 LOGGER.info("会话密钥：{}，clientKey={}, serverKey={}", sessionKey, clientKey, resp.serverKey);
                 saveToken(resp.sessionId);
                 connection.getSessionContext().changeCipher(new AesCipher(sessionKey, iv));
-            } else if (command == Command.FastConnect) {
+            } else if (command == Command.FAST_CONNECT) {
                 LOGGER.info("fast connect success, message=" + packet.getStringBody());
             }
         }

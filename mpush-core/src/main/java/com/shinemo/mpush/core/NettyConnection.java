@@ -15,9 +15,8 @@ import com.shinemo.mpush.api.protocol.Packet;
 /**
  * Created by ohun on 2015/12/22.
  */
-public class NettyConnection implements Connection {
-
-    private static final Logger log = LoggerFactory.getLogger(NettyConnection.class);
+public final class NettyConnection implements Connection {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NettyConnection.class);
 
     private SessionContext context;
     private Channel channel;
@@ -33,7 +32,7 @@ public class NettyConnection implements Connection {
     }
 
     @Override
-    public void setSessionInfo(SessionContext context) {
+    public void setSessionContext(SessionContext context) {
         this.context = context;
     }
 
@@ -58,17 +57,18 @@ public class NettyConnection implements Connection {
                     public void operationComplete(ChannelFuture future) throws Exception {
                         if (!future.isSuccess()) {
                             if (!channel.isActive()) {
-                                log.warn("send msg false:" + channel.remoteAddress().toString() + "," + packet + ",channel is not active");
+                                LOGGER.warn("send msg failed, channel is not active clientIp={}, packet={}", channel.remoteAddress().toString(), packet);
                                 ConnectionManager.INSTANCE.remove(channel);
+                                channel.close();
                             }
-                            log.warn("send msg false:" + channel.remoteAddress().toString() + "," + packet);
+                            LOGGER.warn("send msg failed clientIp={}, packet={}", channel.remoteAddress().toString(), packet);
                         } else {
-                            log.warn("send msg success:" + channel.remoteAddress().toString() + "," + packet);
+                            LOGGER.warn("send msg success clientIp={}, packet={}", channel.remoteAddress().toString(), packet);
                         }
                     }
                 });
             } else {
-                log.warn("send msg false:" + channel.remoteAddress().toString() + "," + packet + ", channel is not writable");
+                LOGGER.warn("send msg failed, channel is not writable clientIp={}, packet={}", channel.remoteAddress().toString(), packet);
             }
         }
     }

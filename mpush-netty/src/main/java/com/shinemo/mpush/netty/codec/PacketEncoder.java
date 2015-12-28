@@ -18,7 +18,7 @@ public class PacketEncoder extends MessageToByteEncoder<Packet> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) throws Exception {
-        if (packet.cmd == Command.Heartbeat.cmd) {
+        if (packet.cmd == Command.HEARTBEAT.cmd) {
             out.writeByte(Constants.HB);
         } else {
             out.writeInt(packet.getBodyLength());

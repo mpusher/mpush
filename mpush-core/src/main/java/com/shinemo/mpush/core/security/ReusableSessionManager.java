@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by ohun on 2015/12/25.
  */
-public class ReusableSessionManager {
+public final class ReusableSessionManager {
     public static final ReusableSessionManager INSTANCE = new ReusableSessionManager();
     private static final int EXPIRE_TIME = 24 * 60 * 60 * 1000;
     private final Map<String, ReusableSession> tokenCache = new ConcurrentHashMap<String, ReusableSession>();

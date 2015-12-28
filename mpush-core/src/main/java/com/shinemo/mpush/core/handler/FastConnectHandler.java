@@ -1,28 +1,34 @@
 package com.shinemo.mpush.core.handler;
 
+import com.shinemo.mpush.api.Constants;
+import com.shinemo.mpush.api.MessageHandler;
+import com.shinemo.mpush.core.message.ErrorMessage;
 import com.shinemo.mpush.core.message.FastConnectMessage;
+import com.shinemo.mpush.core.message.FastConnectSuccessMessage;
 import com.shinemo.mpush.core.security.ReusableSession;
 import com.shinemo.mpush.core.security.ReusableSessionManager;
+import com.shinemo.mpush.tools.MPushUtil;
 
 /**
  * Created by ohun on 2015/12/25.
  */
-public class FastConnectHandler extends BaseMessageHandler<FastConnectMessage> {
+public final  class FastConnectHandler implements MessageHandler<FastConnectMessage> {
 
     @Override
     public void handle(FastConnectMessage message) {
-        ReusableSession session = ReusableSessionManager.INSTANCE.getSession(message.tokenId);
+        ReusableSession session = ReusableSessionManager.INSTANCE.getSession(message.sessionId);
         if (session == null) {
-            //message.sendRaw("token expire".getBytes(Constants.UTF_8));
+            ErrorMessage.from(message).setReason("token expire").send();
         } else if (!session.sessionContext.deviceId.equals(message.deviceId)) {
-            //message.sendRaw("error device".getBytes(Constants.UTF_8));
+            ErrorMessage.from(message).setReason("error device").send();
         } else {
-            /*request.getConnection().setSessionInfo(session.sessionContext);
-            Map<String, Serializable> resp = new HashMap<String, Serializable>();
-            resp.put("serverHost", MPushUtil.getLocalIp());
-            resp.put("serverTime", System.currentTimeMillis());
-            resp.put("heartbeat", Constants.HEARTBEAT_TIME);
-            request.getResponse().sendRaw(Jsons.toJson(resp).getBytes(Constants.UTF_8));*/
+            message.getConnection().setSessionContext(session.sessionContext);
+            FastConnectSuccessMessage
+                    .from(message)
+                    .setServerHost(MPushUtil.getLocalIp())
+                    .setServerTime(System.currentTimeMillis())
+                    .setHeartbeat(Constants.HEARTBEAT_TIME)
+                    .send();
         }
     }
 }
