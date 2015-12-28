@@ -23,6 +23,7 @@ public final  class FastConnectHandler implements MessageHandler<FastConnectMess
             ErrorMessage.from(message).setReason("error device").send();
         } else {
             message.getConnection().setSessionContext(session.sessionContext);
+
             FastConnectSuccessMessage
                     .from(message)
                     .setServerHost(MPushUtil.getLocalIp())
