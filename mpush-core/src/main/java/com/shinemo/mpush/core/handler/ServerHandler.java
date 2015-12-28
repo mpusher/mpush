@@ -1,17 +1,15 @@
 package com.shinemo.mpush.core.handler;
 
 
-import java.net.SocketAddress;
-
 import com.shinemo.mpush.api.protocol.Handler;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.api.AbstractHandler;
 import com.shinemo.mpush.api.Connection;
 import com.shinemo.mpush.core.ConnectionManager;
 import com.shinemo.mpush.core.MessageReceiver;
 import com.shinemo.mpush.core.NettyConnection;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ohun on 2015/12/19.
  */
-public class ServerHandler implements Handler {
+public class ServerHandler extends AbstractHandler implements Handler {
 
     private static final Logger log = LoggerFactory.getLogger(ServerHandler.class);
 
@@ -55,28 +53,4 @@ public class ServerHandler implements Handler {
         ConnectionManager.INSTANCE.remove(ctx.channel());
     }
 
-	@Override
-	public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-		
-	}
-
-	@Override
-	public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-		
-	}
-
-	@Override
-	public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-		
-	}
-
-	@Override
-	public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) throws Exception {
-		
-	}
-
-	@Override
-	public void disconnect(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
-		
-	}
 }
