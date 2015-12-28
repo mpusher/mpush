@@ -33,8 +33,8 @@ public class ClientHandler implements Handler {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        String token = getToken();
-        if (!Strings.isBlank(token)) {
+//        String token = getToken();
+        //if (!Strings.isBlank(token)) {
             RSAPublicKey publicKey = CipherManager.INSTANCE.getPublicKey();
             HandShakeMessage message = new HandShakeMessage();
             message.clientKey = clientKey;
@@ -50,16 +50,16 @@ public class ClientHandler implements Handler {
             packet.sessionId = 1;
             packet.body = RSAUtils.encryptByPublicKey(Jsons.toJson(message).getBytes(Constants.UTF_8), publicKey);
             ctx.writeAndFlush(packet);
-        } else {
-            FastConnectMessage message = new FastConnectMessage();
-            message.deviceId = "1111111111111";
-            message.tokenId = token;
-            Packet packet = new Packet();
-            packet.cmd = Command.FastConnect.cmd;
-            packet.sessionId = 1;
-            packet.body = Jsons.toJson(message).getBytes(Constants.UTF_8);
-            ctx.writeAndFlush(packet);
-        }
+//        } else {
+//            FastConnectMessage message = new FastConnectMessage();
+//            message.deviceId = "1111111111111";
+//            message.tokenId = token;
+//            Packet packet = new Packet();
+//            packet.cmd = Command.FastConnect.cmd;
+//            packet.sessionId = 1;
+//            packet.body = Jsons.toJson(message).getBytes(Constants.UTF_8);
+//            ctx.writeAndFlush(packet);
+//        }
         LOGGER.info("client," + ctx.channel().remoteAddress().toString(), "channelActive");
     }
 
