@@ -89,7 +89,7 @@ public class ThreadPoolManager {
 	}
 	
 
-    public void allocThreadpool(final String serviceUniqueName, int corePoolSize, int maximumPoolSize)
+    public void allocThreadPool(final String serviceUniqueName, int corePoolSize, int maximumPoolSize)
             throws Exception {
         if (poolCache.containsKey(serviceUniqueName)) { // 对同一个服务重复分配线程池时，抛出异常
             throw new Exception(MessageFormat.format(
@@ -149,7 +149,7 @@ public class ThreadPoolManager {
                 return executor;
             }else{
             	try{
-                	allocThreadpool(serviceUniqueName, corePoolSize, maximumPoolSize);
+                	allocThreadPool(serviceUniqueName, corePoolSize, maximumPoolSize);
             	}catch(Exception e){
             		log.error("allocThreadPool exception",e);
             	}
@@ -160,7 +160,7 @@ public class ThreadPoolManager {
             }
         }else{
         	try{
-            	allocThreadpool(serviceUniqueName, corePoolSize, maximumPoolSize);
+            	allocThreadPool(serviceUniqueName, corePoolSize, maximumPoolSize);
         	}catch(Exception e){
         		log.error("allocThreadPool exception",e);
         	}

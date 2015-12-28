@@ -2,6 +2,7 @@ package com.shinemo.mpush.netty.server;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.netty.buffer.PooledByteBufAllocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,6 +131,14 @@ public class NettyServer implements Server {
              */
             b.option(ChannelOption.SO_BACKLOG, 1024);
 
+            /**
+             * TCP层面的接收和发送缓冲区大小设置，
+             * 在Netty中分别对应ChannelOption的SO_SNDBUF和SO_RCVBUF，
+             * 需要根据推送消息的大小，合理设置，对于海量长连接，通常32K是个不错的选择。
+             */
+            b.childOption(ChannelOption.SO_SNDBUF, 32 * 1024);
+            b.childOption(ChannelOption.SO_RCVBUF, 32 * 1024);
+
             /***
              * option()是提供给NioServerSocketChannel用来接收进来的连接。
              * childOption()是提供给由父管道ServerChannel接收到的连接，
@@ -137,9 +146,15 @@ public class NettyServer implements Server {
              */
             b.childOption(ChannelOption.SO_KEEPALIVE, true);
 
-            b.option(ChannelOption.ALLOCATOR, NettySharedHolder.byteBufAllocator);
-            b.childOption(ChannelOption.ALLOCATOR, NettySharedHolder.byteBufAllocator);
 
+            /**
+             * 在Netty 4中实现了一个新的ByteBuf内存池，它是一个纯Java版本的 jemalloc （Facebook也在用）。
+             * 现在，Netty不会再因为用零填充缓冲区而浪费内存带宽了。不过，由于它不依赖于GC，开发人员需要小心内存泄漏。
+             * 如果忘记在处理程序中释放缓冲区，那么内存使用率会无限地增长。
+             * Netty默认不使用内存池，需要在创建客户端或者服务端的时候进行指定
+             */
+            b.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+            b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
             /***
              * 绑定端口并启动去接收进来的连接
