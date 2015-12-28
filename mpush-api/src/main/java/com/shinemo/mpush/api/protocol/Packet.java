@@ -10,7 +10,7 @@ import java.util.Arrays;
  * Created by ohun on 2015/12/19.
  * length(4)+cmd(1)+cc(2)+flags(1)+sessionId(4)+lrc(1)+body(n)
  */
-public class Packet implements Serializable {
+public final class Packet implements Serializable {
     private static final long serialVersionUID = -2725825199998223372L;
     public byte cmd; //命令
     public short cc; //校验码 暂时没有用到
