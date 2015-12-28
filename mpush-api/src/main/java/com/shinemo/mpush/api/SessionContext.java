@@ -39,4 +39,15 @@ public final class SessionContext {
     public boolean handshakeOk() {
         return !Strings.isNullOrEmpty(deviceId);
     }
+
+
+    @Override
+    public String toString() {
+        return "SessionContext{" +
+                "osName='" + osName + '\'' +
+                ", osVersion='" + osVersion + '\'' +
+                ", clientVersion='" + clientVersion + '\'' +
+                ", deviceId='" + deviceId + '\'' +
+                '}';
+    }
 }
