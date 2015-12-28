@@ -1,6 +1,6 @@
 package com.shinemo.mpush.core.security;
 
-import com.shinemo.mpush.api.SessionInfo;
+import com.shinemo.mpush.api.SessionContext;
 import com.shinemo.mpush.tools.crypto.MD5Utils;
 
 import java.util.Map;
@@ -23,7 +23,7 @@ public class ReusableSessionManager {
         return tokenCache.get(sessionId);
     }
 
-    public ReusableSession genSession(SessionInfo info) {
+    public ReusableSession genSession(SessionContext info) {
         /**
          * 先生成key，需要保证半个周期内同一个设备生成的key是相同的
          */
@@ -31,7 +31,7 @@ public class ReusableSessionManager {
         StringBuilder sb = new StringBuilder();
         sb.append(info.deviceId).append(partition);
         ReusableSession v = new ReusableSession();
-        v.sessionInfo = info;
+        v.sessionContext = info;
         v.sessionId = MD5Utils.encrypt(sb.toString());
         /**
          * 计算失效时间

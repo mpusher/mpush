@@ -18,7 +18,7 @@ public class Packet implements Serializable {
     public int sessionId; // 会话id。客户端生成。
     public byte lrc; // 校验，纵向冗余校验。只校验body
     public byte[] body;
-    
+
     public int getBodyLength() {
         return body == null ? 0 : body.length;
     }

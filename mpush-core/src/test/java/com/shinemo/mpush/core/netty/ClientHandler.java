@@ -1,17 +1,15 @@
 package com.shinemo.mpush.core.netty;
 
-import com.shinemo.mpush.api.Constants;
+import com.shinemo.mpush.api.Connection;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Handler;
 import com.shinemo.mpush.api.protocol.Packet;
-import com.shinemo.mpush.core.message.FastConnectMessage;
+import com.shinemo.mpush.core.NettyConnection;
 import com.shinemo.mpush.core.message.HandShakeMessage;
-import com.shinemo.mpush.core.message.HandshakeSuccessMsg;
-import com.shinemo.mpush.core.security.CipherManager;
-import com.shinemo.mpush.tools.Jsons;
+import com.shinemo.mpush.core.message.HandshakeSuccessMessage;
+import com.shinemo.mpush.core.security.AesCipher;
+import com.shinemo.mpush.core.security.CipherBox;
 import com.shinemo.mpush.tools.Strings;
-import com.shinemo.mpush.tools.crypto.AESUtils;
-import com.shinemo.mpush.tools.crypto.RSAUtils;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
@@ -21,45 +19,28 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.SocketAddress;
-import java.security.interfaces.RSAPublicKey;
 
 /**
  * Created by ohun on 2015/12/24.
  */
 public class ClientHandler implements Handler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientHandler.class);
-    private byte[] clientKey = CipherManager.INSTANCE.randomAESKey();
-    private byte[] iv = CipherManager.INSTANCE.randomAESIV();
+    private byte[] clientKey = CipherBox.INSTANCE.randomAESKey();
+    private byte[] iv = CipherBox.INSTANCE.randomAESIV();
+    private Connection connection = new NettyConnection();
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-//        String token = getToken();
-        //if (!Strings.isBlank(token)) {
-            RSAPublicKey publicKey = CipherManager.INSTANCE.getPublicKey();
-            HandShakeMessage message = new HandShakeMessage();
-            message.clientKey = clientKey;
-            message.iv = iv;
-            message.clientVersion = "1.0.1";
-            message.deviceId = "1111111111111";
-            message.osName = "android";
-            message.osVersion = "5.0";
-            message.timestamp = System.currentTimeMillis();
-
-            Packet packet = new Packet();
-            packet.cmd = Command.Handshake.cmd;
-            packet.sessionId = 1;
-            packet.body = RSAUtils.encryptByPublicKey(Jsons.toJson(message).getBytes(Constants.UTF_8), publicKey);
-            ctx.writeAndFlush(packet);
-//        } else {
-//            FastConnectMessage message = new FastConnectMessage();
-//            message.deviceId = "1111111111111";
-//            message.tokenId = token;
-//            Packet packet = new Packet();
-//            packet.cmd = Command.FastConnect.cmd;
-//            packet.sessionId = 1;
-//            packet.body = Jsons.toJson(message).getBytes(Constants.UTF_8);
-//            ctx.writeAndFlush(packet);
-//        }
+        connection.init(ctx.channel());
+        HandShakeMessage message = new HandShakeMessage(1, connection);
+        message.clientKey = clientKey;
+        message.iv = iv;
+        message.clientVersion = "1.0.1";
+        message.deviceId = "1111111111111";
+        message.osName = "android";
+        message.osVersion = "5.0";
+        message.timestamp = System.currentTimeMillis();
+        message.send();
         LOGGER.info("client," + ctx.channel().remoteAddress().toString(), "channelActive");
     }
 
@@ -75,17 +56,16 @@ public class ClientHandler implements Handler {
             Packet packet = (Packet) msg;
             Command command = Command.toCMD(packet.cmd);
             if (command == Command.Handshake) {
-                String raw = new String(AESUtils.decrypt(packet.body, clientKey, iv), Constants.UTF_8);
-                HandshakeSuccessMsg resp = Jsons.fromJson(raw, HandshakeSuccessMsg.class);
-                LOGGER.info("hand shake success, message=" + raw);
-                byte[] sessionKey = CipherManager.INSTANCE.mixKey(clientKey, resp.serverKey);
+                connection.getSessionContext().changeCipher(new AesCipher(clientKey, iv));
+                HandshakeSuccessMessage resp = new HandshakeSuccessMessage(packet, connection);
+                byte[] sessionKey = CipherBox.INSTANCE.mixKey(clientKey, resp.serverKey);
                 LOGGER.info("会话密钥：{}，clientKey={}, serverKey={}", sessionKey, clientKey, resp.serverKey);
                 saveToken(resp.sessionId);
+                connection.getSessionContext().changeCipher(new AesCipher(sessionKey, iv));
             } else if (command == Command.FastConnect) {
                 LOGGER.info("fast connect success, message=" + packet.getStringBody());
             }
         }
-
     }
 
 
@@ -110,33 +90,33 @@ public class ClientHandler implements Handler {
         return Strings.EMPTY;
     }
 
-	@Override
-	public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-		
-	}
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
 
-	@Override
-	public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-		
-	}
+    }
 
-	@Override
-	public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-		
-	}
+    @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
 
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		
-	}
+    }
 
-	@Override
-	public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) throws Exception {
-		
-	}
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
 
-	@Override
-	public void disconnect(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
-		
-	}
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+
+    }
+
+    @Override
+    public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) throws Exception {
+
+    }
+
+    @Override
+    public void disconnect(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
+
+    }
 }

@@ -1,18 +1,13 @@
 package com.shinemo.mpush.netty.util;
 
-import java.net.SocketAddress;
-
+import com.shinemo.mpush.api.protocol.Handler;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerAdapter;
+import io.netty.channel.ChannelHandlerContext;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.shinemo.mpush.api.protocol.Handler;
-
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerAdapter;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
 
 @ChannelHandler.Sharable
 public class NettySharedHandler extends ChannelHandlerAdapter{

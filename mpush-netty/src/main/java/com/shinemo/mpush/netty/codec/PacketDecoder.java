@@ -50,9 +50,6 @@ public class PacketDecoder extends ByteToMessageDecoder {
 
     private Packet decodeFrame(ByteBuf in) throws Exception {
         int bufferSize = in.readableBytes();
-        /*if (in.readShort() != Constants.MAGIC_NUM) {
-            throw new RuntimeException("ERROR MAGIC_NUM");
-        }*/
         int bodyLength = in.readInt();
         if (bufferSize < (bodyLength + Constants.HEADER_LEN)) {
             throw new DecodeException("invalid frame");

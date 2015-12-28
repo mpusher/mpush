@@ -1,5 +1,7 @@
 package com.shinemo.mpush.core;
 
+import com.shinemo.mpush.api.SessionContext;
+import com.shinemo.mpush.core.security.CipherBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,7 +10,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
 import com.shinemo.mpush.api.Connection;
-import com.shinemo.mpush.api.SessionInfo;
 import com.shinemo.mpush.api.protocol.Packet;
 
 /**
@@ -18,7 +19,7 @@ public class NettyConnection implements Connection {
 
     private static final Logger log = LoggerFactory.getLogger(NettyConnection.class);
 
-    private SessionInfo info;
+    private SessionContext context;
     private Channel channel;
     private int status = 0;
 
@@ -27,16 +28,18 @@ public class NettyConnection implements Connection {
     @Override
     public void init(Channel channel) {
         this.channel = channel;
+        this.context = new SessionContext();
+        this.context.changeCipher(CipherBox.INSTANCE.getRsaCipher());
     }
 
     @Override
-    public void setSessionInfo(SessionInfo info) {
-        this.info = info;
+    public void setSessionInfo(SessionContext context) {
+        this.context = context;
     }
 
     @Override
-    public SessionInfo getSessionInfo() {
-        return info;
+    public SessionContext getSessionContext() {
+        return context;
     }
 
     @Override
