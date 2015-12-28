@@ -12,21 +12,12 @@ public final class ErrorMessage extends ByteBufMessage {
     public String reason;
     public byte errorCode;
 
-    public ErrorMessage(String reason, Connection connection) {
-        super(new Packet(Command.ERROR.cmd), connection);
-        this.reason = reason;
-    }
-
-    public ErrorMessage(int sessionId, Connection connection) {
-        super(new Packet(Command.ERROR.cmd, sessionId), connection);
-    }
-
     public ErrorMessage(Packet message, Connection connection) {
         super(message, connection);
     }
 
     public static ErrorMessage from(BaseMessage src) {
-        return new ErrorMessage(src.createResponse(), src.connection);
+        return new ErrorMessage(new Packet(Command.ERROR.cmd, src.message.sessionId), src.connection);
     }
 
     public ErrorMessage setReason(String reason) {
