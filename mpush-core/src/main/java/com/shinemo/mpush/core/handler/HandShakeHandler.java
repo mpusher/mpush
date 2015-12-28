@@ -1,22 +1,16 @@
 package com.shinemo.mpush.core.handler;
 
 import com.shinemo.mpush.api.Constants;
-import com.shinemo.mpush.api.Request;
-import com.shinemo.mpush.api.SessionInfo;
+import com.shinemo.mpush.api.SessionContext;
 import com.shinemo.mpush.core.message.HandShakeMessage;
-import com.shinemo.mpush.core.message.HandshakeSuccessMsg;
-import com.shinemo.mpush.core.security.CipherManager;
+import com.shinemo.mpush.core.message.HandshakeSuccessMessage;
+import com.shinemo.mpush.core.security.AesCipher;
+import com.shinemo.mpush.core.security.CipherBox;
 import com.shinemo.mpush.core.security.ReusableSession;
 import com.shinemo.mpush.core.security.ReusableSessionManager;
-import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.MPushUtil;
-import com.shinemo.mpush.tools.crypto.AESUtils;
-import com.shinemo.mpush.tools.crypto.RSAUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.security.interfaces.RSAPrivateKey;
 
 /**
  * Created by ohun on 2015/12/24.
@@ -25,32 +19,26 @@ public class HandShakeHandler extends BaseMessageHandler<HandShakeMessage> {
     public static final Logger LOGGER = LoggerFactory.getLogger(HandShakeHandler.class);
 
     @Override
-    public HandShakeMessage decodeBody(byte[] body) {
-        RSAPrivateKey privateKey = CipherManager.INSTANCE.getPrivateKey();
-        byte[] rawData = RSAUtils.decryptByPrivateKey(body, privateKey);
-        return Jsons.fromJson(new String(rawData, Constants.UTF_8), HandShakeMessage.class);
-    }
-
-    @Override
-    public void handle(HandShakeMessage body, Request request) {
-        byte[] iv = body.iv;
-        byte[] clientKey = body.clientKey;
-        byte[] serverKey = CipherManager.INSTANCE.randomAESKey();
-        byte[] sessionKey = CipherManager.INSTANCE.mixKey(clientKey, serverKey);//会话密钥混淆 Client random
-        SessionInfo info = new SessionInfo(body.osName, body.osVersion, body.clientVersion,
-                body.deviceId, sessionKey, iv);
-        request.getConnection().setSessionInfo(info);
+    public void handle(HandShakeMessage message) {
+        byte[] iv = message.iv;
+        byte[] clientKey = message.clientKey;
+        byte[] serverKey = CipherBox.INSTANCE.randomAESKey();
+        byte[] sessionKey = CipherBox.INSTANCE.mixKey(clientKey, serverKey);//会话密钥混淆 Client random
+        SessionContext info = new SessionContext(message.osName, message.osVersion,
+                message.clientVersion, message.deviceId, sessionKey, iv);
+        info.changeCipher(new AesCipher(clientKey, iv));
+        message.getConnection().setSessionInfo(info);
         ReusableSession session = ReusableSessionManager.INSTANCE.genSession(info);
         ReusableSessionManager.INSTANCE.saveSession(session);
-        HandshakeSuccessMsg resp = new HandshakeSuccessMsg();
+        HandshakeSuccessMessage resp = message.createSuccessMessage();
         resp.serverKey = serverKey;
         resp.serverHost = MPushUtil.getLocalIp();
         resp.serverTime = System.currentTimeMillis();
         resp.heartbeat = Constants.HEARTBEAT_TIME;
         resp.sessionId = session.sessionId;
         resp.expireTime = session.expireTime;
-        byte[] responseData = AESUtils.encrypt(Jsons.toJson(resp).getBytes(Constants.UTF_8), clientKey, iv);
-        request.getResponse().sendRaw(responseData);
+        resp.send();
+        info.changeCipher(new AesCipher(sessionKey, iv));
         LOGGER.info("会话密钥：{}，clientKey={}, serverKey={}", sessionKey, clientKey, serverKey);
 
     }

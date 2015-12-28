@@ -3,7 +3,7 @@ package com.shinemo.mpush.core.message;
 import com.shinemo.mpush.api.Connection;
 import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.Response;
-import com.shinemo.mpush.api.SessionInfo;
+import com.shinemo.mpush.api.SessionContext;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.tools.IOUtils;
 import com.shinemo.mpush.tools.crypto.AESUtils;
@@ -31,7 +31,7 @@ public class NettyResponse implements Response {
             }
         }
         //2.加密
-        SessionInfo info = connection.getSessionInfo();
+        SessionContext info = connection.getSessionContext();
         if (info != null && info.sessionKey != null) {
             tmp = AESUtils.encrypt(tmp, info.sessionKey, info.iv);
             packet.setFlag(Constants.CRYPTO_FLAG);

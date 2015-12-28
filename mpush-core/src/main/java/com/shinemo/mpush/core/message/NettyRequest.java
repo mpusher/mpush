@@ -30,7 +30,7 @@ public class NettyRequest implements Request {
             //1.解密
             byte[] tmp = message.body;
             if (message.hasFlag(Constants.CRYPTO_FLAG)) {
-                SessionInfo info = connection.getSessionInfo();
+                SessionContext info = connection.getSessionContext();
                 if (info != null && info.sessionKey != null) {
                     tmp = AESUtils.decrypt(tmp, info.sessionKey, info.iv);
                 }

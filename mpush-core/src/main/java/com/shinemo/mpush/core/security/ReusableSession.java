@@ -1,6 +1,6 @@
 package com.shinemo.mpush.core.security;
 
-import com.shinemo.mpush.api.SessionInfo;
+import com.shinemo.mpush.api.SessionContext;
 
 /**
  * Created by ohun on 2015/12/25.
@@ -8,6 +8,6 @@ import com.shinemo.mpush.api.SessionInfo;
 public class ReusableSession {
     public transient String sessionId;
     public long expireTime;
-    public SessionInfo sessionInfo;
+    public SessionContext sessionContext;
 
 }

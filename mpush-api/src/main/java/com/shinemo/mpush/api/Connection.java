@@ -9,9 +9,9 @@ import com.shinemo.mpush.api.protocol.Packet;
  */
 public interface Connection {
 
-    void setSessionInfo(SessionInfo info);
+    void setSessionInfo(SessionContext context);
 
-    SessionInfo getSessionInfo();
+    SessionContext getSessionContext();
 
     String getId();
 

@@ -14,12 +14,16 @@ import java.security.interfaces.RSAPublicKey;
 /**
  * Created by ohun on 2015/12/24.
  */
-public class CipherManager {
-    public static final CipherManager INSTANCE = new CipherManager();
+public class CipherBox {
+    public static final CipherBox INSTANCE = new CipherBox();
     private SecureRandom random = new SecureRandom();
 
     private RSAPrivateKey privateKey;
     private RSAPublicKey publicKey;
+
+    public CipherBox() {
+        init();
+    }
 
     public void init() {
         readFromFile();
@@ -43,8 +47,8 @@ public class CipherManager {
 
     private void writeToFile() {
         try {
-            String publicKeyStr = RSAUtils.encodeBase64(INSTANCE.publicKey);
-            String privateKeyStr = RSAUtils.encodeBase64(INSTANCE.privateKey);
+            String publicKeyStr = RSAUtils.encodeBase64(publicKey);
+            String privateKeyStr = RSAUtils.encodeBase64(privateKey);
             String path = this.getClass().getResource("/").getPath();
             FileOutputStream out = new FileOutputStream(new File(path, "private.key"));
             out.write(privateKeyStr.getBytes());
@@ -64,11 +68,11 @@ public class CipherManager {
             byte[] buffer = new byte[in.available()];
             in.read(buffer);
             in.close();
-            INSTANCE.privateKey = (RSAPrivateKey) RSAUtils.decodePrivateKey(new String(buffer));
+            privateKey = (RSAPrivateKey) RSAUtils.decodePrivateKey(new String(buffer));
             in = this.getClass().getResourceAsStream("/public.key");
             in.read(buffer);
             in.close();
-            INSTANCE.publicKey = (RSAPublicKey) RSAUtils.decodePublicKey(new String(buffer));
+            publicKey = (RSAPublicKey) RSAUtils.decodePublicKey(new String(buffer));
             System.out.println("save privateKey=" + privateKey);
             System.out.println("save publicKey=" + publicKey);
         } catch (Exception e) {
@@ -77,13 +81,13 @@ public class CipherManager {
     }
 
     public RSAPrivateKey getPrivateKey() {
-        if (INSTANCE.privateKey == null) init();
-        return INSTANCE.privateKey;
+        if (privateKey == null) init();
+        return privateKey;
     }
 
     public RSAPublicKey getPublicKey() {
-        if (INSTANCE.publicKey == null) init();
-        return INSTANCE.publicKey;
+        if (publicKey == null) init();
+        return publicKey;
     }
 
     public byte[] randomAESKey() {
@@ -108,5 +112,9 @@ public class CipherManager {
             sessionKey[i] = (byte) c;
         }
         return sessionKey;
+    }
+
+    public RsaCipher getRsaCipher() {
+        return new RsaCipher(privateKey, publicKey);
     }
 }
