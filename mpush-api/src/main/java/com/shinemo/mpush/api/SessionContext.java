@@ -5,23 +5,12 @@ import com.google.common.base.Strings;
 /**
  * Created by ohun on 2015/12/22.
  */
-public class SessionContext {
+public final class SessionContext {
     public String osName;
     public String osVersion;
     public String clientVersion;
     public String deviceId;
     public Cipher cipher;
-
-    public SessionContext() {
-
-    }
-
-    public SessionContext(String osName, String osVersion, String clientVersion, String deviceId) {
-        this.osName = osName;
-        this.osVersion = osVersion;
-        this.clientVersion = clientVersion;
-        this.deviceId = deviceId;
-    }
 
     public void changeCipher(Cipher cipher) {
         this.cipher = cipher;
