@@ -1,14 +1,12 @@
 package com.shinemo.mpush.core.handler;
 
 
-import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.api.Connection;
-import com.shinemo.mpush.api.Receiver;
+import com.shinemo.mpush.api.PacketReceiver;
 import com.shinemo.mpush.core.ConnectionManager;
 import com.shinemo.mpush.core.NettyConnection;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,9 +23,9 @@ public class ServerChannelHandler extends ChannelHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerChannelHandler.class);
 
-    private final Receiver receiver;
+    private final PacketReceiver receiver;
 
-    public ServerChannelHandler(Receiver receiver) {
+    public ServerChannelHandler(PacketReceiver receiver) {
         this.receiver = receiver;
     }
 

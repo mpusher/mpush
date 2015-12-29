@@ -1,25 +1,24 @@
 package com.shinemo.mpush.gateway.router;
 
-import com.shinemo.mpush.api.Router;
 import com.shinemo.mpush.api.RouterManager;
 
 /**
  * Created by ohun on 2015/12/23.
  */
-public class RemoteRouterManager implements RouterManager {
+public class RemoteRouterManager implements RouterManager<RemoteRouter> {
 
     @Override
-    public boolean publish(String userId, Router route) {
+    public RemoteRouter register(String userId, RemoteRouter route) {
+        return null;
+    }
+
+    @Override
+    public boolean unRegister(String userId) {
         return true;
     }
 
     @Override
-    public boolean unPublish(String userId) {
-        return true;
-    }
-
-    @Override
-    public Router getRouter(String userId) {
+    public RemoteRouter getRouter(String userId) {
         return null;
     }
 }

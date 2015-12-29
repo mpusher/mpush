@@ -18,7 +18,7 @@ public abstract class AbstractNettyClientFactory {
 
     private static final String format = "%s:%s";
 
-    private static final Logger log = LoggerFactory.getLogger(AbstractNettyClientFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractNettyClientFactory.class);
 
     /**
      * host:port
@@ -30,10 +30,11 @@ public abstract class AbstractNettyClientFactory {
                 @Override
                 public void onRemoval(RemovalNotification<String, Client> notification) {
                     if (notification.getValue().isConnected()) {
-                        notification.getValue().close("[Remoting] removed from cache");
+                        notification.getValue().stop();
+                        LOGGER.warn("[Remoting] removed from cache");
                     }
                 }
-            })//
+            })
             .build();
 
     /**
@@ -76,7 +77,7 @@ public abstract class AbstractNettyClientFactory {
     public void remove(Client client) {
         if (client != null) {
             cachedClients.invalidate(client.getUri());
-            log.warn(MessageFormat.format("[Remoting] {0} is removed", client));
+            LOGGER.warn(MessageFormat.format("[Remoting] {0} is removed", client));
         }
     }
 

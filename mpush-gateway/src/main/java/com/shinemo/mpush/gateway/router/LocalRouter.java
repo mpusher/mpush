@@ -2,23 +2,25 @@ package com.shinemo.mpush.gateway.router;
 
 import com.shinemo.mpush.api.Connection;
 import com.shinemo.mpush.api.Router;
-import com.shinemo.mpush.api.RouterInfo;
+import com.shinemo.mpush.api.UserConnConfig;
 
 /**
  * Created by ohun on 2015/12/23.
  */
-public class LocalRouter implements Router {
+public class LocalRouter implements Router<Connection> {
     private final Connection connection;
 
     public LocalRouter(Connection connection) {
         this.connection = connection;
     }
 
-    public Connection getConnect() {
+    @Override
+    public Connection getRouteInfo() {
         return connection;
     }
 
-    public RouterInfo getRouterInfo() {
-        return null;
+    @Override
+    public RouterType getType() {
+        return RouterType.LOCAL;
     }
 }

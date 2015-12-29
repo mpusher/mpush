@@ -1,4 +1,4 @@
-package com.shinemo.mpush.core.message;
+package com.shinemo.mpush.api.message;
 
 import com.google.common.base.Strings;
 import com.shinemo.mpush.api.Connection;
@@ -8,10 +8,10 @@ import com.shinemo.mpush.api.protocol.Packet;
 /**
  * Created by ohun on 2015/12/28.
  */
-public final class SuccessMessage extends BaseMessage {
+public final class OkMessage extends BaseMessage {
     public String data;
 
-    public SuccessMessage(Packet message, Connection connection) {
+    public OkMessage(Packet message, Connection connection) {
         super(message, connection);
     }
 
@@ -29,12 +29,20 @@ public final class SuccessMessage extends BaseMessage {
                 data.getBytes(Constants.UTF_8);
     }
 
-    public static SuccessMessage from(BaseMessage message) {
-        return new SuccessMessage(message.createResponse(), message.connection);
+    public static OkMessage from(BaseMessage message) {
+        return new OkMessage(message.createResponse(), message.connection);
     }
 
-    public SuccessMessage setData(String data) {
+    public OkMessage setData(String data) {
         this.data = data;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "OkMessage{" +
+                "data='" + data + '\'' +
+                "packet='" + packet + '\'' +
+                '}';
     }
 }

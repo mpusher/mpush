@@ -2,9 +2,9 @@ package com.shinemo.mpush.core.handler;
 
 import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.MessageHandler;
-import com.shinemo.mpush.core.message.ErrorMessage;
-import com.shinemo.mpush.core.message.FastConnectMessage;
-import com.shinemo.mpush.core.message.FastConnectSuccessMessage;
+import com.shinemo.mpush.api.message.ErrorMessage;
+import com.shinemo.mpush.api.message.FastConnectMessage;
+import com.shinemo.mpush.api.message.FastConnectSuccessMessage;
 import com.shinemo.mpush.core.security.ReusableSession;
 import com.shinemo.mpush.core.security.ReusableSessionManager;
 import com.shinemo.mpush.tools.MPushUtil;
