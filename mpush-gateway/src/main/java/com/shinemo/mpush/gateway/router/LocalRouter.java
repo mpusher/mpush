@@ -14,7 +14,7 @@ public class LocalRouter implements Router<Connection> {
     }
 
     @Override
-    public Connection getRouteInfo() {
+    public Connection getRouteValue() {
         return connection;
     }
 
