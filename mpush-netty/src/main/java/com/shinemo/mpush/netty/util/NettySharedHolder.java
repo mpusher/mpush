@@ -11,7 +11,7 @@ import io.netty.util.Timer;
 
 public class NettySharedHolder {
 
-    public static final Timer timer = new HashedWheelTimer(new NamedThreadFactory(ThreadNameSpace.NETTY_TIMER));
+    public static final Timer HASHED_WHEEL_TIMER = new HashedWheelTimer(new NamedThreadFactory(ThreadNameSpace.NETTY_TIMER));
 
 
 }

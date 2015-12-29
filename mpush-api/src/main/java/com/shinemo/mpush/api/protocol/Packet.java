@@ -1,6 +1,8 @@
 package com.shinemo.mpush.api.protocol;
 
 import com.shinemo.mpush.api.Constants;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.io.Serializable;
 
@@ -11,6 +13,7 @@ import java.util.Arrays;
  * length(4)+cmd(1)+cc(2)+flags(1)+sessionId(4)+lrc(1)+body(n)
  */
 public final class Packet implements Serializable {
+    public static final byte HB_PACKET = '\n';
     private static final long serialVersionUID = -2725825199998223372L;
     public byte cmd; //命令
     public short cc; //校验码 暂时没有用到
@@ -54,5 +57,9 @@ public final class Packet implements Serializable {
                 ", lrc=" + lrc +
                 ", body=" + Arrays.toString(body) +
                 '}';
+    }
+
+    public static ByteBuf getHBPacket() {
+        return Unpooled.buffer(1).writeByte(HB_PACKET);
     }
 }

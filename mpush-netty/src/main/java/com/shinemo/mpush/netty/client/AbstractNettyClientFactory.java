@@ -51,13 +51,10 @@ public abstract class AbstractNettyClientFactory {
             @Override
             public Client call() throws Exception {
                 Client client = createClient(remoteHost, port, handler);
-                if (client != null) {
-                    client.startHeartBeat();
-                }
                 return client;
             }
         });
-        if (client == null || !client.isConnected()) {
+        if (client == null) {
             cachedClients.invalidate(key);
             return null;
         }
@@ -78,7 +75,7 @@ public abstract class AbstractNettyClientFactory {
 
     public void remove(Client client) {
         if (client != null) {
-            cachedClients.invalidate(client.getUrl());
+            cachedClients.invalidate(client.getUri());
             log.warn(MessageFormat.format("[Remoting] {0} is removed", client));
         }
     }

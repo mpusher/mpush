@@ -2,27 +2,24 @@ package com.shinemo.mpush.api;
 
 public interface Client {
 
-	public void close(final String cause);
+    void init();
 
-    public String toString();
+    void start();
 
-    public boolean isEnabled();
+    void close(final String cause);
 
-    public boolean isConnected();
-    
-    public void resetHbTimes();
+    boolean isEnabled();
 
-    public int inceaseAndGetHbTimes();
-    
-    public void startHeartBeat() throws Exception;
-    
-    /**
-     * host:port
-     */
-    public String getUrl();
-    
-    public String getRemoteHost();
-    
-    public int getRemotePort();
-	
+    boolean isConnected();
+
+    void resetHbTimes();
+
+    int inceaseAndGetHbTimes();
+
+    String getHost();
+
+    int getPort();
+
+    String getUri();
+
 }

@@ -89,4 +89,13 @@ public abstract class BaseMessage implements Message {
         message.body = encode();
         connection.send(message);
     }
+
+
+    @Override
+    public String toString() {
+        return "BaseMessage{" +
+                "message=" + message +
+                ", connection=" + connection +
+                '}';
+    }
 }
