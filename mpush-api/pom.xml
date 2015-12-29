@@ -38,17 +38,10 @@
             <groupId>org.logback-extensions</groupId>
             <artifactId>logback-ext-spring</artifactId>
         </dependency>
-
-         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-        </dependency>
-
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>com.shinemo.mpush</groupId>
+            <artifactId>mpush-tools</artifactId>
         </dependency>
-
     </dependencies>
 
 </project>

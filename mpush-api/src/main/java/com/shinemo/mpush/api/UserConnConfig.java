@@ -3,13 +3,13 @@ package com.shinemo.mpush.api;
 /**
  * Created by ohun on 2015/12/23.
  */
-public final class RouterInfo {
-    private String serverIp;
+public final class UserConnConfig {
+    private String host;
     private String osName;
     private String clientVer;
 
-    public RouterInfo(String serverIp) {
-        this.serverIp = serverIp;
+    public UserConnConfig(String host) {
+        this.host = host;
     }
 
     public String getOsName() {
@@ -28,11 +28,11 @@ public final class RouterInfo {
         this.clientVer = clientVer;
     }
 
-    public String getServerIp() {
-        return serverIp;
+    public String getHost() {
+        return host;
     }
 
-    public void setServerIp(String serverIp) {
-        this.serverIp = serverIp;
+    public void setHost(String host) {
+        this.host = host;
     }
 }

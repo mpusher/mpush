@@ -6,19 +6,9 @@ public interface Client {
 
     void start();
 
-    void close(final String cause);
-
-    boolean isEnabled();
+    void stop();
 
     boolean isConnected();
-
-    void resetHbTimes();
-
-    int inceaseAndGetHbTimes();
-
-    String getHost();
-
-    int getPort();
 
     String getUri();
 

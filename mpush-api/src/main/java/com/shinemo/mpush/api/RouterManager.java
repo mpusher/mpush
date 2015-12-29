@@ -3,11 +3,11 @@ package com.shinemo.mpush.api;
 /**
  * Created by ohun on 2015/12/23.
  */
-public interface RouterManager {
+public interface RouterManager<R extends Router> {
 
-    boolean publish(String userId, Router route);
+    R register(String userId, R route);
 
-    boolean unPublish(String userId);
+    boolean unRegister(String userId);
 
-    Router getRouter(String userId);
+    R getRouter(String userId);
 }

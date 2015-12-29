@@ -1,4 +1,4 @@
-package com.shinemo.mpush.core.message;
+package com.shinemo.mpush.api.message;
 
 import com.shinemo.mpush.api.*;
 import com.shinemo.mpush.api.protocol.Command;

@@ -1,12 +1,10 @@
 package com.shinemo.mpush.core.netty;
 
 import com.shinemo.mpush.api.Connection;
+import com.shinemo.mpush.api.message.*;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.core.NettyConnection;
-import com.shinemo.mpush.core.message.ErrorMessage;
-import com.shinemo.mpush.core.message.HandShakeMessage;
-import com.shinemo.mpush.core.message.HandshakeSuccessMessage;
 import com.shinemo.mpush.core.security.AesCipher;
 import com.shinemo.mpush.core.security.CipherBox;
 import com.shinemo.mpush.netty.util.NettySharedHolder;
@@ -30,16 +28,17 @@ public class ClientChannelHandler extends ChannelHandlerAdapter {
     private byte[] clientKey = CipherBox.INSTANCE.randomAESKey();
     private byte[] iv = CipherBox.INSTANCE.randomAESIV();
     private Connection connection = new NettyConnection();
-
+    private String deviceId = "test-device-id-100";
+    private String userId = "1010";
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         connection.init(ctx.channel());
-        HandShakeMessage message = new HandShakeMessage(1, connection);
+        HandShakeMessage message = new HandShakeMessage(connection);
         message.clientKey = clientKey;
         message.iv = iv;
         message.clientVersion = "1.0.1";
-        message.deviceId = "1111111111111";
+        message.deviceId = deviceId;
         message.osName = "android";
         message.osVersion = "5.0";
         message.timestamp = System.currentTimeMillis();
@@ -54,7 +53,7 @@ public class ClientChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        LOGGER.info("client read new message=" + msg);
+        LOGGER.info("client read new packet=" + msg);
         if (msg instanceof Packet) {
             Packet packet = (Packet) msg;
             Command command = Command.toCMD(packet.cmd);
@@ -66,13 +65,26 @@ public class ClientChannelHandler extends ChannelHandlerAdapter {
                 connection.getSessionContext().changeCipher(new AesCipher(sessionKey, iv));
                 startHeartBeat(message.heartbeat, ctx.channel());
                 LOGGER.info("会话密钥：{}，clientKey={}, serverKey={}", sessionKey, clientKey, message.serverKey);
+                bindUser();
             } else if (command == Command.FAST_CONNECT) {
-                LOGGER.info("fast connect success, message=" + packet.getStringBody());
+                LOGGER.info("fast connect success, packet=" + packet.getStringBody());
+            } else if (command == Command.KICK) {
+                LOGGER.error("receive kick user message=" + new KickUserMessage(packet, connection));
+                ctx.close();
             } else if (command == Command.ERROR) {
                 ErrorMessage errorMessage = new ErrorMessage(packet, connection);
-                LOGGER.error("receive an error message=" + errorMessage);
+                LOGGER.error("receive an error packet=" + errorMessage);
+            } else if (command == Command.BIND) {
+                OkMessage okMessage = new OkMessage(packet, connection);
+                LOGGER.info("receive an success packet=" + okMessage);
             }
         }
+    }
+
+    private void bindUser() {
+        BindUserMessage message = new BindUserMessage(connection);
+        message.userId = userId;
+        message.send();
     }
 
     public void startHeartBeat(final int heartbeat, final Channel channel) throws Exception {

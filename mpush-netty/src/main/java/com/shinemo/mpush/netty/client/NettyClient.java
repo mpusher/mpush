@@ -31,7 +31,6 @@ public class NettyClient implements Client {
     private final String host;
     private final int port;
     private Channel channel;
-    private int hbTimes = 0;
 
     public NettyClient(final String host, final int port, ChannelHandler handler) {
         this.host = host;
@@ -41,7 +40,7 @@ public class NettyClient implements Client {
 
     @Override
     public void init() {
-        this.close("re init");
+        this.stop();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         final Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(workerGroup)//
@@ -82,41 +81,15 @@ public class NettyClient implements Client {
     }
 
     @Override
-    public void close(String cause) {
-        if (!StringUtils.isBlank(cause) && !"null".equals(cause.trim())) {
-            LOGGER.error("close channel:" + cause);
-        }
+    public void stop() {
         if (channel != null) {
             channel.close();
         }
     }
 
     @Override
-    public boolean isEnabled() {
-        return channel.isWritable();
-    }
-
-    @Override
     public boolean isConnected() {
         return channel.isActive();
-    }
-
-    @Override
-    public void resetHbTimes() {
-        hbTimes = 0;
-    }
-
-    @Override
-    public int inceaseAndGetHbTimes() {
-        return ++hbTimes;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public int getPort() {
-        return port;
     }
 
     @Override

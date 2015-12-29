@@ -1,4 +1,4 @@
-package com.shinemo.mpush.core.message;
+package com.shinemo.mpush.api.message;
 
 import com.shinemo.mpush.api.Connection;
 import com.shinemo.mpush.api.protocol.Command;
@@ -17,8 +17,8 @@ public final class HandShakeMessage extends ByteBufMessage {
     public byte[] clientKey;
     public long timestamp;
 
-    public HandShakeMessage(int sessionId, Connection connection) {
-        super(new Packet(Command.HANDSHAKE.cmd, sessionId), connection);
+    public HandShakeMessage(Connection connection) {
+        super(new Packet(Command.HANDSHAKE.cmd, genSessionId()), connection);
     }
 
     public HandShakeMessage(Packet message, Connection connection) {

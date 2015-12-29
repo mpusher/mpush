@@ -1,4 +1,4 @@
-package com.shinemo.mpush.core.message;
+package com.shinemo.mpush.api.message;
 
 import com.shinemo.mpush.api.Connection;
 import com.shinemo.mpush.api.protocol.Command;
@@ -17,7 +17,7 @@ public final class ErrorMessage extends ByteBufMessage {
     }
 
     public static ErrorMessage from(BaseMessage src) {
-        return new ErrorMessage(new Packet(Command.ERROR.cmd, src.message.sessionId), src.connection);
+        return new ErrorMessage(new Packet(Command.ERROR.cmd, src.packet.sessionId), src.connection);
     }
 
     public ErrorMessage setReason(String reason) {
@@ -52,7 +52,7 @@ public final class ErrorMessage extends ByteBufMessage {
         return "ErrorMessage{" +
                 "reason='" + reason + '\'' +
                 ", errorCode=" + errorCode +
-                ", message=" + message +
+                ", packet=" + packet +
                 '}';
     }
 }

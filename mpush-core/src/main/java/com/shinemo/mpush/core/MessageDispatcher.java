@@ -1,21 +1,21 @@
 package com.shinemo.mpush.core;
 
 import com.shinemo.mpush.api.Connection;
-import com.shinemo.mpush.api.Receiver;
+import com.shinemo.mpush.api.PacketReceiver;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.core.handler.*;
-import com.shinemo.mpush.core.message.BindMessage;
-import com.shinemo.mpush.core.message.FastConnectMessage;
-import com.shinemo.mpush.core.message.HandShakeMessage;
-import com.shinemo.mpush.core.message.HeartbeatMessage;
+import com.shinemo.mpush.api.message.BindUserMessage;
+import com.shinemo.mpush.api.message.FastConnectMessage;
+import com.shinemo.mpush.api.message.HandShakeMessage;
+import com.shinemo.mpush.api.message.HeartbeatMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Created by ohun on 2015/12/22.
  */
-public class MessageDispatcher implements Receiver {
+public class MessageDispatcher implements PacketReceiver {
     public static final Logger LOGGER = LoggerFactory.getLogger(MessageDispatcher.class);
     public final BindHandler bindHandler = new BindHandler();
     public final HandShakeHandler handShakeHandler = new HandShakeHandler();
@@ -34,7 +34,7 @@ public class MessageDispatcher implements Receiver {
                     handShakeHandler.handle(new HandShakeMessage(packet, connection));
                     break;
                 case BIND:
-                    bindHandler.handle(new BindMessage(packet, connection));
+                    bindHandler.handle(new BindUserMessage(packet, connection));
                     break;
                 case FAST_CONNECT:
                     fastConnectHandler.handle(new FastConnectMessage(packet, connection));
@@ -43,7 +43,7 @@ public class MessageDispatcher implements Receiver {
                     break;
             }
         } catch (Throwable throwable) {
-            LOGGER.error("dispatch message ex, packet={},conn={}", packet, connection, throwable);
+            LOGGER.error("dispatch packet ex, packet={},conn={}", packet, connection, throwable);
             connection.close();
         }
     }

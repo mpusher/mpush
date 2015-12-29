@@ -1,4 +1,4 @@
-package com.shinemo.mpush.core.message;
+package com.shinemo.mpush.api.message;
 
 import com.shinemo.mpush.api.Connection;
 import com.shinemo.mpush.api.Constants;
@@ -7,24 +7,27 @@ import com.shinemo.mpush.api.SessionContext;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.tools.IOUtils;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Created by ohun on 2015/12/28.
  */
 public abstract class BaseMessage implements Message {
-    protected final Packet message;
+    private static final AtomicInteger ID_SEQ = new AtomicInteger();
+    protected final Packet packet;
     protected final Connection connection;
 
-    public BaseMessage(Packet message, Connection connection) {
-        this.message = message;
+    public BaseMessage(Packet packet, Connection connection) {
+        this.packet = packet;
         this.connection = connection;
         this.decodeBody();
     }
 
     protected void decodeBody() {
-        if (message.body != null && message.body.length > 0) {
+        if (packet.body != null && packet.body.length > 0) {
             //1.解密
-            byte[] tmp = message.body;
-            if (message.hasFlag(Constants.CRYPTO_FLAG)) {
+            byte[] tmp = packet.body;
+            if (packet.hasFlag(Constants.CRYPTO_FLAG)) {
                 SessionContext info = connection.getSessionContext();
                 if (info.cipher != null) {
                     tmp = info.cipher.decrypt(tmp);
@@ -32,14 +35,14 @@ public abstract class BaseMessage implements Message {
             }
 
             //2.解压
-            if (message.hasFlag(Constants.COMPRESS_FLAG)) {
+            if (packet.hasFlag(Constants.COMPRESS_FLAG)) {
                 byte[] result = IOUtils.uncompress(tmp);
                 if (result.length > 0) {
                     tmp = result;
                 }
             }
-            message.body = tmp;
-            decode(message.body);
+            packet.body = tmp;
+            decode(packet.body);
         }
     }
 
@@ -51,7 +54,7 @@ public abstract class BaseMessage implements Message {
                 byte[] result = IOUtils.compress(tmp);
                 if (result.length > 0) {
                     tmp = result;
-                    message.setFlag(Constants.COMPRESS_FLAG);
+                    packet.setFlag(Constants.COMPRESS_FLAG);
                 }
             }
 
@@ -59,9 +62,9 @@ public abstract class BaseMessage implements Message {
             SessionContext context = connection.getSessionContext();
             if (context.cipher != null) {
                 tmp = context.cipher.encrypt(tmp);
-                message.setFlag(Constants.CRYPTO_FLAG);
+                packet.setFlag(Constants.CRYPTO_FLAG);
             }
-            message.body = tmp;
+            packet.body = tmp;
         }
     }
 
@@ -69,32 +72,40 @@ public abstract class BaseMessage implements Message {
 
     public abstract byte[] encode();
 
+    public Packet createResponse() {
+        return new Packet(packet.cmd, packet.sessionId);
+    }
+
+    @Override
+    public Packet getPacket() {
+        return packet;
+    }
+
     @Override
     public Connection getConnection() {
         return connection;
     }
 
-    public Packet createResponse() {
-        return new Packet(message.cmd, message.sessionId);
-    }
-
     @Override
     public void send() {
         encodeBody();
-        connection.send(message);
+        connection.send(packet);
     }
 
     @Override
     public void sendRaw() {
-        message.body = encode();
-        connection.send(message);
+        packet.body = encode();
+        connection.send(packet);
     }
 
+    protected static int genSessionId() {
+        return ID_SEQ.incrementAndGet();
+    }
 
     @Override
     public String toString() {
         return "BaseMessage{" +
-                "message=" + message +
+                "packet=" + packet +
                 ", connection=" + connection +
                 '}';
     }
