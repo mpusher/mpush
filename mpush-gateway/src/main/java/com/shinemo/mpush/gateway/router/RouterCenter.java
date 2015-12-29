@@ -2,7 +2,7 @@ package com.shinemo.mpush.gateway.router;
 
 import com.shinemo.mpush.api.Connection;
 import com.shinemo.mpush.api.Router;
-import com.shinemo.mpush.api.UserConnConfig;
+import com.shinemo.mpush.api.ClientLocation;
 import com.shinemo.mpush.api.SessionContext;
 import com.shinemo.mpush.api.message.KickUserMessage;
 
@@ -23,7 +23,7 @@ public class RouterCenter {
      * @return
      */
     public boolean register(String userId, Connection connection) {
-        UserConnConfig connConfig = UserConnConfig.from(connection.getSessionContext());
+        ClientLocation connConfig = ClientLocation.from(connection.getSessionContext());
 
         LocalRouter localRouter = new LocalRouter(connection);
         RemoteRouter remoteRouter = new RemoteRouter(connConfig);

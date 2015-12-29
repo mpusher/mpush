@@ -5,7 +5,7 @@ import com.shinemo.mpush.tools.MPushUtil;
 /**
  * Created by ohun on 2015/12/23.
  */
-public final class UserConnConfig {
+public final class ClientLocation {
     private String host;
     private String osName;
     private String clientVersion;
@@ -16,7 +16,7 @@ public final class UserConnConfig {
         return deviceId;
     }
 
-    public UserConnConfig setDeviceId(String deviceId) {
+    public ClientLocation setDeviceId(String deviceId) {
         this.deviceId = deviceId;
         return this;
     }
@@ -45,8 +45,8 @@ public final class UserConnConfig {
         this.host = host;
     }
 
-    public static UserConnConfig from(SessionContext context) {
-        UserConnConfig config = new UserConnConfig();
+    public static ClientLocation from(SessionContext context) {
+        ClientLocation config = new ClientLocation();
         config.osName = context.osName;
         config.clientVersion = context.clientVersion;
         config.deviceId = context.deviceId;
