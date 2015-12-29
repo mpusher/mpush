@@ -3,22 +3,16 @@ package com.shinemo.mpush.netty.server;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.api.Server;
-import com.shinemo.mpush.api.protocol.Handler;
 import com.shinemo.mpush.netty.codec.PacketDecoder;
 import com.shinemo.mpush.netty.codec.PacketEncoder;
-import com.shinemo.mpush.netty.util.NettySharedHandler;
-import com.shinemo.mpush.netty.util.NettySharedHolder;
 import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -32,17 +26,17 @@ public class NettyServer implements Server {
 
     private final AtomicBoolean startFlag = new AtomicBoolean(false);
     private final int port;
-    private final Handler channelHandler;
+    private final ChannelHandler channelHandler;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
-    public NettyServer(int port,Handler channelHandler) {
+    public NettyServer(int port, ChannelHandler channelHandler) {
         this.port = port;
         this.channelHandler = channelHandler;
     }
-    
+
     public NettyServer(int port) {
-    	this(port,null);
+        this(port, null);
     }
 
     @Override
@@ -102,8 +96,7 @@ public class NettyServer implements Server {
              * 这里告诉Channel如何获取新的连接.
              */
             b.channel(NioServerSocketChannel.class);
-            
-            final NettySharedHandler nettySharedHandler = new NettySharedHandler(channelHandler);
+
 
             /***
              * 这里的事件处理类经常会被用来处理一个最近的已经接收的Channel。
@@ -119,7 +112,7 @@ public class NettyServer implements Server {
                 public void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(new PacketDecoder());
                     ch.pipeline().addLast(PacketEncoder.INSTANCE);
-                    ch.pipeline().addLast(nettySharedHandler);
+                    ch.pipeline().addLast(channelHandler);
                 }
             });
 

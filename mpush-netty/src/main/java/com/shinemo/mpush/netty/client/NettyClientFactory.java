@@ -3,22 +3,15 @@ package com.shinemo.mpush.netty.client;
 import java.net.InetSocketAddress;
 
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.api.Client;
-import com.shinemo.mpush.api.protocol.Handler;
 import com.shinemo.mpush.netty.codec.PacketDecoder;
 import com.shinemo.mpush.netty.codec.PacketEncoder;
-import com.shinemo.mpush.netty.util.NettySharedHandler;
-import com.shinemo.mpush.netty.util.NettySharedHolder;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -29,10 +22,9 @@ public class NettyClientFactory extends AbstractNettyClientFactory {
 
     public static NettyClientFactory instance = new NettyClientFactory();
 
-    protected Client createClient(final String host, final int port, final Handler handler) throws Exception {
+    protected Client createClient(final String host, final int port, final ChannelHandler handler) throws Exception {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         final Bootstrap bootstrap = new Bootstrap();
-        final NettySharedHandler nettySharedHandler = new NettySharedHandler(handler);
         bootstrap.group(workerGroup)//
                 .option(ChannelOption.TCP_NODELAY, true)//
                 .option(ChannelOption.SO_REUSEADDR, true)//
@@ -46,7 +38,7 @@ public class NettyClientFactory extends AbstractNettyClientFactory {
             public void initChannel(SocketChannel ch) throws Exception {
                 ch.pipeline().addLast(new PacketDecoder());
                 ch.pipeline().addLast(PacketEncoder.INSTANCE);
-                ch.pipeline().addLast(nettySharedHandler);
+                ch.pipeline().addLast(handler);
             }
         });
 
