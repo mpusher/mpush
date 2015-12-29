@@ -17,6 +17,8 @@ public interface Connection {
 
     void send(Packet packet);
 
+    Channel channel();
+
     String getId();
 
     boolean isClosed();

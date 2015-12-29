@@ -22,7 +22,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
  */
 public class NettyServer implements Server {
 
-    private static final Logger log = LoggerFactory.getLogger(NettyServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NettyServer.class);
 
     private final AtomicBoolean startFlag = new AtomicBoolean(false);
     private final int port;
@@ -51,7 +51,7 @@ public class NettyServer implements Server {
 
     @Override
     public void stop() {
-        log.info("netty server stop now");
+        LOGGER.info("netty server stop now");
         this.startFlag.set(false);
         if (workerGroup != null) workerGroup.shutdownGracefully();
         if (bossGroup != null) bossGroup.shutdownGracefully();
@@ -154,7 +154,7 @@ public class NettyServer implements Server {
              */
             ChannelFuture f = b.bind(port).sync();
 
-            log.info("server start ok on:" + port);
+            LOGGER.info("server start ok on:" + port);
 
 
             /**
@@ -162,10 +162,10 @@ public class NettyServer implements Server {
              */
             f.channel().closeFuture().sync();
 
-            log.info("server start ok on:" + port);
+            LOGGER.info("server start ok on:" + port);
 
         } catch (Exception e) {
-            log.error("server start exception", e);
+            LOGGER.error("server start exception", e);
             /***
              * 优雅关闭
              */

@@ -46,4 +46,13 @@ public final class ErrorMessage extends ByteBufMessage {
     public void send() {
         super.sendRaw();
     }
+
+    @Override
+    public String toString() {
+        return "ErrorMessage{" +
+                "reason='" + reason + '\'' +
+                ", errorCode=" + errorCode +
+                ", message=" + message +
+                '}';
+    }
 }

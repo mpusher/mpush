@@ -10,12 +10,11 @@ public interface Constants {
     byte[] EMPTY_BYTES = new byte[0];
     int MAX_PACKET_SIZE = 1024;
     int HEADER_LEN = 13;
-    short MAGIC_NUM = 1122;
-    byte HB = '\n';
+
     int COMPRESS_LIMIT = 1024 * 10;
     byte CRYPTO_FLAG = 0x01;
     byte COMPRESS_FLAG = 0x02;
-    long TIME_DELAY = 120L;
+    long TIME_DELAY = 1L;
 
     String JVM_LOG_PATH = "/opt/";
 
@@ -28,5 +27,5 @@ public interface Constants {
 
     int MIN_WORK_POOL_SIZE = 10;
     int MAX_WORK_POOL_SIZE = 250;
-    int HEARTBEAT_TIME = 60 * 2 * 1000;//2min
+    int HEARTBEAT_TIME = 1000;//2min
 }

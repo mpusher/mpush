@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.MessageHandler;
 import com.shinemo.mpush.api.SessionContext;
+import com.shinemo.mpush.api.event.HandshakeEvent;
+import com.shinemo.mpush.core.EventBus;
 import com.shinemo.mpush.core.message.ErrorMessage;
 import com.shinemo.mpush.core.message.HandShakeMessage;
 import com.shinemo.mpush.core.message.HandshakeSuccessMessage;
@@ -70,6 +72,8 @@ public final class HandShakeHandler implements MessageHandler<HandShakeMessage> 
                 .setClientVersion(message.clientVersion)
                 .setDeviceId(message.deviceId);
 
+        //8.触发握手成功事件
+        EventBus.INSTANCE.post(new HandshakeEvent(message.getConnection(), Constants.HEARTBEAT_TIME));
         LOGGER.info("会话密钥：{}，clientKey={}, serverKey={}", sessionKey, clientKey, serverKey);
     }
 }

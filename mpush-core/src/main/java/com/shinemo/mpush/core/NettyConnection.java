@@ -74,6 +74,11 @@ public final class NettyConnection implements Connection {
     }
 
     @Override
+    public Channel channel() {
+        return channel;
+    }
+
+    @Override
     public boolean isClosed() {
         return false;
     }

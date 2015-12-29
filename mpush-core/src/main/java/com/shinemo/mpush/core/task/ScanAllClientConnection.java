@@ -47,7 +47,7 @@ public class ScanAllClientConnection implements TimerTask {
         } catch (Exception e) {
             log.error("", "exception on scan", e);
         } finally {
-            NettySharedHolder.timer.newTimeout(this, Constants.TIME_DELAY, TimeUnit.SECONDS);
+            NettySharedHolder.HASHED_WHEEL_TIMER.newTimeout(this, Constants.TIME_DELAY, TimeUnit.SECONDS);
         }
     }
 
