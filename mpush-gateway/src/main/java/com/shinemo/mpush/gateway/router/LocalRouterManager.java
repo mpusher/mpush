@@ -23,7 +23,7 @@ public class LocalRouterManager implements RouterManager<LocalRouter> {
     }
 
     @Override
-    public LocalRouter getRouter(String userId) {
+    public LocalRouter lookup(String userId) {
         return routerMap.get(userId);
     }
 }

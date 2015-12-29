@@ -11,7 +11,7 @@ import com.shinemo.mpush.gateway.router.RouterCenter;
 /**
  * Created by ohun on 2015/12/23.
  */
-public final class BindHandler implements MessageHandler<BindUserMessage> {
+public final class BindUserHandler implements MessageHandler<BindUserMessage> {
 
     @Override
     public void handle(BindUserMessage message) {
@@ -24,7 +24,6 @@ public final class BindHandler implements MessageHandler<BindUserMessage> {
             boolean success = RouterCenter.INSTANCE.register(message.userId, message.getConnection());
             if (success) {
                 OkMessage.from(message).setData("bind success").send();
-                //TODO kick user
             } else {
                 ErrorMessage.from(message).setReason("bind failed").send();
             }
