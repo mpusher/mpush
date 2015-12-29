@@ -2,7 +2,6 @@ package com.shinemo.mpush.core.netty;
 
 import com.shinemo.mpush.api.Connection;
 import com.shinemo.mpush.api.protocol.Command;
-import com.shinemo.mpush.api.protocol.Handler;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.core.NettyConnection;
 import com.shinemo.mpush.core.message.HandShakeMessage;
@@ -11,6 +10,7 @@ import com.shinemo.mpush.core.security.AesCipher;
 import com.shinemo.mpush.core.security.CipherBox;
 import com.shinemo.mpush.tools.Strings;
 
+import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 
@@ -23,7 +23,7 @@ import java.net.SocketAddress;
 /**
  * Created by ohun on 2015/12/24.
  */
-public class ClientHandler implements Handler {
+public class ClientHandler extends ChannelHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientHandler.class);
     private byte[] clientKey = CipherBox.INSTANCE.randomAESKey();
     private byte[] iv = CipherBox.INSTANCE.randomAESIV();
@@ -88,35 +88,5 @@ public class ClientHandler implements Handler {
         } catch (Exception e) {
         }
         return Strings.EMPTY;
-    }
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-
-    }
-
-    @Override
-    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-
-    }
-
-    @Override
-    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-
-    }
-
-    @Override
-    public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) throws Exception {
-
-    }
-
-    @Override
-    public void disconnect(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
-
     }
 }

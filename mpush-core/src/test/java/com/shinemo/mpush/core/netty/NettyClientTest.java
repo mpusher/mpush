@@ -3,6 +3,7 @@ package com.shinemo.mpush.core.netty;
 
 import java.util.concurrent.locks.LockSupport;
 
+import io.netty.channel.ChannelHandler;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Test;
@@ -10,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.api.Client;
-import com.shinemo.mpush.api.protocol.Handler;
 import com.shinemo.mpush.netty.client.NettyClientFactory;
 
 /**
@@ -22,7 +22,7 @@ public class NettyClientTest {
     
     private String host = "127.0.0.1";
     private int port = 3000;
-    private Handler handler = new ClientHandler();
+    private ChannelHandler handler = new ClientHandler();
     
     @Test
     public void testClient() throws Exception {
