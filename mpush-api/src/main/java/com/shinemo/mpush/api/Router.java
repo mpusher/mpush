@@ -7,7 +7,7 @@ public interface Router<T> {
 
     T getRouteInfo();
 
-    RouterType getType();
+    RouterType getRouteType();
 
     enum RouterType {
         LOCAL, REMOTE

@@ -1,25 +1,25 @@
 package com.shinemo.mpush.gateway.router;
 
 import com.shinemo.mpush.api.Router;
-import com.shinemo.mpush.api.UserConnConfig;
+import com.shinemo.mpush.api.ClientLocation;
 
 /**
  * Created by ohun on 2015/12/23.
  */
-public class RemoteRouter implements Router<UserConnConfig> {
-    private final UserConnConfig userConnConfig;
+public class RemoteRouter implements Router<ClientLocation> {
+    private final ClientLocation clientLocation;
 
-    public RemoteRouter(UserConnConfig userConnConfig) {
-        this.userConnConfig = userConnConfig;
+    public RemoteRouter(ClientLocation clientLocation) {
+        this.clientLocation = clientLocation;
     }
 
     @Override
-    public UserConnConfig getRouteInfo() {
-        return userConnConfig;
+    public ClientLocation getRouteInfo() {
+        return clientLocation;
     }
 
     @Override
-    public RouterType getType() {
+    public RouterType getRouteType() {
         return RouterType.REMOTE;
     }
 }
