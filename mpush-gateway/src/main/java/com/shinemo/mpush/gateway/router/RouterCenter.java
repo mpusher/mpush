@@ -15,9 +15,21 @@ public class RouterCenter {
     private final LocalRouterManager localRouterManager = new LocalRouterManager();
     private final RemoteRouterManager remoteRouterManager = new RemoteRouterManager();
 
+    /**
+     * 注册用户和链接
+     *
+     * @param userId
+     * @param connection
+     * @return
+     */
     public boolean register(String userId, Connection connection) {
-        LocalRouter oldLocalRouter = localRouterManager.register(userId, new LocalRouter(connection));
-        RemoteRouter oldRemoteRouter = remoteRouterManager.register(userId, new RemoteRouter(new UserConnConfig("127.0.0.1")));
+        UserConnConfig connConfig = UserConnConfig.from(connection.getSessionContext());
+
+        LocalRouter localRouter = new LocalRouter(connection);
+        RemoteRouter remoteRouter = new RemoteRouter(connConfig);
+
+        LocalRouter oldLocalRouter = localRouterManager.register(userId, localRouter);
+        RemoteRouter oldRemoteRouter = remoteRouterManager.register(userId, remoteRouter);
         if (oldLocalRouter != null) {
             kickLocalUser(userId, oldLocalRouter);
         }
@@ -35,9 +47,9 @@ public class RouterCenter {
     }
 
     public Router<?> lookup(String userId) {
-        LocalRouter local = localRouterManager.getRouter(userId);
+        LocalRouter local = localRouterManager.lookup(userId);
         if (local != null) return local;
-        RemoteRouter remote = remoteRouterManager.getRouter(userId);
+        RemoteRouter remote = remoteRouterManager.lookup(userId);
         return remote;
     }
 

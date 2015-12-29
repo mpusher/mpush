@@ -18,7 +18,7 @@ public class RemoteRouterManager implements RouterManager<RemoteRouter> {
     }
 
     @Override
-    public RemoteRouter getRouter(String userId) {
+    public RemoteRouter lookup(String userId) {
         return null;
     }
 }

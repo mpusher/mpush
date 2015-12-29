@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MessageDispatcher implements PacketReceiver {
     public static final Logger LOGGER = LoggerFactory.getLogger(MessageDispatcher.class);
-    public final BindHandler bindHandler = new BindHandler();
+    public final BindUserHandler bindUserHandler = new BindUserHandler();
     public final HandShakeHandler handShakeHandler = new HandShakeHandler();
     public final FastConnectHandler fastConnectHandler = new FastConnectHandler();
     public final HeartBeatHandler heartBeatHandler = new HeartBeatHandler();
@@ -34,7 +34,7 @@ public class MessageDispatcher implements PacketReceiver {
                     handShakeHandler.handle(new HandShakeMessage(packet, connection));
                     break;
                 case BIND:
-                    bindHandler.handle(new BindUserMessage(packet, connection));
+                    bindUserHandler.handle(new BindUserMessage(packet, connection));
                     break;
                 case FAST_CONNECT:
                     fastConnectHandler.handle(new FastConnectMessage(packet, connection));

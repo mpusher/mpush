@@ -5,9 +5,28 @@ package com.shinemo.mpush.api;
  */
 public interface RouterManager<R extends Router> {
 
+    /**
+     * 注册路由
+     *
+     * @param userId
+     * @param route
+     * @return
+     */
     R register(String userId, R route);
 
+    /**
+     * 删除路由
+     *
+     * @param userId
+     * @return
+     */
     boolean unRegister(String userId);
 
-    R getRouter(String userId);
+    /**
+     * 查询路由
+     *
+     * @param userId
+     * @return
+     */
+    R lookup(String userId);
 }
