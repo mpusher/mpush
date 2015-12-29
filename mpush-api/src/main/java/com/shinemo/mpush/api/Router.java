@@ -5,7 +5,7 @@ package com.shinemo.mpush.api;
  */
 public interface Router<T> {
 
-    T getRouteInfo();
+    T getRouteValue();
 
     RouterType getRouteType();
 

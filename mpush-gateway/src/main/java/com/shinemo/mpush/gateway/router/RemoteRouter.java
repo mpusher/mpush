@@ -14,7 +14,7 @@ public class RemoteRouter implements Router<ClientLocation> {
     }
 
     @Override
-    public ClientLocation getRouteInfo() {
+    public ClientLocation getRouteValue() {
         return clientLocation;
     }
 

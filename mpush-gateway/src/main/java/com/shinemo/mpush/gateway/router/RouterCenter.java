@@ -54,7 +54,7 @@ public class RouterCenter {
     }
 
     private void kickLocalUser(String userId, LocalRouter router) {
-        Connection connection = router.getRouteInfo();
+        Connection connection = router.getRouteValue();
         SessionContext context = connection.getSessionContext();
         KickUserMessage message = new KickUserMessage(connection);
         message.deviceId = context.deviceId;
