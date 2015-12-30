@@ -28,6 +28,7 @@ public class PushClient implements PushSender {
     private PacketReceiver receiver;
     private String host = "127.0.0.1";
     private int port = 4000;
+    private int defaultTimeout = 3000;
 
     public void init() throws Exception {
         this.clientFactory = NettyClientFactory.INSTANCE;
@@ -63,28 +64,29 @@ public class PushClient implements PushSender {
     public void send(String content, Collection<String> userIds, final Callback callback) {
         RemoteRouterManager remoteRouterManager = RouterCenter.INSTANCE.getRemoteRouterManager();
         for (final String userId : userIds) {
+            final PushCallback cb = new PushCallback(callback, userId, defaultTimeout);
             RemoteRouter router = remoteRouterManager.lookup(userId);
             if (router == null) {
-                callback.onLose(userId);
+                cb.onOffline(userId);
                 continue;
             }
             ClientLocation location = router.getRouteValue();
             Connection connection = getConnection(location.getHost());
             if (connection == null || !connection.isConnected()) {
-                callback.onFailure(userId);
+                cb.onFailure(userId);
                 continue;
             }
 
             GatewayPushMessage pushMessage = new GatewayPushMessage(userId
                     , "push content", connection);
-
+            final int reqId = pushMessage.getSessionId();
             pushMessage.send(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
-                    if (!future.isSuccess()) {
-                        callback.onFailure(userId);
+                    if (future.isSuccess()) {
+                        PushCallbackBus.INSTANCE.register(reqId, cb);
                     } else {
-                        callback.onSuccess(userId);
+                        callback.onFailure(userId);
                     }
                 }
             });

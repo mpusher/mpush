@@ -23,11 +23,8 @@ public class NettyClientTest {
     @Test
     public void testClient() throws Exception {
         Client client = NettyClientFactory.INSTANCE.get(host, port, handler);
-
         client.init();
         client.start();
-
-        LOGGER.error(ToStringBuilder.reflectionToString(client, ToStringStyle.MULTI_LINE_STYLE));
     }
 
 }
