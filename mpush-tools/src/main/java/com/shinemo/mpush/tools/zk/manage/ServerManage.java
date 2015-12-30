@@ -28,10 +28,13 @@ public class ServerManage {
 		zkUtil.init();
 	}
 
-	// 注册机器到zk中
+
 	public void start(String ip) {
+		//注册机器到zk中
 		zkUtil.registerEphemeralSequential(PathEnum.CONNECTION_SERVER_ALL_HOST.getPath());
+		// 注册连接状态监听器
 		registerConnectionLostListener();
+		// 注册节点数据变化
 		registerDataChange(ListenerDispatcher.instance);
 	}
 
