@@ -8,7 +8,7 @@ import io.netty.buffer.ByteBuf;
 /**
  * Created by ohun on 2015/12/24.
  */
-public final class HandShakeMessage extends ByteBufMessage {
+public final class HandshakeMessage extends ByteBufMessage {
     public String deviceId;
     public String osName;
     public String osVersion;
@@ -17,11 +17,11 @@ public final class HandShakeMessage extends ByteBufMessage {
     public byte[] clientKey;
     public long timestamp;
 
-    public HandShakeMessage(Connection connection) {
+    public HandshakeMessage(Connection connection) {
         super(new Packet(Command.HANDSHAKE.cmd, genSessionId()), connection);
     }
 
-    public HandShakeMessage(Packet message, Connection connection) {
+    public HandshakeMessage(Packet message, Connection connection) {
         super(message, connection);
     }
 
