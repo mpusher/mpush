@@ -50,7 +50,7 @@ public final class HandShakeHandler implements MessageHandler<HandShakeMessage> 
 
         //4.生成可复用session, 用于快速重连
         ReusableSession session = ReusableSessionManager.INSTANCE.genSession(context);
-        ReusableSessionManager.INSTANCE.saveSession(session);
+        ReusableSessionManager.INSTANCE.cacheSession(session);
 
         //5.响应握手成功消息
         HandshakeSuccessMessage
