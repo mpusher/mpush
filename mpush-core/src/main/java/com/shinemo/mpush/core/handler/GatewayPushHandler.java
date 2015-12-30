@@ -15,7 +15,7 @@ import io.netty.channel.ChannelFutureListener;
 /**
  * Created by ohun on 2015/12/30.
  */
-public class GatewayPushHandler extends BaseMessageHandler<GatewayPushMessage> {
+public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMessage> {
     @Override
     public GatewayPushMessage decode(Packet packet, Connection connection) {
         return new GatewayPushMessage(packet, connection);
