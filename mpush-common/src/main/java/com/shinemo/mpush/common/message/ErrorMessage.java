@@ -4,20 +4,42 @@ import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFutureListener;
 
 /**
  * Created by ohun on 2015/12/28.
  */
 public final class ErrorMessage extends ByteBufMessage {
+    public byte cmd;
+    public byte code;
     public String reason;
-    public byte errorCode;
+
+    public ErrorMessage(byte cmd, Packet message, Connection connection) {
+        super(message, connection);
+        this.cmd = cmd;
+    }
 
     public ErrorMessage(Packet message, Connection connection) {
         super(message, connection);
     }
 
+    @Override
+    public void decode(ByteBuf body) {
+        cmd = decodeByte(body);
+        code = decodeByte(body);
+        reason = decodeString(body);
+    }
+
+    @Override
+    public void encode(ByteBuf body) {
+        encodeByte(body, cmd);
+        encodeByte(body, code);
+        encodeString(body, reason);
+    }
+
     public static ErrorMessage from(BaseMessage src) {
-        return new ErrorMessage(new Packet(Command.ERROR.cmd, src.packet.sessionId), src.connection);
+        return new ErrorMessage(new Packet(Command.ERROR.cmd
+                , src.packet.sessionId), src.connection);
     }
 
     public ErrorMessage setReason(String reason) {
@@ -25,21 +47,9 @@ public final class ErrorMessage extends ByteBufMessage {
         return this;
     }
 
-    public ErrorMessage setErrorCode(byte errorCode) {
-        this.errorCode = errorCode;
+    public ErrorMessage setCode(byte code) {
+        this.code = code;
         return this;
-    }
-
-    @Override
-    public void decode(ByteBuf body) {
-        reason = decodeString(body);
-        errorCode = decodeByte(body);
-    }
-
-    @Override
-    public void encode(ByteBuf body) {
-        encodeString(body, reason);
-        encodeByte(body, errorCode);
     }
 
     @Override
@@ -48,10 +58,15 @@ public final class ErrorMessage extends ByteBufMessage {
     }
 
     @Override
+    public void close() {
+        sendRaw(ChannelFutureListener.CLOSE);
+    }
+
+    @Override
     public String toString() {
         return "ErrorMessage{" +
                 "reason='" + reason + '\'' +
-                ", errorCode=" + errorCode +
+                ", code=" + code +
                 ", packet=" + packet +
                 '}';
     }

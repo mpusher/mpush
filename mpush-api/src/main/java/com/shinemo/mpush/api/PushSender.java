@@ -13,6 +13,8 @@ public interface PushSender {
 
         void onFailure(String userId);
 
-        void onLose(String userId);
+        void onOffline(String userId);
+
+        void onTimeout(String userId);
     }
 }

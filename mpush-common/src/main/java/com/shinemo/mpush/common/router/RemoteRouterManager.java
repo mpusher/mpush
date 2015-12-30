@@ -6,6 +6,7 @@ import com.shinemo.mpush.api.router.RouterManager;
  * Created by ohun on 2015/12/23.
  */
 public class RemoteRouterManager implements RouterManager<RemoteRouter> {
+    // TODO: 2015/12/30 add local cache
 
     @Override
     public RemoteRouter register(String userId, RemoteRouter route) {
