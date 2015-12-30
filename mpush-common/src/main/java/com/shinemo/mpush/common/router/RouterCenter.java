@@ -53,7 +53,7 @@ public class RouterCenter {
         return remote;
     }
 
-    private void kickLocalUser(String userId, LocalRouter router) {
+    public void kickLocalUser(String userId, LocalRouter router) {
         Connection connection = router.getRouteValue();
         SessionContext context = connection.getSessionContext();
         KickUserMessage message = new KickUserMessage(connection);
@@ -62,7 +62,7 @@ public class RouterCenter {
         message.send();
     }
 
-    private void kickRemoteUser(String userId, RemoteRouter router) {
+    public void kickRemoteUser(String userId, RemoteRouter router) {
         //send msg to zk
     }
 

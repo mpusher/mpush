@@ -35,7 +35,7 @@ public class GatewayPushHandler extends BaseMessageHandler<GatewayPushMessage> {
                     } else {
                         ErrorMessage
                                 .from(message)
-                                .setErrorCode((byte) 1)
+                                .setCode((byte) 1)
                                 .setReason("push to client error")
                                 .send();
                     }
