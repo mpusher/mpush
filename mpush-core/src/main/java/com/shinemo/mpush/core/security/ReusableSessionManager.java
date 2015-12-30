@@ -12,15 +12,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ReusableSessionManager {
     public static final ReusableSessionManager INSTANCE = new ReusableSessionManager();
     private static final int EXPIRE_TIME = 24 * 60 * 60 * 1000;
-    private final Map<String, ReusableSession> tokenCache = new ConcurrentHashMap<String, ReusableSession>();
+    private final Map<String, ReusableSession> sessionCache = new ConcurrentHashMap<String, ReusableSession>();
 
-    public boolean saveSession(ReusableSession session) {
-        tokenCache.put(session.sessionId, session);
+    public boolean cacheSession(ReusableSession session) {
+        sessionCache.put(session.sessionId, session);
         return true;
     }
 
     public ReusableSession getSession(String sessionId) {
-        return tokenCache.get(sessionId);
+        return sessionCache.get(sessionId);
     }
 
     public ReusableSession genSession(SessionContext info) {
