@@ -34,7 +34,7 @@ public class ClientChannelHandler extends ChannelHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         connection.init(ctx.channel(), true);
-        HandShakeMessage message = new HandShakeMessage(connection);
+        HandshakeMessage message = new HandshakeMessage(connection);
         message.clientKey = clientKey;
         message.iv = iv;
         message.clientVersion = "1.0.1";
