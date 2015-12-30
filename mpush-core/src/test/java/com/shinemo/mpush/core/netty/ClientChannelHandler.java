@@ -1,12 +1,12 @@
 package com.shinemo.mpush.core.netty;
 
-import com.shinemo.mpush.api.Connection;
-import com.shinemo.mpush.api.message.*;
+import com.shinemo.mpush.api.connection.Connection;
+import com.shinemo.mpush.common.message.*;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
-import com.shinemo.mpush.core.NettyConnection;
-import com.shinemo.mpush.core.security.AesCipher;
-import com.shinemo.mpush.core.security.CipherBox;
+import com.shinemo.mpush.common.security.AesCipher;
+import com.shinemo.mpush.common.security.CipherBox;
+import com.shinemo.mpush.netty.connection.NettyConnection;
 import com.shinemo.mpush.netty.util.NettySharedHolder;
 import com.shinemo.mpush.tools.Strings;
 
@@ -33,7 +33,7 @@ public class ClientChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        connection.init(ctx.channel());
+        connection.init(ctx.channel(), true);
         HandShakeMessage message = new HandShakeMessage(connection);
         message.clientKey = clientKey;
         message.iv = iv;
@@ -59,7 +59,7 @@ public class ClientChannelHandler extends ChannelHandlerAdapter {
             Command command = Command.toCMD(packet.cmd);
             if (command == Command.HANDSHAKE) {
                 connection.getSessionContext().changeCipher(new AesCipher(clientKey, iv));
-                HandshakeSuccessMessage message = new HandshakeSuccessMessage(packet, connection);
+                HandshakeOkMessage message = new HandshakeOkMessage(packet, connection);
                 byte[] sessionKey = CipherBox.INSTANCE.mixKey(clientKey, message.serverKey);
                 saveToken(message.sessionId);
                 connection.getSessionContext().changeCipher(new AesCipher(sessionKey, iv));

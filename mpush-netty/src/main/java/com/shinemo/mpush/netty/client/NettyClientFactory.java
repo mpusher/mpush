@@ -12,7 +12,7 @@ public class NettyClientFactory extends AbstractNettyClientFactory {
 
     public static final NettyClientFactory INSTANCE = new NettyClientFactory();
 
-    protected Client createClient(final String host, final int port, final ChannelHandler handler) throws Exception {
+    public Client createClient(final String host, final int port, final ChannelHandler handler) throws Exception {
         return new NettyClient(host, port, handler);
     }
 

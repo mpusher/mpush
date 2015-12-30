@@ -1,5 +1,7 @@
 package com.shinemo.mpush.api;
 
+import io.netty.channel.ChannelHandler;
+
 public interface Client {
 
     void init();
@@ -11,5 +13,7 @@ public interface Client {
     boolean isConnected();
 
     String getUri();
+
+    ChannelHandler getHandler();
 
 }

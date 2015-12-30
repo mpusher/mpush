@@ -21,6 +21,8 @@
         <module>mpush-core</module>
         <module>mpush-tools</module>
         <module>mpush-netty</module>
+        <module>mpush-common</module>
+        <module>mpush-client</module>
     </modules>
 
     <properties>

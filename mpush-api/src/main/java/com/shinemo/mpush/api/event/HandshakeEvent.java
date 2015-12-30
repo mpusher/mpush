@@ -1,6 +1,6 @@
 package com.shinemo.mpush.api.event;
 
-import com.shinemo.mpush.api.Connection;
+import com.shinemo.mpush.api.connection.Connection;
 
 /**
  * Created by ohun on 2015/12/29.

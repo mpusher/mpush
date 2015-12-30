@@ -1,44 +1,37 @@
 package com.shinemo.mpush.netty.server;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.shinemo.mpush.api.Server;
 import com.shinemo.mpush.netty.codec.PacketDecoder;
 import com.shinemo.mpush.netty.codec.PacketEncoder;
 import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
-
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by ohun on 2015/12/22.
  */
-public class NettyServer implements Server {
+public abstract class NettyServer implements Server {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyServer.class);
-
     private final AtomicBoolean startFlag = new AtomicBoolean(false);
-    private final int port;
-    private final ChannelHandler channelHandler;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
+    private final int port;
+    private ChannelHandler channelHandler;
 
     public NettyServer(int port, ChannelHandler channelHandler) {
         this.port = port;
         this.channelHandler = channelHandler;
     }
 
-    @Override
-    public void init() {
-
-    }
 
     @Override
     public boolean isRunning() {
@@ -112,38 +105,7 @@ public class NettyServer implements Server {
                 }
             });
 
-            /***
-             * 你可以设置这里指定的通道实现的配置参数。
-             * 我们正在写一个TCP/IP的服务端，
-             * 因此我们被允许设置socket的参数选项比如tcpNoDelay和keepAlive。
-             * 请参考ChannelOption和详细的ChannelConfig实现的接口文档以此可以对ChannelOptions的有一个大概的认识。
-             */
-            b.option(ChannelOption.SO_BACKLOG, 1024);
-
-            /**
-             * TCP层面的接收和发送缓冲区大小设置，
-             * 在Netty中分别对应ChannelOption的SO_SNDBUF和SO_RCVBUF，
-             * 需要根据推送消息的大小，合理设置，对于海量长连接，通常32K是个不错的选择。
-             */
-            b.childOption(ChannelOption.SO_SNDBUF, 32 * 1024);
-            b.childOption(ChannelOption.SO_RCVBUF, 32 * 1024);
-
-            /***
-             * option()是提供给NioServerSocketChannel用来接收进来的连接。
-             * childOption()是提供给由父管道ServerChannel接收到的连接，
-             * 在这个例子中也是NioServerSocketChannel。
-             */
-            b.childOption(ChannelOption.SO_KEEPALIVE, true);
-
-
-            /**
-             * 在Netty 4中实现了一个新的ByteBuf内存池，它是一个纯Java版本的 jemalloc （Facebook也在用）。
-             * 现在，Netty不会再因为用零填充缓冲区而浪费内存带宽了。不过，由于它不依赖于GC，开发人员需要小心内存泄漏。
-             * 如果忘记在处理程序中释放缓冲区，那么内存使用率会无限地增长。
-             * Netty默认不使用内存池，需要在创建客户端或者服务端的时候进行指定
-             */
-            b.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
-            b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+            initOptions(b);
 
             /***
              * 绑定端口并启动去接收进来的连接
@@ -158,8 +120,6 @@ public class NettyServer implements Server {
              */
             f.channel().closeFuture().sync();
 
-            LOGGER.info("server start ok on:" + port);
-
         } catch (Exception e) {
             LOGGER.error("server start exception", e);
             /***
@@ -167,5 +127,25 @@ public class NettyServer implements Server {
              */
             stop();
         }
+    }
+
+    protected void initOptions(ServerBootstrap b) {
+
+        /***
+         * option()是提供给NioServerSocketChannel用来接收进来的连接。
+         * childOption()是提供给由父管道ServerChannel接收到的连接，
+         * 在这个例子中也是NioServerSocketChannel。
+         */
+        b.childOption(ChannelOption.SO_KEEPALIVE, true);
+
+
+        /**
+         * 在Netty 4中实现了一个新的ByteBuf内存池，它是一个纯Java版本的 jemalloc （Facebook也在用）。
+         * 现在，Netty不会再因为用零填充缓冲区而浪费内存带宽了。不过，由于它不依赖于GC，开发人员需要小心内存泄漏。
+         * 如果忘记在处理程序中释放缓冲区，那么内存使用率会无限地增长。
+         * Netty默认不使用内存池，需要在创建客户端或者服务端的时候进行指定
+         */
+        b.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+        b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
     }
 }

@@ -2,17 +2,19 @@ package com.shinemo.mpush.core.handler;
 
 import com.google.common.base.Strings;
 import com.shinemo.mpush.api.Constants;
-import com.shinemo.mpush.api.MessageHandler;
-import com.shinemo.mpush.api.SessionContext;
+import com.shinemo.mpush.api.connection.Connection;
+import com.shinemo.mpush.api.connection.SessionContext;
 import com.shinemo.mpush.api.event.HandshakeEvent;
-import com.shinemo.mpush.core.EventBus;
-import com.shinemo.mpush.api.message.ErrorMessage;
-import com.shinemo.mpush.api.message.HandShakeMessage;
-import com.shinemo.mpush.api.message.HandshakeSuccessMessage;
-import com.shinemo.mpush.core.security.AesCipher;
-import com.shinemo.mpush.core.security.CipherBox;
-import com.shinemo.mpush.core.security.ReusableSession;
-import com.shinemo.mpush.core.security.ReusableSessionManager;
+import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.common.message.ErrorMessage;
+import com.shinemo.mpush.common.message.HandShakeMessage;
+import com.shinemo.mpush.common.message.HandshakeOkMessage;
+import com.shinemo.mpush.common.EventBus;
+import com.shinemo.mpush.common.handler.BaseMessageHandler;
+import com.shinemo.mpush.common.security.AesCipher;
+import com.shinemo.mpush.common.security.CipherBox;
+import com.shinemo.mpush.core.session.ReusableSession;
+import com.shinemo.mpush.core.session.ReusableSessionManager;
 import com.shinemo.mpush.tools.MPushUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +22,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ohun on 2015/12/24.
  */
-public final class HandShakeHandler implements MessageHandler<HandShakeMessage> {
+public final class HandShakeHandler extends BaseMessageHandler<HandShakeMessage> {
     public static final Logger LOGGER = LoggerFactory.getLogger(HandShakeHandler.class);
+
+    @Override
+    public HandShakeMessage decode(Packet packet, Connection connection) {
+        return new HandShakeMessage(packet, connection);
+    }
 
     @Override
     public void handle(HandShakeMessage message) {
@@ -34,14 +41,14 @@ public final class HandShakeHandler implements MessageHandler<HandShakeMessage> 
         if (Strings.isNullOrEmpty(message.deviceId)
                 || iv.length != CipherBox.AES_KEY_LENGTH
                 || clientKey.length != CipherBox.AES_KEY_LENGTH) {
-            ErrorMessage.from(message).setReason("Param invalid").send();
+            ErrorMessage.from(message).setReason("Param invalid").close();
             return;
         }
 
         //2.重复握手判断
         SessionContext context = message.getConnection().getSessionContext();
         if (message.deviceId.equals(context.deviceId)) {
-            ErrorMessage.from(message).setReason("Repeat handshake").send();
+            ErrorMessage.from(message).setReason("Repeat handshake").close();
             return;
         }
 
@@ -53,7 +60,7 @@ public final class HandShakeHandler implements MessageHandler<HandShakeMessage> 
         ReusableSessionManager.INSTANCE.cacheSession(session);
 
         //5.响应握手成功消息
-        HandshakeSuccessMessage
+        HandshakeOkMessage
                 .from(message)
                 .setServerKey(serverKey)
                 .setServerHost(MPushUtil.getLocalIp())
