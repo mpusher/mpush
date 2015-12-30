@@ -7,7 +7,7 @@ import com.shinemo.mpush.api.connection.SessionContext;
 import com.shinemo.mpush.api.event.HandshakeEvent;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.common.message.ErrorMessage;
-import com.shinemo.mpush.common.message.HandShakeMessage;
+import com.shinemo.mpush.common.message.HandshakeMessage;
 import com.shinemo.mpush.common.message.HandshakeOkMessage;
 import com.shinemo.mpush.common.EventBus;
 import com.shinemo.mpush.common.handler.BaseMessageHandler;
@@ -22,16 +22,16 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ohun on 2015/12/24.
  */
-public final class HandShakeHandler extends BaseMessageHandler<HandShakeMessage> {
-    public static final Logger LOGGER = LoggerFactory.getLogger(HandShakeHandler.class);
+public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage> {
+    public static final Logger LOGGER = LoggerFactory.getLogger(HandshakeHandler.class);
 
     @Override
-    public HandShakeMessage decode(Packet packet, Connection connection) {
-        return new HandShakeMessage(packet, connection);
+    public HandshakeMessage decode(Packet packet, Connection connection) {
+        return new HandshakeMessage(packet, connection);
     }
 
     @Override
-    public void handle(HandShakeMessage message) {
+    public void handle(HandshakeMessage message) {
         byte[] iv = message.iv;//AES密钥向量16
         byte[] clientKey = message.clientKey;//客户端随机数
         byte[] serverKey = CipherBox.INSTANCE.randomAESKey();//服务端随机数

@@ -115,6 +115,10 @@ public abstract class BaseMessage implements Message {
         return ID_SEQ.incrementAndGet();
     }
 
+    public int getSessionId() {
+        return packet.sessionId;
+    }
+
     @Override
     public String toString() {
         return "BaseMessage{" +
