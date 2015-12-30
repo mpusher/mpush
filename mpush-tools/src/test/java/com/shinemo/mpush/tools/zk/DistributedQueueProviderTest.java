@@ -28,7 +28,7 @@ public class DistributedQueueProviderTest {
 	public void test() throws Exception{
 		DistributedQueue<String> queue = null;
 		QueueBuilder<String> builder = QueueBuilder.builder(manage.getClient(),
-				null, createQueueSerializer(), PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByIp(InetAddressUtil.getInetAddress()));
+				null, createQueueSerializer(), PathEnum.CONNECTION_SERVER_KICK.getPathByIp(InetAddressUtil.getInetAddress()));
 		queue = builder.buildQueue();
 		queue.start();
 		for (int i = 0; i < 10; i++) {
