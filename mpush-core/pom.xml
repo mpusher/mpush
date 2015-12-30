@@ -19,10 +19,6 @@
         </dependency>
         <dependency>
             <groupId>com.shinemo.mpush</groupId>
-            <artifactId>mpush-gateway</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.shinemo.mpush</groupId>
             <artifactId>mpush-netty</artifactId>
         </dependency>
         <dependency>

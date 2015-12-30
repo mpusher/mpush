@@ -16,8 +16,6 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>mpush-api</module>
-        <module>mpush-connection</module>
-        <module>mpush-gateway</module>
         <module>mpush-core</module>
         <module>mpush-tools</module>
         <module>mpush-netty</module>
@@ -93,18 +91,8 @@
             </dependency>
             <dependency>
                 <groupId>com.shinemo.mpush</groupId>
-                <artifactId>mpush-connection</artifactId>
-                <version>${mpush-connection-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.shinemo.mpush</groupId>
                 <artifactId>mpush-core</artifactId>
                 <version>${mpush-core-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.shinemo.mpush</groupId>
-                <artifactId>mpush-gateway</artifactId>
-                <version>${mpush-gateway-version}</version>
             </dependency>
             <dependency>
                 <groupId>com.shinemo.mpush</groupId>
