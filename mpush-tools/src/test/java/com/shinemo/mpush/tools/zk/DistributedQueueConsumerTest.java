@@ -24,8 +24,13 @@ public class DistributedQueueConsumerTest {
 	
 	@Test
 	public void test() throws Exception{
+		DistributedQueue<String> queue = null;
+		QueueBuilder<String> builder = QueueBuilder.builder(manage.getClient(),
+				createQueueConsumer(), createQueueSerializer(), PathEnum.CONNECTION_SERVER_KICK.getPathByIp(InetAddressUtil.getInetAddress()));
+		queue = builder.buildQueue();
+		queue.start();
 		
-		QueueConsumer<String> consumer = createQueueConsumer();
+		CloseableUtils.closeQuietly(queue);
 		
 	}
 	
