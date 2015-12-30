@@ -20,4 +20,22 @@ public interface Constants {
 
     int MIN_WORK_POOL_SIZE = 10;
     int MAX_WORK_POOL_SIZE = 250;
+    
+    //zk
+    int ZK_MAX_RETRY = 3;
+    int ZK_MIN_TIME = 5000;
+    int ZK_MAX_TIME = 5000;
+    int ZK_SESSION_TIMEOUT  = 5000;
+    int ZK_CONNECTION_TIMEOUT = 5000;
+    String ZK_DEFAULT_CACHE_PATH = "/";
+    String ZK_DEFAULT_DIGEST = "shinemo";
+    
+    
+    //zk cs
+    String ZK_NAME_SPACE = "/mpush";
+    //所有机器启动的时候注册ip的地方
+    String ZK_REGISTER_HOST = "/allhost";
+    String ZK_REGISTER_PREFIX_NAME = "machine";
+    String ZK_KICK = "kickoff";
+    
 }

@@ -33,6 +33,8 @@ public class ZkUtil {
 	public ZkUtil(ZkConfig zkConfig) {
 		this.zkConfig = zkConfig;
 	}
+	
+	
 
 	public ZkConfig getZkConfig() {
 		return zkConfig;
@@ -80,8 +82,9 @@ public class ZkUtil {
 
 	}
 	
+	//本地缓存
     public void cacheData() throws Exception {
-        cache = new TreeCache(client, "/");
+        cache = new TreeCache(client, zkConfig.getLocalCachePath());
         cache.start();
     }
     
@@ -97,6 +100,9 @@ public class ZkUtil {
      * 关闭
      */
 	public void close() {
+        if (null != cache) {
+            cache.close();
+        }
 		waitClose();
         CloseableUtils.closeQuietly(client);
     }
@@ -172,7 +178,7 @@ public class ZkUtil {
      * @param key
      * @param value
      */
-    public void persist(final String key, final String value) {
+    public void registerPersist(final String key, final String value) {
         try {
             if (!isExisted(key)) {
                 client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(key, value.getBytes());
@@ -202,7 +208,7 @@ public class ZkUtil {
      * @param key
      * @param value
      */
-    public void putEphemeral(final String key, final String value) {
+    public void registerEphemeral(final String key, final String value) {
         try {
             if (isExisted(key)) {
                 client.delete().deletingChildrenIfNeeded().forPath(key);
@@ -217,7 +223,7 @@ public class ZkUtil {
      * 注册临时顺序数据
      * @param key
      */
-    public void putEphemeralSequential(final String key) {
+    public void registerEphemeralSequential(final String key) {
         try {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key);
         } catch (final Exception ex) {
@@ -235,6 +241,10 @@ public class ZkUtil {
         } catch (final Exception ex) {
         	log.error("remove" + key,ex);
         }
+    }
+    
+    public TreeCache getCache() {
+        return cache;
     }
 
 }

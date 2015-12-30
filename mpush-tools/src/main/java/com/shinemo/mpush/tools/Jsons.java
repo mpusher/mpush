@@ -26,7 +26,7 @@ public final class Jsons {
         }
         return null;
     }
-
+    
     public static <T> T fromJson(String json, Class<T> clazz) {
         try {
             return GSON.fromJson(json, clazz);

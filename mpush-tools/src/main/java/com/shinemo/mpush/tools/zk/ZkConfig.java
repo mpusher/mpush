@@ -1,4 +1,6 @@
 package com.shinemo.mpush.tools.zk;
+import com.shinemo.mpush.tools.Constants;
+
 
 public class ZkConfig {
 	
@@ -17,8 +19,14 @@ public class ZkConfig {
     private final int connectionTimeout;
     
     private final String digest;
+    
+    private final String localCachePath;
 
-	public ZkConfig(String ipLists, String namespace, int maxRetry, int minTime, int maxTime, int sessionTimeout, int connectionTimeout,String digest) {
+	public ZkConfig(String ipLists, String namespace) {
+		this(ipLists, namespace, Constants.ZK_MAX_RETRY, Constants.ZK_MIN_TIME, Constants.ZK_MAX_TIME, Constants.ZK_SESSION_TIMEOUT, Constants.ZK_CONNECTION_TIMEOUT,null,Constants.ZK_DEFAULT_CACHE_PATH);
+	}
+	
+	public ZkConfig(String ipLists, String namespace, int maxRetry, int minTime, int maxTime, int sessionTimeout, int connectionTimeout,String digest,String localCachePath) {
 		this.ipLists = ipLists;
 		this.namespace = namespace;
 		this.maxRetry = maxRetry;
@@ -27,6 +35,7 @@ public class ZkConfig {
 		this.sessionTimeout = sessionTimeout;
 		this.connectionTimeout = connectionTimeout;
 		this.digest = digest;
+		this.localCachePath = localCachePath;
 	}
 
 	public String getIpLists() {
@@ -60,5 +69,9 @@ public class ZkConfig {
 	public String getDigest() {
 		return digest;
 	}
-    
+
+	public String getLocalCachePath() {
+		return localCachePath;
+	}
+	
 }

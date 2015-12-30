@@ -11,7 +11,7 @@ import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.ServiceType;
 import org.apache.curator.x.discovery.UriSpec;
 
-public class ServerApp {
+public class ServerAppTest {
 
 	public static void main(String[] args) throws Exception {
 		CuratorFramework client = CuratorFrameworkFactory.newClient("127.0.0.1:2181", new ExponentialBackoffRetry(10000, 3));
