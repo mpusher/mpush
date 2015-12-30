@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.tools.InetAddressUtil;
+import com.shinemo.mpush.tools.zk.PathEnum;
 import com.shinemo.mpush.tools.zk.ZkConfig;
 import com.shinemo.mpush.tools.zk.ZkUtil;
 import com.shinemo.mpush.tools.zk.listener.CallBack;
@@ -28,7 +29,7 @@ public class ServerManage {
 
 	// 注册机器到zk中
 	public void start(String ip) {
-		zkUtil.registerEphemeralSequential("/cs/allhost/machine");
+		zkUtil.registerEphemeralSequential(PathEnum.CONNECTION_SERVER_ALL_HOST.getPath());
 		registerConnectionLostListener();
 		registerDataChange(ListenerDispatcher.instance);
 	}
