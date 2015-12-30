@@ -13,8 +13,10 @@ public enum Command {
     KICK(7),
     FAST_CONNECT(8),
     ERROR(9),
-    PUSH(10),
-    API(11),
+    OK(10),
+    PUSH(11),
+    API(12),
+    GATEWAY_PUSH(13),
     UNKNOWN(-1);
 
     Command(int cmd) {

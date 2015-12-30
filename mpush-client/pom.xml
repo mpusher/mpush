@@ -12,5 +12,14 @@
     <artifactId>mpush-client</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-
+    <dependencies>
+        <dependency>
+            <groupId>com.shinemo.mpush</groupId>
+            <artifactId>mpush-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.shinemo.mpush</groupId>
+            <artifactId>mpush-netty</artifactId>
+        </dependency>
+    </dependencies>
 </project>

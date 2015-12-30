@@ -71,7 +71,7 @@ public abstract class AbstractNettyClientFactory {
         return createClient(remoteHost, port, null);
     }
 
-    protected abstract Client createClient(final String remoteHost, final int port, ChannelHandler handler) throws Exception;
+    public abstract Client createClient(final String remoteHost, final int port, ChannelHandler handler) throws Exception;
 
 
     public void remove(Client client) {

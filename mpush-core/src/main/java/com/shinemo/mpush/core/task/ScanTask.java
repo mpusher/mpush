@@ -1,6 +1,6 @@
 package com.shinemo.mpush.core.task;
 
-import com.shinemo.mpush.api.Connection;
+import com.shinemo.mpush.api.connection.Connection;
 
 public interface ScanTask {
 

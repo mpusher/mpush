@@ -10,9 +10,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.shinemo.mpush.api.Connection;
+import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.Constants;
-import com.shinemo.mpush.core.ConnectionManager;
 import com.shinemo.mpush.netty.util.NettySharedHolder;
 
 /**
@@ -36,7 +35,7 @@ public class ScanAllClientConnection implements TimerTask {
     public void run(Timeout timeout) throws Exception {
         try {
             final long now = System.currentTimeMillis();
-            List<Connection> connections = ConnectionManager.INSTANCE.getConnections();
+            List<Connection> connections = null; //NettyConnectionManager.INSTANCE.getConnections();
             if (connections != null) {
                 for (Connection conn : connections) {
                     for (ScanTask task : this.taskList) {

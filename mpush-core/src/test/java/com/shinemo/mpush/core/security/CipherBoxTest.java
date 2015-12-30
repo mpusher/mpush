@@ -1,5 +1,6 @@
 package com.shinemo.mpush.core.security;
 
+import com.shinemo.mpush.common.security.CipherBox;
 import org.junit.Test;
 
 import java.util.Arrays;

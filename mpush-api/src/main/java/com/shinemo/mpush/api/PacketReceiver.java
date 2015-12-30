@@ -1,5 +1,6 @@
 package com.shinemo.mpush.api;
 
+import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Packet;
 
 /**

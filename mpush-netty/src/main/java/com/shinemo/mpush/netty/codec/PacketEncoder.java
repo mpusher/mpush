@@ -1,6 +1,5 @@
 package com.shinemo.mpush.netty.codec;
 
-import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;

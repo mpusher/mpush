@@ -24,7 +24,7 @@ import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.netty.util.NettySharedHolder;
 
-public class NettyClient implements Client {
+public  class NettyClient implements Client {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyClient.class);
 
     private final ChannelHandler handler;
@@ -95,5 +95,10 @@ public class NettyClient implements Client {
     @Override
     public String getUri() {
         return host + ":" + port;
+    }
+
+    @Override
+    public ChannelHandler getHandler() {
+        return handler;
     }
 }
