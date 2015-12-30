@@ -2,9 +2,10 @@ package com.shinemo.mpush.core.netty;
 
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.common.MessageDispatcher;
-import com.shinemo.mpush.core.ServerChannelHandler;
+import com.shinemo.mpush.core.server.ServerChannelHandler;
 import com.shinemo.mpush.core.handler.BindUserHandler;
 import com.shinemo.mpush.core.handler.HandshakeHandler;
+import com.shinemo.mpush.core.handler.HeartbeatHandler;
 import com.shinemo.mpush.netty.connection.NettyConnectionManager;
 import com.shinemo.mpush.core.server.ConnectionServer;
 import com.shinemo.mpush.netty.server.NettyServer;
@@ -26,8 +27,8 @@ public class NettyServerTest {
 
         MessageDispatcher receiver = new MessageDispatcher();
         receiver.register(Command.HANDSHAKE, new HandshakeHandler());
-        receiver.register(Command.HEARTBEAT, new BindUserHandler());
         receiver.register(Command.BIND, new BindUserHandler());
+        receiver.register(Command.HEARTBEAT, new HeartbeatHandler());
         NettyConnectionManager connectionManager = new NettyConnectionManager();
         connectionManager.registerEventBus();
         ChannelHandler handler = new ServerChannelHandler(connectionManager, receiver);
@@ -37,10 +38,7 @@ public class NettyServerTest {
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                try {
-                    server.stop();
-                } catch (Exception e) {
-                }
+                server.stop();
             }
         });
     }

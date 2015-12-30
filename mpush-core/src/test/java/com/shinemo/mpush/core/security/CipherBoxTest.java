@@ -12,7 +12,6 @@ public class CipherBoxTest {
 
     @Test
     public void testGetPrivateKey() throws Exception {
-        CipherBox.INSTANCE.getPrivateKey();
     }
 
     @Test

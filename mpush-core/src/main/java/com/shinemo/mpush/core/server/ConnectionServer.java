@@ -8,7 +8,7 @@ import io.netty.channel.ChannelOption;
 /**
  * Created by ohun on 2015/12/30.
  */
-public class ConnectionServer extends NettyServer {
+public final class ConnectionServer extends NettyServer {
 
     public ConnectionServer(int port, ChannelHandler channelHandler) {
         super(port, channelHandler);

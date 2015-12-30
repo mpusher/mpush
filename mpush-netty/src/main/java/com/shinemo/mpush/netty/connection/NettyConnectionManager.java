@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by ohun on 2015/12/22.
  */
-public class NettyConnectionManager implements ConnectionManager {
+public final class NettyConnectionManager implements ConnectionManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyConnectionManager.class);
 
     public void registerEventBus() {
