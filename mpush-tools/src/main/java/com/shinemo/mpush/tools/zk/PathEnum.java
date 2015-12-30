@@ -9,7 +9,7 @@ public enum PathEnum {
 			return getPath();
 		}
 	},
-    CONNECTION_SERVER_KICK("/cs/%s/kick","连接服务器踢人的路径"){
+    CONNECTION_SERVER_KICK("/cs/%s/kick/con","连接服务器踢人的路径"){
 		@Override
 		public String getPathByIp(String ip) {
 			return String.format(getPath(), ip);

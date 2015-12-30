@@ -1,6 +1,7 @@
 package com.shinemo.mpush.tools.zk.manage;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.framework.recipes.cache.TreeCacheEvent;
 import org.apache.curator.framework.recipes.cache.TreeCacheListener;
 import org.apache.curator.framework.state.ConnectionState;
@@ -63,5 +64,19 @@ public class ServerManage {
 			}
 		});
 	}
+	
+	public CuratorFramework getClient() {
+		return zkUtil.getClient();
+	}
+	
+    public TreeCache getCache() {
+        return zkUtil.getCache();
+    }
+    
+    public void close(){
+    	zkUtil.close();
+    }
+	
+	
 
 }
