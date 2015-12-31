@@ -14,6 +14,10 @@ public class ServerManageTest {
 	
 	private static Executor executor = Executors.newCachedThreadPool();
 	
+	private ServerApp app = new ServerApp("127.0.0.1","3000");
+	
+	private ServerManage manage = new ServerManage(app);
+	
 	@Test
 	public void testMulThread() throws InterruptedException{
 		CountDownLatch latch = new CountDownLatch(1);
@@ -28,14 +32,13 @@ public class ServerManageTest {
 	
 	@Test
 	public void testUpdate(){
-		ServerManage manage = ServerManage.instance;
+
 		manage.start();
 		
 	}
 	
 	@Test
 	public void testServerManageStart(){
-		ServerManage manage = ServerManage.instance;
 		manage.start();
 	}
 	
@@ -60,7 +63,8 @@ public class ServerManageTest {
 				e.printStackTrace();
 			}
 			log.warn("start init "+ip);
-			ServerManage manage = ServerManage.instance;
+			ServerApp app = new ServerApp(ip,"3000");
+			ServerManage manage = new ServerManage(app);
 			manage.start();
 			log.warn("end init "+ip);
 		}

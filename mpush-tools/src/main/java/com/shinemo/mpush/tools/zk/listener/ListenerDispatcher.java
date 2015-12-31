@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
-import com.shinemo.mpush.tools.InetAddressUtil;
 import com.shinemo.mpush.tools.zk.PathEnum;
+import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.listener.impl.ConnectionPathListener;
 import com.shinemo.mpush.tools.zk.listener.impl.KickPathListener;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
@@ -21,11 +21,9 @@ public class ListenerDispatcher implements CallBack {
 
 	private Map<String, CallBack> holder = Maps.newTreeMap();
 
-	public static ListenerDispatcher instance = new ListenerDispatcher();
-
-	private ListenerDispatcher() {
-		holder.put(PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByIp(InetAddressUtil.getInetAddress()), new ConnectionPathListener());
-		holder.put(PathEnum.CONNECTION_SERVER_KICK.getPathByIp(InetAddressUtil.getInetAddress()), new KickPathListener());
+	public ListenerDispatcher(ServerApp app) {
+		holder.put(PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByIp(app.getIp()), new ConnectionPathListener());
+		holder.put(PathEnum.CONNECTION_SERVER_KICK.getPathByIp(app.getIp()), new KickPathListener());
 	}
 
 	@Override

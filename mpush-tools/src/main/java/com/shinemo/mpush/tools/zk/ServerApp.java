@@ -6,19 +6,19 @@ public class ServerApp implements Serializable{
 	
 	private static final long serialVersionUID = 5495972321679092837L;
 	
-	private String ip;
-	private String port;
+	private final String ip;
+	private final String port;
+	
+	public ServerApp(String ip, String port) {
+		this.ip = ip;
+		this.port = port;
+	}
+	
 	public String getIp() {
 		return ip;
 	}
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
 	public String getPort() {
 		return port;
-	}
-	public void setPort(String port) {
-		this.port = port;
 	}
 	
 }
