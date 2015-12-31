@@ -73,6 +73,7 @@ public class ConnectionPathListener implements CallBack{
 	private void dataRemove(ChildData data){
 		String path = data.getPath();
 		holder.remove(path);
+		printAppList();
 	}
 	
 	private void dataAddOrUpdate(ChildData data){
@@ -80,6 +81,7 @@ public class ConnectionPathListener implements CallBack{
 		byte[] rawData = data.getData();
 		ServerApp serverApp = Jsons.fromJson(rawData, ServerApp.class);
 		holder.put(path, serverApp);
+		printAppList();
 	}
 	
 	private ServerApp getServerApp(String fullPath){
