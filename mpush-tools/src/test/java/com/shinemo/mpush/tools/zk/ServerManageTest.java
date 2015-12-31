@@ -28,9 +28,15 @@ public class ServerManageTest {
 	
 	@Test
 	public void testUpdate(){
-		ServerManage manage = new ServerManage();
+		ServerManage manage = ServerManage.instance;
 		manage.start();
 		
+	}
+	
+	@Test
+	public void testServerManageStart(){
+		ServerManage manage = ServerManage.instance;
+		manage.start();
 	}
 	
 	
@@ -54,7 +60,7 @@ public class ServerManageTest {
 				e.printStackTrace();
 			}
 			log.warn("start init "+ip);
-			ServerManage manage = new ServerManage();
+			ServerManage manage = ServerManage.instance;
 			manage.start();
 			log.warn("end init "+ip);
 		}

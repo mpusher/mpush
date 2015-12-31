@@ -23,7 +23,11 @@ public class ServerManage {
 
 	private static ZkUtil zkUtil = ZkUtil.instance;
 	
-    private final AtomicBoolean startFlag = new AtomicBoolean(false);
+    private static final AtomicBoolean startFlag = new AtomicBoolean(false);
+    
+    public static ServerManage instance = new ServerManage();
+    
+    private ServerManage(){}
 	
 	public void start() {
 		
