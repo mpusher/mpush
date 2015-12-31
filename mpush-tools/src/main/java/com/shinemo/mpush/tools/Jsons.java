@@ -19,6 +19,7 @@ public final class Jsons {
 
 
     public static String toJson(Object bean) {
+    	
         try {
             return GSON.toJson(bean);
         } catch (Exception e) {
@@ -28,6 +29,7 @@ public final class Jsons {
     }
     
     public static <T> T fromJson(String json, Class<T> clazz) {
+    	
         try {
             return GSON.fromJson(json, clazz);
         } catch (Exception e) {
@@ -79,4 +81,12 @@ public final class Jsons {
         sb.append(':');
         sb.append('"').append(value).append('"');
     }
+    
+    public static void main(String[] args) {
+		String test = "test";
+		String ret = Jsons.toJson(test);
+		String ret2 = Jsons.fromJson(ret, String.class);
+		System.out.println(ret);
+		System.out.println(ret2);
+	}
 }
