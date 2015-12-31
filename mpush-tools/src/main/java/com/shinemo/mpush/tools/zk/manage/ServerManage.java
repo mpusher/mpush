@@ -11,8 +11,9 @@ import org.apache.curator.framework.state.ConnectionStateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.shinemo.mpush.tools.InetAddressUtil;
+import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.zk.PathEnum;
+import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZkUtil;
 import com.shinemo.mpush.tools.zk.listener.CallBack;
 import com.shinemo.mpush.tools.zk.listener.ListenerDispatcher;
@@ -25,41 +26,48 @@ public class ServerManage {
 	
     private static final AtomicBoolean startFlag = new AtomicBoolean(false);
     
-    public static ServerManage instance = new ServerManage();
+    private final ServerApp app;
     
-    private ServerManage(){}
-	
+    public ServerManage(ServerApp app){
+    	this.app = app;
+    }
+    
 	public void start() {
 		
         if (!startFlag.compareAndSet(false, true)) {
             return;
         }
+        
+        ListenerDispatcher dispatcher = new ListenerDispatcher(app);
 		
 		//注册机器到zk中
-		registerApp();
+		registerApp(app);
+		
 		// 注册连接状态监听器
-		registerConnectionLostListener();
+		registerConnectionLostListener(app);
+		
 		// 注册节点数据变化
-		registerDataChange(ListenerDispatcher.instance);
+		registerDataChange(dispatcher);
+		
 		//获取应用起来的时候的初始化数据
-		initAppData(ListenerDispatcher.instance);
+		initAppData(dispatcher);
 		
 	}
 	
-	private void registerApp(){
-		zkUtil.registerEphemeralSequential(PathEnum.CONNECTION_SERVER_ALL_HOST.getPath());
+	private void registerApp(ServerApp app){
+		zkUtil.registerEphemeralSequential(PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByIp(app.getIp()),Jsons.toJson(app));
 	}
 
 	// 注册连接状态监听器
-	private void registerConnectionLostListener() {
+	private void registerConnectionLostListener(final ServerApp app) {
 		zkUtil.getClient().getConnectionStateListenable().addListener(new ConnectionStateListener() {
 
 			@Override
 			public void stateChanged(final CuratorFramework client, final ConnectionState newState) {
 				if (ConnectionState.LOST == newState) {
-					log.warn(InetAddressUtil.getInetAddress() + ", lost connection");
+					log.warn(app.getIp() + ", lost connection");
 				} else if (ConnectionState.RECONNECTED == newState) {
-					log.warn(InetAddressUtil.getInetAddress() + ", reconnected");
+					log.warn(app.getIp() + ", reconnected");
 				}
 			}
 		});

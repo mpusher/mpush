@@ -231,6 +231,18 @@ public class ZkUtil {
      * 注册临时顺序数据
      * @param key
      */
+    public void registerEphemeralSequential(final String key,final String value) {
+        try {
+            client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key, value.getBytes());
+        } catch (final Exception ex) {
+        	log.error("persistEphemeralSequential" + key,ex);
+        }
+    }
+    
+    /**
+     * 注册临时顺序数据
+     * @param key
+     */
     public void registerEphemeralSequential(final String key) {
         try {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key);

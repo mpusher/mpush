@@ -16,7 +16,8 @@ import com.shinemo.mpush.tools.zk.manage.ServerManage;
 
 public class DistributedQueueConsumerTest {
 
-	private ServerManage manage = ServerManage.instance;
+	private ServerApp app = new ServerApp("127.0.0.1","3000");
+	private ServerManage manage = new ServerManage(app);
 	
 	@Before
 	public void setup(){
