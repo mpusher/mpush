@@ -40,13 +40,10 @@ public class ConnectionPathListener implements CallBack{
 		}
 		if (Type.NODE_ADDED == event.getType()) {
 			dataAddOrUpdate(event.getData());
-			log.warn("ConnectionPathListener path:" + path + ", node Add"+","+data);
 		} else if (Type.NODE_REMOVED == event.getType()) {
 			dataRemove(event.getData());
-			log.warn("ConnectionPathListener path:" + path + ", node Remove"+","+data);
 		} else if (Type.NODE_UPDATED == event.getType()) {
 			dataAddOrUpdate(event.getData());
-			log.warn("ConnectionPathListener path:" + path + "," + "node update"+","+data);
 		} else {
 			log.warn("ConnectionPathListener other path:" + path + "," + event.getType().name()+","+data);
 		}
@@ -55,12 +52,12 @@ public class ConnectionPathListener implements CallBack{
 	@Override
 	public void initData(ServerManage manage) {
 		log.warn("start init app data");
-		getData();
+		_initData();
 		printAppList();
 		log.warn("end init app data");
 	}
 	
-	private void getData(){
+	private void _initData(){
 		//获取机器列表
 		List<String> rawData = ZkUtil.instance.getChildrenKeys(PathEnum.CONNECTION_SERVER_ALL_HOST.getPath());
 		for(String raw:rawData){
@@ -90,13 +87,13 @@ public class ConnectionPathListener implements CallBack{
 		return app;
 	}
 	
-	public Collection<ServerApp> getAppList(){
-		return Collections.unmodifiableCollection(holder.values());
-	}
-
 	private void printAppList(){
 		for(ServerApp app:holder.values()){
 			log.warn(ToStringBuilder.reflectionToString(app, ToStringStyle.DEFAULT_STYLE));
 		}
+	}
+
+	public Collection<ServerApp> getAppList() {
+		return Collections.unmodifiableCollection(holder.values());
 	}
 }
