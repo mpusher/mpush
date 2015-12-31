@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.tools.zk.listener.CallBack;
+import com.shinemo.mpush.tools.zk.manage.ServerManage;
 
 /**
  * 当前应用下踢人的目录发生变化
@@ -27,6 +28,11 @@ public class KickPathListener implements CallBack{
 		} else {
 			log.warn("path:" + path + "," + event.getType().name()+","+event.getData().getData());
 		}
+	}
+
+	@Override
+	public void initData(ServerManage manage) {
+		
 	}
 
 }

@@ -9,10 +9,8 @@ import org.apache.curator.framework.state.ConnectionStateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.shinemo.mpush.tools.Constants;
 import com.shinemo.mpush.tools.InetAddressUtil;
 import com.shinemo.mpush.tools.zk.PathEnum;
-import com.shinemo.mpush.tools.zk.ZkConfig;
 import com.shinemo.mpush.tools.zk.ZkUtil;
 import com.shinemo.mpush.tools.zk.listener.CallBack;
 import com.shinemo.mpush.tools.zk.listener.ListenerDispatcher;
@@ -21,22 +19,21 @@ public class ServerManage {
 
 	private static final Logger log = LoggerFactory.getLogger(ServerManage.class);
 
-	private static final ZkConfig zkConfig = new ZkConfig(Constants.ZK_IPS, Constants.ZK_NAME_SPACE);
-
-	private static final ZkUtil zkUtil = new ZkUtil(zkConfig);
-
-	static {
-		zkUtil.init();
-	}
-
-
+	private static ZkUtil zkUtil = ZkUtil.instance;
+	
 	public void start(String ip) {
 		//注册机器到zk中
-		zkUtil.registerEphemeralSequential(PathEnum.CONNECTION_SERVER_ALL_HOST.getPath());
+		registerApp();
 		// 注册连接状态监听器
 		registerConnectionLostListener();
 		// 注册节点数据变化
 		registerDataChange(ListenerDispatcher.instance);
+		//获取应用起来的时候的初始化数据
+		initAppData(ListenerDispatcher.instance);
+	}
+	
+	private void registerApp(){
+		zkUtil.registerEphemeralSequential(PathEnum.CONNECTION_SERVER_ALL_HOST.getPath());
 	}
 
 	// 注册连接状态监听器
@@ -69,6 +66,10 @@ public class ServerManage {
 		});
 	}
 	
+	private void initAppData(final CallBack callBack){
+		callBack.initData(this);
+	}
+	
 	public CuratorFramework getClient() {
 		return zkUtil.getClient();
 	}
@@ -79,6 +80,10 @@ public class ServerManage {
     
     public void close(){
     	zkUtil.close();
+    }
+    
+    public ZkUtil getZkUtil(){
+    	return zkUtil;
     }
 
 }
