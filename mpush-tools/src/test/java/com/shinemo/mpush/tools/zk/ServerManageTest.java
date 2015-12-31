@@ -14,14 +14,14 @@ public class ServerManageTest {
 	
 	private static Executor executor = Executors.newCachedThreadPool();
 	
-	private ServerApp app = new ServerApp("127.0.0.1","3000");
+	private ServerApp app = new ServerApp("10.1.10.65","3000");
 	
 	private ServerManage manage = new ServerManage(app);
 	
 	@Test
-	public void testMulThread() throws InterruptedException{
+	public void testMulThreadRegisterApp() throws InterruptedException{
 		CountDownLatch latch = new CountDownLatch(1);
-		for(int i = 1;i<=10;i++){
+		for(int i = 1;i<=2;i++){
 			executor.execute(new Worker("192.168.1."+i, latch));
 		}
 		latch.countDown();
@@ -29,13 +29,6 @@ public class ServerManageTest {
 		Thread.sleep(Integer.MAX_VALUE);
 	}
 	
-	
-	@Test
-	public void testUpdate(){
-
-		manage.start();
-		
-	}
 	
 	@Test
 	public void testServerManageStart(){
@@ -66,6 +59,15 @@ public class ServerManageTest {
 			ServerApp app = new ServerApp(ip,"3000");
 			ServerManage manage = new ServerManage(app);
 			manage.start();
+			
+			try {
+				Thread.sleep(20000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			manage.close();
+			
 			log.warn("end init "+ip);
 		}
 		

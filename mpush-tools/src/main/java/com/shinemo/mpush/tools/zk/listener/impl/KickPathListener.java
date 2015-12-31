@@ -19,14 +19,15 @@ public class KickPathListener implements CallBack{
 	
 	@Override
 	public void handler(CuratorFramework client, TreeCacheEvent event, String path) {
+		String data = new String(event.getData().getData());
 		if (Type.NODE_ADDED == event.getType()) {
-			log.warn("path:" + path + ", node Add" +","+event.getData().getData());
+			log.warn("path:" + path + ", node Add"+","+data);
 		} else if (Type.NODE_REMOVED == event.getType()) {
-			log.warn("path:" + path + ", node Remove"+","+event.getData().getData());
+			log.warn("path:" + path + ", node Remove"+","+data);
 		} else if (Type.NODE_UPDATED == event.getType()) {
-			log.warn("path:" + path + "," + "node update"+","+event.getData().getData());
+			log.warn("path:" + path + "," + "node update"+","+data);
 		} else {
-			log.warn("path:" + path + "," + event.getType().name()+","+event.getData().getData());
+			log.warn("other path:" + path + "," + event.getType().name()+","+data);
 		}
 	}
 

@@ -24,7 +24,7 @@ public class ServerManage {
 
 	private static ZkUtil zkUtil = ZkUtil.instance;
 	
-    private static final AtomicBoolean startFlag = new AtomicBoolean(false);
+    private final AtomicBoolean startFlag = new AtomicBoolean(false);
     
     private final ServerApp app;
     
@@ -41,10 +41,10 @@ public class ServerManage {
         ListenerDispatcher dispatcher = new ListenerDispatcher(app);
 		
 		//注册机器到zk中
-		registerApp(app);
+		registerApp();
 		
 		// 注册连接状态监听器
-		registerConnectionLostListener(app);
+		registerConnectionLostListener();
 		
 		// 注册节点数据变化
 		registerDataChange(dispatcher);
@@ -54,12 +54,16 @@ public class ServerManage {
 		
 	}
 	
-	private void registerApp(ServerApp app){
+	private void registerApp(){
 		zkUtil.registerEphemeralSequential(PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByIp(app.getIp()),Jsons.toJson(app));
+	}
+	
+	public void unregisterApp(){
+		zkUtil.remove(PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByIp(app.getIp()));
 	}
 
 	// 注册连接状态监听器
-	private void registerConnectionLostListener(final ServerApp app) {
+	private void registerConnectionLostListener() {
 		zkUtil.getClient().getConnectionStateListenable().addListener(new ConnectionStateListener() {
 
 			@Override
@@ -81,6 +85,7 @@ public class ServerManage {
 			public void childEvent(CuratorFramework client, TreeCacheEvent event) throws Exception {
 				String path = null == event.getData() ? "" : event.getData().getPath();
 				if (path.isEmpty()) {
+					log.warn("registerDataChange empty path:" + path + "," + event.getType().name());
 					return;
 				}
 				callBack.handler(client, event, path);
