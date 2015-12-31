@@ -35,7 +35,7 @@ public class ListenerDispatcher implements CallBack {
 			if (path.startsWith(entry.getKey())) {
 				entry.getValue().handler(client, event, path);
 			} else { // 其他路径的事件，暂时不关心
-				log.warn("path:" + path + "," + event.getType().name());
+				log.warn("ListenerDispatcher other path:" + path + "," + event.getType().name());
 			}
 		}
 
