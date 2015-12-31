@@ -3,6 +3,7 @@ package com.shinemo.mpush.common.message;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.common.ErrorCode;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 
@@ -47,8 +48,9 @@ public final class ErrorMessage extends ByteBufMessage {
         return this;
     }
 
-    public ErrorMessage setCode(byte code) {
-        this.code = code;
+    public ErrorMessage setErrorCode(ErrorCode code) {
+        this.code = code.errorCode;
+        this.reason = code.errorMsg;
         return this;
     }
 
