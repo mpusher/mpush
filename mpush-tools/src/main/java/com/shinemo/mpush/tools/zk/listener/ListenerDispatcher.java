@@ -24,7 +24,7 @@ public class ListenerDispatcher implements CallBack {
 	public static ListenerDispatcher instance = new ListenerDispatcher();
 
 	private ListenerDispatcher() {
-		holder.put(PathEnum.CONNECTION_SERVER_ALL_HOST.getPath(), new ConnectionPathListener());
+		holder.put(PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByIp(InetAddressUtil.getInetAddress()), new ConnectionPathListener());
 		holder.put(PathEnum.CONNECTION_SERVER_KICK.getPathByIp(InetAddressUtil.getInetAddress()), new KickPathListener());
 	}
 
@@ -55,7 +55,7 @@ public class ListenerDispatcher implements CallBack {
 	}
 	
 	public CallBack getListener(PathEnum pathEnum,String ip){
-		return holder.get(PathEnum.CONNECTION_SERVER_KICK.getPathByIp(ip));
+		return holder.get(pathEnum.getPathByIp(ip));
 	}
 
 }
