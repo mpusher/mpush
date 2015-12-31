@@ -65,7 +65,7 @@ public class ConnectionPathListener implements CallBack{
 		List<String> rawData = ZkUtil.instance.getChildrenKeys(PathEnum.CONNECTION_SERVER_ALL_HOST.getPath());
 		for(String raw:rawData){
 			String fullPath = PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByName(raw);
-			ServerApp app = getServerApp(raw);
+			ServerApp app = getServerApp(fullPath);
 			holder.put(fullPath, app);
 		}
 	}

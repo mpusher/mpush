@@ -94,7 +94,7 @@ public class ZkUtilTest {
 	
 	@Test
 	public void testRemove(){
-		zkUtil.remove("/example/queue");
+		zkUtil.remove("/");
 	}
 	
 	@Test
