@@ -29,10 +29,10 @@ public interface Constants {
     int ZK_CONNECTION_TIMEOUT = 5000;
     String ZK_DEFAULT_CACHE_PATH = "/";
     String ZK_DEFAULT_DIGEST = "shinemo";
-    
+    String ZK_IPS = "127.0.0.1:2181";
     
     //zk cs
-    String ZK_NAME_SPACE = "/mpush";
+    String ZK_NAME_SPACE = "mpush";
     //所有机器启动的时候注册ip的地方
     String ZK_REGISTER_HOST = "/allhost";
     String ZK_REGISTER_PREFIX_NAME = "machine";
