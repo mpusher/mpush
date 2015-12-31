@@ -22,20 +22,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.curator.framework.CuratorFrameworkFactory.Builder;
 
+import com.shinemo.mpush.tools.Constants;
+
 public class ZkUtil {
 
 	private static final Logger log = LoggerFactory.getLogger(ZkUtil.class);
+	
+	private static final ZkConfig config = new ZkConfig(Constants.ZK_IPS, Constants.ZK_NAME_SPACE);
 
+	public static final ZkUtil instance = new ZkUtil(config);
+
+	static {
+		instance.init();
+	}
+	
 	private ZkConfig zkConfig;
 	private CuratorFramework client;
     private TreeCache cache;
 
-	public ZkUtil(ZkConfig zkConfig) {
+	private ZkUtil(ZkConfig zkConfig) {
 		this.zkConfig = zkConfig;
 	}
 	
-	
-
 	public ZkConfig getZkConfig() {
 		return zkConfig;
 	}

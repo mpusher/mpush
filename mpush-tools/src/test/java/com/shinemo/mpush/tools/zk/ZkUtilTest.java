@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.junit.Before;
 import org.junit.Test;
 import com.shinemo.mpush.tools.Constants;
 import com.shinemo.mpush.tools.InetAddressUtil;
@@ -12,14 +11,7 @@ import com.shinemo.mpush.tools.Jsons;
 
 public class ZkUtilTest {
 	
-	private ZkConfig zkConfig = new ZkConfig("127.0.0.1:2181", "mpush");
-	
-	private ZkUtil zkUtil = new ZkUtil(zkConfig);
-	
-	@Before
-	public void setup(){
-		zkUtil.init();
-	}
+	private ZkUtil zkUtil = ZkUtil.instance;
 	
 	@Test
 	public void test(){
