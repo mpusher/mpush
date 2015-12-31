@@ -1,5 +1,7 @@
 package com.shinemo.mpush.tools.zk.manage;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.framework.recipes.cache.TreeCacheEvent;
@@ -21,7 +23,14 @@ public class ServerManage {
 
 	private static ZkUtil zkUtil = ZkUtil.instance;
 	
-	public void start(String ip) {
+    private final AtomicBoolean startFlag = new AtomicBoolean(false);
+	
+	public void start() {
+		
+        if (!startFlag.compareAndSet(false, true)) {
+            return;
+        }
+		
 		//注册机器到zk中
 		registerApp();
 		// 注册连接状态监听器
@@ -30,6 +39,7 @@ public class ServerManage {
 		registerDataChange(ListenerDispatcher.instance);
 		//获取应用起来的时候的初始化数据
 		initAppData(ListenerDispatcher.instance);
+		
 	}
 	
 	private void registerApp(){
