@@ -28,6 +28,8 @@ public class ServerManage {
     
     private final ServerApp app;
     
+    private ListenerDispatcher dispatcher;
+    
     public ServerManage(ServerApp app){
     	this.app = app;
     }
@@ -38,7 +40,7 @@ public class ServerManage {
             return;
         }
         
-        ListenerDispatcher dispatcher = new ListenerDispatcher(app);
+        dispatcher = new ListenerDispatcher(app);
 		
 		//注册机器到zk中
 		registerApp();
@@ -111,6 +113,10 @@ public class ServerManage {
     
     public ZkUtil getZkUtil(){
     	return zkUtil;
+    }
+    
+    public ListenerDispatcher getDispatcher(){
+    	return dispatcher;
     }
 
 }

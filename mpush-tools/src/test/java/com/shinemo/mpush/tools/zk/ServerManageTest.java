@@ -31,8 +31,9 @@ public class ServerManageTest {
 	
 	
 	@Test
-	public void testServerManageStart(){
+	public void testServerManageStart() throws InterruptedException{
 		manage.start();
+		Thread.sleep(Integer.MAX_VALUE);
 	}
 	
 	
