@@ -29,7 +29,7 @@ public class ServerManageTest {
 	@Test
 	public void testUpdate(){
 		ServerManage manage = new ServerManage();
-		manage.start("192.168.1.1");
+		manage.start();
 		
 	}
 	
@@ -55,7 +55,7 @@ public class ServerManageTest {
 			}
 			log.warn("start init "+ip);
 			ServerManage manage = new ServerManage();
-			manage.start(ip);
+			manage.start();
 			log.warn("end init "+ip);
 		}
 		

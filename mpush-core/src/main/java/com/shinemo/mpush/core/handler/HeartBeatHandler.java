@@ -7,7 +7,7 @@ import com.shinemo.mpush.api.protocol.Packet;
 /**
  * Created by ohun on 2015/12/22.
  */
-public final class HeartbeatHandler implements MessageHandler {
+public final class HeartBeatHandler implements MessageHandler {
     @Override
     public void handle(Packet packet, Connection connection) {
         System.err.println("receive client heartbeat, time="
