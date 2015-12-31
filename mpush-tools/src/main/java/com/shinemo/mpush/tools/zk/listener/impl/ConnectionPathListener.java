@@ -30,7 +30,10 @@ public class ConnectionPathListener implements CallBack{
 	
 	@Override
 	public void handler(CuratorFramework client, TreeCacheEvent event, String path) {
-		String data = new String(event.getData().getData());
+		String data = "";
+		if(event.getData()!=null){
+			data = ToStringBuilder.reflectionToString(event.getData(), ToStringStyle.MULTI_LINE_STYLE);
+		}
 		if (Type.NODE_ADDED == event.getType()) {
 			log.warn("ConnectionPathListener path:" + path + ", node Add"+","+data);
 		} else if (Type.NODE_REMOVED == event.getType()) {

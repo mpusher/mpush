@@ -30,13 +30,17 @@ public class ListenerDispatcher implements CallBack {
 	public void handler(CuratorFramework client, TreeCacheEvent event, String path) {
 
 		Iterator<Map.Entry<String, CallBack>> it = holder.entrySet().iterator();
+		boolean hasHandler = false;
 		while (it.hasNext()) {
 			Map.Entry<String, CallBack> entry = it.next();
 			if (path.startsWith(entry.getKey())) {
+				hasHandler = true;
 				entry.getValue().handler(client, event, path);
-			} else { // 其他路径的事件，暂时不关心
-				log.warn("ListenerDispatcher other path:" + path + "," + event.getType().name());
 			}
+		}
+		
+		if(!hasHandler){
+			log.warn("ListenerDispatcher other path:" + path + "," + event.getType().name());
 		}
 
 	}
