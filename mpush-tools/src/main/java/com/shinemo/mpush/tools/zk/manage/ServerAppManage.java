@@ -28,14 +28,12 @@ public class ServerAppManage {
 	}
 
 	public void addOrUpdate(String fullPath,ServerApp app){
+		holder.put(fullPath, app);
 		printAppList();
 	}
 	
 	public void remove(String fullPath){
-		printAppList();
-	}
-	
-	public void init(){
+		holder.remove(fullPath);
 		printAppList();
 	}
 	
