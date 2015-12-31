@@ -1,6 +1,5 @@
 package com.shinemo.mpush.tools.zk.manage;
 
-import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -12,14 +11,12 @@ import org.apache.curator.framework.state.ConnectionStateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.shinemo.mpush.tools.InetAddressUtil;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.zk.PathEnum;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZkUtil;
 import com.shinemo.mpush.tools.zk.listener.CallBack;
 import com.shinemo.mpush.tools.zk.listener.ListenerDispatcher;
-import com.shinemo.mpush.tools.zk.listener.impl.ConnectionPathListener;
 
 public class ServerManage {
 
@@ -118,14 +115,4 @@ public class ServerManage {
     	return zkUtil;
     }
     
-    public ListenerDispatcher getDispatcher(){
-    	return dispatcher;
-    }
-    
-    public Collection<ServerApp> getServerApp(){
-    	CallBack callback = dispatcher.getListener(PathEnum.CONNECTION_SERVER_ALL_HOST, InetAddressUtil.getInetAddress());
-    	ConnectionPathListener listener =  (ConnectionPathListener)callback;
-    	return listener.getAppList();
-    }
-
 }

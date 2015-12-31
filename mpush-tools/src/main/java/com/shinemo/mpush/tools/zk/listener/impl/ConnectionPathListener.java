@@ -1,9 +1,6 @@
 package com.shinemo.mpush.tools.zk.listener.impl;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -14,12 +11,12 @@ import org.apache.curator.framework.recipes.cache.TreeCacheEvent.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Maps;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.zk.PathEnum;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZkUtil;
 import com.shinemo.mpush.tools.zk.listener.CallBack;
+import com.shinemo.mpush.tools.zk.manage.ServerAppManage;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
 
 /**
@@ -29,8 +26,6 @@ import com.shinemo.mpush.tools.zk.manage.ServerManage;
 public class ConnectionPathListener implements CallBack{
 	
 	private static final Logger log = LoggerFactory.getLogger(ConnectionPathListener.class);
-	
-	private static Map<String,ServerApp> holder = Maps.newConcurrentMap();
 	
 	@Override
 	public void handler(CuratorFramework client, TreeCacheEvent event, String path) {
@@ -53,7 +48,6 @@ public class ConnectionPathListener implements CallBack{
 	public void initData(ServerManage manage) {
 		log.warn("start init app data");
 		_initData();
-		printAppList();
 		log.warn("end init app data");
 	}
 	
@@ -63,22 +57,20 @@ public class ConnectionPathListener implements CallBack{
 		for(String raw:rawData){
 			String fullPath = PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByName(raw);
 			ServerApp app = getServerApp(fullPath);
-			holder.put(fullPath, app);
+			ServerAppManage.instance.addOrUpdate(fullPath, app);
 		}
 	}
 	
 	private void dataRemove(ChildData data){
 		String path = data.getPath();
-		holder.remove(path);
-		printAppList();
+		ServerAppManage.instance.remove(path);
 	}
 	
 	private void dataAddOrUpdate(ChildData data){
 		String path = data.getPath();
 		byte[] rawData = data.getData();
 		ServerApp serverApp = Jsons.fromJson(rawData, ServerApp.class);
-		holder.put(path, serverApp);
-		printAppList();
+		ServerAppManage.instance.addOrUpdate(path, serverApp);
 	}
 	
 	private ServerApp getServerApp(String fullPath){
@@ -86,14 +78,6 @@ public class ConnectionPathListener implements CallBack{
 		ServerApp app = Jsons.fromJson(rawApp, ServerApp.class);
 		return app;
 	}
-	
-	private void printAppList(){
-		for(ServerApp app:holder.values()){
-			log.warn(ToStringBuilder.reflectionToString(app, ToStringStyle.DEFAULT_STYLE));
-		}
-	}
 
-	public Collection<ServerApp> getAppList() {
-		return Collections.unmodifiableCollection(holder.values());
-	}
+
 }
