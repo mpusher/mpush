@@ -1,5 +1,7 @@
 package com.shinemo.mpush.tools.zk.listener.impl;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.TreeCacheEvent;
 import org.apache.curator.framework.recipes.cache.TreeCacheEvent.Type;
@@ -19,7 +21,10 @@ public class KickPathListener implements CallBack{
 	
 	@Override
 	public void handler(CuratorFramework client, TreeCacheEvent event, String path) {
-		String data = new String(event.getData().getData());
+		String data = "";
+		if(event.getData()!=null){
+			data = ToStringBuilder.reflectionToString(event.getData(), ToStringStyle.MULTI_LINE_STYLE);
+		}
 		if (Type.NODE_ADDED == event.getType()) {
 			log.warn("path:" + path + ", node Add"+","+data);
 		} else if (Type.NODE_REMOVED == event.getType()) {
