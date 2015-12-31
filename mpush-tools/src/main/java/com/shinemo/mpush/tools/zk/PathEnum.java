@@ -3,10 +3,10 @@ package com.shinemo.mpush.tools.zk;
 
 public enum PathEnum {
 	
-	CONNECTION_SERVER_ALL_HOST("/cs/hosts/machine","连接服务器应用注册的路径"){
+	CONNECTION_SERVER_ALL_HOST("/cs/hosts","连接服务器应用注册的路径"){
 		@Override
 		public String getPathByIp(String ip) {
-			return getPath();
+			return getPath()+"/machine";
 		}
 	},
     CONNECTION_SERVER_KICK("/cs/%s/kick/con","连接服务器踢人的路径"){
