@@ -9,6 +9,7 @@ import org.apache.curator.framework.state.ConnectionStateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.shinemo.mpush.tools.Constants;
 import com.shinemo.mpush.tools.InetAddressUtil;
 import com.shinemo.mpush.tools.zk.PathEnum;
 import com.shinemo.mpush.tools.zk.ZkConfig;
@@ -20,7 +21,7 @@ public class ServerManage {
 
 	private static final Logger log = LoggerFactory.getLogger(ServerManage.class);
 
-	private static final ZkConfig zkConfig = new ZkConfig("127.0.0.1:2181", "mpush");
+	private static final ZkConfig zkConfig = new ZkConfig(Constants.ZK_IPS, Constants.ZK_NAME_SPACE);
 
 	private static final ZkUtil zkUtil = new ZkUtil(zkConfig);
 
@@ -79,6 +80,5 @@ public class ServerManage {
     public void close(){
     	zkUtil.close();
     }
-	
 
 }

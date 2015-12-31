@@ -8,6 +8,10 @@ import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.tools.zk.listener.CallBack;
 
+/**
+ *注册的应用的发生变化 
+ *
+ */
 public class ConnectionPathListener implements CallBack{
 	
 	private static final Logger log = LoggerFactory.getLogger(ConnectionPathListener.class);

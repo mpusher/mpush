@@ -55,7 +55,7 @@ public class ZkUtilTest {
 	@Test
 	public void testRegister(){
 		
-		String path = Constants.ZK_NAME_SPACE;
+		String path = "/"+Constants.ZK_NAME_SPACE;
 		
 		String prefix = Constants.ZK_REGISTER_PREFIX_NAME;
 		
