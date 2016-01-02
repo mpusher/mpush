@@ -115,4 +115,8 @@ public class ServerManage {
     	return zkUtil;
     }
     
+    public ServerApp getServerApp(){
+    	return app;
+    }
+    
 }

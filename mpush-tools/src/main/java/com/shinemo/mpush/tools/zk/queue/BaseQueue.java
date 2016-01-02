@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.tools.Jsons;
+import com.shinemo.mpush.tools.zk.consumer.ConsumerCallBack;
 
 public class BaseQueue<T> {
 	
@@ -29,12 +30,13 @@ public class BaseQueue<T> {
 		};
 	}
 
-	public static <T> QueueConsumer<T> createQueueConsumer(final Class<T> clazz) {
+	public static <T> QueueConsumer<T> createQueueConsumer(final Class<T> clazz,final ConsumerCallBack<T> callBack) {
 		
 		return new QueueConsumer<T>() {
 			
 			@Override
 			public void consumeMessage(T message) throws Exception {
+				callBack.handler(message);
 				log.warn("consume one message:"+message);
 			}
 			
