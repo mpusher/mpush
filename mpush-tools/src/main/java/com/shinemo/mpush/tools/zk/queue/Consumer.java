@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.tools.zk.ZkUtil;
+import com.shinemo.mpush.tools.zk.consumer.ConsumerCallBack;
 
 public class Consumer<T> extends BaseQueue<T>{
 	
@@ -14,9 +15,9 @@ public class Consumer<T> extends BaseQueue<T>{
 	private DistributedQueue<T> queue = null;
 	private String path;
 	
-	public Consumer(String path,final Class<T> clazz){
+	public Consumer(String path,final Class<T> clazz,final ConsumerCallBack<T> callBack){
 		QueueBuilder<T> builder = QueueBuilder.builder(ZkUtil.instance.getClient(),
-				createQueueConsumer(clazz), createQueueSerializer(clazz), path);
+				createQueueConsumer(clazz,callBack), createQueueSerializer(clazz), path);
 		queue = builder.buildQueue();
 		this.path = path;
 	}
