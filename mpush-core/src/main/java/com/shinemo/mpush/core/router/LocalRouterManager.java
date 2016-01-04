@@ -1,4 +1,4 @@
-package com.shinemo.mpush.common.router;
+package com.shinemo.mpush.core.router;
 
 import com.shinemo.mpush.api.router.RouterManager;
 

@@ -13,13 +13,15 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ohun on 2015/12/22.
  */
-public final class NettyConnection implements Connection {
+public final class NettyConnection implements Connection, ChannelFutureListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyConnection.class);
 
     private SessionContext context;
     private Channel channel;
     private boolean security;
-    private volatile int status = 0;
+    private volatile int status = STATUS_NEW;
+    private long lastReadTime;
+    private long lastWriteTime;
 
     @Override
     public void init(Channel channel, boolean security) {
@@ -29,7 +31,8 @@ public final class NettyConnection implements Connection {
         if (security) {
             this.context.changeCipher(CipherBox.INSTANCE.getRsaCipher());
         }
-        this.status = 1;
+        this.lastReadTime = System.currentTimeMillis();
+        this.status = STATUS_CONNECTED;
     }
 
     @Override
@@ -48,14 +51,17 @@ public final class NettyConnection implements Connection {
     }
 
     @Override
-    public ChannelFuture send(final Packet packet) {
-        return channel.writeAndFlush(packet);
+    public ChannelFuture send(Packet packet) {
+        return send(packet, null);
     }
 
     @Override
-    public void send(Packet packet, ChannelFutureListener listener) {
-        if (listener == null) channel.writeAndFlush(packet);
-        else channel.writeAndFlush(packet).addListener(listener);
+    public ChannelFuture send(Packet packet, ChannelFutureListener listener) {
+        if (listener != null) {
+            return channel.writeAndFlush(packet).addListener(listener).addListener(this);
+        } else {
+            return channel.writeAndFlush(packet).addListener(this);
+        }
     }
 
     @Override
@@ -63,23 +69,34 @@ public final class NettyConnection implements Connection {
         return channel;
     }
 
-    public Channel getChannel() {
-        return channel;
-    }
-
-    public void setChannel(Channel channel) {
-        this.channel = channel;
-    }
-
     @Override
     public void close() {
-        this.status = 0;
+        this.status = STATUS_DISCONNECTED;
         this.channel.close();
     }
 
     @Override
     public boolean isConnected() {
-        return status == 0 || channel.isActive();
+        return status == STATUS_CONNECTED || channel.isActive();
+    }
+
+    @Override
+    public boolean heartbeatTimeout() {
+        return context.heartbeat > 0 && System.currentTimeMillis() - lastReadTime > context.heartbeat;
+    }
+
+    @Override
+    public void setLastReadTime() {
+        lastReadTime = System.currentTimeMillis();
+    }
+
+    @Override
+    public void operationComplete(ChannelFuture future) throws Exception {
+        if (future.isSuccess()) {
+            lastWriteTime = System.currentTimeMillis();
+        } else {
+            LOGGER.error("send msg error");
+        }
     }
 
     @Override

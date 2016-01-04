@@ -7,8 +7,9 @@ import java.nio.charset.Charset;
  */
 public interface Constants {
     Charset UTF_8 = Charset.forName("UTF-8");
+    int HEARTBEAT_TIME = 1000 * 60 * 5;//5min
     byte[] EMPTY_BYTES = new byte[0];
-    
+
     String JVM_LOG_PATH = "/opt/";
 
     int THREAD_QUEUE_SIZE = 10000;
@@ -20,17 +21,17 @@ public interface Constants {
 
     int MIN_WORK_POOL_SIZE = 10;
     int MAX_WORK_POOL_SIZE = 250;
-    
+
     //zk
     int ZK_MAX_RETRY = 3;
     int ZK_MIN_TIME = 5000;
     int ZK_MAX_TIME = 5000;
-    int ZK_SESSION_TIMEOUT  = 5000;
+    int ZK_SESSION_TIMEOUT = 5000;
     int ZK_CONNECTION_TIMEOUT = 5000;
     String ZK_DEFAULT_CACHE_PATH = "/";
     String ZK_DEFAULT_DIGEST = "shinemo";
     String ZK_IPS = "127.0.0.1:2181";
-    
+
     //zk cs
     String ZK_NAME_SPACE = "mpush";
     //所有机器启动的时候注册ip的地方

@@ -10,8 +10,6 @@ import com.shinemo.mpush.api.protocol.Packet;
 public final class HeartBeatHandler implements MessageHandler {
     @Override
     public void handle(Packet packet, Connection connection) {
-        System.err.println("receive client heartbeat, time="
-                + System.currentTimeMillis());
-
+        connection.send(packet);//ping -> pong
     }
 }

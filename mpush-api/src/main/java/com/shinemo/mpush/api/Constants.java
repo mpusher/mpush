@@ -27,5 +27,5 @@ public interface Constants {
 
     int MIN_WORK_POOL_SIZE = 10;
     int MAX_WORK_POOL_SIZE = 250;
-    int HEARTBEAT_TIME = 1000 * 60 * 5;//5min
+    int HEARTBEAT_TIME = 1000 * 60 * 4;//5min
 }

@@ -15,6 +15,8 @@ public final class HandshakeMessage extends ByteBufMessage {
     public String clientVersion;
     public byte[] iv;
     public byte[] clientKey;
+    public int minHeartbeat;
+    public int maxHeartbeat;
     public long timestamp;
 
     public HandshakeMessage(Connection connection) {
@@ -33,6 +35,8 @@ public final class HandshakeMessage extends ByteBufMessage {
         clientVersion = decodeString(body);
         iv = decodeBytes(body);
         clientKey = decodeBytes(body);
+        minHeartbeat = decodeInt(body);
+        maxHeartbeat = decodeInt(body);
         timestamp = decodeLong(body);
     }
 
@@ -43,6 +47,8 @@ public final class HandshakeMessage extends ByteBufMessage {
         encodeString(body, clientVersion);
         encodeBytes(body, iv);
         encodeBytes(body, clientKey);
+        encodeInt(body, minHeartbeat);
+        encodeInt(body, maxHeartbeat);
         encodeLong(body, timestamp);
     }
 }

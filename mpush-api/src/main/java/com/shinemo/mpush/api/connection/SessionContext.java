@@ -10,6 +10,7 @@ public final class SessionContext {
     public String osVersion;
     public String clientVersion;
     public String deviceId;
+    public int heartbeat;
     public Cipher cipher;
 
     public void changeCipher(Cipher cipher) {
@@ -34,6 +35,10 @@ public final class SessionContext {
     public SessionContext setDeviceId(String deviceId) {
         this.deviceId = deviceId;
         return this;
+    }
+
+    public void setHeartbeat(int heartbeat) {
+        this.heartbeat = heartbeat;
     }
 
     public boolean handshakeOk() {

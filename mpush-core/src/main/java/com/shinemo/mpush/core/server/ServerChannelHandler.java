@@ -36,6 +36,7 @@ public class ServerChannelHandler extends ChannelHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Connection connection = connectionManager.get(ctx.channel());
         receiver.onReceive((Packet) msg, connection);
+        connection.setLastReadTime();
     }
 
     @Override
@@ -56,32 +57,5 @@ public class ServerChannelHandler extends ChannelHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.warn(ctx.channel().remoteAddress() + ",  channelInactive");
         connectionManager.remove(ctx.channel());
-    }
-
-    @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (evt instanceof IdleStateEvent) {
-            IdleStateEvent stateEvent = (IdleStateEvent) evt;
-            switch (stateEvent.state()) {
-                case READER_IDLE:
-                    connectionManager.remove(ctx.channel());
-                    ctx.close();
-                    LOGGER.warn("heartbeat read timeout, chanel closed!");
-                    break;
-                case WRITER_IDLE:
-                    ctx.writeAndFlush(Packet.getHBPacket());
-                    LOGGER.warn("heartbeat write timeout, do write an EOL.");
-                    break;
-                case ALL_IDLE:
-            }
-        } else {
-            LOGGER.warn("One user event Triggered. evt=" + evt);
-            super.userEventTriggered(ctx, evt);
-        }
-    }
-
-    public ServerChannelHandler setSecurity(boolean security) {
-        this.security = security;
-        return this;
     }
 }
