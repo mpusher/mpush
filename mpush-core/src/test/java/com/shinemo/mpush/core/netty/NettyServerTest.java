@@ -32,7 +32,7 @@ public class NettyServerTest {
         receiver.register(Command.BIND, new BindUserHandler());
         receiver.register(Command.HEARTBEAT, new HeartBeatHandler());
         NettyConnectionManager connectionManager = new NettyConnectionManager();
-        connectionManager.registerEventBus();
+        connectionManager.init();
         ChannelHandler handler = new ServerChannelHandler(connectionManager, receiver);
 
         final NettyServer server = new ConnectionServer(3000, handler);
