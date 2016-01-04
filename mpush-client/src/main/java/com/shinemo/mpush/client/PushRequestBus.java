@@ -16,8 +16,8 @@ public class PushRequestBus implements Runnable {
         scheduledExecutor.scheduleAtFixedRate(this, 1, 3, TimeUnit.SECONDS);
     }
 
-    public void register(int reqId, PushRequest callback) {
-        requests.put(reqId, callback);
+    public void add(PushRequest request) {
+        requests.put(request.getSessionId(), request);
     }
 
     public PushRequest remove(int reqId) {

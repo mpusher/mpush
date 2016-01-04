@@ -9,7 +9,7 @@ import com.shinemo.mpush.common.message.gateway.GatewayPushMessage;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.api.router.Router;
 import com.shinemo.mpush.common.handler.BaseMessageHandler;
-import com.shinemo.mpush.common.router.RouterCenter;
+import com.shinemo.mpush.core.router.RouterCenter;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 

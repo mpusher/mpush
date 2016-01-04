@@ -8,7 +8,7 @@ import com.shinemo.mpush.common.message.ErrorMessage;
 import com.shinemo.mpush.common.message.OkMessage;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.common.handler.BaseMessageHandler;
-import com.shinemo.mpush.common.router.RouterCenter;
+import com.shinemo.mpush.core.router.RouterCenter;
 
 /**
  * Created by ohun on 2015/12/23.
