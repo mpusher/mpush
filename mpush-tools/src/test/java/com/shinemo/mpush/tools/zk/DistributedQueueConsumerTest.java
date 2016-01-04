@@ -4,6 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.shinemo.mpush.tools.zk.consumer.impl.ConsumerKickListener;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
 import com.shinemo.mpush.tools.zk.queue.Consumer;
 
@@ -21,8 +22,8 @@ public class DistributedQueueConsumerTest {
 	@Test
 	public void test() throws Exception{
 		
-		Consumer<ServerApp> consumer = new Consumer<ServerApp>(PathEnum.CONNECTION_SERVER_KICK.getPathByIp(app.getIp()), ServerApp.class);
-		consumer.start();
+//		Consumer<ServerApp> consumer = ;
+//		consumer.start();
 		
 	}
 
