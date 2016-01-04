@@ -59,27 +59,31 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
         ReusableSession session = ReusableSessionManager.INSTANCE.genSession(context);
         ReusableSessionManager.INSTANCE.cacheSession(session);
 
-        //5.响应握手成功消息
+        //5.计算心跳时间
+        int heartbeat = MPushUtil.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
+
+        //6.响应握手成功消息
         HandshakeOkMessage
                 .from(message)
                 .setServerKey(serverKey)
                 .setServerHost(MPushUtil.getLocalIp())
                 .setServerTime(System.currentTimeMillis())
-                .setHeartbeat(Constants.HEARTBEAT_TIME)
+                .setHeartbeat(heartbeat)
                 .setSessionId(session.sessionId)
                 .setExpireTime(session.expireTime)
                 .send();
 
-        //6.更换会话密钥AES(clientKey)=>AES(sessionKey)
+        //7.更换会话密钥AES(clientKey)=>AES(sessionKey)
         context.changeCipher(new AesCipher(sessionKey, iv));
 
-        //7.保存client信息
+        //8.保存client信息
         context.setOsName(message.osName)
                 .setOsVersion(message.osVersion)
                 .setClientVersion(message.clientVersion)
-                .setDeviceId(message.deviceId);
+                .setDeviceId(message.deviceId)
+                .setHeartbeat(heartbeat);
 
-        //8.触发握手成功事件
+        //9.触发握手成功事件
         EventBus.INSTANCE.post(new HandshakeEvent(message.getConnection(), Constants.HEARTBEAT_TIME));
         LOGGER.info("会话密钥：{}，clientKey={}, serverKey={}", sessionKey, clientKey, serverKey);
     }
