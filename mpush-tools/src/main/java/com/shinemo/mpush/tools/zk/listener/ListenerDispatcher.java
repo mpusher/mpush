@@ -23,7 +23,8 @@ public class ListenerDispatcher implements CallBack {
 
 	public ListenerDispatcher(ServerApp app) {
 		holder.put(PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByIp(app.getIp()), new ConnectionPathListener());
-		holder.put(PathEnum.CONNECTION_SERVER_KICK.getPathByIp(app.getIp()), new KickPathListener());
+		//踢人的目录已经交给队列处理了，这里不需要重复处理
+//		holder.put(PathEnum.CONNECTION_SERVER_KICK.getPathByIp(app.getIp()), new KickPathListener());
 	}
 
 	@Override
