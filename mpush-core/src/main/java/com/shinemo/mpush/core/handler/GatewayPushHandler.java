@@ -55,7 +55,10 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
         } else {
             //3.如果是远程路由，说明此时用户已经跑到另一台机器上了
             // 需要通过GatewayClient或ZK把消息推送到另外一台机器上
-            // TODO: 2015/12/30 send message to other server
+            ErrorMessage
+                    .from(message)
+                    .setErrorCode(ErrorCode.ROUTER_CHANGE)
+                    .send();
         }
     }
 }
