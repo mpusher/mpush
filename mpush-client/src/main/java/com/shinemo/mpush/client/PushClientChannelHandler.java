@@ -1,8 +1,10 @@
 package com.shinemo.mpush.client;
 
-import com.shinemo.mpush.api.PacketReceiver;
 import com.shinemo.mpush.api.connection.Connection;
+import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.common.ErrorCode;
+import com.shinemo.mpush.common.message.ErrorMessage;
 import com.shinemo.mpush.netty.connection.NettyConnection;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
@@ -12,11 +14,6 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public class PushClientChannelHandler extends ChannelHandlerAdapter {
     private final Connection connection = new NettyConnection();
-    private final PacketReceiver receiver;
-
-    public PushClientChannelHandler(PacketReceiver receiver) {
-        this.receiver = receiver;
-    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -25,14 +22,34 @@ public class PushClientChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        super.channelInactive(ctx);
         connection.close();
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        super.channelRead(ctx, msg);
-        receiver.onReceive(((Packet) msg), connection);
+        if (msg instanceof Packet) {
+            Packet packet = ((Packet) msg);
+            PushRequest request = PushRequestBus.INSTANCE.remove(packet.sessionId);
+            if (request == null) {
+                return;
+            }
+
+            if (packet.cmd == Command.OK.cmd) {
+                request.success();
+            } else if (packet.cmd == Command.ERROR.cmd) {
+                ErrorMessage message = new ErrorMessage(packet, connection);
+                byte errorCode = message.code;
+                if (errorCode == ErrorCode.OFFLINE.errorCode) {
+                    request.offline();
+                } else if (errorCode == ErrorCode.PUSH_CLIENT_FAILURE.errorCode) {
+                    request.failure();
+                } else if (errorCode == ErrorCode.ROUTER_CHANGE.errorCode) {
+                    request.redirect();
+                }
+            } else {
+
+            }
+        }
     }
 
     public Connection getConnection() {

@@ -6,22 +6,22 @@ import java.util.concurrent.*;
 /**
  * Created by ohun on 2015/12/30.
  */
-public class PushCallbackBus implements Runnable {
-    public static final PushCallbackBus INSTANCE = new PushCallbackBus();
-    private Map<Integer, PushCallback> callbacks = new ConcurrentHashMap<>();
+public class PushRequestBus implements Runnable {
+    public static final PushRequestBus INSTANCE = new PushRequestBus();
+    private Map<Integer, PushRequest> requests = new ConcurrentHashMap<>();
     private Executor executor = Executors.newFixedThreadPool(5);//test
     private ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();//test
 
-    public PushCallbackBus() {
+    public PushRequestBus() {
         scheduledExecutor.scheduleAtFixedRate(this, 1, 3, TimeUnit.SECONDS);
     }
 
-    public void register(int reqId, PushCallback callback) {
-        callbacks.put(reqId, callback);
+    public void register(int reqId, PushRequest callback) {
+        requests.put(reqId, callback);
     }
 
-    public PushCallback get(int reqId) {
-        return callbacks.get(reqId);
+    public PushRequest remove(int reqId) {
+        return requests.remove(reqId);
     }
 
     public Executor getExecutor() {
@@ -30,8 +30,8 @@ public class PushCallbackBus implements Runnable {
 
     @Override
     public void run() {
-        if (callbacks.isEmpty()) return;
-        for (PushCallback callback : callbacks.values()) {
+        if (requests.isEmpty()) return;
+        for (PushRequest callback : requests.values()) {
             if (callback.isTimeout()) {
                 callback.timeout();
             }
