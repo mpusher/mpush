@@ -20,4 +20,8 @@ public final class MPushUtil {
         return LOCAL_IP;
     }
 
+    public static int getHeartbeat(int min, int max) {
+        return Constants.HEARTBEAT_TIME;
+    }
+
 }
