@@ -3,6 +3,8 @@ package com.shinemo.mpush.tools;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +39,7 @@ public final class Jsons {
         }
         return null;
     }
-
+    
     public static <T> T fromJson(byte[] json, Class<T> clazz) {
         return fromJson(new String(json, Constants.UTF_8), clazz);
     }
