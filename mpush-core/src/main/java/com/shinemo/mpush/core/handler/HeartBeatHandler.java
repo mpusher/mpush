@@ -10,6 +10,6 @@ import com.shinemo.mpush.api.protocol.Packet;
 public final class HeartBeatHandler implements MessageHandler {
     @Override
     public void handle(Packet packet, Connection connection) {
-        connection.send(packet);
+        connection.send(packet);//ping -> pong
     }
 }
