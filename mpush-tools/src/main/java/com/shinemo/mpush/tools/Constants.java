@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
  */
 public interface Constants {
     Charset UTF_8 = Charset.forName("UTF-8");
-    int HEARTBEAT_TIME = 1000 * 60 * 5;//5min
+    int HEARTBEAT_TIME = 1000 * 60 * 1;//5min
     byte[] EMPTY_BYTES = new byte[0];
 
     String JVM_LOG_PATH = "/opt/";

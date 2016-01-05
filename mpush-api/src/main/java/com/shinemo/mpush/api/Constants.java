@@ -27,5 +27,9 @@ public interface Constants {
 
     int MIN_WORK_POOL_SIZE = 10;
     int MAX_WORK_POOL_SIZE = 250;
-    int HEARTBEAT_TIME = 1000 * 60 * 4;//5min
+    int HEARTBEAT_TIME = 1000 * 60 * 1;//5min
+    /**
+     * 最大心跳超时次数，大于该次数要断开连接
+     */
+    int MAX_HB_TIMEOUT_TIMES = 2;
 }

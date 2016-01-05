@@ -11,7 +11,6 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 
-import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,19 +34,19 @@ public class ServerChannelHandler extends ChannelHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Connection connection = connectionManager.get(ctx.channel());
+        connection.updateLastReadTime();
         receiver.onReceive((Packet) msg, connection);
-        connection.setLastReadTime();
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         connectionManager.remove(ctx.channel());
-        LOGGER.error(ctx.channel().remoteAddress() + ", exceptionCaught", cause);
+        LOGGER.error("caught an ex, client={}", ctx.channel(), cause);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        LOGGER.warn(ctx.channel().remoteAddress() + ",  channelActive");
+        LOGGER.warn("a client connect client={}", ctx.channel());
         Connection connection = new NettyConnection();
         connection.init(ctx.channel(), security);
         connectionManager.add(connection);
@@ -55,7 +54,7 @@ public class ServerChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        LOGGER.warn(ctx.channel().remoteAddress() + ",  channelInactive");
+        LOGGER.warn("a client disconnect client={}", ctx.channel());
         connectionManager.remove(ctx.channel());
     }
 }

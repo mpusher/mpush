@@ -56,11 +56,15 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     }
 
     @Override
-    public ChannelFuture send(Packet packet, ChannelFutureListener listener) {
-        if (listener != null) {
-            return channel.writeAndFlush(packet).addListener(listener).addListener(this);
+    public ChannelFuture send(Packet packet, final ChannelFutureListener listener) {
+        if (channel.isActive() && channel.isWritable()) {
+            if (listener != null) {
+                return channel.writeAndFlush(packet).addListener(listener).addListener(this);
+            } else {
+                return channel.writeAndFlush(packet).addListener(this);
+            }
         } else {
-            return channel.writeAndFlush(packet).addListener(this);
+            return this.close();
         }
     }
 
@@ -70,9 +74,9 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     }
 
     @Override
-    public void close() {
+    public ChannelFuture close() {
         this.status = STATUS_DISCONNECTED;
-        this.channel.close();
+        return this.channel.close();
     }
 
     @Override
@@ -86,7 +90,7 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     }
 
     @Override
-    public void setLastReadTime() {
+    public void updateLastReadTime() {
         lastReadTime = System.currentTimeMillis();
     }
 

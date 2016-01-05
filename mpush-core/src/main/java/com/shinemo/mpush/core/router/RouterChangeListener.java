@@ -67,9 +67,11 @@ public class RouterChangeListener {
     // TODO: 2016/1/4  receive msg from redis
     public void onReceiveKickRemoteMsg(KickRemoteMsg msg) {
         String userId = msg.userId;
-        LocalRouter router = RouterCenter.INSTANCE.getLocalRouterManager().lookup(userId);
+        LocalRouterManager routerManager = RouterCenter.INSTANCE.getLocalRouterManager();
+        LocalRouter router = routerManager.lookup(userId);
         if (router != null) {
             LOGGER.info("receive kick remote msg, msg={}", msg);
+            routerManager.unRegister(userId);
             kickLocal(userId, router);
         } else {
             LOGGER.warn("no local router find, kick failure, msg={}", msg);
