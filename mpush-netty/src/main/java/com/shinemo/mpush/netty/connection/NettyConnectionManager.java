@@ -27,21 +27,17 @@ import java.util.concurrent.TimeUnit;
  */
 public final class NettyConnectionManager implements ConnectionManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyConnectionManager.class);
+    //可能会有20w的链接数
+    private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMapV8<>();
+
     private Timer wheelTimer;
 
-
     public void init() {
+        //每秒钟走一步，一个心跳周期内走一圈
         long tickDuration = 1000;//1s
         int ticksPerWheel = (int) (Constants.HEARTBEAT_TIME / tickDuration);
         this.wheelTimer = new HashedWheelTimer(tickDuration, TimeUnit.MILLISECONDS, ticksPerWheel);
         EventBus.INSTANCE.register(this);
-    }
-
-    //可能会有20w的链接数
-    private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMapV8<>();
-
-    public Connection get(final String channelId) throws ExecutionException {
-        return connections.get(channelId);
     }
 
     public Connection get(final Channel channel) {
@@ -52,26 +48,11 @@ public final class NettyConnectionManager implements ConnectionManager {
         connections.putIfAbsent(connection.getId(), connection);
     }
 
-    public void add(Channel channel) {
-        Connection connection = new NettyConnection();
-        connection.init(channel, true);
-        connections.putIfAbsent(connection.getId(), connection);
-    }
-
-    public void remove(Connection connection) {
-        connections.remove(connection.getId());
-    }
-
     public void remove(Channel channel) {
-        connections.remove(channel.id().asLongText());
-    }
-
-    public List<String> getConnectionIds() {
-        return new ArrayList<>(connections.keySet());
-    }
-
-    public List<Connection> getConnections() {
-        return new ArrayList<>(connections.values());
+        Connection connection = connections.remove(channel.id().asLongText());
+        if (connection != null) {
+            connection.close();
+        }
     }
 
     @Subscribe
@@ -96,13 +77,18 @@ public final class NettyConnectionManager implements ConnectionManager {
 
         @Override
         public void run(Timeout timeout) throws Exception {
+            if (!connection.isConnected()) return;
             if (connection.heartbeatTimeout()) {
-                if (++expiredTimes > 5) {
+                if (++expiredTimes > Constants.MAX_HB_TIMEOUT_TIMES) {
                     connection.close();
+                    LOGGER.error("connection heartbeat timeout, connection has bean closed");
                     return;
                 } else {
                     LOGGER.error("connection heartbeat timeout, expiredTimes=" + expiredTimes);
                 }
+            } else {
+                expiredTimes = 0;
+                LOGGER.info("check heartbeat timeout");
             }
             startTimeout();
         }
