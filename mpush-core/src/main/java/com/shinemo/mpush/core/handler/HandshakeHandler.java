@@ -1,16 +1,15 @@
 package com.shinemo.mpush.core.handler;
 
 import com.google.common.base.Strings;
-import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.connection.SessionContext;
 import com.shinemo.mpush.api.event.HandshakeEvent;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.common.EventBus;
+import com.shinemo.mpush.common.handler.BaseMessageHandler;
 import com.shinemo.mpush.common.message.ErrorMessage;
 import com.shinemo.mpush.common.message.HandshakeMessage;
 import com.shinemo.mpush.common.message.HandshakeOkMessage;
-import com.shinemo.mpush.common.EventBus;
-import com.shinemo.mpush.common.handler.BaseMessageHandler;
 import com.shinemo.mpush.common.security.AesCipher;
 import com.shinemo.mpush.common.security.CipherBox;
 import com.shinemo.mpush.core.session.ReusableSession;
@@ -39,8 +38,8 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
 
         //1.校验客户端消息字段
         if (Strings.isNullOrEmpty(message.deviceId)
-                || iv.length != CipherBox.AES_KEY_LENGTH
-                || clientKey.length != CipherBox.AES_KEY_LENGTH) {
+                || iv.length != CipherBox.INSTANCE.getAesKeyLength()
+                || clientKey.length != CipherBox.INSTANCE.getAesKeyLength()) {
             ErrorMessage.from(message).setReason("Param invalid").close();
             return;
         }
@@ -84,7 +83,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
                 .setHeartbeat(heartbeat);
 
         //9.触发握手成功事件
-        EventBus.INSTANCE.post(new HandshakeEvent(message.getConnection(), Constants.HEARTBEAT_TIME));
+        EventBus.INSTANCE.post(new HandshakeEvent(message.getConnection(), heartbeat));
         LOGGER.info("会话密钥：{}，clientKey={}, serverKey={}", sessionKey, clientKey, serverKey);
     }
 }

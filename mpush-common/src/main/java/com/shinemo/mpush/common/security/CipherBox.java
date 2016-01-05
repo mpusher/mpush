@@ -1,7 +1,7 @@
 package com.shinemo.mpush.common.security;
 
+import com.shinemo.mpush.tools.ConfigCenter;
 import com.shinemo.mpush.tools.Pair;
-import com.shinemo.mpush.tools.crypto.AESUtils;
 import com.shinemo.mpush.tools.crypto.RSAUtils;
 
 import java.io.File;
@@ -15,7 +15,7 @@ import java.security.interfaces.RSAPublicKey;
  * Created by ohun on 2015/12/24.
  */
 public final class CipherBox {
-    public static final int AES_KEY_LENGTH = 16;
+    public int aesKeyLength = ConfigCenter.INSTANCE.getAesKeyLength();
     public static final CipherBox INSTANCE = new CipherBox();
     private SecureRandom random = new SecureRandom();
     private RSAPrivateKey privateKey;
@@ -91,20 +91,20 @@ public final class CipherBox {
     }
 
     public byte[] randomAESKey() {
-        byte[] bytes = new byte[AES_KEY_LENGTH];
+        byte[] bytes = new byte[aesKeyLength];
         random.nextBytes(bytes);
         return bytes;
     }
 
     public byte[] randomAESIV() {
-        byte[] bytes = new byte[AES_KEY_LENGTH];
+        byte[] bytes = new byte[aesKeyLength];
         random.nextBytes(bytes);
         return bytes;
     }
 
     public byte[] mixKey(byte[] clientKey, byte[] serverKey) {
-        byte[] sessionKey = new byte[AES_KEY_LENGTH];
-        for (int i = 0; i < AES_KEY_LENGTH; i++) {
+        byte[] sessionKey = new byte[aesKeyLength];
+        for (int i = 0; i < aesKeyLength; i++) {
             byte a = clientKey[i];
             byte b = serverKey[i];
             int sum = Math.abs(a + b);
@@ -112,6 +112,10 @@ public final class CipherBox {
             sessionKey[i] = (byte) c;
         }
         return sessionKey;
+    }
+
+    public int getAesKeyLength() {
+        return aesKeyLength;
     }
 
     public RsaCipher getRsaCipher() {

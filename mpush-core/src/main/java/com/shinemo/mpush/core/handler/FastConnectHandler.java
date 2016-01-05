@@ -1,12 +1,11 @@
 package com.shinemo.mpush.core.handler;
 
-import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.connection.Connection;
+import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.common.handler.BaseMessageHandler;
 import com.shinemo.mpush.common.message.ErrorMessage;
 import com.shinemo.mpush.common.message.FastConnectMessage;
 import com.shinemo.mpush.common.message.FastConnectOkMessage;
-import com.shinemo.mpush.api.protocol.Packet;
-import com.shinemo.mpush.common.handler.BaseMessageHandler;
 import com.shinemo.mpush.core.session.ReusableSession;
 import com.shinemo.mpush.core.session.ReusableSessionManager;
 import com.shinemo.mpush.tools.MPushUtil;
@@ -29,13 +28,14 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
         } else if (!session.sessionContext.deviceId.equals(message.deviceId)) {
             ErrorMessage.from(message).setReason("error device").close();
         } else {
+            int heartbeat = MPushUtil.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
+            session.sessionContext.setHeartbeat(heartbeat);
             message.getConnection().setSessionContext(session.sessionContext);
-
             FastConnectOkMessage
                     .from(message)
                     .setServerHost(MPushUtil.getLocalIp())
                     .setServerTime(System.currentTimeMillis())
-                    .setHeartbeat(Constants.HEARTBEAT_TIME)
+                    .setHeartbeat(heartbeat)
                     .send();
         }
     }
