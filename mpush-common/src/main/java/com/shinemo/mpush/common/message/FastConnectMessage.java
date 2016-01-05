@@ -10,6 +10,8 @@ import io.netty.buffer.ByteBuf;
 public final class FastConnectMessage extends ByteBufMessage {
     public String sessionId;
     public String deviceId;
+    public int minHeartbeat;
+    public int maxHeartbeat;
 
     public FastConnectMessage(Packet message, Connection connection) {
         super(message, connection);
@@ -19,11 +21,15 @@ public final class FastConnectMessage extends ByteBufMessage {
     public void decode(ByteBuf body) {
         sessionId = decodeString(body);
         deviceId = decodeString(body);
+        minHeartbeat = decodeInt(body);
+        maxHeartbeat = decodeInt(body);
     }
 
     @Override
     public void encode(ByteBuf body) {
         encodeString(body, sessionId);
         encodeString(body, deviceId);
+        encodeInt(body, minHeartbeat);
+        encodeInt(body, maxHeartbeat);
     }
 }

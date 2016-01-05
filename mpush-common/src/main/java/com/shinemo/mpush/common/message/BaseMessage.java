@@ -1,10 +1,11 @@
 package com.shinemo.mpush.common.message;
 
-import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.Message;
+import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.connection.SessionContext;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.tools.ConfigCenter;
 import com.shinemo.mpush.tools.IOUtils;
 import io.netty.channel.ChannelFutureListener;
 
@@ -51,7 +52,7 @@ public abstract class BaseMessage implements Message {
         byte[] tmp = encode();
         if (tmp != null && tmp.length > 0) {
             //1.压缩
-            if (tmp.length > Constants.COMPRESS_LIMIT) {
+            if (tmp.length > ConfigCenter.INSTANCE.getCompressLimit()) {
                 byte[] result = IOUtils.compress(tmp);
                 if (result.length > 0) {
                     tmp = result;

@@ -7,6 +7,7 @@ import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.connection.ConnectionManager;
 import com.shinemo.mpush.api.event.HandshakeEvent;
 import com.shinemo.mpush.common.EventBus;
+import com.shinemo.mpush.tools.ConfigCenter;
 import io.netty.channel.Channel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
@@ -35,7 +36,7 @@ public final class NettyConnectionManager implements ConnectionManager {
     public void init() {
         //每秒钟走一步，一个心跳周期内走一圈
         long tickDuration = 1000;//1s
-        int ticksPerWheel = (int) (Constants.HEARTBEAT_TIME / tickDuration);
+        int ticksPerWheel = (int) (ConfigCenter.INSTANCE.getMaxHeartbeat() / tickDuration);
         this.wheelTimer = new HashedWheelTimer(tickDuration, TimeUnit.MILLISECONDS, ticksPerWheel);
         EventBus.INSTANCE.register(this);
     }
@@ -79,7 +80,7 @@ public final class NettyConnectionManager implements ConnectionManager {
         public void run(Timeout timeout) throws Exception {
             if (!connection.isConnected()) return;
             if (connection.heartbeatTimeout()) {
-                if (++expiredTimes > Constants.MAX_HB_TIMEOUT_TIMES) {
+                if (++expiredTimes > ConfigCenter.INSTANCE.getMaxHBTimeoutTimes()) {
                     connection.close();
                     LOGGER.error("connection heartbeat timeout, connection has bean closed");
                     return;

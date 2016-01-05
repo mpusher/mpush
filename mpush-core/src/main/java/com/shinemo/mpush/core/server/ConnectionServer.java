@@ -1,5 +1,12 @@
 package com.shinemo.mpush.core.server;
 
+import com.shinemo.mpush.api.protocol.Command;
+import com.shinemo.mpush.common.MessageDispatcher;
+import com.shinemo.mpush.core.handler.BindUserHandler;
+import com.shinemo.mpush.core.handler.FastConnectHandler;
+import com.shinemo.mpush.core.handler.HandshakeHandler;
+import com.shinemo.mpush.core.handler.HeartBeatHandler;
+import com.shinemo.mpush.netty.connection.NettyConnectionManager;
 import com.shinemo.mpush.netty.server.NettyServer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
@@ -9,10 +16,24 @@ import io.netty.channel.ChannelOption;
  * Created by ohun on 2015/12/30.
  */
 public final class ConnectionServer extends NettyServer {
+    private ServerChannelHandler channelHandler;
 
-    public ConnectionServer(int port, ChannelHandler channelHandler) {
-        super(port, channelHandler);
+    public ConnectionServer(int port) {
+        super(port);
     }
+
+    @Override
+    public void init() {
+        MessageDispatcher receiver = new MessageDispatcher();
+        receiver.register(Command.HEARTBEAT, new HeartBeatHandler());
+        receiver.register(Command.HANDSHAKE, new HandshakeHandler());
+        receiver.register(Command.BIND, new BindUserHandler());
+        receiver.register(Command.FAST_CONNECT, new FastConnectHandler());
+        NettyConnectionManager connectionManager = new NettyConnectionManager();
+        connectionManager.init();
+        channelHandler = new ServerChannelHandler(connectionManager, receiver);
+    }
+
 
     @Override
     protected void initOptions(ServerBootstrap b) {
@@ -32,5 +53,10 @@ public final class ConnectionServer extends NettyServer {
          */
         b.childOption(ChannelOption.SO_SNDBUF, 32 * 1024);
         b.childOption(ChannelOption.SO_RCVBUF, 32 * 1024);
+    }
+
+    @Override
+    public ChannelHandler getChannelHandler() {
+        return channelHandler;
     }
 }
