@@ -1,12 +1,11 @@
 package com.shinemo.mpush.tools.redis.listener;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class ListenerDispatcher implements MessageListener {
@@ -23,22 +22,22 @@ public class ListenerDispatcher implements MessageListener {
         if (listeners == null) {
             return;
         }
-        for (final MessageListener l : listeners) {
+        for (final MessageListener listener : listeners) {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    l.onMessage(channel, message);
+                	listener.onMessage(channel, message);
                 }
             });
         }
     }
 
-    public void subscribe(String channel, MessageListener l) {
+    public void subscribe(String channel, MessageListener listener) {
         List<MessageListener> listeners = subscribes.get(channel);
         if (listeners == null) {
-            listeners = new ArrayList<>();
+            listeners = Lists.newArrayList();
             subscribes.put(channel, listeners);
         }
-        listeners.add(l);
+        listeners.add(listener);
     }
 }
