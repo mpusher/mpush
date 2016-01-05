@@ -25,7 +25,7 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
     public void handle(FastConnectMessage message) {
         ReusableSession session = ReusableSessionManager.INSTANCE.getSession(message.sessionId);
         if (session == null) {
-            ErrorMessage.from(message).setReason("token expire").close();
+            ErrorMessage.from(message).setReason("session expire").close();
         } else if (!session.sessionContext.deviceId.equals(message.deviceId)) {
             ErrorMessage.from(message).setReason("error device").close();
         } else {
