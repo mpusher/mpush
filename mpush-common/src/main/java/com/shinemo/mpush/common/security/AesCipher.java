@@ -3,12 +3,14 @@ package com.shinemo.mpush.common.security;
 import com.shinemo.mpush.api.connection.Cipher;
 import com.shinemo.mpush.tools.crypto.AESUtils;
 
+import java.util.Arrays;
+
 /**
  * Created by ohun on 2015/12/28.
  */
 public final class AesCipher implements Cipher {
-    private final byte[] key;
-    private final byte[] iv;
+    public final byte[] key;
+    public final byte[] iv;
 
     public AesCipher(byte[] key, byte[] iv) {
         this.key = key;
@@ -23,5 +25,19 @@ public final class AesCipher implements Cipher {
     @Override
     public byte[] encrypt(byte[] data) {
         return AESUtils.encrypt(data, key, iv);
+    }
+
+    @Override
+    public String toString() {
+        return toString(key) + ',' + toString(iv);
+    }
+
+    public String toString(byte[] a) {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < a.length; i++) {
+            if (i != 0) b.append('|');
+            b.append(a[i]);
+        }
+        return b.toString();
     }
 }

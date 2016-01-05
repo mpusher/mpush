@@ -25,12 +25,12 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
         ReusableSession session = ReusableSessionManager.INSTANCE.getSession(message.sessionId);
         if (session == null) {
             ErrorMessage.from(message).setReason("session expire").close();
-        } else if (!session.sessionContext.deviceId.equals(message.deviceId)) {
+        } else if (!session.context.deviceId.equals(message.deviceId)) {
             ErrorMessage.from(message).setReason("error device").close();
         } else {
             int heartbeat = MPushUtil.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
-            session.sessionContext.setHeartbeat(heartbeat);
-            message.getConnection().setSessionContext(session.sessionContext);
+            session.context.setHeartbeat(heartbeat);
+            message.getConnection().setSessionContext(session.context);
             FastConnectOkMessage
                     .from(message)
                     .setServerHost(MPushUtil.getLocalIp())
