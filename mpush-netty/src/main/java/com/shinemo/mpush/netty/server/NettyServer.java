@@ -22,16 +22,16 @@ public abstract class NettyServer implements Server {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyServer.class);
     private final AtomicBoolean startFlag = new AtomicBoolean(false);
+    private final int port;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
-    private final int port;
-    private ChannelHandler channelHandler;
+    private boolean hasInit = false;
 
-    public NettyServer(int port, ChannelHandler channelHandler) {
+    public NettyServer(int port) {
         this.port = port;
-        this.channelHandler = channelHandler;
     }
 
+    public abstract void init();
 
     @Override
     public boolean isRunning() {
@@ -51,7 +51,10 @@ public abstract class NettyServer implements Server {
         if (!startFlag.compareAndSet(false, true)) {
             return;
         }
-
+        if (!hasInit) {
+            hasInit = true;
+            init();
+        }
         /***
          * NioEventLoopGroup 是用来处理I/O操作的多线程事件循环器，
          * Netty提供了许多不同的EventLoopGroup的实现用来处理不同传输协议。
@@ -101,7 +104,7 @@ public abstract class NettyServer implements Server {
                 public void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(new PacketDecoder());
                     ch.pipeline().addLast(PacketEncoder.INSTANCE);
-                    ch.pipeline().addLast(channelHandler);
+                    ch.pipeline().addLast(getChannelHandler());
                 }
             });
 
@@ -148,4 +151,7 @@ public abstract class NettyServer implements Server {
         b.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
     }
+
+
+    public abstract ChannelHandler getChannelHandler();
 }

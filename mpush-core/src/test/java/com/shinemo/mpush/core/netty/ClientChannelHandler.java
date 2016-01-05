@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,7 +29,7 @@ public class ClientChannelHandler extends ChannelHandlerAdapter {
     private byte[] clientKey = CipherBox.INSTANCE.randomAESKey();
     private byte[] iv = CipherBox.INSTANCE.randomAESIV();
     private Connection connection = new NettyConnection();
-    private String deviceId = "test-device-id-100";
+    private String deviceId = "test-device-id-100" + new Random(5).nextInt();
     private String userId = "1010";
 
     @Override
