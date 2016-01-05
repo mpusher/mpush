@@ -17,23 +17,15 @@ public class ConnectionRouterManager extends RemoteRouterManager {
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .build();
 
-
-    @Override
-    public RemoteRouter register(String userId, RemoteRouter route) {
-        RemoteRouter old = cache.getIfPresent(userId);
-        cache.put(userId, route);
-        return old;
-    }
-
-    @Override
-    public boolean unRegister(String userId) {
-        cache.invalidate(userId);
-        return true;
-    }
-
     @Override
     public RemoteRouter lookup(String userId) {
-        return cache.getIfPresent(userId);
+        RemoteRouter cached = cache.getIfPresent(userId);
+        if (cached != null) return cached;
+        RemoteRouter router = super.lookup(userId);
+        if (router != null) {
+            cache.put(userId, cached);
+        }
+        return router;
     }
 
     /**

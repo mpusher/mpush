@@ -3,6 +3,7 @@ package com.shinemo.mpush.core.session;
 import com.shinemo.mpush.api.connection.SessionContext;
 import com.shinemo.mpush.tools.Strings;
 import com.shinemo.mpush.tools.crypto.MD5Utils;
+import com.shinemo.mpush.tools.redis.manage.RedisManage;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 
 import java.util.Map;
@@ -13,15 +14,14 @@ import java.util.Map;
 public final class ReusableSessionManager {
     public static final ReusableSessionManager INSTANCE = new ReusableSessionManager();
     private static final int EXPIRE_TIME = 24 * 60 * 60 * 1000;
-    private final Map<String, String> sessionCache = new ConcurrentHashMapV8<>();
 
     public boolean cacheSession(ReusableSession session) {
-        sessionCache.put(session.sessionId, session.encode());
+        RedisManage.set(session.sessionId, session.encode(), EXPIRE_TIME);
         return true;
     }
 
     public ReusableSession getSession(String sessionId) {
-        String value = sessionCache.get(sessionId);
+        String value = RedisManage.get(sessionId, String.class);
         if (Strings.isBlank(value)) return null;
         ReusableSession session = new ReusableSession();
         try {
