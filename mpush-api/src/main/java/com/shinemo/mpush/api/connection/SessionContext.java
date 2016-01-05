@@ -1,7 +1,5 @@
 package com.shinemo.mpush.api.connection;
 
-import com.google.common.base.Strings;
-
 /**
  * Created by ohun on 2015/12/22.
  */
@@ -42,9 +40,8 @@ public final class SessionContext {
     }
 
     public boolean handshakeOk() {
-        return !Strings.isNullOrEmpty(deviceId);
+        return deviceId != null && deviceId.length() > 0;
     }
-
 
     @Override
     public String toString() {
