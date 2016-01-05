@@ -40,5 +40,10 @@ public class RedisGroup {
 		}
 	}
 	
+	public RedisNode get(String key){
+		int i = key.hashCode() %redisNodeList.size();
+		return redisNodeList.get(i);
+	}
+	
 	
 }
