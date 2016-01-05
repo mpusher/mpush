@@ -13,7 +13,6 @@ import com.google.common.collect.Maps;
 import com.shinemo.mpush.tools.Constants;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.zk.manage.ServerAppManage;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
@@ -455,9 +454,7 @@ public class RedisUtil {
 
     /********************* pubsub redis start ********************************/
 
-    /*********************
-     * pubsub redis end
-     ********************************/
+
     public static <T> void publish(RedisNode node, String channel, T message) {
         Jedis jedis = null;
         String value = Jsons.toJson(message);
@@ -474,12 +471,15 @@ public class RedisUtil {
 
     public static void subscribe(Set<RedisNode> nodeList, final JedisPubSub pubsub, final String... channels) {
         for (final RedisNode node : nodeList) {
-            new Thread(new Runnable() {
+            Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     subscribe(node, pubsub, channels);
                 }
-            }).start();
+            });
+            t.setDaemon(true);
+            t.setName("redis-subscribe-thread");
+            t.start();
         }
     }
 
@@ -498,4 +498,7 @@ public class RedisUtil {
 
     }
 
+    /*********************
+     * pubsub redis end
+     ********************************/
 }
