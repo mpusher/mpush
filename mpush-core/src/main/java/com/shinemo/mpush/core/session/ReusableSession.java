@@ -9,5 +9,4 @@ public final class ReusableSession {
     public String sessionId;
     public long expireTime;
     public SessionContext sessionContext;
-
 }
