@@ -9,11 +9,14 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.shinemo.mpush.tools.zk.manage.ServerAppManage;
 
 import redis.clients.jedis.Jedis;
 
 public class RedisUtilTest {
 
+	
+	
 	RedisNode node = new RedisNode("127.0.0.1", 6379, "ShineMoIpo");
 	RedisNode node2 = new RedisNode("127.0.0.1", 6380, "ShineMoIpo");
 

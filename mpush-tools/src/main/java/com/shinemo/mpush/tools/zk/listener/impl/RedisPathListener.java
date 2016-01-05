@@ -11,12 +11,13 @@ import org.apache.curator.framework.recipes.cache.TreeCacheEvent.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.shinemo.mpush.tools.InetAddressUtil;
 import com.shinemo.mpush.tools.Jsons;
+import com.shinemo.mpush.tools.redis.RedisGroup;
+import com.shinemo.mpush.tools.redis.RedisGroupManage;
 import com.shinemo.mpush.tools.zk.PathEnum;
-import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZkUtil;
 import com.shinemo.mpush.tools.zk.listener.CallBack;
-import com.shinemo.mpush.tools.zk.manage.ServerAppManage;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
 
 /**
@@ -46,37 +47,29 @@ public class RedisPathListener implements CallBack{
 
 	@Override
 	public void initData(ServerManage manage) {
-		log.warn("start init app data");
+		log.warn("start init redis data");
 		_initData();
-		log.warn("end init app data");
+		log.warn("end init redis data");
 	}
 	
 	private void _initData(){
-		//获取机器列表
-		List<String> rawData = ZkUtil.instance.getChildrenKeys(PathEnum.CONNECTION_SERVER_ALL_HOST.getPath());
-		for(String raw:rawData){
-			String fullPath = PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByName(raw);
-			ServerApp app = getServerApp(fullPath);
-			ServerAppManage.instance.addOrUpdate(fullPath, app);
-		}
+		//获取redis列表
+		List<RedisGroup> group = getRedisGroup(PathEnum.CONNECTION_SERVER_REDIS.getPathByIp(InetAddressUtil.getInetAddress()));
+		RedisGroupManage.instance.init(group);
 	}
 	
 	private void dataRemove(ChildData data){
-		String path = data.getPath();
-		ServerAppManage.instance.remove(path);
+		_initData();
 	}
 	
 	private void dataAddOrUpdate(ChildData data){
-		String path = data.getPath();
-		byte[] rawData = data.getData();
-		ServerApp serverApp = Jsons.fromJson(rawData, ServerApp.class);
-		ServerAppManage.instance.addOrUpdate(path, serverApp);
+		_initData();
 	}
 	
-	private ServerApp getServerApp(String fullPath){
-		String rawApp = ZkUtil.instance.get(fullPath);
-		ServerApp app = Jsons.fromJson(rawApp, ServerApp.class);
-		return app;
+	private List<RedisGroup> getRedisGroup(String fullPath){
+		String rawGroup = ZkUtil.instance.get(fullPath);
+		List<RedisGroup> group = Jsons.fromJsonToList(rawGroup, RedisGroup[].class);
+		return group;
 	}
 
 

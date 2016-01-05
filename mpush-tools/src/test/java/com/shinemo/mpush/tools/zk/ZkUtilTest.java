@@ -5,9 +5,13 @@ import java.util.List;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 import com.shinemo.mpush.tools.Constants;
 import com.shinemo.mpush.tools.InetAddressUtil;
 import com.shinemo.mpush.tools.Jsons;
+import com.shinemo.mpush.tools.redis.RedisGroup;
+import com.shinemo.mpush.tools.redis.RedisNode;
 
 public class ZkUtilTest {
 	
@@ -104,6 +108,38 @@ public class ZkUtilTest {
 		String ip = "10.1.10.65";
 		zkUtil.registerEphemeral("/"+localIp+"/"+kick, ip);
 		
+	}
+	
+	@Test
+	public void testAddRedis(){
+		
+		RedisNode node1 = new RedisNode("127.0.0.1", 6379, "ShineMoIpo");
+		RedisNode node2 = new RedisNode("127.0.0.1", 6380, "ShineMoIpo");
+		
+		RedisGroup group1 = new RedisGroup();
+		group1.addRedisNode(node1);
+		
+		RedisGroup group2 = new RedisGroup();
+		group2.addRedisNode(node2);
+		
+		List<RedisGroup> groupList = Lists.newArrayList(group1,group2);
+		
+		zkUtil.registerPersist(PathEnum.CONNECTION_SERVER_REDIS.getPathByIp(InetAddressUtil.getInetAddress()), Jsons.toJson(groupList));
+	
+		
+		
+	}
+	
+	@Test
+	public void getRedisTest(){
+		String value = zkUtil.get(PathEnum.CONNECTION_SERVER_REDIS.getPathByIp(InetAddressUtil.getInetAddress()));
+		List<RedisGroup> newGroupList = Jsons.fromJsonToList(value, RedisGroup[].class);
+		for(RedisGroup group:newGroupList){
+			for(RedisNode node:group.getRedisNodeList()){
+				System.out.println(group+ToStringBuilder.reflectionToString(node, ToStringStyle.MULTI_LINE_STYLE));
+			}
+			
+		}
 	}
 	
 
