@@ -9,6 +9,10 @@ import com.shinemo.mpush.api.router.Router;
 import com.shinemo.mpush.common.EventBus;
 import com.shinemo.mpush.common.message.KickUserMessage;
 import com.shinemo.mpush.common.router.RemoteRouter;
+import com.shinemo.mpush.tools.Jsons;
+import com.shinemo.mpush.tools.redis.listener.MessageListener;
+import com.shinemo.mpush.tools.redis.manage.RedisManage;
+import com.shinemo.mpush.tools.redis.pubsub.Subscriber;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
@@ -17,12 +21,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ohun on 2016/1/4.
  */
-public class RouterChangeListener {
+public class RouterChangeListener implements MessageListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(RouterChangeListener.class);
+    public static final String KICK_CHANNEL = "__kick__";
 
     public RouterChangeListener() {
         EventBus.INSTANCE.register(this);
-        // TODO: 2016/1/4 register this to redis server
+        RedisManage.subscribe(this, KICK_CHANNEL);
     }
 
     @Subscribe
@@ -61,10 +66,9 @@ public class RouterChangeListener {
         msg.deviceId = location.getDeviceId();
         msg.srcServer = location.getHost();
         msg.userId = userId;
-        // TODO: 2016/1/4 publish kick remote user msg to redis
+        RedisManage.publish(KICK_CHANNEL, msg);
     }
 
-    // TODO: 2016/1/4  receive msg from redis
     public void onReceiveKickRemoteMsg(KickRemoteMsg msg) {
         String userId = msg.userId;
         LocalRouterManager routerManager = RouterCenter.INSTANCE.getLocalRouterManager();
@@ -75,6 +79,20 @@ public class RouterChangeListener {
             kickLocal(userId, router);
         } else {
             LOGGER.warn("no local router find, kick failure, msg={}", msg);
+        }
+    }
+
+    @Override
+    public void onMessage(String channel, String message) {
+        if (KICK_CHANNEL.equals(channel)) {
+            KickRemoteMsg msg = Jsons.fromJson(message, KickRemoteMsg.class);
+            if (msg != null) {
+                onReceiveKickRemoteMsg(msg);
+            } else {
+                LOGGER.warn("receive an error kick message={}", message);
+            }
+        } else {
+            LOGGER.warn("receive an error redis channel={}", channel);
         }
     }
 }

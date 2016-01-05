@@ -1,27 +1,44 @@
 package com.shinemo.mpush.tools.redis.listener;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import com.google.common.collect.Maps;
 
 public class ListenerDispatcher implements MessageListener {
 
-	private Map<String, MessageListener> holder = Maps.newTreeMap();
+    public static final ListenerDispatcher INSTANCE = new ListenerDispatcher();
 
-	public static ListenerDispatcher instance = new ListenerDispatcher();
-	
-	private ListenerDispatcher() {
-	}
+    private Map<String, List<MessageListener>> subscribes = Maps.newTreeMap();
 
-	@Override
-	public void onMessage(String channel, String message) {
-		Iterator<Map.Entry<String, MessageListener>> it = holder.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<String, MessageListener> entry = it.next();
-			entry.getValue().onMessage(channel, message);
-		}
-	}
+    private Executor executor = Executors.newFixedThreadPool(10);
 
+    @Override
+    public void onMessage(final String channel, final String message) {
+        List<MessageListener> listeners = subscribes.get(channel);
+        if (listeners == null) {
+            return;
+        }
+        for (final MessageListener l : listeners) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    l.onMessage(channel, message);
+                }
+            });
+        }
+    }
 
+    public void subscribe(String channel, MessageListener l) {
+        List<MessageListener> listeners = subscribes.get(channel);
+        if (listeners == null) {
+            listeners = new ArrayList<>();
+            subscribes.put(channel, listeners);
+        }
+        listeners.add(l);
+    }
 }
