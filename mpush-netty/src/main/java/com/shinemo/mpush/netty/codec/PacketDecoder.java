@@ -4,6 +4,7 @@ import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.exception.DecodeException;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.tools.ConfigCenter;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -63,7 +64,7 @@ public class PacketDecoder extends ByteToMessageDecoder {
         byte lrc = in.readByte();
         byte[] body = null;
         if (bodyLength > 0) {
-            if (bodyLength > Constants.MAX_PACKET_SIZE) {
+            if (bodyLength > ConfigCenter.INSTANCE.getMaxPacketSize()) {
                 throw new RuntimeException("ERROR PACKET_SIZE：" + bodyLength);
             }
             body = new byte[bodyLength];
