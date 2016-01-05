@@ -3,15 +3,20 @@ package com.shinemo.mpush.tools.redis.pubsub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.shinemo.mpush.tools.redis.listener.ListenerDispatcher;
+
 import redis.clients.jedis.JedisPubSub;
 
 public class Subscriber extends JedisPubSub{
 	
 	private static final Logger log = LoggerFactory.getLogger(Subscriber.class);
 	
+	private ListenerDispatcher dispatcher = ListenerDispatcher.instance;
+	
 	@Override
 	public void onMessage(String channel, String message) {
 		log.warn("onMessage channel:"+channel+","+message);
+		dispatcher.onMessage(channel, message);
 		super.onMessage(channel, message);
 	}
 	
