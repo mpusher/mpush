@@ -12,7 +12,7 @@ import com.google.common.collect.Maps;
 import com.shinemo.mpush.tools.zk.PathEnum;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.listener.impl.ConnectionPathListener;
-import com.shinemo.mpush.tools.zk.listener.impl.KickPathListener;
+import com.shinemo.mpush.tools.zk.listener.impl.RedisPathListener;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
 
 public class ListenerDispatcher implements CallBack {
@@ -22,7 +22,10 @@ public class ListenerDispatcher implements CallBack {
 	private Map<String, CallBack> holder = Maps.newTreeMap();
 
 	public ListenerDispatcher(ServerApp app) {
+		//所有connection server
 		holder.put(PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByIp(app.getIp()), new ConnectionPathListener());
+		//所有redis
+		holder.put(PathEnum.CONNECTION_SERVER_REDIS.getPathByIp(app.getIp()), new RedisPathListener());
 		//踢人的目录已经交给队列处理了，这里不需要重复处理
 //		holder.put(PathEnum.CONNECTION_SERVER_KICK.getPathByIp(app.getIp()), new KickPathListener());
 	}

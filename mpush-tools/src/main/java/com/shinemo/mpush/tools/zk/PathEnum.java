@@ -13,6 +13,16 @@ public enum PathEnum {
 			return getPath()+"/"+name;
 		}
 	},
+	CONNECTION_SERVER_REDIS("/cs/redis","连接服务器redis注册的地方"){
+		@Override
+		public String getPathByIp(String ip) {
+			return getPath();
+		}
+		@Override
+		public String getPathByName(String name) {
+			return getPath()+"/"+name;
+		}
+	},
     CONNECTION_SERVER_KICK("/cs/%s/kick/con","连接服务器踢人的路径"){
 		@Override
 		public String getPathByIp(String ip) {
