@@ -15,7 +15,7 @@ public class ListenerDispatcher implements MessageListener {
 
     private Map<String, List<MessageListener>> subscribes = Maps.newTreeMap();
 
-    private Executor executor = Executors.newFixedThreadPool(10);
+    private Executor executor = Executors.newFixedThreadPool(5);
 
     @Override
     public void onMessage(final String channel, final String message) {
