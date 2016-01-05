@@ -29,13 +29,11 @@ public interface Connection {
 
     String getId();
 
-    void close();
+    ChannelFuture close();
 
     boolean isConnected();
 
     boolean heartbeatTimeout();
 
-    void setLastReadTime();
-
-
+    void updateLastReadTime();
 }
