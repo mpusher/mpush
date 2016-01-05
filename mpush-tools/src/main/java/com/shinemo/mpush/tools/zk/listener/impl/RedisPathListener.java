@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.shinemo.mpush.tools.InetAddressUtil;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.RedisGroup;
-import com.shinemo.mpush.tools.redis.RedisGroupManage;
+import com.shinemo.mpush.tools.redis.manage.RedisGroupManage;
 import com.shinemo.mpush.tools.zk.PathEnum;
 import com.shinemo.mpush.tools.zk.ZkUtil;
 import com.shinemo.mpush.tools.zk.listener.CallBack;

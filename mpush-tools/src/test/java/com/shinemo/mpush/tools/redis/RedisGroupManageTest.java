@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.shinemo.mpush.tools.InetAddressUtil;
+import com.shinemo.mpush.tools.redis.manage.RedisGroupManage;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
 
@@ -32,6 +33,7 @@ public class RedisGroupManageTest {
 			
 		}
 	}
+	
 	
 
 }

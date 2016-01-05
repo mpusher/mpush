@@ -285,6 +285,10 @@ public class RedisUtil {
 			try {
 				jedis = getClient(node);
 				jedis.hmset(namespace, hash);
+				if(time!=null){
+					jedis.expire(namespace, time);
+				}
+
 			} catch (Exception e) {
 				log.warn("redis hmset exception:"+namespace,e);
 			} finally {
@@ -295,8 +299,8 @@ public class RedisUtil {
 		
 	}
 
-	public static void hmset(List<RedisNode> nodeList,String key, Map<String, String> hash, int time) {
-		hmset(nodeList, key, hash, null);
+	public static void hmset(List<RedisNode> nodeList,String namespace, Map<String, String> hash) {
+		hmset(nodeList, namespace, hash, null);
 	}
 	
 	
