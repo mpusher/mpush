@@ -1,24 +1,20 @@
 package com.shinemo.mpush.tools.redis;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.shinemo.mpush.tools.Constants;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.zk.manage.ServerAppManage;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RedisUtil {
 
@@ -476,12 +472,15 @@ public class RedisUtil {
 
     public static void subscribe(Set<RedisNode> nodeList, final JedisPubSub pubsub, final String... channels) {
         for (final RedisNode node : nodeList) {
-            new Thread(new Runnable() {
+            Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     subscribe(node, pubsub, channels);
                 }
-            }).start();
+            });
+            t.setDaemon(true);
+            t.setName("redis-subscribe-thread");
+            t.start();
         }
     }
 

@@ -16,9 +16,17 @@ public final class ConfigCenter {
     private int maxHBTimeoutTimes = 2;
     private int rasKeyLength = 1024;
     private int aesKeyLength = 16;
+    private int connectionServerPort = 3000;
+    private int gatewayServerPort = 4000;
+    private String privateKey;
+    private String publicKey;
 
     public void init() throws IOException {
         cfg.load(this.getClass().getResourceAsStream("/config.properties"));
+        connectionServerPort = getInt("CONNECTION_SERVER_PORT", connectionServerPort);
+        gatewayServerPort = getInt("GATEWAY_SERVER_PORT", gatewayServerPort);
+        privateKey = getString("PRIVATE_KEY", privateKey);
+        publicKey = getString("PUBLIC_KEY", privateKey);
         maxPacketSize = getInt("MAX_PACKET_SIZE", maxPacketSize);
         compressLimit = getInt("COMPRESS_LIMIT", compressLimit);
         minHeartbeat = getInt("MIN_HEARTBEAT", minHeartbeat);
@@ -74,5 +82,21 @@ public final class ConfigCenter {
 
     public int getAesKeyLength() {
         return aesKeyLength;
+    }
+
+    public int getConnectionServerPort() {
+        return connectionServerPort;
+    }
+
+    public int getGatewayServerPort() {
+        return gatewayServerPort;
+    }
+
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
     }
 }
