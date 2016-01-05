@@ -4,14 +4,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import redis.clients.jedis.JedisPubSub;
+
+import com.google.common.collect.Sets;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.RedisNode;
 import com.shinemo.mpush.tools.redis.RedisUtil;
+import com.shinemo.mpush.tools.redis.pubsub.Subscriber;
 
 
 
 public class RedisManage {
 
+    /*********************k v redis start********************************/
+	
 	public  static <T> T get(String key,Class<T> clazz) {
 		RedisNode node = RedisGroupManage.instance.randomGetRedisNode(key);
 		return RedisUtil.get(node, key, clazz);
@@ -187,6 +193,28 @@ public class RedisManage {
 	public static long llen(String key) {
 		RedisNode node = RedisGroupManage.instance.randomGetRedisNode(key);
 		return RedisUtil.llen(node, key);
+	}
+	
+	public static <T> void publish(String channel,T message){
+		
+		RedisNode node = RedisGroupManage.instance.randomGetRedisNode(channel);
+		RedisUtil.publish(node, channel, message);
+		
+	}
+	
+	public static  void subscribe(JedisPubSub pubsub,String... channels){
+		
+		Set<RedisNode> set = Sets.newHashSet();
+		for(String channel:channels){
+			List<RedisNode> nodeList = RedisGroupManage.instance.hashSet(channel);
+			set.addAll(nodeList);
+		}
+		
+		RedisUtil.subscribe(set, pubsub, channels);
+	}
+	
+	public static  void subscribe(String... channel){
+		subscribe(new Subscriber(), channel);
 	}
 	
 }

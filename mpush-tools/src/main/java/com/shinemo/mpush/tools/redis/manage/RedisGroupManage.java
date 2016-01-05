@@ -3,7 +3,6 @@ package com.shinemo.mpush.tools.redis.manage;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
