@@ -71,9 +71,11 @@ public class RedisGroupManageTest {
 	
 	@Test
 	public void testPub(){
-		User user = new User("pub", 10, new Date());
-		RedisManage.publish("channel1", user);
-		RedisManage.publish("channel2", user);
+		for(int i = 0;i<20;i++){
+			User user = new User("pub"+i, 10, new Date());
+			RedisManage.publish("channel1", user);
+			RedisManage.publish("channel2", user);
+		}
 	}
 
 	@Test
