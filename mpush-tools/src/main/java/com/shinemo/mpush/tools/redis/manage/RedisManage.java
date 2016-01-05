@@ -13,7 +13,10 @@ import com.shinemo.mpush.tools.redis.RedisNode;
 import com.shinemo.mpush.tools.redis.RedisUtil;
 import com.shinemo.mpush.tools.redis.pubsub.Subscriber;
 
-
+/**
+ * redis 对外封装接口
+ *
+ */
 public class RedisManage {
 
     /*********************

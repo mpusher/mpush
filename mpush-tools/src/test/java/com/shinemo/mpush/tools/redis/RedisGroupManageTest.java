@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.shinemo.mpush.tools.redis.listener.MessageListener;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Before;
@@ -12,6 +13,7 @@ import org.junit.Test;
 import com.shinemo.mpush.tools.InetAddressUtil;
 import com.shinemo.mpush.tools.redis.manage.RedisGroupManage;
 import com.shinemo.mpush.tools.redis.manage.RedisManage;
+import com.shinemo.mpush.tools.redis.pubsub.Subscriber;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
 
@@ -92,6 +94,16 @@ public class RedisGroupManageTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+    
+    @Test
+    public void testSub2(){
+    	RedisManage.subscribe(new Subscriber(), "channel1", "channel2");
+    	 try {
+             Thread.sleep(Integer.MAX_VALUE);
+         } catch (InterruptedException e) {
+             e.printStackTrace();
+         }
     }
 
 
