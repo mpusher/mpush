@@ -1,5 +1,6 @@
 package com.shinemo.mpush.core.netty;
 
+import com.shinemo.mpush.api.Server;
 import com.shinemo.mpush.core.server.ConnectionServer;
 import com.shinemo.mpush.netty.server.NettyServer;
 import com.shinemo.mpush.tools.ConfigCenter;
@@ -14,6 +15,16 @@ public class NettyServerTest {
         ConfigCenter.INSTANCE.init();
         ConnectionServer server = new ConnectionServer(3000);
         server.init();
-        server.start();
+        server.start(new Server.Listener() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onFailure(String message) {
+
+            }
+        });
     }
 }

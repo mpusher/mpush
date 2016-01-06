@@ -18,15 +18,22 @@ public final class ConfigCenter {
     private int aesKeyLength = 16;
     private int connectionServerPort = 3000;
     private int gatewayServerPort = 4000;
-    private String privateKey;
-    private String publicKey;
+    private String privateKey = "MIIBNgIBADANBgkqhkiG9w0BAQEFAASCASAwggEcAgEAAoGBAKCE8JYKhsbydMPbiO7BJVq1pbuJWJHFxOR7L8Hv3ZVkSG4eNC8DdwAmDHYu/wadfw0ihKFm2gKDcLHp5yz5UQ8PZ8FyDYvgkrvGV0ak4nc40QDJWws621dm01e/INlGKOIStAAsxOityCLv0zm5Vf3+My/YaBvZcB5mGUsPbx8fAgEAAoGAAy0+WanRqwRHXUzt89OsupPXuNNqBlCEqgTqGAt4Nimq6Ur9u2R1KXKXUotxjp71Ubw6JbuUWvJg+5Rmd9RjT0HOUEQF3rvzEepKtaraPhV5ejEIrB+nJWNfGye4yzLdfEXJBGUQzrG+wNe13izfRNXI4dN/6Q5npzqaqv0E1CkCAQACAQACAQACAQACAQA=";
+    private String publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCghPCWCobG8nTD24juwSVataW7iViRxcTkey/B792VZEhuHjQvA3cAJgx2Lv8GnX8NIoShZtoCg3Cx6ecs+VEPD2fBcg2L4JK7xldGpOJ3ONEAyVsLOttXZtNXvyDZRijiErQALMTorcgi79M5uVX9/jMv2Ggb2XAeZhlLD28fHwIDAQAB";
+    private String zkNamespace = "mpush";
+    private String zkServer = "127.0.0.1:2181";
+    private String redisServer = "127.0.0.1:6379:ShineMoIpo";
 
     public void init() throws IOException {
         cfg.load(this.getClass().getResourceAsStream("/config.properties"));
-        connectionServerPort = getInt("CONNECTION_SERVER_PORT", connectionServerPort);
-        gatewayServerPort = getInt("GATEWAY_SERVER_PORT", gatewayServerPort);
         privateKey = getString("PRIVATE_KEY", privateKey);
         publicKey = getString("PUBLIC_KEY", privateKey);
+        zkNamespace = getString("ZK_NAMESPACE", zkNamespace);
+        zkServer = getString("ZK_SERVER", zkServer);
+        redisServer = getString("REDIS_SERVER", redisServer);
+
+        gatewayServerPort = getInt("GATEWAY_SERVER_PORT", gatewayServerPort);
+        connectionServerPort = getInt("CONNECTION_SERVER_PORT", connectionServerPort);
         maxPacketSize = getInt("MAX_PACKET_SIZE", maxPacketSize);
         compressLimit = getInt("COMPRESS_LIMIT", compressLimit);
         minHeartbeat = getInt("MIN_HEARTBEAT", minHeartbeat);
@@ -98,5 +105,17 @@ public final class ConfigCenter {
 
     public String getPublicKey() {
         return publicKey;
+    }
+
+    public String getRedisServer() {
+        return redisServer;
+    }
+
+    public String getZkServer() {
+        return zkServer;
+    }
+
+    public String getZkNamespace() {
+        return zkNamespace;
     }
 }
