@@ -29,8 +29,8 @@ public class ClientChannelHandler extends ChannelHandlerAdapter {
     private byte[] clientKey = CipherBox.INSTANCE.randomAESKey();
     private byte[] iv = CipherBox.INSTANCE.randomAESIV();
     private Connection connection = new NettyConnection();
-    private String deviceId = "test-device-id-100" + new Random(5).nextInt();
-    private String userId = "1010";
+    private String deviceId = "test-device-id-100" + new Random().nextInt(5);
+    private String userId = "user_" + new Random().nextInt(5);
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

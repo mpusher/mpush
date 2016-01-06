@@ -39,7 +39,7 @@ public abstract class NettyServer implements Server {
     }
 
     @Override
-    public void stop() {
+    public void stop(Listener listener) {
         LOGGER.info("netty server stop now");
         this.startFlag.set(false);
         if (workerGroup != null) workerGroup.shutdownGracefully();
@@ -47,7 +47,7 @@ public abstract class NettyServer implements Server {
     }
 
     @Override
-    public void start() {
+    public void start(final Listener listener) {
         if (!startFlag.compareAndSet(false, true)) {
             return;
         }
@@ -113,22 +113,32 @@ public abstract class NettyServer implements Server {
             /***
              * 绑定端口并启动去接收进来的连接
              */
-            ChannelFuture f = b.bind(port).sync();
-
-            LOGGER.info("server start ok on:" + port);
-
+            ChannelFuture f = b.bind(port).sync().addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    if (future.isSuccess()) {
+                        LOGGER.info("server start success on:" + port);
+                        if (listener != null) listener.onSuccess();
+                    } else {
+                        LOGGER.error("server start failure on:" + port);
+                        if (listener != null) listener.onFailure("start server failure");
+                    }
+                }
+            });
 
             /**
              * 这里会一直等待，直到socket被关闭
              */
             f.channel().closeFuture().sync();
-
         } catch (Exception e) {
             LOGGER.error("server start exception", e);
+            if (listener != null) listener.onFailure("start server ex=" + e.getMessage());
+            throw new RuntimeException("server start exception, port=" + port, e);
+        } finally {
             /***
              * 优雅关闭
              */
-            stop();
+            stop(null);
         }
     }
 
