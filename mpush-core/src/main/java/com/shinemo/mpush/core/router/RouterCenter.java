@@ -8,11 +8,14 @@ import com.shinemo.mpush.common.EventBus;
 import com.shinemo.mpush.common.router.RemoteRouter;
 import com.shinemo.mpush.common.router.RemoteRouterManager;
 import com.shinemo.mpush.tools.MPushUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by ohun on 2015/12/23.
  */
 public class RouterCenter {
+    public static final Logger LOGGER = LoggerFactory.getLogger(RouterCenter.class);
     public static final RouterCenter INSTANCE = new RouterCenter();
 
     private final LocalRouterManager localRouterManager = new LocalRouterManager();
@@ -31,15 +34,23 @@ public class RouterCenter {
         connConfig.setHost(MPushUtil.getLocalIp());
         LocalRouter localRouter = new LocalRouter(connection);
         RemoteRouter remoteRouter = new RemoteRouter(connConfig);
+        LocalRouter oldLocalRouter = null;
+        RemoteRouter oldRemoteRouter = null;
+        try {
+            oldLocalRouter = localRouterManager.register(userId, localRouter);
+            oldRemoteRouter = remoteRouterManager.register(userId, remoteRouter);
+        } catch (Exception e) {
+            LOGGER.warn("register router ex, userId={}, connection={}", userId, connection, e);
+        }
 
-        LocalRouter oldLocalRouter = localRouterManager.register(userId, localRouter);
-        RemoteRouter oldRemoteRouter = remoteRouterManager.register(userId, remoteRouter);
         if (oldLocalRouter != null) {
             EventBus.INSTANCE.post(new RouterChangeEvent(userId, oldLocalRouter));
+            LOGGER.warn("register router success, find old local router={}, userId={}", oldLocalRouter, userId);
         }
 
         if (oldRemoteRouter != null) {
             EventBus.INSTANCE.post(new RouterChangeEvent(userId, oldRemoteRouter));
+            LOGGER.warn("register router success, find old remote router={}, userId={}", oldRemoteRouter, userId);
         }
         return true;
     }

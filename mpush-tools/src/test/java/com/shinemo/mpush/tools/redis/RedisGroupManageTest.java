@@ -20,7 +20,7 @@ import com.shinemo.mpush.tools.zk.manage.ServerManage;
 
 public class RedisGroupManageTest {
 
-    ServerApp app = new ServerApp(InetAddressUtil.getInetAddress(), "3000");
+    ServerApp app = new ServerApp(InetAddressUtil.getInetAddress(), 3000);
     ServerManage manage = new ServerManage(app, PathEnum.REDIS_SERVER);
     List<RedisGroup> groupList = null;
 

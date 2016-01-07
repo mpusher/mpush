@@ -52,4 +52,14 @@ public final class ClientLocation {
         config.deviceId = context.deviceId;
         return config;
     }
+
+    @Override
+    public String toString() {
+        return "ClientLocation{" +
+                "host='" + host + '\'' +
+                ", osName='" + osName + '\'' +
+                ", clientVersion='" + clientVersion + '\'' +
+                ", deviceId='" + deviceId + '\'' +
+                '}';
+    }
 }

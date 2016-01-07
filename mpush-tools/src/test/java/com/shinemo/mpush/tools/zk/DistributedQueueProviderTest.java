@@ -14,41 +14,41 @@ import com.shinemo.mpush.tools.zk.queue.Provider;
 
 public class DistributedQueueProviderTest {
 
-	private ServerApp app = new ServerApp("10.1.10.64", "3000");
+    private ServerApp app = new ServerApp("10.1.10.64", 3000);
 
-	private ServerManage manage = new ServerManage(app, PathEnum.CONNECTION_SERVER);
+    private ServerManage manage = new ServerManage(app, PathEnum.CONNECTION_SERVER);
 
-	@Before
-	public void setup() {
-		manage.start();
-	}
+    @Before
+    public void setup() {
+        manage.start();
+    }
 
-	@Test
-	public void test() throws Exception{
-		
-		Iterator<ServerApp> iterator = ServerAppManage.instance.getAppList().iterator();
-		
-		List<Provider<ServerApp>> providers = Lists.newArrayList();
-		while (iterator.hasNext()) {
-			ServerApp app = iterator.next();
-			if(!app.getIp().equals(this.app.getIp())){
-				Provider<ServerApp> provider = new Provider<>(PathEnum.GATEWAY_SERVER.getPathByIp(app.getIp()), ServerApp.class);
-				providers.add(provider);
-				provider.start();
-			}
-		}
-		
-		for(int i = 0;i<10;i++){
-			providers.get(0).put(new ServerApp("hi"+i, "hello world"));
-		}
-		
-		Thread.sleep(20000);
-		
-	}
+    @Test
+    public void test() throws Exception {
 
-	@After
-	public void close() {
-		manage.close();
-	}
+        Iterator<ServerApp> iterator = ServerAppManage.instance.getAppList().iterator();
+
+        List<Provider<ServerApp>> providers = Lists.newArrayList();
+        while (iterator.hasNext()) {
+            ServerApp app = iterator.next();
+            if (!app.getIp().equals(this.app.getIp())) {
+                Provider<ServerApp> provider = new Provider<>(PathEnum.GATEWAY_SERVER.getPathByIp(app.getIp()), ServerApp.class);
+                providers.add(provider);
+                provider.start();
+            }
+        }
+
+        for (int i = 0; i < 10; i++) {
+            providers.get(0).put(new ServerApp("hi" + i, 1000));
+        }
+
+        Thread.sleep(20000);
+
+    }
+
+    @After
+    public void close() {
+        manage.close();
+    }
 
 }

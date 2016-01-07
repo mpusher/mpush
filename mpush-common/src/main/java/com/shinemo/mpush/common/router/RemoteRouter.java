@@ -22,4 +22,9 @@ public class RemoteRouter implements Router<ClientLocation> {
     public RouterType getRouteType() {
         return RouterType.REMOTE;
     }
+
+    @Override
+    public String toString() {
+        return "RemoteRouter{" + clientLocation + '}';
+    }
 }

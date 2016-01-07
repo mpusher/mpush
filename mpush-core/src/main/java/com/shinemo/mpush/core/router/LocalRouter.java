@@ -22,4 +22,9 @@ public class LocalRouter implements Router<Connection> {
     public RouterType getRouteType() {
         return RouterType.LOCAL;
     }
+
+    @Override
+    public String toString() {
+        return "LocalRouter{" + connection + '}';
+    }
 }
