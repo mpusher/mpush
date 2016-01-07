@@ -20,103 +20,105 @@ import com.shinemo.mpush.tools.zk.listener.ListenerDispatcher;
 
 public class ServerManage {
 
-	private static final Logger log = LoggerFactory.getLogger(ServerManage.class);
+    private static final Logger log = LoggerFactory.getLogger(ServerManage.class);
 
-	private static ZkUtil zkUtil = ZkUtil.instance;
-	
+    private static ZkUtil zkUtil = ZkUtil.instance;
+
     private final AtomicBoolean startFlag = new AtomicBoolean(false);
-    
+
     private final ServerApp app;
-    
+    private final PathEnum path;
+
     private ListenerDispatcher dispatcher;
-    
-    public ServerManage(ServerApp app){
-    	this.app = app;
+
+    public ServerManage(ServerApp app, PathEnum path) {
+        this.app = app;
+        this.path = path;
     }
-    
-	public void start() {
-		
+
+    public void start() {
+
         if (!startFlag.compareAndSet(false, true)) {
             return;
         }
-        
+
         dispatcher = new ListenerDispatcher(app);
-		
-		//注册机器到zk中
-		registerApp();
-		
-		// 注册连接状态监听器
-		registerConnectionLostListener();
-		
-		// 注册节点数据变化
-		registerDataChange(dispatcher);
-		
-		//获取应用起来的时候的初始化数据
-		initAppData(dispatcher);
-		
-	}
-	
-	private void registerApp(){
-		zkUtil.registerEphemeralSequential(PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByIp(app.getIp()),Jsons.toJson(app));
-	}
-	
-	public void unregisterApp(){
-		zkUtil.remove(PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByIp(app.getIp()));
-	}
 
-	// 注册连接状态监听器
-	private void registerConnectionLostListener() {
-		zkUtil.getClient().getConnectionStateListenable().addListener(new ConnectionStateListener() {
+        //注册机器到zk中
+        registerApp();
 
-			@Override
-			public void stateChanged(final CuratorFramework client, final ConnectionState newState) {
-				if (ConnectionState.LOST == newState) {
-					log.warn(app.getIp() + ", lost connection");
-				} else if (ConnectionState.RECONNECTED == newState) {
-					log.warn(app.getIp() + ", reconnected");
-				}
-			}
-		});
-	}
+        // 注册连接状态监听器
+        registerConnectionLostListener();
 
-	// 注册节点数据变化
-	private void registerDataChange(final CallBack callBack) {
-		zkUtil.getCache().getListenable().addListener(new TreeCacheListener() {
+        // 注册节点数据变化
+        registerDataChange(dispatcher);
 
-			@Override
-			public void childEvent(CuratorFramework client, TreeCacheEvent event) throws Exception {
-				String path = null == event.getData() ? "" : event.getData().getPath();
-				if (path.isEmpty()) {
-					log.warn("registerDataChange empty path:" + path + "," + event.getType().name());
-					return;
-				}
-				callBack.handler(client, event, path);
-			}
-		});
-	}
-	
-	private void initAppData(final CallBack callBack){
-		callBack.initData(this);
-	}
-	
-	public CuratorFramework getClient() {
-		return zkUtil.getClient();
-	}
-	
+        //获取应用起来的时候的初始化数据
+        initAppData(dispatcher);
+
+    }
+
+    private void registerApp() {
+        zkUtil.registerEphemeralSequential(path.getPathByIp(app.getIp()), Jsons.toJson(app));
+    }
+
+    public void unregisterApp() {
+        zkUtil.remove(path.getPathByIp(app.getIp()));
+    }
+
+    // 注册连接状态监听器
+    private void registerConnectionLostListener() {
+        zkUtil.getClient().getConnectionStateListenable().addListener(new ConnectionStateListener() {
+
+            @Override
+            public void stateChanged(final CuratorFramework client, final ConnectionState newState) {
+                if (ConnectionState.LOST == newState) {
+                    log.warn(app.getIp() + ", lost connection");
+                } else if (ConnectionState.RECONNECTED == newState) {
+                    log.warn(app.getIp() + ", reconnected");
+                }
+            }
+        });
+    }
+
+    // 注册节点数据变化
+    private void registerDataChange(final CallBack callBack) {
+        zkUtil.getCache().getListenable().addListener(new TreeCacheListener() {
+
+            @Override
+            public void childEvent(CuratorFramework client, TreeCacheEvent event) throws Exception {
+                String path = null == event.getData() ? "" : event.getData().getPath();
+                if (path.isEmpty()) {
+                    log.warn("registerDataChange empty path:" + path + "," + event.getType().name());
+                    return;
+                }
+                callBack.handler(client, event, path);
+            }
+        });
+    }
+
+    private void initAppData(final CallBack callBack) {
+        callBack.initData(this);
+    }
+
+    public CuratorFramework getClient() {
+        return zkUtil.getClient();
+    }
+
     public TreeCache getCache() {
         return zkUtil.getCache();
     }
-    
-    public void close(){
-    	zkUtil.close();
+
+    public void close() {
+        zkUtil.close();
     }
-    
-    public ZkUtil getZkUtil(){
-    	return zkUtil;
+
+    public ZkUtil getZkUtil() {
+        return zkUtil;
     }
-    
-    public ServerApp getServerApp(){
-    	return app;
+
+    public ServerApp getServerApp() {
+        return app;
     }
-    
+
 }

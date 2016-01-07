@@ -17,7 +17,7 @@ public class ServerManageTest {
 	
 	private ServerApp app = new ServerApp(InetAddressUtil.getInetAddress(),"3000");
 	
-	private ServerManage manage = new ServerManage(app);
+	private ServerManage manage = new ServerManage(app, PathEnum.CONNECTION_SERVER);
 	
 	@Test
 	public void testMulThreadRegisterApp() throws InterruptedException{
@@ -59,7 +59,7 @@ public class ServerManageTest {
 			}
 			log.warn("start init "+ip);
 			ServerApp app = new ServerApp(ip,"3000");
-			ServerManage manage = new ServerManage(app);
+			ServerManage manage = new ServerManage(app, PathEnum.CONNECTION_SERVER);
 			manage.start();
 			
 			try {

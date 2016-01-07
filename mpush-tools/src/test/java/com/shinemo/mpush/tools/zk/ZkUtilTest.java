@@ -133,14 +133,14 @@ public class ZkUtilTest {
 
         List<RedisGroup> groupList = Lists.newArrayList(group1);
 
-        zkUtil.registerPersist(PathEnum.CONNECTION_SERVER_REDIS.getPathByIp(InetAddressUtil.getInetAddress()), Jsons.toJson(groupList));
+        zkUtil.registerPersist(PathEnum.REDIS_SERVER.getPathByIp(InetAddressUtil.getInetAddress()), Jsons.toJson(groupList));
 
 
     }
 
     @Test
     public void getRedisTest() {
-        String value = zkUtil.get(PathEnum.CONNECTION_SERVER_REDIS.getPathByIp(InetAddressUtil.getInetAddress()));
+        String value = zkUtil.get(PathEnum.REDIS_SERVER.getPathByIp(InetAddressUtil.getInetAddress()));
         List<RedisGroup> newGroupList = Jsons.fromJsonToList(value, RedisGroup[].class);
         for (RedisGroup group : newGroupList) {
             for (RedisNode node : group.getRedisNodeList()) {

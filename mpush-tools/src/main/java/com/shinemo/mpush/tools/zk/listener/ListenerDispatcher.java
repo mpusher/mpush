@@ -23,9 +23,9 @@ public class ListenerDispatcher implements CallBack {
 
 	public ListenerDispatcher(ServerApp app) {
 		//所有connection server
-		holder.put(PathEnum.CONNECTION_SERVER_ALL_HOST.getPathByIp(app.getIp()), new ConnectionPathListener());
+		holder.put(PathEnum.CONNECTION_SERVER.getPathByIp(app.getIp()), new ConnectionPathListener());
 		//所有redis
-		holder.put(PathEnum.CONNECTION_SERVER_REDIS.getPathByIp(app.getIp()), new RedisPathListener());
+		holder.put(PathEnum.REDIS_SERVER.getPathByIp(app.getIp()), new RedisPathListener());
 		//踢人的目录已经交给队列处理了，这里不需要重复处理
 //		holder.put(PathEnum.CONNECTION_SERVER_KICK.getPathByIp(app.getIp()), new KickPathListener());
 	}
