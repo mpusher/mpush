@@ -89,7 +89,7 @@ public final class NettyConnectionManager implements ConnectionManager {
                 }
             } else {
                 expiredTimes = 0;
-                LOGGER.info("check heartbeat timeout");
+                //LOGGER.info("check heartbeat timeout");
             }
             startTimeout();
         }

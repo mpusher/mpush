@@ -54,7 +54,7 @@ public class ClientChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        LOGGER.info("client read new packet=" + msg);
+        //LOGGER.info("client read new packet=" + msg);
         if (msg instanceof Packet) {
             Packet packet = (Packet) msg;
             Command command = Command.toCMD(packet.cmd);
@@ -99,12 +99,12 @@ public class ClientChannelHandler extends ChannelHandlerAdapter {
                     public void operationComplete(ChannelFuture future) throws Exception {
                         if (!future.isSuccess()) {
                             if (!channel.isActive()) {
-                                LOGGER.warn("client send hb failed:" + channel.remoteAddress().toString() + ",channel is not active");
+                                LOGGER.warn("client send hb failed:" + channel + ",channel is not active");
                             } else {
-                                LOGGER.warn("client send  hb failed:" + channel.remoteAddress().toString());
+                                LOGGER.warn("client send  hb failed:" + channel);
                             }
                         } else {
-                            LOGGER.warn("client send  hb success:" + channel.remoteAddress().toString());
+                            //LOGGER.debug("client send  hb success:" + channel);
                         }
                     }
                 });
