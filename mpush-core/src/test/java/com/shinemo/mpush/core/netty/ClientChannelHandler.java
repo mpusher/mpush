@@ -70,8 +70,11 @@ public class ClientChannelHandler extends ChannelHandlerAdapter {
             } else if (command == Command.FAST_CONNECT) {
                 LOGGER.info("fast connect success, packet=" + packet.getStringBody());
             } else if (command == Command.KICK) {
-                LOGGER.error("receive kick user message=" + new KickUserMessage(packet, connection));
-                ctx.close();
+                KickUserMessage message = new KickUserMessage(packet, connection);
+                LOGGER.error("receive kick user userId={},deviceId={}, message={},", userId);
+                if (!message.deviceId.equals(deviceId)) {
+                    ctx.close();
+                }
             } else if (command == Command.ERROR) {
                 ErrorMessage errorMessage = new ErrorMessage(packet, connection);
                 LOGGER.error("receive an error packet=" + errorMessage);

@@ -84,6 +84,6 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
 
         //9.触发握手成功事件
         EventBus.INSTANCE.post(new HandshakeEvent(message.getConnection(), heartbeat));
-        LOGGER.info("会话密钥：{}，clientKey={}, serverKey={}", sessionKey, clientKey, serverKey);
+        LOGGER.warn("handshake success, session={}", context);
     }
 }

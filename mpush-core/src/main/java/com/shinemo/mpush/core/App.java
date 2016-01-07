@@ -94,11 +94,10 @@ public final class App {
     }
 
     private void registerServerToZK(int port, PathEnum path) {
-        String p = Integer.toString(port);
-        ServerApp app = new ServerApp(InetAddressUtil.getInetAddress(), p);
+        ServerApp app = new ServerApp(InetAddressUtil.getInetAddress(), port);
         ServerManage manage = new ServerManage(app, path);
         manage.start();
-        LOGGER.error("mpush app register server:{} to zk success", p);
+        LOGGER.error("mpush app register server:{} to zk success", port);
     }
 
     public void startRedisClient() {

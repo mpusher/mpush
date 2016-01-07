@@ -99,7 +99,7 @@ public class ZkUtilTest {
     @Test
     public void testRegisterIp() {
         String localIp = InetAddressUtil.getInetAddress();
-        ServerApp app = new ServerApp(localIp, "3000");
+        ServerApp app = new ServerApp(localIp, 3000);
         zkUtil.registerPersist("/" + localIp, Jsons.toJson(app));
         String value = zkUtil.get("/" + localIp);
         System.out.println(value);

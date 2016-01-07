@@ -46,10 +46,11 @@ public final class SessionContext {
     @Override
     public String toString() {
         return "SessionContext{" +
-                "osName='" + osName + '\'' +
+                ", osName='" + osName + '\'' +
                 ", osVersion='" + osVersion + '\'' +
                 ", clientVersion='" + clientVersion + '\'' +
                 ", deviceId='" + deviceId + '\'' +
+                ", heartbeat=" + heartbeat +
                 '}';
     }
 }

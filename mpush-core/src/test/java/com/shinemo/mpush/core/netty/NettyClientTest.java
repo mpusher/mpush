@@ -21,33 +21,28 @@ import java.util.List;
 public class NettyClientTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyClientTest.class);
 
-    @Before
     public void setUp() throws Exception {
         ConfigCenter.INSTANCE.init();
     }
 
-
-    @Test
     public void testClient() throws Exception {
         List<String> hosts = ZkUtil.instance.getChildrenKeys(PathEnum.CONNECTION_SERVER.getPath());
         if (hosts == null || hosts.isEmpty()) return;
-        for (String name : hosts) {
-            String json = ZkUtil.instance.get(PathEnum.CONNECTION_SERVER.getPathByName(name));
-            ServerApp server = Jsons.fromJson(json, ServerApp.class);
-            if (server == null) continue;
-            ClientChannelHandler handler = new ClientChannelHandler();
-            final Client client = NettyClientFactory.INSTANCE.get(server.getIp()
-                    , Integer.parseInt(server.getPort()), handler);
-            client.init();
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    client.start();
-                }
-            });
-            t.setDaemon(false);
-            t.start();
-        }
+        int index = (int) ((Math.random() % hosts.size()) * hosts.size());
+        String name = hosts.get(index);
+        String json = ZkUtil.instance.get(PathEnum.CONNECTION_SERVER.getPathByName(name));
+        ServerApp server = Jsons.fromJson(json, ServerApp.class);
+        ClientChannelHandler handler = new ClientChannelHandler();
+        final Client client = NettyClientFactory.INSTANCE.get(server.getIp(), server.getPort(), handler);
+        client.init();
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                client.start();
+            }
+        });
+        t.setDaemon(false);
+        t.start();
     }
 
     public static void main(String[] args) throws Exception {
