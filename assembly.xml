@@ -10,41 +10,6 @@
         <format>tar.gz</format>
     </formats>
     <fileSets>
-        <!--<fileSet>
-            <directory>../mpush-core/target/classes</directory>
-            <outputDirectory/>
-            <includes>
-                <include>**/**</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>../mpush-api/target/classes</directory>
-            <outputDirectory/>
-            <includes>
-                <include>**/**</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>../mpush-common/target/classes</directory>
-            <outputDirectory/>
-            <includes>
-                <include>**/**</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>../mpush-netty/target/classes</directory>
-            <outputDirectory/>
-            <includes>
-                <include>**/**</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>../mpush-tools/target/classes</directory>
-            <outputDirectory/>
-            <includes>
-                <include>**/**</include>
-            </includes>
-        </fileSet>-->
         <fileSet>
             <directory>mpush-core/target/</directory>
             <outputDirectory/>
@@ -59,30 +24,13 @@
                 <include>mpush.jar</include>
             </includes>
         </fileSet>
-        <!--<fileSet>
-            <directory>mpush-core/target/mpush</directory>
-            <outputDirectory/>
-            <includes>
-                <include>**/**</include>
-            </includes>
-        </fileSet>-->
     </fileSets>
     <dependencySets>
-        <!--<dependencySet>
-            <useProjectArtifact>true</useProjectArtifact>
-            <outputDirectory>/</outputDirectory>
-            <includes>
-                <include>com.shinemo.mpush:*</include>
-            </includes>
-        </dependencySet>-->
         <dependencySet>
             <unpack>false</unpack>
             <scope>runtime</scope>
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
-            <!--<excludes>
-                <exclude>com.shinemo.mpush:*</exclude>
-            </excludes>-->
         </dependencySet>
     </dependencySets>
 </assembly>
