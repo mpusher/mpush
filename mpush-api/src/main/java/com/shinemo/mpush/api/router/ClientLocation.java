@@ -1,7 +1,6 @@
 package com.shinemo.mpush.api.router;
 
 import com.shinemo.mpush.api.connection.SessionContext;
-import com.shinemo.mpush.tools.MPushUtil;
 
 /**
  * Created by ohun on 2015/12/23.
@@ -51,7 +50,6 @@ public final class ClientLocation {
         config.osName = context.osName;
         config.clientVersion = context.clientVersion;
         config.deviceId = context.deviceId;
-        config.host = MPushUtil.getLocalIp();
         return config;
     }
 }
