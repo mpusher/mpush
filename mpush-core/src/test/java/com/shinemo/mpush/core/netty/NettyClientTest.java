@@ -5,11 +5,10 @@ import com.shinemo.mpush.api.Client;
 import com.shinemo.mpush.netty.client.NettyClientFactory;
 import com.shinemo.mpush.tools.ConfigCenter;
 import com.shinemo.mpush.tools.Jsons;
+import com.shinemo.mpush.tools.Strings;
 import com.shinemo.mpush.tools.zk.PathEnum;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZkUtil;
-import org.junit.Before;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

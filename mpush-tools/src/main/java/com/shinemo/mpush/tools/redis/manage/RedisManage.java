@@ -45,7 +45,7 @@ public class RedisManage {
      */
     public static void set(String key, String value, Integer time) {
         List<RedisNode> nodeList = RedisGroupManage.instance.hashSet(key);
-        RedisUtil.set(nodeList, key, value, null);
+        RedisUtil.set(nodeList, key, value, time);
     }
 
     public static void del(String key) {
