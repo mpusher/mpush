@@ -10,6 +10,7 @@ import com.shinemo.mpush.common.EventBus;
 import com.shinemo.mpush.common.message.KickUserMessage;
 import com.shinemo.mpush.common.router.RemoteRouter;
 import com.shinemo.mpush.tools.Jsons;
+import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.redis.listener.MessageListener;
 import com.shinemo.mpush.tools.redis.manage.RedisManage;
 import com.shinemo.mpush.tools.redis.pubsub.Subscriber;
@@ -59,9 +60,12 @@ public class RouterChangeListener implements MessageListener {
         });
     }
 
-
     public void kickRemote(String userId, RemoteRouter router) {
         ClientLocation location = router.getRouteValue();
+        if (location.getHost().equals(MPushUtil.getLocalIp())) {
+            LOGGER.error("kick remote user but router in local, userId={}", userId);
+            return;
+        }
         KickRemoteMsg msg = new KickRemoteMsg();
         msg.deviceId = location.getDeviceId();
         msg.srcServer = location.getHost();

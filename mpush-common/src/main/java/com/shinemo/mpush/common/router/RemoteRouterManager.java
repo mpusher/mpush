@@ -11,6 +11,9 @@ public class RemoteRouterManager implements RouterManager<RemoteRouter> {
     @Override
     public RemoteRouter register(String userId, RemoteRouter route) {
         RemoteRouter old = RedisManage.get(userId, RemoteRouter.class);
+        if (old != null) {
+            RedisManage.del(userId);
+        }
         RedisManage.set(userId, route);
         return old;
     }
