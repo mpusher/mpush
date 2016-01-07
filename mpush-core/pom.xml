@@ -15,15 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>com.shinemo.mpush</groupId>
-            <artifactId>mpush-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.shinemo.mpush</groupId>
             <artifactId>mpush-netty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -45,23 +37,10 @@
             <groupId>org.logback-extensions</groupId>
             <artifactId>logback-ext-spring</artifactId>
         </dependency>
-
-         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.shinemo.mpush</groupId>
-            <artifactId>mpush-tools</artifactId>
-        </dependency>
     </dependencies>
     <!-- 编译配置 -->
     <build>
+        <finalName>mpush</finalName>
         <!-- 指定编译时的Resource目录 -->
         <resources>
             <resource>
@@ -86,7 +65,58 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.6</version>
             </plugin>
-        </plugins>
+            <!-- 拷贝依赖的jar包到lib目录 -->
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>
+                                ${project.build.directory}/lib
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <!-- Configuration of the archiver -->
+                    <archive>
+                        <!--
+                            生成的jar中，不要包含pom.xml和pom.properties这两个文件
+                        -->
+                        <addMavenDescriptor>false</addMavenDescriptor>
 
+                        <!-- Manifest specific configuration -->
+                        <manifest>
+                            <!--
+                                是否要把第三方jar放到manifest的classpath中
+                            -->
+                            <addClasspath>true</addClasspath>
+                            <!--
+                               生成的manifest中classpath的前缀，因为要把第三方jar放到lib目录下，所以classpath的前缀是lib/
+                           -->
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <!--
+                                应用的main class
+                            -->
+                            <mainClass>com.shinemo.mpush.core.App</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
     </build>
 </project>
