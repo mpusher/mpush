@@ -26,7 +26,6 @@ public class NettyClientTest {
         ConfigCenter.INSTANCE.init();
     }
 
-    private ClientChannelHandler handler = new ClientChannelHandler();
 
     @Test
     public void testClient() throws Exception {
@@ -36,6 +35,7 @@ public class NettyClientTest {
             String json = ZkUtil.instance.get(PathEnum.CONNECTION_SERVER.getPathByName(name));
             ServerApp server = Jsons.fromJson(json, ServerApp.class);
             if (server == null) continue;
+            ClientChannelHandler handler = new ClientChannelHandler();
             final Client client = NettyClientFactory.INSTANCE.get(server.getIp()
                     , Integer.parseInt(server.getPort()), handler);
             client.init();
