@@ -40,4 +40,16 @@ public final class AesCipher implements Cipher {
         }
         return b.toString();
     }
+
+    public static byte[] toArray(String str) {
+        String[] a = str.split("\\|");
+        if (a.length != CipherBox.INSTANCE.getAesKeyLength()) {
+            throw new RuntimeException("decode cipher ex key length invalid");
+        }
+        byte[] bytes = new byte[a.length];
+        for (int i = 0; i < a.length; i++) {
+            bytes[i] = Byte.parseByte(a[i]);
+        }
+        return bytes;
+    }
 }

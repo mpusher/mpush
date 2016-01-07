@@ -56,7 +56,6 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
 
         //4.生成可复用session, 用于快速重连
         ReusableSession session = ReusableSessionManager.INSTANCE.genSession(context);
-        ReusableSessionManager.INSTANCE.cacheSession(session);
 
         //5.计算心跳时间
         int heartbeat = MPushUtil.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
@@ -81,6 +80,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
                 .setClientVersion(message.clientVersion)
                 .setDeviceId(message.deviceId)
                 .setHeartbeat(heartbeat);
+        ReusableSessionManager.INSTANCE.cacheSession(session);
 
         //9.触发握手成功事件
         EventBus.INSTANCE.post(new HandshakeEvent(message.getConnection(), heartbeat));

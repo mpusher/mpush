@@ -6,6 +6,7 @@ import com.shinemo.mpush.common.handler.BaseMessageHandler;
 import com.shinemo.mpush.common.message.ErrorMessage;
 import com.shinemo.mpush.common.message.FastConnectMessage;
 import com.shinemo.mpush.common.message.FastConnectOkMessage;
+import com.shinemo.mpush.core.router.RouterCenter;
 import com.shinemo.mpush.core.session.ReusableSession;
 import com.shinemo.mpush.core.session.ReusableSessionManager;
 import com.shinemo.mpush.tools.MPushUtil;
@@ -27,10 +28,10 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
     public void handle(FastConnectMessage message) {
         ReusableSession session = ReusableSessionManager.INSTANCE.getSession(message.sessionId);
         if (session == null) {
-            ErrorMessage.from(message).setReason("session expire").close();
+            ErrorMessage.from(message).setReason("session expire").send();
             LOGGER.warn("fast connect failure, session is expired, sessionId={}, deviceId={}", message.sessionId, message.deviceId);
         } else if (!session.context.deviceId.equals(message.deviceId)) {
-            ErrorMessage.from(message).setReason("error device").close();
+            ErrorMessage.from(message).setReason("error device").send();
             LOGGER.warn("fast connect failure, not same device, deviceId={}, session={}", message.deviceId, session.context);
         } else {
             int heartbeat = MPushUtil.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);

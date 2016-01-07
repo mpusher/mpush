@@ -56,6 +56,7 @@ public class RedisUtil {
             // 返还到连接池
             close(jedis);
         }
+        if (clazz == String.class) return (T) value;
         return Jsons.fromJson(value, clazz);
     }
 
@@ -452,7 +453,9 @@ public class RedisUtil {
 
     /********************* list redis end ********************************/
 
-    /********************* pubsub redis start ********************************/
+    /*********************
+     * pubsub redis start
+     ********************************/
 
 
     public static <T> void publish(RedisNode node, String channel, T message) {

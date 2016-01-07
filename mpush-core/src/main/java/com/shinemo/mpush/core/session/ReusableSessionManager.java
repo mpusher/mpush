@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public final class ReusableSessionManager {
     public static final ReusableSessionManager INSTANCE = new ReusableSessionManager();
-    private static final int EXPIRE_TIME = 24 * 60 * 60 * 1000;
+    private static final int EXPIRE_TIME = 86400;
 
     public boolean cacheSession(ReusableSession session) {
         RedisManage.set(session.sessionId, session.encode(), EXPIRE_TIME);
@@ -37,7 +37,7 @@ public final class ReusableSessionManager {
         ReusableSession session = new ReusableSession();
         session.context = context;
         session.sessionId = MD5Utils.encrypt(context.deviceId + now);
-        session.expireTime = now + EXPIRE_TIME;
+        session.expireTime = now + EXPIRE_TIME * 1000;
         return session;
     }
 
