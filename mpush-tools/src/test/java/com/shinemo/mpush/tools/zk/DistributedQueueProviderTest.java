@@ -16,7 +16,7 @@ public class DistributedQueueProviderTest {
 
 	private ServerApp app = new ServerApp("10.1.10.64", "3000");
 
-	private ServerManage manage = new ServerManage(app);
+	private ServerManage manage = new ServerManage(app, PathEnum.CONNECTION_SERVER);
 
 	@Before
 	public void setup() {
@@ -32,7 +32,7 @@ public class DistributedQueueProviderTest {
 		while (iterator.hasNext()) {
 			ServerApp app = iterator.next();
 			if(!app.getIp().equals(this.app.getIp())){
-				Provider<ServerApp> provider = new Provider<ServerApp>(PathEnum.CONNECTION_SERVER_KICK.getPathByIp(app.getIp()), ServerApp.class);
+				Provider<ServerApp> provider = new Provider<>(PathEnum.GATEWAY_SERVER.getPathByIp(app.getIp()), ServerApp.class);
 				providers.add(provider);
 				provider.start();
 			}

@@ -39,7 +39,7 @@ public class RouterCenter {
         }
 
         if (oldRemoteRouter != null) {
-            EventBus.INSTANCE.post(new RouterChangeEvent(userId, oldLocalRouter));
+            EventBus.INSTANCE.post(new RouterChangeEvent(userId, oldRemoteRouter));
         }
         return true;
     }

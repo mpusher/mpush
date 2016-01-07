@@ -13,11 +13,9 @@ import com.shinemo.mpush.tools.zk.PathEnum;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZkUtil;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
-import org.apache.zookeeper.ZKUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 
@@ -51,7 +49,7 @@ public final class App {
                 server.start(new Server.Listener() {
                     @Override
                     public void onSuccess() {
-                        registerServerToZK(port);
+                        registerServerToZK(port, PathEnum.CONNECTION_SERVER);
                         LOGGER.error("mpush app start connection server success....");
                     }
 
@@ -78,7 +76,7 @@ public final class App {
                 server.start(new Server.Listener() {
                     @Override
                     public void onSuccess() {
-                        registerServerToZK(port);
+                        registerServerToZK(port, PathEnum.GATEWAY_SERVER);
                         LOGGER.error("mpush app start gateway server success....");
                     }
 
@@ -95,10 +93,10 @@ public final class App {
         t.start();
     }
 
-    private void registerServerToZK(int port) {
+    private void registerServerToZK(int port, PathEnum path) {
         String p = Integer.toString(port);
         ServerApp app = new ServerApp(InetAddressUtil.getInetAddress(), p);
-        ServerManage manage = new ServerManage(app);
+        ServerManage manage = new ServerManage(app, path);
         manage.start();
         LOGGER.error("mpush app register server:{} to zk success", p);
     }
@@ -110,7 +108,7 @@ public final class App {
         group1.addRedisNode(node1);
 
         List<RedisGroup> groupList = Lists.newArrayList(group1);
-        ZkUtil.instance.registerPersist(PathEnum.CONNECTION_SERVER_REDIS.getPathByIp(InetAddressUtil.getInetAddress())
+        ZkUtil.instance.registerPersist(PathEnum.REDIS_SERVER.getPathByIp(InetAddressUtil.getInetAddress())
                 , Jsons.toJson(groupList));
     }
 }

@@ -55,7 +55,7 @@ public class RedisPathListener implements CallBack {
 
     private void _initData() {
         //获取redis列表
-        List<RedisGroup> group = getRedisGroup(PathEnum.CONNECTION_SERVER_REDIS.getPathByIp(InetAddressUtil.getInetAddress()));
+        List<RedisGroup> group = getRedisGroup(PathEnum.REDIS_SERVER.getPathByIp(InetAddressUtil.getInetAddress()));
         RedisGroupManage.instance.init(group);
     }
 

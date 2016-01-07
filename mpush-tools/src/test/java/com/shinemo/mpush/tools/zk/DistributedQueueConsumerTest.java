@@ -4,15 +4,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.shinemo.mpush.tools.zk.consumer.impl.ConsumerKickListener;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
-import com.shinemo.mpush.tools.zk.queue.Consumer;
 
 public class DistributedQueueConsumerTest {
 
 	private ServerApp app = new ServerApp("10.1.10.65", "3000");
 
-	private ServerManage manage = new ServerManage(app);
+	private ServerManage manage = new ServerManage(app, PathEnum.CONNECTION_SERVER);
 
 	@Before
 	public void setup() {
