@@ -42,37 +42,24 @@ public abstract class AbstractNettyClientFactory {
      *
      * @param remoteHost
      * @param port
-     * @param handler
      * @return
      * @throws Exception
      */
-    public Client get(final String remoteHost, final int port, final ChannelHandler handler) throws Exception {
-        final String key = String.format(format, remoteHost, port);
-        Client client = cachedClients.get(key, new Callable<Client>() {
-            @Override
-            public Client call() throws Exception {
-                Client client = createClient(remoteHost, port, handler);
-                return client;
-            }
-        });
-        if (client == null) {
-            cachedClients.invalidate(key);
-            return null;
+    public Client get(final String remoteHost, final int port) {
+        String key = String.format(format, remoteHost, port);
+        return cachedClients.getIfPresent(key);
+    }
+
+    public Client createGet(String remoteHost, int port, ChannelHandler handler) {
+        Client client = createClient(remoteHost, port, handler);
+        if (client != null) {
+            String key = String.format(format, remoteHost, port);
+            cachedClients.put(key, client);
         }
         return client;
     }
 
-    public Client get(final String remoteHost, final int port) throws Exception {
-        return get(remoteHost, port, null);
-    }
-
-
-    protected Client createClient(final String remoteHost, final int port) throws Exception {
-        return createClient(remoteHost, port, null);
-    }
-
-    public abstract Client createClient(final String remoteHost, final int port, ChannelHandler handler) throws Exception;
-
+    abstract Client createClient(String remoteHost, int port, ChannelHandler handler);
 
     public void remove(Client client) {
         if (client != null) {
@@ -80,5 +67,4 @@ public abstract class AbstractNettyClientFactory {
             LOGGER.warn(MessageFormat.format("[Remoting] {0} is removed", client));
         }
     }
-
 }

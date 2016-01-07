@@ -32,7 +32,7 @@ public class NettyClientTest {
         String json = ZkUtil.instance.get(PathEnum.CONNECTION_SERVER.getPathByName(name));
         ServerApp server = Jsons.fromJson(json, ServerApp.class);
         ClientChannelHandler handler = new ClientChannelHandler();
-        final Client client = NettyClientFactory.INSTANCE.get(server.getIp(), server.getPort(), handler);
+        final Client client = NettyClientFactory.INSTANCE.createGet(server.getIp(), server.getPort(), handler);
         client.init();
         Thread t = new Thread(new Runnable() {
             @Override
