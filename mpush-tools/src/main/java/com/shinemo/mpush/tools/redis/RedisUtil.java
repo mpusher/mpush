@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -473,16 +474,14 @@ public class RedisUtil {
     }
 
     public static void subscribe(Set<RedisNode> nodeList, final JedisPubSub pubsub, final String... channels) {
+        int i = 0;
         for (final RedisNode node : nodeList) {
-            Thread t = new Thread(new Runnable() {
+            ThreadPoolUtil.newThread(new Runnable() {
                 @Override
                 public void run() {
                     subscribe(node, pubsub, channels);
                 }
-            });
-            t.setDaemon(true);
-            t.setName("redis-subscribe-thread");
-            t.start();
+            }, ("redis-subscribe-" + i++)).start();
         }
     }
 

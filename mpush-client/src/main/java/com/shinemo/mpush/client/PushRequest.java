@@ -144,12 +144,14 @@ public class PushRequest implements PushSender.Callback, Runnable {
             this.onOffline(userId);
             return;
         }
+
         ClientLocation location = router.getRouteValue();
         Connection connection = pushClient.getConnection(location.getHost());
         if (connection == null || !connection.isConnected()) {
             this.onFailure(userId);
             return;
         }
+
         GatewayPushMessage pushMessage = new GatewayPushMessage(userId, content, connection);
         pushMessage.send(new ChannelFutureListener() {
             @Override
@@ -161,6 +163,7 @@ public class PushRequest implements PushSender.Callback, Runnable {
                 }
             }
         });
+
         this.sessionId = pushMessage.getSessionId();
         PushRequestBus.INSTANCE.add(this);
     }

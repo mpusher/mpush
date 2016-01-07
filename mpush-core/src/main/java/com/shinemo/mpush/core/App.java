@@ -9,6 +9,7 @@ import com.shinemo.mpush.tools.InetAddressUtil;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.redis.RedisNode;
+import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
 import com.shinemo.mpush.tools.zk.PathEnum;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZkUtil;
@@ -40,7 +41,7 @@ public final class App {
     }
 
     public void startConnectionServer() {
-        Thread t = new Thread(new Runnable() {
+        ThreadPoolUtil.newThread(new Runnable() {
             @Override
             public void run() {
                 final int port = ConfigCenter.INSTANCE.getConnectionServerPort();
@@ -60,14 +61,11 @@ public final class App {
                     }
                 });
             }
-        });
-        t.setDaemon(false);
-        t.setName("conn-server-thread");
-        t.start();
+        }, "conn-server", false).start();
     }
 
     public void startGatewayServer() {
-        Thread t = new Thread(new Runnable() {
+        ThreadPoolUtil.newThread(new Runnable() {
             @Override
             public void run() {
                 final int port = ConfigCenter.INSTANCE.getGatewayServerPort();
@@ -87,10 +85,7 @@ public final class App {
                     }
                 });
             }
-        });
-        t.setDaemon(false);
-        t.setName("gateway-server-thread");
-        t.start();
+        }, "gateway-server", false).start();
     }
 
     private void registerServerToZK(int port, PathEnum path) {

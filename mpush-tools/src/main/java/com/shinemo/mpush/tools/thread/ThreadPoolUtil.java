@@ -5,9 +5,8 @@ import java.util.concurrent.Executor;
 import com.shinemo.mpush.tools.Constants;
 
 
-
 public class ThreadPoolUtil {
-
+    public static final String THREAD_NAME_PREFIX = "mp-t-";
     private static final ThreadPoolManager threadPoolManager =
             new ThreadPoolManager(Constants.MIN_POOL_SIZE, Constants.MAX_POOL_SIZE, Constants.THREAD_QUEUE_SIZE);
 
@@ -29,4 +28,14 @@ public class ThreadPoolUtil {
     }
 
 
+    public static Thread newThread(Runnable r, String name, boolean daemon) {
+        Thread t = new Thread(r);
+        t.setDaemon(daemon);
+        t.setName(THREAD_NAME_PREFIX + name);
+        return t;
+    }
+
+    public static Thread newThread(Runnable r, String name) {
+        return newThread(r, name, true);
+    }
 }

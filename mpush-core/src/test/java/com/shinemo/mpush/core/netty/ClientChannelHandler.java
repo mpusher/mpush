@@ -49,7 +49,7 @@ public class ClientChannelHandler extends ChannelHandlerAdapter {
             deviceId = "test-device-id-100" + new Random().nextInt(5);
         }
         if (userId == null) {
-            userId = "user_" + new Random().nextInt(5);
+            userId = "user-" + new Random().nextInt(5);
         }
     }
 
