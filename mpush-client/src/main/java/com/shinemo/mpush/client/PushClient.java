@@ -103,7 +103,10 @@ public class PushClient implements PushSender {
             } else if (TreeCacheEvent.Type.NODE_REMOVED == event.getType()) {
                 ServerApp serverApp = servers.remove(path);
                 if (serverApp != null) {
-                    clientMap.remove(serverApp.getIp());
+                    Client client = clientMap.remove(serverApp.getIp());
+                    if (client != null) {
+                        client.stop();
+                    }
                 }
             } else if (TreeCacheEvent.Type.NODE_UPDATED == event.getType()) {
 
