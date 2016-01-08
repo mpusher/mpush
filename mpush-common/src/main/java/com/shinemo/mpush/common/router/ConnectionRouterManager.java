@@ -23,7 +23,7 @@ public class ConnectionRouterManager extends RemoteRouterManager {
         if (cached != null) return cached;
         RemoteRouter router = super.lookup(userId);
         if (router != null) {
-            cache.put(userId, cached);
+            cache.put(userId, router);
         }
         return router;
     }

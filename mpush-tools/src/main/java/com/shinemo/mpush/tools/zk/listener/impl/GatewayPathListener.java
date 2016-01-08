@@ -15,9 +15,9 @@ import com.shinemo.mpush.tools.zk.manage.ServerManage;
  * 当前应用下踢人的目录发生变化
  *
  */
-public class KickPathListener implements CallBack{
+public class GatewayPathListener implements CallBack{
 	
-	private static final Logger log = LoggerFactory.getLogger(KickPathListener.class);
+	private static final Logger log = LoggerFactory.getLogger(GatewayPathListener.class);
 	
 	@Override
 	public void handler(CuratorFramework client, TreeCacheEvent event, String path) {

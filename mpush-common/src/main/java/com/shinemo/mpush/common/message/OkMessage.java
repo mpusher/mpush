@@ -1,6 +1,7 @@
 package com.shinemo.mpush.common.message;
 
 import com.shinemo.mpush.api.connection.Connection;
+import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 
@@ -36,7 +37,8 @@ public final class OkMessage extends ByteBufMessage {
     }
 
     public static OkMessage from(BaseMessage src) {
-        return new OkMessage(src.packet.cmd, src.createResponse(), src.connection);
+        return new OkMessage(src.packet.cmd, new Packet(Command.OK.cmd
+                , src.packet.sessionId), src.connection);
     }
 
     public OkMessage setCode(byte code) {

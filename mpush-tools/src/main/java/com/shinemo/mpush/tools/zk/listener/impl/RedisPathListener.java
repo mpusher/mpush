@@ -10,27 +10,25 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.TreeCacheEvent;
 import org.apache.curator.framework.recipes.cache.TreeCacheEvent.Type;
+import org.apache.curator.framework.recipes.cache.TreeCacheListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.shinemo.mpush.tools.InetAddressUtil;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.redis.manage.RedisGroupManage;
-import com.shinemo.mpush.tools.zk.PathEnum;
+import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ZkUtil;
-import com.shinemo.mpush.tools.zk.listener.CallBack;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
 
 /**
  * 注册的应用的发生变化
  */
-public class RedisPathListener implements CallBack {
-
+public class RedisPathListener implements TreeCacheListener {
     private static final Logger log = LoggerFactory.getLogger(RedisPathListener.class);
 
     @Override
-    public void handler(CuratorFramework client, TreeCacheEvent event, String path) {
+    public void childEvent(CuratorFramework curatorFramework, TreeCacheEvent event) throws Exception {
         String data = "";
         if (event.getData() != null) {
             data = ToStringBuilder.reflectionToString(event.getData(), ToStringStyle.MULTI_LINE_STYLE);
@@ -42,11 +40,10 @@ public class RedisPathListener implements CallBack {
         } else if (Type.NODE_UPDATED == event.getType()) {
             dataAddOrUpdate(event.getData());
         } else {
-            log.warn("ConnectionPathListener other path:" + path + "," + event.getType().name() + "," + data);
+            log.warn("ConnPathListener other path:" + data + "," + event.getType().name() + "," + data);
         }
     }
 
-    @Override
     public void initData(ServerManage manage) {
         log.warn("start init redis data");
         _initData();
@@ -55,7 +52,7 @@ public class RedisPathListener implements CallBack {
 
     private void _initData() {
         //获取redis列表
-        List<RedisGroup> group = getRedisGroup(PathEnum.REDIS_SERVER.getPathByIp(InetAddressUtil.getInetAddress()));
+        List<RedisGroup> group = getRedisGroup(ZKPath.REDIS_SERVER.getPath());
         RedisGroupManage.instance.init(group);
     }
 

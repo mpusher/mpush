@@ -136,16 +136,17 @@ public class ClientChannelHandler extends ChannelHandlerAdapter {
                 LOGGER.info("fast connect success, message=" + message);
             } else if (command == Command.KICK) {
                 KickUserMessage message = new KickUserMessage(packet, connection);
-                LOGGER.error("receive kick user userId={},deviceId={}, message={},", userId);
-                if (!message.deviceId.equals(deviceId)) {
-                    ctx.close();
-                }
+                LOGGER.error("receive kick user userId={}, deviceId={}, message={},", userId, deviceId, message);
+                ctx.close();
             } else if (command == Command.ERROR) {
                 ErrorMessage errorMessage = new ErrorMessage(packet, connection);
                 LOGGER.error("receive an error packet=" + errorMessage);
             } else if (command == Command.BIND) {
                 OkMessage okMessage = new OkMessage(packet, connection);
                 LOGGER.info("receive an success packet=" + okMessage);
+            } else if (command == Command.PUSH) {
+                PushMessage message = new PushMessage(packet, connection);
+                LOGGER.info("receive an push message, content=" + message.content);
             }
         }
     }

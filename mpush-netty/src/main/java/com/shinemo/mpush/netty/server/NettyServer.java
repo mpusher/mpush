@@ -42,8 +42,8 @@ public abstract class NettyServer implements Server {
     public void stop(Listener listener) {
         LOGGER.info("netty server stop now");
         this.startFlag.set(false);
-        if (workerGroup != null) workerGroup.shutdownGracefully();
-        if (bossGroup != null) bossGroup.shutdownGracefully();
+        if (workerGroup != null) workerGroup.shutdownGracefully().syncUninterruptibly();
+        if (bossGroup != null) bossGroup.shutdownGracefully().syncUninterruptibly();
     }
 
     @Override

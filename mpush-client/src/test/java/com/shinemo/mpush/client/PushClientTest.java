@@ -18,10 +18,10 @@ public class PushClientTest {
 
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws Exception {
         PushClient client = new PushClient();
         client.init();
-        Thread.sleep(5000);
+        Thread.sleep(1000);
         client.send("this a first push", Arrays.asList("user-0", "user-1", "user-2", "user-3", "user-4"),
                 new PushSender.Callback() {
                     @Override

@@ -83,6 +83,7 @@ public class PushRequest implements PushSender.Callback, Runnable {
     }
 
     private void submit(int status) {
+        if (this.status != 0) return;
         this.status = status;
         if (sessionId > 0) PushRequestBus.INSTANCE.remove(sessionId);
         if (callback != null) {
@@ -97,12 +98,16 @@ public class PushRequest implements PushSender.Callback, Runnable {
         switch (status) {
             case 1:
                 callback.onSuccess(userId);
+                break;
             case 2:
                 callback.onFailure(userId);
+                break;
             case 3:
                 callback.onOffline(userId);
+                break;
             case 4:
                 callback.onTimeout(userId);
+                break;
         }
     }
 
@@ -132,6 +137,7 @@ public class PushRequest implements PushSender.Callback, Runnable {
     }
 
     public void redirect() {
+        this.status = 0;
         this.timeout_ = timeout + System.currentTimeMillis();
         ConnectionRouterManager.INSTANCE.invalidateLocalCache(userId);
         sendToConnectionServer();

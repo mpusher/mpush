@@ -10,10 +10,11 @@ import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.redis.RedisNode;
 import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
-import com.shinemo.mpush.tools.zk.PathEnum;
+import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZkUtil;
-import com.shinemo.mpush.tools.zk.manage.ServerManage;
+import com.shinemo.mpush.tools.zk.listener.impl.RedisPathListener;
+import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,12 +27,25 @@ import java.util.List;
 public final class App {
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
     private static final App APP = new App();
+    private ConnectionServer connectionServer;
+    private GatewayServer gatewayServer;
 
     public static void main(String[] args) throws Exception {
         LOGGER.error("mpush app start begin....");
         APP.init();
+        APP.initRedisClient();
         APP.startConnectionServer();
         APP.startGatewayServer();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                if (APP.connectionServer != null) {
+                    APP.connectionServer.stop(null);
+                }
+                if (APP.gatewayServer != null) {
+                    APP.gatewayServer.stop(null);
+                }
+            }
+        });
         LOGGER.error("mpush app start end....");
     }
 
@@ -50,7 +64,7 @@ public final class App {
                 server.start(new Server.Listener() {
                     @Override
                     public void onSuccess() {
-                        registerServerToZK(port, PathEnum.CONNECTION_SERVER);
+                        registerServerToZK(port, ZKPath.CONNECTION_SERVER);
                         LOGGER.error("mpush app start connection server success....");
                     }
 
@@ -60,6 +74,7 @@ public final class App {
                         System.exit(-1);
                     }
                 });
+                APP.connectionServer = server;
             }
         }, "conn-server", false).start();
     }
@@ -74,7 +89,7 @@ public final class App {
                 server.start(new Server.Listener() {
                     @Override
                     public void onSuccess() {
-                        registerServerToZK(port, PathEnum.GATEWAY_SERVER);
+                        registerServerToZK(port, ZKPath.GATEWAY_SERVER);
                         LOGGER.error("mpush app start gateway server success....");
                     }
 
@@ -84,25 +99,28 @@ public final class App {
                         LOGGER.error("mpush app start gateway server failure, jvm exit with code -2");
                     }
                 });
+                APP.gatewayServer = server;
             }
         }, "gateway-server", false).start();
     }
 
-    private void registerServerToZK(int port, PathEnum path) {
+    private void registerServerToZK(int port, ZKPath path) {
         ServerApp app = new ServerApp(InetAddressUtil.getInetAddress(), port);
-        ServerManage manage = new ServerManage(app, path);
-        manage.start();
+        ZkUtil.instance.registerEphemeralSequential(path.getWatchPath(), Jsons.toJson(app));
         LOGGER.error("mpush app register server:{} to zk success", port);
     }
 
-    public void startRedisClient() {
-        RedisNode node1 = new RedisNode("10.1.20.74", 6379, "ShineMoIpo");
-
-        RedisGroup group1 = new RedisGroup();
-        group1.addRedisNode(node1);
-
-        List<RedisGroup> groupList = Lists.newArrayList(group1);
-        ZkUtil.instance.registerPersist(PathEnum.REDIS_SERVER.getPathByIp(InetAddressUtil.getInetAddress())
-                , Jsons.toJson(groupList));
+    public void initRedisClient() throws Exception {
+        Stat stat = ZkUtil.instance.getClient().checkExists().forPath(ZKPath.REDIS_SERVER.getPath());
+        if (stat == null) {
+            RedisNode node1 = new RedisNode("10.1.20.74", 6379, "ShineMoIpo");
+            RedisGroup group1 = new RedisGroup();
+            group1.addRedisNode(node1);
+            List<RedisGroup> groupList = Lists.newArrayList(group1);
+            ZkUtil.instance.registerPersist(ZKPath.REDIS_SERVER.getPath(), Jsons.toJson(groupList));
+        }
+        RedisPathListener listener = new RedisPathListener();
+        ZkUtil.instance.getCache().getListenable().addListener(listener);
+        listener.initData(null);
     }
 }

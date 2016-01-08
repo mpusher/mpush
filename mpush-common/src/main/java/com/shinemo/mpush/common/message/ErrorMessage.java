@@ -39,7 +39,7 @@ public final class ErrorMessage extends ByteBufMessage {
     }
 
     public static ErrorMessage from(BaseMessage src) {
-        return new ErrorMessage(new Packet(Command.ERROR.cmd
+        return new ErrorMessage(src.packet.cmd, new Packet(Command.ERROR.cmd
                 , src.packet.sessionId), src.connection);
     }
 

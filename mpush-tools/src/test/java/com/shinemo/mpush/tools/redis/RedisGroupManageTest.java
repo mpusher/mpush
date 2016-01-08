@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.shinemo.mpush.tools.redis.listener.MessageListener;
 
-import com.shinemo.mpush.tools.zk.PathEnum;
+import com.shinemo.mpush.tools.zk.ZKPath;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Before;
@@ -21,7 +21,7 @@ import com.shinemo.mpush.tools.zk.manage.ServerManage;
 public class RedisGroupManageTest {
 
     ServerApp app = new ServerApp(InetAddressUtil.getInetAddress(), 3000);
-    ServerManage manage = new ServerManage(app, PathEnum.REDIS_SERVER);
+    ServerManage manage = new ServerManage(app, ZKPath.REDIS_SERVER);
     List<RedisGroup> groupList = null;
 
     RedisNode node = new RedisNode("127.0.0.1", 6379, "ShineMoIpo");

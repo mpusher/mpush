@@ -12,12 +12,12 @@ public class RemoteRouterManager implements RouterManager<RemoteRouter> {
     public static final Logger LOGGER = LoggerFactory.getLogger(RemoteRouterManager.class);
 
     @Override
-    public RemoteRouter register(String userId, RemoteRouter route) {
+    public RemoteRouter register(String userId, RemoteRouter router) {
         RemoteRouter old = RedisManage.get(userId, RemoteRouter.class);
         if (old != null) {
             RedisManage.del(userId);
         }
-        RedisManage.set(userId, route);
+        RedisManage.set(userId, router);
         return old;
     }
 

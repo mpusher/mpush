@@ -6,12 +6,14 @@ import com.shinemo.mpush.netty.client.NettyClientFactory;
 import com.shinemo.mpush.tools.ConfigCenter;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.Strings;
-import com.shinemo.mpush.tools.zk.PathEnum;
+import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,13 +26,24 @@ public class NettyClientTest {
         ConfigCenter.INSTANCE.init();
     }
 
+    private List<ServerApp> getAllServers() {
+        List<String> list = ZkUtil.instance.getChildrenKeys(ZKPath.CONNECTION_SERVER.getPath());
+        if (list == null || list.isEmpty()) return Collections.EMPTY_LIST;
+        List<ServerApp> servers = new ArrayList<>();
+        for (String name : list) {
+            String json = ZkUtil.instance.get(ZKPath.CONNECTION_SERVER.getFullPath(name));
+            if (Strings.isBlank(json)) continue;
+            ServerApp server = Jsons.fromJson(json, ServerApp.class);
+            if (server != null) servers.add(server);
+        }
+        return servers;
+    }
+
     public void testClient() throws Exception {
-        List<String> hosts = ZkUtil.instance.getChildrenKeys(PathEnum.CONNECTION_SERVER.getPath());
-        if (hosts == null || hosts.isEmpty()) return;
-        int index = (int) ((Math.random() % hosts.size()) * hosts.size());
-        String name = hosts.get(index);
-        String json = ZkUtil.instance.get(PathEnum.CONNECTION_SERVER.getPathByName(name));
-        ServerApp server = Jsons.fromJson(json, ServerApp.class);
+        List<ServerApp> serverApps = getAllServers();
+        if (serverApps == null || serverApps.isEmpty()) return;
+        int index = (int) ((Math.random() % serverApps.size()) * serverApps.size());
+        ServerApp server = serverApps.get(index);
         ClientChannelHandler handler = new ClientChannelHandler();
         final Client client = NettyClientFactory.INSTANCE.createGet(server.getIp(), server.getPort(), handler);
         client.init();
