@@ -24,7 +24,9 @@ public abstract class ByteBufMessage extends BaseMessage {
     public byte[] encode() {
         ByteBuf body = Unpooled.buffer();
         encode(body);
-        return body.array();
+        byte[] bytes = new byte[body.readableBytes()];
+        body.readBytes(bytes);
+        return bytes;
     }
 
     public abstract void decode(ByteBuf body);
