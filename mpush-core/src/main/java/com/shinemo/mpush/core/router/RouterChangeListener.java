@@ -13,7 +13,6 @@ import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.redis.listener.MessageListener;
 import com.shinemo.mpush.tools.redis.manage.RedisManage;
-import com.shinemo.mpush.tools.redis.pubsub.Subscriber;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
@@ -62,18 +61,24 @@ public class RouterChangeListener implements MessageListener {
 
     public void kickRemote(String userId, RemoteRouter router) {
         ClientLocation location = router.getRouteValue();
+        //如果是本机直接忽略
         if (location.getHost().equals(MPushUtil.getLocalIp())) {
             LOGGER.error("kick remote user but router in local, userId={}", userId);
             return;
         }
         KickRemoteMsg msg = new KickRemoteMsg();
         msg.deviceId = location.getDeviceId();
-        msg.srcServer = location.getHost();
+        msg.targetServer = location.getHost();
         msg.userId = userId;
         RedisManage.publish(KICK_CHANNEL, msg);
     }
 
     public void onReceiveKickRemoteMsg(KickRemoteMsg msg) {
+        //如果目标不是本机，直接忽略
+        if (!msg.targetServer.equals(MPushUtil.getLocalIp())) {
+            LOGGER.error("receive kick remote msg, target server error, localIp={}, msg={}", MPushUtil.getLocalIp(), msg);
+            return;
+        }
         String userId = msg.userId;
         LocalRouterManager routerManager = RouterCenter.INSTANCE.getLocalRouterManager();
         LocalRouter router = routerManager.lookup(userId);
