@@ -12,6 +12,10 @@ public class PushMessage extends BaseMessage {
 
     public String content;
 
+    public PushMessage(Packet packet, Connection connection) {
+        super(packet, connection);
+    }
+
     public PushMessage(String content, Connection connection) {
         super(new Packet(Command.PUSH.cmd, genSessionId()), connection);
         this.content = content;

@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.tools.Jsons;
-import com.shinemo.mpush.tools.zk.PathEnum;
+import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZkUtil;
 import com.shinemo.mpush.tools.zk.listener.CallBack;
@@ -27,11 +27,11 @@ public class ServerManage {
     private final AtomicBoolean startFlag = new AtomicBoolean(false);
 
     private final ServerApp app;
-    private final PathEnum path;
+    private final ZKPath path;
 
     private ListenerDispatcher dispatcher;
 
-    public ServerManage(ServerApp app, PathEnum path) {
+    public ServerManage(ServerApp app, ZKPath path) {
         this.app = app;
         this.path = path;
     }
@@ -59,11 +59,11 @@ public class ServerManage {
     }
 
     private void registerApp() {
-        zkUtil.registerEphemeralSequential(path.getPathByIp(app.getIp()), Jsons.toJson(app));
+        zkUtil.registerEphemeralSequential(path.getPath(), Jsons.toJson(app));
     }
 
     public void unregisterApp() {
-        zkUtil.remove(path.getPathByIp(app.getIp()));
+        zkUtil.remove(path.getPath());
     }
 
     // 注册连接状态监听器

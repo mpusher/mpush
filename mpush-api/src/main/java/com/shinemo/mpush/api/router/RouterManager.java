@@ -9,10 +9,10 @@ public interface RouterManager<R extends Router> {
      * 注册路由
      *
      * @param userId
-     * @param route
+     * @param router
      * @return
      */
-    R register(String userId, R route);
+    R register(String userId, R router);
 
     /**
      * 删除路由

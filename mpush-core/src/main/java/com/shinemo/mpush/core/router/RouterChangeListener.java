@@ -42,7 +42,7 @@ public class RouterChangeListener implements MessageListener {
         }
     }
 
-    public void kickLocal(final String userId, LocalRouter router) {
+    public void kickLocal(final String userId, final LocalRouter router) {
         Connection connection = router.getRouteValue();
         SessionContext context = connection.getSessionContext();
         KickUserMessage message = new KickUserMessage(connection);
@@ -52,9 +52,9 @@ public class RouterChangeListener implements MessageListener {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (future.isSuccess()) {
-                    LOGGER.info("kick local connection success, userId={}", userId);
+                    LOGGER.info("kick local connection success, userId={}, router={}", userId, router);
                 } else {
-                    LOGGER.error("kick local connection failure, userId={}", userId);
+                    LOGGER.error("kick local connection failure, userId={}, router={}", userId, router);
                 }
             }
         });

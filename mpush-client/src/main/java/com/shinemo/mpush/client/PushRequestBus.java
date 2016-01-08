@@ -13,7 +13,7 @@ public class PushRequestBus implements Runnable {
     private ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();//test
 
     public PushRequestBus() {
-        scheduledExecutor.scheduleAtFixedRate(this, 1, 3, TimeUnit.SECONDS);
+        scheduledExecutor.scheduleAtFixedRate(this, 3, 3, TimeUnit.SECONDS);
     }
 
     public void add(PushRequest request) {

@@ -15,8 +15,9 @@ public class LocalRouterManager implements RouterManager<LocalRouter> {
     private final Map<String, LocalRouter> routerMap = new ConcurrentHashMap<>();
 
     @Override
-    public LocalRouter register(String userId, LocalRouter route) {
-        return routerMap.put(userId, route);
+    public LocalRouter register(String userId, LocalRouter router) {
+        LOGGER.debug("register local router success userId={}, router={}", userId, router);
+        return routerMap.put(userId, router);
     }
 
     @Override
@@ -28,6 +29,8 @@ public class LocalRouterManager implements RouterManager<LocalRouter> {
 
     @Override
     public LocalRouter lookup(String userId) {
-        return routerMap.get(userId);
+        LocalRouter router = routerMap.get(userId);
+        LOGGER.debug("lookup local router userId={}, router={}", userId, router);
+        return router;
     }
 }
