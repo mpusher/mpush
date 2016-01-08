@@ -41,6 +41,12 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
         } else if (router.getRouteType() == Router.RouterType.LOCAL) {
             //2.如果是本地路由信息，说明用户链接在当前机器，直接把消息下发到客户端
             Connection connection = (Connection) router.getRouteValue();
+            if (!connection.isConnected()) {
+                RouterCenter.INSTANCE.getLocalRouterManager().unRegister(message.userId);
+                handle(message);//递归在试一次，看用户是否登陆在远程
+                LOGGER.info("gateway push, router in local but disconnect userId={}, connection={}", message.userId, connection);
+                return;
+            }
             PushMessage pushMessage = new PushMessage(message.content, connection);
             pushMessage.send(new ChannelFutureListener() {
                 @Override
