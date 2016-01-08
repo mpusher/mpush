@@ -30,15 +30,18 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             LOGGER.error("bind user failure invalid param, session={}", message.getConnection().getSessionContext());
             return;
         }
+        //1.绑定用户时先看下是否握手成功
         SessionContext context = message.getConnection().getSessionContext();
         if (context.handshakeOk()) {
+            //2.如果握手成功，就把用户链接信息注册到路由中心，本地和远程各一份
             boolean success = RouterCenter.INSTANCE.register(message.userId, message.getConnection());
             if (success) {
                 OkMessage.from(message).setData("bind success").send();
                 LOGGER.warn("bind user success, userId={}, session={}", message.userId, context);
             } else {
-                ErrorMessage.from(message).setReason("bind failed").close();
+                //3.注册失败再处理下，防止本地注册成功，远程注册失败的情况，只有都成功了才叫成功
                 RouterCenter.INSTANCE.unRegister(message.userId);
+                ErrorMessage.from(message).setReason("bind failed").close();
                 LOGGER.error("bind user failure, register router failure, userId={}, session={}", message.userId, context);
             }
         } else {

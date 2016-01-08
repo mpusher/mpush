@@ -15,7 +15,7 @@ import java.util.List;
  * Created by ohun on 2015/12/19.
  * length(4)+cmd(1)+cc(2)+flags(1)+sessionId(4)+lrc(1)+body(n)
  */
-public class PacketDecoder extends ByteToMessageDecoder {
+public final class PacketDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {

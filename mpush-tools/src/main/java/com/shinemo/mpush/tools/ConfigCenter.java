@@ -14,6 +14,7 @@ public final class ConfigCenter {
     private int minHeartbeat = 1000 * 10;//10s
     private int maxHeartbeat = 1000 * 60 * 30;//30min
     private int maxHBTimeoutTimes = 2;
+    private int sessionExpiredTime = 86400;//unit second
     private int rasKeyLength = 1024;
     private int aesKeyLength = 16;
     private int connectionServerPort = 3000;
@@ -39,6 +40,7 @@ public final class ConfigCenter {
         minHeartbeat = getInt("MIN_HEARTBEAT", minHeartbeat);
         maxHeartbeat = getInt("MAX_HEARTBEAT", maxHeartbeat);
         maxHBTimeoutTimes = getInt("MAX_HB_TIMEOUT_TIMES", maxHBTimeoutTimes);
+        sessionExpiredTime = getInt("SESSION_EXPIRED_TIME", sessionExpiredTime);
         rasKeyLength = getInt("RAS_KEY_LENGTH", rasKeyLength);
         aesKeyLength = getInt("AES_KEY_LENGTH", aesKeyLength);
         maxPacketSize = getInt("MAX_PACKET_SIZE", maxPacketSize);
@@ -81,6 +83,10 @@ public final class ConfigCenter {
 
     public int getMaxHBTimeoutTimes() {
         return maxHBTimeoutTimes;
+    }
+
+    public int getSessionExpiredTime() {
+        return sessionExpiredTime;
     }
 
     public int getRasKeyLength() {

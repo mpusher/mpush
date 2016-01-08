@@ -5,7 +5,7 @@ import com.shinemo.mpush.api.Server;
 import com.shinemo.mpush.core.server.ConnectionServer;
 import com.shinemo.mpush.core.server.GatewayServer;
 import com.shinemo.mpush.tools.ConfigCenter;
-import com.shinemo.mpush.tools.InetAddressUtil;
+import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.redis.RedisNode;
@@ -105,7 +105,7 @@ public final class App {
     }
 
     private void registerServerToZK(int port, ZKPath path) {
-        ServerApp app = new ServerApp(InetAddressUtil.getInetAddress(), port);
+        ServerApp app = new ServerApp(MPushUtil.getLocalIp(), port);
         ZkUtil.instance.registerEphemeralSequential(path.getWatchPath(), Jsons.toJson(app));
         LOGGER.error("mpush app register server:{} to zk success", port);
     }

@@ -6,7 +6,7 @@ import com.shinemo.mpush.api.router.ClientLocation;
 /**
  * Created by ohun on 2015/12/23.
  */
-public class RemoteRouter implements Router<ClientLocation> {
+public final class RemoteRouter implements Router<ClientLocation> {
     private final ClientLocation clientLocation;
 
     public RemoteRouter(ClientLocation clientLocation) {

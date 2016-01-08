@@ -6,7 +6,7 @@ import com.shinemo.mpush.api.router.Router;
 /**
  * Created by ohun on 2015/12/23.
  */
-public class LocalRouter implements Router<Connection> {
+public final class LocalRouter implements Router<Connection> {
     private final Connection connection;
 
     public LocalRouter(Connection connection) {

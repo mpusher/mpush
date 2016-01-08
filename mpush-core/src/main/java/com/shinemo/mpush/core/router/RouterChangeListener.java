@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ohun on 2016/1/4.
  */
-public class RouterChangeListener implements MessageListener {
+public final class RouterChangeListener implements MessageListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(RouterChangeListener.class);
     public static final String KICK_CHANNEL = "__kick__";
 

@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 import com.shinemo.mpush.tools.Constants;
-import com.shinemo.mpush.tools.InetAddressUtil;
+import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.redis.RedisNode;
@@ -92,13 +92,13 @@ public class ZkUtilTest {
 
     @Test
     public void testLocalIp() {
-        System.out.println(InetAddressUtil.getInetAddress());
+        System.out.println(MPushUtil.getLocalIp());
 
     }
 
     @Test
     public void testRegisterIp() {
-        String localIp = InetAddressUtil.getInetAddress();
+        String localIp = MPushUtil.getInetAddress();
         ServerApp app = new ServerApp(localIp, 3000);
         zkUtil.registerPersist("/" + localIp, Jsons.toJson(app));
         String value = zkUtil.get("/" + localIp);
@@ -112,7 +112,7 @@ public class ZkUtilTest {
 
     @Test
     public void testAddKickOff() {
-        String localIp = InetAddressUtil.getInetAddress();
+        String localIp = MPushUtil.getInetAddress();
         String kick = Constants.ZK_KICK;
         String ip = "10.1.10.65";
         zkUtil.registerEphemeral("/" + localIp + "/" + kick, ip);
