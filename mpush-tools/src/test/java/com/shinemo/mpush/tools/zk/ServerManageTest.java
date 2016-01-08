@@ -8,14 +8,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.shinemo.mpush.tools.InetAddressUtil;
+import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
 
 public class ServerManageTest {
 
     private static Executor executor = Executors.newCachedThreadPool();
 
-    private ServerApp app = new ServerApp(InetAddressUtil.getInetAddress(), 3000);
+    private ServerApp app = new ServerApp(MPushUtil.getLocalIp(), 3000);
 
     private ServerManage manage = new ServerManage(app, ZKPath.CONNECTION_SERVER);
 

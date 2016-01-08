@@ -74,12 +74,14 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
         //7.更换会话密钥AES(clientKey)=>AES(sessionKey)
         context.changeCipher(new AesCipher(sessionKey, iv));
 
-        //8.保存client信息
+        //8.保存client信息到当前连接
         context.setOsName(message.osName)
                 .setOsVersion(message.osVersion)
                 .setClientVersion(message.clientVersion)
                 .setDeviceId(message.deviceId)
                 .setHeartbeat(heartbeat);
+
+        //9.保存可复用session到Redis, 用于快速重连
         ReusableSessionManager.INSTANCE.cacheSession(session);
 
         //9.触发握手成功事件

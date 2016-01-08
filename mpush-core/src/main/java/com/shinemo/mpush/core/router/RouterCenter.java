@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ohun on 2015/12/23.
  */
-public class RouterCenter {
+public final class RouterCenter {
     public static final Logger LOGGER = LoggerFactory.getLogger(RouterCenter.class);
     public static final RouterCenter INSTANCE = new RouterCenter();
 
@@ -30,10 +30,13 @@ public class RouterCenter {
      * @return
      */
     public boolean register(String userId, Connection connection) {
-        ClientLocation connConfig = ClientLocation.from(connection.getSessionContext());
-        connConfig.setHost(MPushUtil.getLocalIp());
+        ClientLocation location = ClientLocation
+                .from(connection.getSessionContext())
+                .setHost(MPushUtil.getLocalIp());
+
         LocalRouter localRouter = new LocalRouter(connection);
-        RemoteRouter remoteRouter = new RemoteRouter(connConfig);
+        RemoteRouter remoteRouter = new RemoteRouter(location);
+
         LocalRouter oldLocalRouter = null;
         RemoteRouter oldRemoteRouter = null;
         try {

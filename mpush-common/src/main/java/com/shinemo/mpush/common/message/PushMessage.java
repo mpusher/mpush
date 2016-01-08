@@ -8,7 +8,7 @@ import com.shinemo.mpush.api.protocol.Packet;
 /**
  * Created by ohun on 2015/12/30.
  */
-public class PushMessage extends BaseMessage {
+public final class PushMessage extends BaseMessage {
 
     public String content;
 

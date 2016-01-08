@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by ohun on 2015/12/23.
  */
-public class LocalRouterManager implements RouterManager<LocalRouter> {
+public final class LocalRouterManager implements RouterManager<LocalRouter> {
     public static final Logger LOGGER = LoggerFactory.getLogger(LocalRouterManager.class);
     private final Map<String, LocalRouter> routerMap = new ConcurrentHashMap<>();
 

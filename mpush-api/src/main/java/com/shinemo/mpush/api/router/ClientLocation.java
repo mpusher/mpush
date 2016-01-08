@@ -21,28 +21,32 @@ public final class ClientLocation {
         return this;
     }
 
+
+    public String getHost() {
+        return host;
+    }
+
+    public ClientLocation setHost(String host) {
+        this.host = host;
+        return this;
+    }
+
     public String getOsName() {
         return osName;
     }
 
-    public void setOsName(String osName) {
+    public ClientLocation setOsName(String osName) {
         this.osName = osName;
+        return this;
     }
 
     public String getClientVersion() {
         return clientVersion;
     }
 
-    public void setClientVersion(String clientVersion) {
+    public ClientLocation setClientVersion(String clientVersion) {
         this.clientVersion = clientVersion;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
+        return this;
     }
 
     public static ClientLocation from(SessionContext context) {

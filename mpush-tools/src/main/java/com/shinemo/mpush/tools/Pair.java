@@ -3,7 +3,7 @@ package com.shinemo.mpush.tools;
 /**
  * Created by ohun on 2015/12/24.
  */
-public class Pair<K, V> {
+public final class Pair<K, V> {
     public final K key;
     public final V value;
 

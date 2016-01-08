@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Created by ohun on 2015/12/22.
  */
-public class MessageDispatcher implements PacketReceiver {
+public final class MessageDispatcher implements PacketReceiver {
     public static final Logger LOGGER = LoggerFactory.getLogger(MessageDispatcher.class);
     private final Map<Byte, MessageHandler> handlers = new HashMap<>();
 
