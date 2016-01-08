@@ -6,14 +6,14 @@ package com.shinemo.mpush.core.router;
 public class KickRemoteMsg {
     public String userId;
     public String deviceId;
-    public String srcServer;
+    public String targetServer;
 
     @Override
     public String toString() {
         return "KickRemoteMsg{" +
                 "userId='" + userId + '\'' +
                 ", deviceId='" + deviceId + '\'' +
-                ", srcServer='" + srcServer + '\'' +
+                ", targetServer='" + targetServer + '\'' +
                 '}';
     }
 }
