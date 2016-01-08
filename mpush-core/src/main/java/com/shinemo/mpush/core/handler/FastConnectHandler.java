@@ -27,22 +27,33 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
     @Override
     public void handle(FastConnectMessage message) {
         ReusableSession session = ReusableSessionManager.INSTANCE.getSession(message.sessionId);
+
         if (session == null) {
-            ErrorMessage.from(message).setReason("session expire").send();
+
+            ErrorMessage.from(message).setReason("session expired").send();
+
             LOGGER.warn("fast connect failure, session is expired, sessionId={}, deviceId={}", message.sessionId, message.deviceId);
+
         } else if (!session.context.deviceId.equals(message.deviceId)) {
-            ErrorMessage.from(message).setReason("error device").send();
-            LOGGER.warn("fast connect failure, not same device, deviceId={}, session={}", message.deviceId, session.context);
+
+            ErrorMessage.from(message).setReason("invalid device").send();
+
+            LOGGER.warn("fast connect failure, not the same device, deviceId={}, session={}", message.deviceId, session.context);
+
         } else {
+
             int heartbeat = MPushUtil.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
+
             session.context.setHeartbeat(heartbeat);
             message.getConnection().setSessionContext(session.context);
+
             FastConnectOkMessage
                     .from(message)
                     .setServerHost(MPushUtil.getLocalIp())
                     .setServerTime(System.currentTimeMillis())
                     .setHeartbeat(heartbeat)
                     .send();
+
             LOGGER.warn("fast connect success, session={}", message.deviceId, session.context);
         }
     }
