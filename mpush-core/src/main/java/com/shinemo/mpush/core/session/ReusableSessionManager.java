@@ -14,20 +14,14 @@ public final class ReusableSessionManager {
     private int expiredTime = ConfigCenter.INSTANCE.getSessionExpiredTime();
 
     public boolean cacheSession(ReusableSession session) {
-        RedisManage.set(session.sessionId, session.encode(), expiredTime);
+        RedisManage.set(session.sessionId, ReusableSession.encode(session.context), expiredTime);
         return true;
     }
 
     public ReusableSession getSession(String sessionId) {
         String value = RedisManage.get(sessionId, String.class);
         if (Strings.isBlank(value)) return null;
-        ReusableSession session = new ReusableSession();
-        try {
-            session.decode(value);
-        } catch (Exception e) {
-            return null;
-        }
-        return session;
+        return ReusableSession.decode(value);
     }
 
     public ReusableSession genSession(SessionContext context) {

@@ -13,7 +13,7 @@ public final class ReusableSession {
     public long expireTime;
     public SessionContext context;
 
-    public String encode() {
+    public static String encode(SessionContext context) {
         StringBuffer sb = new StringBuffer();
         sb.append(context.osName).append(',');
         sb.append(context.osVersion).append(',');
@@ -23,9 +23,9 @@ public final class ReusableSession {
         return sb.toString();
     }
 
-    public void decode(String value) throws Exception {
+    public static ReusableSession decode(String value) {
         String[] array = value.split(",");
-        if (array.length != 6) throw new RuntimeException("decode session exception");
+        if (array.length != 6) return null;
         SessionContext context = new SessionContext();
         context.osName = array[0];
         context.osVersion = array[1];
@@ -33,7 +33,10 @@ public final class ReusableSession {
         context.deviceId = array[3];
         byte[] key = AesCipher.toArray(array[4]);
         byte[] iv = AesCipher.toArray(array[5]);
+        if (key == null || iv == null) return null;
         context.cipher = new AesCipher(key, iv);
-        this.context = context;
+        ReusableSession session = new ReusableSession();
+        session.context = context;
+        return session;
     }
 }

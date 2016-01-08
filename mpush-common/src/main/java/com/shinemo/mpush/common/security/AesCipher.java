@@ -1,5 +1,6 @@
 package com.shinemo.mpush.common.security;
 
+import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.connection.Cipher;
 import com.shinemo.mpush.tools.crypto.AESUtils;
 
@@ -44,7 +45,7 @@ public final class AesCipher implements Cipher {
     public static byte[] toArray(String str) {
         String[] a = str.split("\\|");
         if (a.length != CipherBox.INSTANCE.getAesKeyLength()) {
-            throw new RuntimeException("decode cipher ex key length invalid");
+            return null;
         }
         byte[] bytes = new byte[a.length];
         for (int i = 0; i < a.length; i++) {
