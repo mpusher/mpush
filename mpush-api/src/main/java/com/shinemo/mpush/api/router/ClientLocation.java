@@ -6,9 +6,25 @@ import com.shinemo.mpush.api.connection.SessionContext;
  * Created by ohun on 2015/12/23.
  */
 public final class ClientLocation {
+
+    /**
+     * 长链接所在的机器IP
+     */
     private String host;
+
+    /**
+     * 客户端系统类型
+     */
     private String osName;
+
+    /**
+     * 客户端版本
+     */
     private String clientVersion;
+
+    /**
+     * 客户端设备ID
+     */
     private String deviceId;
 
 
