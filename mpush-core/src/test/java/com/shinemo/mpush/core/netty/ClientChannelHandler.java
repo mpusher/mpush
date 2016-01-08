@@ -120,7 +120,7 @@ public class ClientChannelHandler extends ChannelHandlerAdapter {
                 byte[] sessionKey = CipherBox.INSTANCE.mixKey(clientKey, message.serverKey);
                 connection.getSessionContext().changeCipher(new AesCipher(sessionKey, iv));
                 startHeartBeat(message.heartbeat, ctx.channel());
-                LOGGER.info("会话密钥：{}，clientKey={}, serverKey={}", sessionKey, clientKey, message.serverKey);
+                LOGGER.info("会话密钥：{}，message={}", sessionKey, message);
                 saveToken(message, connection.getSessionContext());
                 bindUser();
             } else if (command == Command.FAST_CONNECT) {
