@@ -65,7 +65,6 @@ public class PushClient implements PushSender {
     @Override
     public void send(String content, Collection<String> userIds, Callback callback) {
         for (String userId : userIds) {
-            System.out.println(userId);
             PushRequest
                     .build(this)
                     .setCallback(callback)
