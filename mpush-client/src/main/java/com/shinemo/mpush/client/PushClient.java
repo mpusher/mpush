@@ -5,7 +5,6 @@ import com.shinemo.mpush.api.Client;
 import com.shinemo.mpush.api.PushSender;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.netty.client.NettyClient;
-import com.shinemo.mpush.netty.client.NettyClientFactory;
 import com.shinemo.mpush.tools.ConfigCenter;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
@@ -26,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PushClient implements PushSender {
 
     private int defaultTimeout = 3000;
-    private int port = 4000;
     private final Map<String, Client> clientMap = new ConcurrentHashMap<>();
     private final Map<String, ServerApp> servers = new ConcurrentHashMap<>();
 
@@ -44,7 +42,7 @@ public class PushClient implements PushSender {
     private void createClient(final String ip, int port) {
         Client client = clientMap.get(ip);
         if (client == null) {
-            final Client cli = new NettyClient(ip, port, new PushClientChannelHandler());
+            final Client cli = new NettyClient(ip, port, new GatewayClientChannelHandler());
             ThreadPoolUtil.newThread(new Runnable() {
                 @Override
                 public void run() {
@@ -59,7 +57,7 @@ public class PushClient implements PushSender {
     public Connection getConnection(String ip) {
         Client client = clientMap.get(ip);
         if (client == null) return null;
-        return ((PushClientChannelHandler) client.getHandler()).getConnection();
+        return ((GatewayClientChannelHandler) client.getHandler()).getConnection();
     }
 
     @Override

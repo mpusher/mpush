@@ -18,7 +18,7 @@ public final class ReusableSessionManager {
         return true;
     }
 
-    public ReusableSession getSession(String sessionId) {
+    public ReusableSession querySession(String sessionId) {
         String value = RedisManage.get(sessionId, String.class);
         if (Strings.isBlank(value)) return null;
         return ReusableSession.decode(value);

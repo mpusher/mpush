@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class RouterChangeListener implements MessageListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(RouterChangeListener.class);
-    public static final String KICK_CHANNEL = "__kick__";
+    public static final String KICK_CHANNEL = "/mpush/kick";
 
     public RouterChangeListener() {
         EventBus.INSTANCE.register(this);
@@ -41,6 +41,12 @@ public final class RouterChangeListener implements MessageListener {
         }
     }
 
+    /**
+     * 发送踢人消息到客户端
+     *
+     * @param userId
+     * @param router
+     */
     public void kickLocal(final String userId, final LocalRouter router) {
         Connection connection = router.getRouteValue();
         SessionContext context = connection.getSessionContext();
@@ -59,13 +65,24 @@ public final class RouterChangeListener implements MessageListener {
         });
     }
 
+    /**
+     * 广播踢人消息到消息中心（redis）.
+     * <p>
+     * 有可能目标机器是当前机器，所以要做一次过滤
+     * 如果client连续2次链接到同一台机器上就有会出现这中情况
+     *
+     * @param userId
+     * @param router
+     */
     public void kickRemote(String userId, RemoteRouter router) {
         ClientLocation location = router.getRouteValue();
-        //如果是本机直接忽略
+        //1.如果目标机器是当前机器，就不要再发送广播了，直接忽略
         if (location.getHost().equals(MPushUtil.getLocalIp())) {
             LOGGER.error("kick remote user but router in local, userId={}", userId);
             return;
         }
+
+        //2.发送广播
         KickRemoteMsg msg = new KickRemoteMsg();
         msg.deviceId = location.getDeviceId();
         msg.targetServer = location.getHost();
@@ -73,18 +90,30 @@ public final class RouterChangeListener implements MessageListener {
         RedisManage.publish(KICK_CHANNEL, msg);
     }
 
+    /**
+     * 处理远程机器发送的踢人广播.
+     * <p>
+     * 一台机器发送广播所有的机器都能收到，
+     * 包括发送广播的机器，所有要做一次过滤
+     *
+     * @param msg
+     */
     public void onReceiveKickRemoteMsg(KickRemoteMsg msg) {
-        //如果目标不是本机，直接忽略
+        //1.如果当前机器不是目标机器，直接忽略
         if (!msg.targetServer.equals(MPushUtil.getLocalIp())) {
             LOGGER.error("receive kick remote msg, target server error, localIp={}, msg={}", MPushUtil.getLocalIp(), msg);
             return;
         }
+
+        //2.查询本地路由，找到要被踢下线的链接，并删除该本地路由
         String userId = msg.userId;
         LocalRouterManager routerManager = RouterCenter.INSTANCE.getLocalRouterManager();
         LocalRouter router = routerManager.lookup(userId);
         if (router != null) {
             LOGGER.info("receive kick remote msg, msg={}", msg);
+            //2.1删除本地路由信息
             routerManager.unRegister(userId);
+            //2.2发送踢人消息到客户端
             kickLocal(userId, router);
         } else {
             LOGGER.warn("no local router find, kick failure, msg={}", msg);
