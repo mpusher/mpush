@@ -1,5 +1,6 @@
 package com.shinemo.mpush.client;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -13,15 +14,15 @@ public class PushRequestBus implements Runnable {
     private ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();//test
 
     public PushRequestBus() {
-        scheduledExecutor.scheduleAtFixedRate(this, 3, 3, TimeUnit.SECONDS);
+        scheduledExecutor.scheduleAtFixedRate(this, 1, 1, TimeUnit.SECONDS);
     }
 
-    public void add(PushRequest request) {
-        requests.put(request.getSessionId(), request);
+    public void put(int sessionId, PushRequest request) {
+        requests.put(sessionId, request);
     }
 
-    public PushRequest remove(int reqId) {
-        return requests.remove(reqId);
+    public PushRequest remove(int sessionId) {
+        return requests.remove(sessionId);
     }
 
     public Executor getExecutor() {
@@ -31,9 +32,12 @@ public class PushRequestBus implements Runnable {
     @Override
     public void run() {
         if (requests.isEmpty()) return;
-        for (PushRequest callback : requests.values()) {
-            if (callback.isTimeout()) {
-                callback.timeout();
+        Iterator<PushRequest> it = requests.values().iterator();
+        while (it.hasNext()) {
+            PushRequest request = it.next();
+            if (request.isTimeout()) {
+                it.remove();//清除超时的请求
+                request.timeout();
             }
         }
     }
