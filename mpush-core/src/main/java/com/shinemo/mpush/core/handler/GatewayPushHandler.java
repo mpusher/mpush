@@ -90,6 +90,9 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
                 //3.1如果查出的远程机器是当前机器，说明本机路由已经失效，此时说明用户已经不在线
                 ErrorMessage.from(message).setErrorCode(OFFLINE).send();
 
+                //3.2出现这种情况一般是pushClient使用了本地缓存导致的数据不一致，此时应清理下缓存
+                RouterCenter.INSTANCE.getRemoteRouterManager().unRegister(message.userId);
+
                 LOGGER.error("gateway push error remote is local, userId={}, router={}", message.userId, router);
 
                 return;

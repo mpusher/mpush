@@ -83,9 +83,10 @@ public class PushRequest implements PushSender.Callback, Runnable {
     }
 
     private void submit(int status) {
-        if (this.status != 0) return;
+        if (this.status != 0) {//防止重复调用
+            return;
+        }
         this.status = status;
-        if (sessionId > 0) PushRequestBus.INSTANCE.remove(sessionId);
         if (callback != null) {
             PushRequestBus.INSTANCE.getExecutor().execute(this);
         } else {
@@ -129,36 +130,40 @@ public class PushRequest implements PushSender.Callback, Runnable {
 
     public void offline() {
         onOffline(userId);
+        ConnectionRouterManager.INSTANCE.invalidateLocalCache(userId);
     }
 
     public void send() {
         this.timeout_ = timeout + System.currentTimeMillis();
-        sendToConnectionServer();
+        sendToConnServer();
     }
 
     public void redirect() {
         this.status = 0;
         this.timeout_ = timeout + System.currentTimeMillis();
         ConnectionRouterManager.INSTANCE.invalidateLocalCache(userId);
-        sendToConnectionServer();
+        sendToConnServer();
         LOGGER.warn("user route has changed, userId={}, content={}", userId, content);
     }
 
-    private void sendToConnectionServer() {
+    private void sendToConnServer() {
+        //1.查询用户长连接所在的机器
         RemoteRouter router = ConnectionRouterManager.INSTANCE.lookup(userId);
         if (router == null) {
+            //1.1没有查到说明用户已经下线
             this.onOffline(userId);
             return;
         }
 
+        //2.通过网关连接，把消息发送到所在机器
         ClientLocation location = router.getRouteValue();
-        Connection connection = pushClient.getConnection(location.getHost());
-        if (connection == null || !connection.isConnected()) {
+        Connection gatewayConn = pushClient.getConnection(location.getHost());
+        if (gatewayConn == null || !gatewayConn.isConnected()) {
             this.onFailure(userId);
             return;
         }
 
-        GatewayPushMessage pushMessage = new GatewayPushMessage(userId, content, connection);
+        GatewayPushMessage pushMessage = new GatewayPushMessage(userId, content, gatewayConn);
         pushMessage.send(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
@@ -170,7 +175,7 @@ public class PushRequest implements PushSender.Callback, Runnable {
             }
         });
 
-        this.sessionId = pushMessage.getSessionId();
-        PushRequestBus.INSTANCE.add(this);
+        sessionId = pushMessage.getSessionId();
+        PushRequestBus.INSTANCE.put(sessionId, this);
     }
 }
