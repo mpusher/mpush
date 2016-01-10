@@ -23,7 +23,7 @@ public final class GatewayServer extends NettyServer {
         MessageDispatcher receiver = new MessageDispatcher();
         receiver.register(Command.GATEWAY_PUSH, new GatewayPushHandler());
         NettyConnectionManager connectionManager = new NettyConnectionManager();
-        channelHandler = new ServerChannelHandler(connectionManager, receiver);
+        channelHandler = new ServerChannelHandler(false, connectionManager, receiver);
     }
 
     @Override

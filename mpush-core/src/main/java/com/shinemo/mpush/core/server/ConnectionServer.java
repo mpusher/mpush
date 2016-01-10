@@ -31,7 +31,7 @@ public final class ConnectionServer extends NettyServer {
         receiver.register(Command.FAST_CONNECT, new FastConnectHandler());
         NettyConnectionManager connectionManager = new NettyConnectionManager();
         connectionManager.init();
-        channelHandler = new ServerChannelHandler(connectionManager, receiver);
+        channelHandler = new ServerChannelHandler(true, connectionManager, receiver);
     }
 
 
