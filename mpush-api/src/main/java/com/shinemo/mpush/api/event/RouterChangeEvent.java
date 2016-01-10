@@ -5,7 +5,7 @@ import com.shinemo.mpush.api.router.Router;
 /**
  * Created by ohun on 2016/1/4.
  */
-public class RouterChangeEvent implements Event {
+public final class RouterChangeEvent implements Event {
     public final String userId;
     public final Router<?> router;
 

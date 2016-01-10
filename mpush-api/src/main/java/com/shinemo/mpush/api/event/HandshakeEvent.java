@@ -5,7 +5,7 @@ import com.shinemo.mpush.api.connection.Connection;
 /**
  * Created by ohun on 2015/12/29.
  */
-public class HandshakeEvent implements Event {
+public final class HandshakeEvent implements Event {
     public final Connection connection;
     public final int heartbeat;
 
