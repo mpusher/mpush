@@ -25,8 +25,6 @@ public interface Connection {
 
     ChannelFuture send(Packet packet, ChannelFutureListener listener);
 
-    Channel channel();
-
     String getId();
 
     ChannelFuture close();

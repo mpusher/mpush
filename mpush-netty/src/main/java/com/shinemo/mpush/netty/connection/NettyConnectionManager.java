@@ -57,7 +57,7 @@ public final class NettyConnectionManager implements ConnectionManager {
     }
 
     @Subscribe
-    public void onHandshakeOk(HandshakeEvent event) {
+    void onHandshakeOk(HandshakeEvent event) {
         HeartbeatCheckTask task = new HeartbeatCheckTask(event.heartbeat, event.connection);
         task.startTimeout();
     }

@@ -39,6 +39,8 @@ public final class RouterChangeListener implements MessageListener {
         } else {
             kickRemote(userId, (RemoteRouter) r);
         }
+
+        // TODO: 2016/1/10 publish remoter change event to redis
     }
 
     /**

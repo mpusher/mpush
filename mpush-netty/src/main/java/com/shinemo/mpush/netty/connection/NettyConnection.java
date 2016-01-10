@@ -2,7 +2,9 @@ package com.shinemo.mpush.netty.connection;
 
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.connection.SessionContext;
+import com.shinemo.mpush.api.event.ConnectionCloseEvent;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.common.EventBus;
 import com.shinemo.mpush.common.security.CipherBox;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -69,13 +71,10 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     }
 
     @Override
-    public Channel channel() {
-        return channel;
-    }
-
-    @Override
     public ChannelFuture close() {
+        if (status == STATUS_DISCONNECTED) return null;
         this.status = STATUS_DISCONNECTED;
+        EventBus.INSTANCE.post(new ConnectionCloseEvent(this));
         return this.channel.close();
     }
 
