@@ -41,12 +41,12 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         connectionManager.remove(ctx.channel());
-        LOGGER.error("caught an ex, client={}", ctx.channel(), cause);
+        LOGGER.error("caught an ex, channel={}", ctx.channel(), cause);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        LOGGER.warn("a client connect client={}", ctx.channel());
+        LOGGER.info("client connect channel={}", ctx.channel());
         Connection connection = new NettyConnection();
         connection.init(ctx.channel(), security);
         connectionManager.add(connection);
@@ -54,7 +54,7 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        LOGGER.warn("a client disconnect client={}", ctx.channel());
+        LOGGER.info("client disconnect channel={}", ctx.channel());
         connectionManager.remove(ctx.channel());
     }
 }
