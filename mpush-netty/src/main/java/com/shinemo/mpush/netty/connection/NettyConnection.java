@@ -20,7 +20,6 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
 
     private SessionContext context;
     private Channel channel;
-    private boolean security;
     private volatile int status = STATUS_NEW;
     private long lastReadTime;
     private long lastWriteTime;
@@ -28,13 +27,12 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     @Override
     public void init(Channel channel, boolean security) {
         this.channel = channel;
-        this.security = security;
         this.context = new SessionContext();
+        this.lastReadTime = System.currentTimeMillis();
+        this.status = STATUS_CONNECTED;
         if (security) {
             this.context.changeCipher(CipherBox.INSTANCE.getRsaCipher());
         }
-        this.lastReadTime = System.currentTimeMillis();
-        this.status = STATUS_CONNECTED;
     }
 
     @Override

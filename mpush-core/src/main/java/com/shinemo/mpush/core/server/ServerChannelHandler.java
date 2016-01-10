@@ -5,6 +5,7 @@ import com.shinemo.mpush.api.connection.ConnectionManager;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.PacketReceiver;
+import com.shinemo.mpush.common.security.CipherBox;
 import com.shinemo.mpush.netty.connection.NettyConnection;
 
 import io.netty.channel.ChannelHandler;
@@ -22,11 +23,15 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerChannelHandler.class);
 
+    /**
+     * 是否启用加密
+     */
+    private final boolean security;
     private final ConnectionManager connectionManager;
     private final PacketReceiver receiver;
-    private boolean security = true;
 
-    public ServerChannelHandler(ConnectionManager connectionManager, PacketReceiver receiver) {
+    public ServerChannelHandler(boolean security, ConnectionManager connectionManager, PacketReceiver receiver) {
+        this.security = security;
         this.connectionManager = connectionManager;
         this.receiver = receiver;
     }
