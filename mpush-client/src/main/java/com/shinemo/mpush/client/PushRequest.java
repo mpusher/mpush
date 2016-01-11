@@ -17,10 +17,10 @@ import org.slf4j.LoggerFactory;
 public class PushRequest implements PushSender.Callback, Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PushRequest.class);
     private PushSender.Callback callback;
+    private PushClient pushClient;
     private String userId;
     private String content;
     private long timeout;
-    private PushClient pushClient;
     private int status = 0;
     private long timeout_;
     private int sessionId;
@@ -129,8 +129,8 @@ public class PushRequest implements PushSender.Callback, Runnable {
     }
 
     public void offline() {
-        onOffline(userId);
         ConnectionRouterManager.INSTANCE.invalidateLocalCache(userId);
+        onOffline(userId);
     }
 
     public void send() {

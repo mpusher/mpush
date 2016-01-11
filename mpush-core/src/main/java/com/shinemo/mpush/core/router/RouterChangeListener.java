@@ -23,11 +23,16 @@ import org.slf4j.LoggerFactory;
  */
 public final class RouterChangeListener implements MessageListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(RouterChangeListener.class);
-    public static final String KICK_CHANNEL = "/mpush/kick";
+    public static final String KICK_CHANNEL_ = "/mpush/kick/";
+    private final String kick_channel = KICK_CHANNEL_ + MPushUtil.getLocalIp();
 
     public RouterChangeListener() {
         EventBus.INSTANCE.register(this);
-        RedisManage.subscribe(this, KICK_CHANNEL);
+        RedisManage.subscribe(this, getKickChannel());
+    }
+
+    public String getKickChannel() {
+        return kick_channel;
     }
 
     @Subscribe
@@ -89,7 +94,7 @@ public final class RouterChangeListener implements MessageListener {
         msg.deviceId = location.getDeviceId();
         msg.targetServer = location.getHost();
         msg.userId = userId;
-        RedisManage.publish(KICK_CHANNEL, msg);
+        RedisManage.publish(getKickChannel(), msg);
     }
 
     /**
@@ -124,7 +129,7 @@ public final class RouterChangeListener implements MessageListener {
 
     @Override
     public void onMessage(String channel, String message) {
-        if (KICK_CHANNEL.equals(channel)) {
+        if (getKickChannel().equals(channel)) {
             KickRemoteMsg msg = Jsons.fromJson(message, KickRemoteMsg.class);
             if (msg != null) {
                 onReceiveKickRemoteMsg(msg);
