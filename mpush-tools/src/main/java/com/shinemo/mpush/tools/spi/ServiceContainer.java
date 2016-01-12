@@ -26,7 +26,7 @@ public class ServiceContainer {
 
 	// class -> ( beanId -> beanInstance)
 	private static final ConcurrentMap<Class<?>, ConcurrentMap<String, Object>> objectsCachedMap = Maps.newConcurrentMap();
-
+	
 	public static <T> T getInstance(Class<T> clazz) {
 
 		if (clazz == null)
@@ -99,10 +99,10 @@ public class ServiceContainer {
 	public static <T> T getInstance(Class<T> clazz, String key) {
 		ConcurrentMap<String, Object> objMap = objectsCachedMap.get(clazz);
 		if (objMap == null) {
-			objMap = Maps.newConcurrentMap();
 			synchronized (clazz) {
 				objMap = objectsCachedMap.get(clazz);
 				if(objMap==null){
+					objMap = Maps.newConcurrentMap();
 					objectsCachedMap.put(clazz, objMap);
 				}
 			}
