@@ -4,9 +4,7 @@ public class TestSpi {
 
 	public static void main(String[] args) {
 		
-		
-		TestService testService = ServiceContainer.getInstance(TestService.class,"test2");
-		
+		TestService testService = ServiceContainer.getInstance(TestService.class);
 		testService.sayHi("huang");
 		
 	}
