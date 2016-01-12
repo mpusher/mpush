@@ -6,7 +6,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
@@ -20,8 +19,13 @@ public class ServiceContainer {
 	private static final Logger log = LoggerFactory.getLogger(ServiceContainer.class);
 	private static final String PREFIX = "META-INF/mpush/services/";
 	
+	// class -> beanInstance
 	private static final ConcurrentMap<Class<?>, Object> objectCacheMap = Maps.newConcurrentMap();
-	private final static ConcurrentHashMap<Class<?>, Map<String, Class<?>>> clazzCacheMap = new ConcurrentHashMap<Class<?>, Map<String, Class<?>>>();
+	
+	// class -> ( beanId -> beanClass )
+	private static final ConcurrentMap<Class<?>, Map<String, Class<?>>> clazzCacheMap = Maps.newConcurrentMap();
+	
+	// class -> ( beanId -> beanInstance)
 	private static final ConcurrentMap<Class<?>, ConcurrentMap<String, Object>> objectsCachedMap = Maps.newConcurrentMap();
 	
 	@SuppressWarnings("unchecked")
@@ -88,10 +92,15 @@ public class ServiceContainer {
 		if(clazzMap == null){
 			loadFile(clazz);
 		}
-		clazzMap = clazzCacheMap.get(key);
-		if(clazz != null){
+		clazzMap = clazzCacheMap.get(clazz);
+        if (clazzMap == null) {
+           log.warn("[ getInstance ] clazzMap is null:"+clazz+","+key);
+           return null;
+        }
+        Class<?> realClazz = clazzMap.get(key);
+		if(realClazz != null){
 			try{
-				Object newObj = clazz.newInstance();
+				Object newObj = realClazz.newInstance();
 				Object preObj = objMap.putIfAbsent(key, newObj);
 				return null == preObj?(T)newObj:(T)preObj;
 			}catch(Exception e){
