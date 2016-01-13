@@ -38,6 +38,7 @@
             <artifactId>logback-ext-spring</artifactId>
         </dependency>
     </dependencies>
+
     <!-- 编译配置 -->
     <build>
         <finalName>mpush</finalName>
@@ -118,4 +119,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
