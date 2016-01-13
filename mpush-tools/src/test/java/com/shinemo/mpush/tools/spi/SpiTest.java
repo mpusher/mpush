@@ -16,21 +16,22 @@ public class SpiTest {
 	
 	private static Executor pool = Executors.newCachedThreadPool();
 	
-	@Ignore
 	@Test
 	public void baseTest(){
 		TestService testService = ServiceContainer.getInstance(TestService.class);
 		System.out.println(testService.sayHi(" huang"));
+		
+		ServiceContainer.getInstance(TestService.class,"test2");
 	}
 	
-
+	@Ignore
 	@Test
 	public void listTest(){
 		
 		List<TestService> listRet = ServiceContainer.getInstances(TestService.class);
 		
 		for(TestService test:listRet){
-			System.out.println(ToStringBuilder.reflectionToString(test));
+			System.out.println(ToStringBuilder.reflectionToString(test.sayHi(" huang list")));
 		}
 		
 	}
@@ -60,6 +61,13 @@ public class SpiTest {
 		
 		@Override
 		public void run() {
+			
+			List<TestService> listRet = ServiceContainer.getInstances(TestService.class);
+			
+			for(TestService test:listRet){
+				System.out.println(test.sayHi(" huang list")+","+Thread.currentThread().getId()+","+ToStringBuilder.reflectionToString(test));
+			}
+			
 		}
 		
 	}

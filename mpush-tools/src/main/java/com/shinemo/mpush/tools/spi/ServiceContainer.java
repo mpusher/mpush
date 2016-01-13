@@ -64,41 +64,15 @@ public class ServiceContainer {
 		}
 		objMap = objectsCachedMap.get(clazz);
 		if(!objMap.isEmpty()){
-			return Lists.newArrayList((List<T>)objMap.values());
+			return Lists.newArrayList((Collection<T>)objMap.values());
 		}
 		
-		Map<String, Class<?>> clazzMap = getClazzMap(clazz);
-		if (clazzMap == null) {
-			log.warn("[ getInstance ] getInstances is null:" + clazz);
-			throw new IllegalStateException("Failed getInstance class(interface: " + clazz);
-		}
-		if (!clazzMap.isEmpty()) { //防止一个实例对象被初始化多次
-			synchronized (clazz) {
-				try {
-					if(!objMap.isEmpty()){
-						return Lists.newArrayList((List<T>)objMap.values());
-					}
-					Iterator<Entry<String, Class<?>>> iter = clazzMap.entrySet().iterator();
-					while (iter.hasNext()) {
-						Entry<String, Class<?>> entry = iter.next();
-					    String key = entry.getKey();
-					    Class<?> val = entry.getValue();
-					    
-					    Object oldObj = objMap.get(key);
-					    if(oldObj==null){
-						    Object newObj = val.newInstance();
-						    objMap.putIfAbsent(key, newObj);
-					    }
-
-					}
-					
-					return Lists.newArrayList((Collection<T>)objMap.values());
-				} catch (Exception e) {
-					log.warn("[ getInstance ] error:" + clazz, e);
-				}
-			}
-		}
+		initClazzInstances(clazz);
 		
+		objMap = objectsCachedMap.get(clazz);
+		if(!objMap.isEmpty()){
+			return Lists.newArrayList((Collection<T>)objMap.values());
+		}
 		throw new IllegalStateException("Failed getInstance class(interface: " + clazz);
 		
 	}
@@ -122,32 +96,48 @@ public class ServiceContainer {
 		if (obj != null) {
 			return obj;
 		}
+		
+		//初始化所有
+		initClazzInstances(clazz);
+		
+		obj = (T) objMap.get(key);
 
-		Map<String, Class<?>> clazzMap = getClazzMap(clazz);
-		if (clazzMap == null) {
-			log.warn("[ getInstance ] clazzMap is null:" + clazz + "," + key);
-			throw new IllegalStateException("Failed getInstance class(interface: " + clazz + ", key: " + key + ")");
+		if (obj != null) {
+			return obj;
 		}
-		Class<?> realClazz = clazzMap.get(key);
-		if (realClazz != null) { // 防止一个实例对象被初始化多次
-			synchronized (realClazz) {
-				try {
-					obj = (T) objMap.get(key);
-					if (obj != null) {
-						return obj;// 已经初始化完毕
-					}
+		
+		throw new IllegalStateException("Failed getInstance class(interface: " + clazz + ", key: " + key + ")");
 
-					Object newObj = realClazz.newInstance();
-					Object preObj = objMap.putIfAbsent(key, newObj);
-					return null == preObj ? (T) newObj : (T) preObj;
-				} catch (Exception e) {
-					log.warn("[ getInstance ] error:" + clazz + "," + key, e);
+	}
+	
+	private static <T> void initClazzInstances(Class<T> clazz){
+		
+		Map<String, Class<?>> clazzMap = getClazzMap(clazz);
+		ConcurrentMap<String, Object> objMap = objectsCachedMap.get(clazz);
+		if(objMap.isEmpty()){
+			synchronized (clazz) {
+				objMap = objectsCachedMap.get(clazz);
+				if(objMap.isEmpty()){
+					Iterator<Entry<String, Class<?>>> iter = clazzMap.entrySet().iterator();
+					while (iter.hasNext()) {
+						Entry<String, Class<?>> entry = iter.next();
+					    String entryKey = entry.getKey();
+					    Class<?> val = entry.getValue();
+					    Object oldObj = objMap.get(entryKey);
+					    if(oldObj==null){
+						    Object newObj;
+							try {
+								newObj = val.newInstance();
+								objMap.putIfAbsent(entryKey, newObj);
+							} catch (Exception e) {
+							}
+					    }
+					}
+					objectsCachedMap.put(clazz, objMap);
 				}
 			}
 		}
-
-		throw new IllegalStateException("Failed getInstance class(interface: " + clazz + ", key: " + key + ")");
-
+		
 	}
 
 	private static <T> Map<String, Class<?>> getClazzMap(Class<T> clazz) {
