@@ -2,6 +2,7 @@ package com.shinemo.mpush.tools.spi;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -83,11 +84,15 @@ public class ServiceContainer {
 					    String key = entry.getKey();
 					    Class<?> val = entry.getValue();
 					    
-					    Object newObj = val.newInstance();
-					    objMap.putIfAbsent(key, newObj);
+					    Object oldObj = objMap.get(key);
+					    if(oldObj==null){
+						    Object newObj = val.newInstance();
+						    objMap.putIfAbsent(key, newObj);
+					    }
+
 					}
 					
-					return Lists.newArrayList((List<T>)objMap.values());
+					return Lists.newArrayList((Collection<T>)objMap.values());
 				} catch (Exception e) {
 					log.warn("[ getInstance ] error:" + clazz, e);
 				}

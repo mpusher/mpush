@@ -1,9 +1,11 @@
 package com.shinemo.mpush.tools.spi;
 
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -21,10 +23,25 @@ public class SpiTest {
 		System.out.println(testService.sayHi(" huang"));
 	}
 	
+
+	@Test
+	public void listTest(){
+		
+		List<TestService> listRet = ServiceContainer.getInstances(TestService.class);
+		
+		for(TestService test:listRet){
+			System.out.println(ToStringBuilder.reflectionToString(test));
+		}
+		
+	}
+	
+	@Ignore
 	@Test
 	public void mulThreadTest() throws InterruptedException{
 		pool.execute(new Worker());
 		pool.execute(new Worker());
+		pool.execute(new ListWorker());
+		pool.execute(new ListWorker());
 		Thread.sleep(Integer.MAX_VALUE);
 	}
 	
@@ -34,7 +51,15 @@ public class SpiTest {
 		@Override
 		public void run() {
 			TestService testService = ServiceContainer.getInstance(TestService.class);
-			System.out.println(testService.sayHi(" huang"));
+			System.out.println(testService.sayHi(" huang")+","+ToStringBuilder.reflectionToString(testService));
+		}
+		
+	}
+	
+	private static final class ListWorker implements Runnable{
+		
+		@Override
+		public void run() {
 		}
 		
 	}
