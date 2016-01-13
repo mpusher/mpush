@@ -53,8 +53,13 @@ public class ServiceContainer {
 	public static <T> List<T> getInstances(Class<T> clazz){
 		ConcurrentMap<String, Object> objMap = objectsCachedMap.get(clazz);
 		if (objMap == null) {
-			objMap = Maps.newConcurrentMap();
-			objectsCachedMap.put(clazz, objMap);
+			synchronized (clazz) {
+				objMap = objectsCachedMap.get(clazz);
+				if(objMap == null){
+					objMap = Maps.newConcurrentMap();
+					objectsCachedMap.put(clazz, objMap);
+				}
+			}
 		}
 		objMap = objectsCachedMap.get(clazz);
 		if(!objMap.isEmpty()){
@@ -69,11 +74,9 @@ public class ServiceContainer {
 		if (!clazzMap.isEmpty()) { //防止一个实例对象被初始化多次
 			synchronized (clazz) {
 				try {
-					
 					if(!objMap.isEmpty()){
 						return Lists.newArrayList((List<T>)objMap.values());
 					}
-					
 					Iterator<Entry<String, Class<?>>> iter = clazzMap.entrySet().iterator();
 					while (iter.hasNext()) {
 						Entry<String, Class<?>> entry = iter.next();
@@ -205,7 +208,13 @@ public class ServiceContainer {
 		} catch (Throwable t) {
 			log.error("", "Exception when load extension class(interface: " + type + ", description file: " + fileName + ").", t);
 		}
-		clazzCacheMap.put(type, map);
+		synchronized (type) {
+			Map<String, Class<?>> oldMap = clazzCacheMap.get(type);
+			if(oldMap==null){
+				clazzCacheMap.put(type, map);
+			}
+		}
+		
 	}
 
 	public static String toLowerCaseFirstOne(String s) {
