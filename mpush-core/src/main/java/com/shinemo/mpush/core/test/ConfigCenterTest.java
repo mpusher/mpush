@@ -1,37 +1,17 @@
-package com.shinemo.mpush.tools.owner;
+package com.shinemo.mpush.core.test;
 
 import org.aeonbits.owner.ConfigFactory;
-import org.junit.Test;
 
 import com.shinemo.mpush.tools.config.ConfigCenter;
 
-public class OwnerTest {
+public class ConfigCenterTest {
 	
-	@Test
-	public void test1(){
+	public static void main(String[] args) {
 		
-		ServerConfig cfg = ConfigFactory.create(ServerConfig.class);
+		ConfigCenter holder = ConfigFactory.create(ConfigCenter.class);
 		
-		System.out.println(cfg.zkDigest());
+		System.out.println(holder.zkIp());
 		
-		System.out.println(cfg.zkIp());
-		
-		System.out.println(cfg.hello());
-		
-		System.out.println(cfg.maxHbTimeoutTimes());
-		
-		System.out.println(cfg.test());
-		
-		Integer tset = cfg.testnotexist();
-		if(tset == null){
-			System.out.println("not exist");
-		}else{
-			System.out.println(tset);
-		}
-	}
-	
-	@Test
-	public void test2(){
 		System.out.println("aesKeyLength:"+ConfigCenter.holder.aesKeyLength());
 		
 		System.out.println("compressLimit:"+ConfigCenter.holder.compressLimit());
@@ -63,6 +43,6 @@ public class OwnerTest {
 		System.out.println(ConfigCenter.holder.zkIp());
 		
 		System.out.println(ConfigCenter.holder.zkNamespace());
-	}
+    }
 
 }

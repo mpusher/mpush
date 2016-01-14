@@ -8,6 +8,7 @@ import org.aeonbits.owner.Config.Sources;
 public interface ServerConfig extends Config{
 
 	@Key("zk_ip")
+	@DefaultValue("zkIp")
 	public String zkIp();
 	
 	@Key("zk_digest")
@@ -17,5 +18,13 @@ public interface ServerConfig extends Config{
 	@DefaultValue("hello world")
 	public String hello();
 	
+	@Key("max_hb_timeout_times")
+	public int maxHbTimeoutTimes();
+	
+	@Key("test")
+	@DefaultValue("10")
+	public int test();
+	
+	public Integer testnotexist();
 	
 }
