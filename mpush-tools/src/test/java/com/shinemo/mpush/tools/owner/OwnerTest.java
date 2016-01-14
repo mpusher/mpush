@@ -32,6 +32,9 @@ public class OwnerTest {
 	
 	@Test
 	public void test2(){
+		
+		System.out.println(ConfigCenter.holder.zkIp());
+		
 		System.out.println("aesKeyLength:"+ConfigCenter.holder.aesKeyLength());
 		
 		System.out.println("compressLimit:"+ConfigCenter.holder.compressLimit());
@@ -60,7 +63,7 @@ public class OwnerTest {
 		
 		System.out.println(ConfigCenter.holder.zkDigest());
 		
-		System.out.println(ConfigCenter.holder.zkIp());
+
 		
 		System.out.println(ConfigCenter.holder.zkNamespace());
 	}
