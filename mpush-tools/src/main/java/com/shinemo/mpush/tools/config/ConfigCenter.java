@@ -9,6 +9,10 @@ import org.aeonbits.owner.Config.Sources;
 
 import com.shinemo.mpush.tools.redis.RedisGroup;
 
+/**
+ * 针对每个配置项，建议各个对象自己持有，不建议每次都通过ConfigCenter获取，有性能损耗
+ *
+ */
 @Sources({"classpath:config.properties"})
 public interface ConfigCenter extends Config{
 	
