@@ -4,17 +4,17 @@ import java.util.Date;
 import java.util.List;
 
 import com.shinemo.mpush.tools.redis.listener.MessageListener;
-
 import com.shinemo.mpush.tools.zk.ZKPath;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.shinemo.mpush.tools.MPushUtil;
-import com.shinemo.mpush.tools.redis.manage.RedisGroupManage;
 import com.shinemo.mpush.tools.redis.manage.RedisManage;
 import com.shinemo.mpush.tools.redis.pubsub.Subscriber;
+import com.shinemo.mpush.tools.spi.ServiceContainer;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
 
@@ -26,11 +26,13 @@ public class RedisGroupManageTest {
 
     RedisNode node = new RedisNode("127.0.0.1", 6379, "ShineMoIpo");
     RedisNode node2 = new RedisNode("127.0.0.1", 6380, "ShineMoIpo");
+    
+    RedisRegister redisRegister = ServiceContainer.getInstance(RedisRegister.class);
 
     @Before
     public void init() {
         manage.start();
-        groupList = RedisGroupManage.instance.getGroupList();
+        groupList = redisRegister.getGroupList();
     }
 
     @Test

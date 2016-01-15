@@ -1,4 +1,4 @@
-package com.shinemo.mpush.tools.redis.manage;
+package com.shinemo.mpush.tools.redis.jedis.services;
 
 import java.util.Collections;
 import java.util.List;
@@ -11,21 +11,16 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.redis.RedisNode;
+import com.shinemo.mpush.tools.redis.RedisRegister;
 import com.shinemo.mpush.tools.zk.manage.ServerAppManage;
 
-public class RedisGroupManage {
+public class JedisRegisterManager implements RedisRegister{
 
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServerAppManage.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ServerAppManage.class);
 
     private static List<RedisGroup> groups = Lists.newArrayList();
 
-    public static final RedisGroupManage instance = new RedisGroupManage();
-
-
-    private RedisGroupManage() {
-    }
-
+    @Override
     public void init(List<RedisGroup> group) {
         if (group == null || group.isEmpty()) {
             throw new RuntimeException("init redis client error, redis server is none.");
@@ -35,6 +30,7 @@ public class RedisGroupManage {
     }
 
 
+    @Override
     public List<RedisGroup> getGroupList() {
         return Collections.unmodifiableList(groups);
     }
@@ -55,6 +51,7 @@ public class RedisGroupManage {
      * @param key
      * @return
      */
+    @Override
     public RedisNode randomGetRedisNode(String key) {
         int size = groupSize();
         if (size == 1) return groups.get(0).get(key);
@@ -69,6 +66,7 @@ public class RedisGroupManage {
      * @param key
      * @return
      */
+    @Override
     public List<RedisNode> hashSet(String key) {
         List<RedisNode> nodeList = Lists.newArrayList();
         for (RedisGroup group : groups) {
@@ -77,4 +75,5 @@ public class RedisGroupManage {
         }
         return nodeList;
     }
+	
 }

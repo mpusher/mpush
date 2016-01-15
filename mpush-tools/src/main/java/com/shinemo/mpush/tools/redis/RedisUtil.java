@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,7 @@ import com.google.common.collect.Maps;
 import com.shinemo.mpush.tools.Constants;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.zk.manage.ServerAppManage;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
@@ -44,7 +46,8 @@ public class RedisUtil {
      * @param clazz
      * @return
      */
-    public static <T> T get(RedisNode node, String key, Class<T> clazz) {
+    @SuppressWarnings("unchecked")
+	public static <T> T get(RedisNode node, String key, Class<T> clazz) {
 
         String value = null;
         Jedis jedis = null;
