@@ -5,7 +5,6 @@ import com.shinemo.mpush.api.Client;
 import com.shinemo.mpush.api.PushSender;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.netty.client.NettyClient;
-import com.shinemo.mpush.tools.ConfigCenter;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
 import com.shinemo.mpush.tools.zk.ZKPath;
@@ -29,7 +28,6 @@ public class PushClient implements PushSender {
     private final Map<String, ServerApp> servers = new ConcurrentHashMap<>();
 
     public void init() throws Exception {
-        ConfigCenter.INSTANCE.init();
         initRedisClient();
         GatewayServerZKListener listener = new GatewayServerZKListener();
         Collection<ServerApp> nodes = listener.getAllServers();

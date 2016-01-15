@@ -1,6 +1,6 @@
 package com.shinemo.mpush.common.security;
 
-import com.shinemo.mpush.tools.ConfigCenter;
+import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.crypto.RSAUtils;
 
 import java.security.SecureRandom;
@@ -11,7 +11,7 @@ import java.security.interfaces.RSAPublicKey;
  * Created by ohun on 2015/12/24.
  */
 public final class CipherBox {
-    public int aesKeyLength = ConfigCenter.INSTANCE.getAesKeyLength();
+    public int aesKeyLength = ConfigCenter.holder.aesKeyLength();
     public static final CipherBox INSTANCE = new CipherBox();
     private SecureRandom random = new SecureRandom();
     private RSAPrivateKey privateKey;
@@ -19,7 +19,7 @@ public final class CipherBox {
 
     public RSAPrivateKey getPrivateKey() {
         if (privateKey == null) {
-            String key = ConfigCenter.INSTANCE.getPrivateKey();
+            String key = ConfigCenter.holder.privateKey();
             try {
                 privateKey = (RSAPrivateKey) RSAUtils.decodePrivateKey(key);
             } catch (Exception e) {
@@ -31,7 +31,7 @@ public final class CipherBox {
 
     public RSAPublicKey getPublicKey() {
         if (publicKey == null) {
-            String key = ConfigCenter.INSTANCE.getPublicKey();
+            String key = ConfigCenter.holder.publicKey();
             try {
                 publicKey = (RSAPublicKey) RSAUtils.decodePublicKey(key);
             } catch (Exception e) {

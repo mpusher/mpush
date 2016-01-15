@@ -3,6 +3,8 @@ package com.shinemo.mpush.tools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.shinemo.mpush.tools.config.ConfigCenter;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
@@ -24,8 +26,8 @@ public final class MPushUtil {
 
     public static int getHeartbeat(int min, int max) {
         return Math.max(
-                ConfigCenter.INSTANCE.getMinHeartbeat(),
-                Math.min(max, ConfigCenter.INSTANCE.getMaxHeartbeat())
+        		ConfigCenter.holder.minHeartbeat(),
+                Math.min(max, ConfigCenter.holder.maxHeartbeat())
         );
     }
 

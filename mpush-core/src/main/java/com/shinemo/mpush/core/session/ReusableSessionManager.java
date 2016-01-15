@@ -1,8 +1,8 @@
 package com.shinemo.mpush.core.session;
 
 import com.shinemo.mpush.api.connection.SessionContext;
-import com.shinemo.mpush.tools.ConfigCenter;
 import com.shinemo.mpush.tools.Strings;
+import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.crypto.MD5Utils;
 import com.shinemo.mpush.tools.redis.manage.RedisManage;
 
@@ -11,7 +11,7 @@ import com.shinemo.mpush.tools.redis.manage.RedisManage;
  */
 public final class ReusableSessionManager {
     public static final ReusableSessionManager INSTANCE = new ReusableSessionManager();
-    private int expiredTime = ConfigCenter.INSTANCE.getSessionExpiredTime();
+    private int expiredTime = ConfigCenter.holder.sessionExpiredTime();
 
     public boolean cacheSession(ReusableSession session) {
         RedisManage.set(session.sessionId, ReusableSession.encode(session.context), expiredTime);

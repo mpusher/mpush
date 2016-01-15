@@ -4,9 +4,9 @@ import com.google.common.collect.Lists;
 import com.shinemo.mpush.api.Server;
 import com.shinemo.mpush.core.server.ConnectionServer;
 import com.shinemo.mpush.core.server.GatewayServer;
-import com.shinemo.mpush.tools.ConfigCenter;
 import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.Jsons;
+import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.redis.RedisNode;
 import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
@@ -14,6 +14,7 @@ import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZkUtil;
 import com.shinemo.mpush.tools.zk.listener.impl.RedisPathListener;
+
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,6 @@ public final class App {
     }
 
     private void init() throws IOException {
-        ConfigCenter.INSTANCE.init();
         LOGGER.error("mpush app config center init success....");
     }
 
@@ -58,7 +58,7 @@ public final class App {
         ThreadPoolUtil.newThread(new Runnable() {
             @Override
             public void run() {
-                final int port = ConfigCenter.INSTANCE.getConnectionServerPort();
+            	final int port = ConfigCenter.holder.connectionServerPort();
                 ConnectionServer server = new ConnectionServer(port);
                 server.init();
                 server.start(new Server.Listener() {
@@ -83,7 +83,7 @@ public final class App {
         ThreadPoolUtil.newThread(new Runnable() {
             @Override
             public void run() {
-                final int port = ConfigCenter.INSTANCE.getGatewayServerPort();
+                final int port = ConfigCenter.holder.gatewayServerPort();
                 GatewayServer server = new GatewayServer(port);
                 server.init();
                 server.start(new Server.Listener() {

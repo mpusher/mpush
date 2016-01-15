@@ -3,7 +3,6 @@ package com.shinemo.mpush.core.netty;
 
 import com.shinemo.mpush.api.Client;
 import com.shinemo.mpush.netty.client.NettyClientFactory;
-import com.shinemo.mpush.tools.ConfigCenter;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.Strings;
 import com.shinemo.mpush.tools.zk.ZKPath;
@@ -23,7 +22,6 @@ public class NettyClientTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyClientTest.class);
 
     public void setUp() throws Exception {
-        ConfigCenter.INSTANCE.init();
     }
 
     private List<ServerApp> getAllServers() {
