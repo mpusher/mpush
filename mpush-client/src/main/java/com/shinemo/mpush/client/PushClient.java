@@ -11,7 +11,6 @@ import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
 import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZkRegister;
-import com.shinemo.mpush.tools.zk.listener.impl.RedisPathListener;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.TreeCacheEvent;
@@ -76,9 +75,9 @@ public class PushClient implements PushSender {
     }
 
     public void initRedisClient() {
-        RedisPathListener listener = new RedisPathListener();
-        zkRegister.getCache().getListenable().addListener(listener);
-        listener.initData(null);
+//        RedisPathListener listener = new RedisPathListener();
+//        zkRegister.getCache().getListenable().addListener(listener);
+//        listener.initData(null);
     }
 
     private class GatewayServerZKListener implements TreeCacheListener {

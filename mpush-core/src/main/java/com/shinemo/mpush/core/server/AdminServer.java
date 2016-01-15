@@ -21,4 +21,10 @@ public final class AdminServer implements Server {
     public boolean isRunning() {
         return false;
     }
+
+	@Override
+	public void init() {
+		// TODO Auto-generated method stub
+		
+	}
 }

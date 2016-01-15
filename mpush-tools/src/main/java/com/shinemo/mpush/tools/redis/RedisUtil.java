@@ -14,7 +14,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.shinemo.mpush.tools.Constants;
 import com.shinemo.mpush.tools.Jsons;
-import com.shinemo.mpush.tools.zk.manage.ServerAppManage;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -22,7 +21,7 @@ import redis.clients.jedis.JedisPubSub;
 
 public class RedisUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(ServerAppManage.class);
+    private static final Logger log = LoggerFactory.getLogger(RedisUtil.class);
 
     private static Map<RedisNode, JedisPool> holder = Maps.newConcurrentMap();
 

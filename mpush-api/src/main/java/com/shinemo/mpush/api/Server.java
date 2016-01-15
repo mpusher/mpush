@@ -8,6 +8,8 @@ public interface Server {
     void start(Listener listener);
 
     void stop(Listener listener);
+    
+    public void init();
 
     boolean isRunning();
 

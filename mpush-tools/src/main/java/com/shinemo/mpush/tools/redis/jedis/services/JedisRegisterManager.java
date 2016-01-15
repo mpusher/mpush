@@ -12,11 +12,10 @@ import com.google.common.collect.Lists;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.redis.RedisNode;
 import com.shinemo.mpush.tools.redis.RedisRegister;
-import com.shinemo.mpush.tools.zk.manage.ServerAppManage;
 
 public class JedisRegisterManager implements RedisRegister{
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ServerAppManage.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JedisRegisterManager.class);
 
     private static List<RedisGroup> groups = Lists.newArrayList();
 
