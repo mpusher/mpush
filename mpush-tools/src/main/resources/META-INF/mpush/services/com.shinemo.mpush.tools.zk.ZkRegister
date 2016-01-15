@@ -1,0 +1,1 @@
+zkRegister=com.shinemo.mpush.tools.zk.curator.services.ZkRegisterManager

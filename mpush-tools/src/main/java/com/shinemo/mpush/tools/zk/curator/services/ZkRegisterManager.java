@@ -25,17 +25,17 @@ import org.slf4j.LoggerFactory;
 import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.zk.ZkConfig;
 import com.shinemo.mpush.tools.zk.ZkRegister;
-import com.shinemo.mpush.tools.zk.ZkUtil;
 
 public class ZkRegisterManager implements ZkRegister {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ZkUtil.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ZkRegisterManager.class);
 
 	private ZkConfig zkConfig;
 
 	private CuratorFramework client;
 	private TreeCache cache;
-
+	
+	@Override
 	public ZkConfig getZkConfig() {
 		return zkConfig;
 	}
@@ -50,7 +50,7 @@ public class ZkRegisterManager implements ZkRegister {
 	 */
 	@Override
 	public void init() {
-		zkConfig = new ZkConfig(ConfigCenter.holder.zkIp(), ConfigCenter.holder.zkNamespace());
+		zkConfig = new ZkConfig(ConfigCenter.holder.zkIp(), ConfigCenter.holder.zkNamespace(),ConfigCenter.holder.zkDigest());
 		LOGGER.warn("start registry zk, server lists is: {}.", zkConfig.getIpLists());
 		Builder builder = CuratorFrameworkFactory.builder().connectString(zkConfig.getIpLists())
 				.retryPolicy(new ExponentialBackoffRetry(zkConfig.getMinTime(), zkConfig.getMaxRetry(), zkConfig.getMaxTime())).namespace(zkConfig.getNamespace());
@@ -278,6 +278,7 @@ public class ZkRegisterManager implements ZkRegister {
 		}
 	}
 
+	@Override
 	public TreeCache getCache() {
 		return cache;
 	}

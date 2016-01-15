@@ -3,6 +3,7 @@ package com.shinemo.mpush.tools.zk;
 import java.util.List;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.TreeCache;
 
 import com.shinemo.mpush.tools.spi.SPI;
 
@@ -33,5 +34,9 @@ public interface ZkRegister {
 	public String get(String key);
 
 	public CuratorFramework getClient();
+
+	public ZkConfig getZkConfig();
+
+	TreeCache getCache();
 	
 }
