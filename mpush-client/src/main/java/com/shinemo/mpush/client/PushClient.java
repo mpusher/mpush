@@ -6,11 +6,13 @@ import com.shinemo.mpush.api.PushSender;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.netty.client.NettyClient;
 import com.shinemo.mpush.tools.Jsons;
+import com.shinemo.mpush.tools.spi.ServiceContainer;
 import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
 import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ServerApp;
-import com.shinemo.mpush.tools.zk.ZkUtil;
+import com.shinemo.mpush.tools.zk.ZkRegister;
 import com.shinemo.mpush.tools.zk.listener.impl.RedisPathListener;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.TreeCacheEvent;
 import org.apache.curator.framework.recipes.cache.TreeCacheListener;
@@ -26,6 +28,8 @@ public class PushClient implements PushSender {
     private int defaultTimeout = 3000;
     private final Map<String, Client> clientMap = new ConcurrentHashMap<>();
     private final Map<String, ServerApp> servers = new ConcurrentHashMap<>();
+    
+    private static final ZkRegister zkRegister = ServiceContainer.getInstance(ZkRegister.class);
 
     public void init() throws Exception {
         initRedisClient();
@@ -73,14 +77,14 @@ public class PushClient implements PushSender {
 
     public void initRedisClient() {
         RedisPathListener listener = new RedisPathListener();
-        ZkUtil.instance.getCache().getListenable().addListener(listener);
+        zkRegister.getCache().getListenable().addListener(listener);
         listener.initData(null);
     }
 
     private class GatewayServerZKListener implements TreeCacheListener {
 
         public GatewayServerZKListener() {
-            ZkUtil.instance.getCache().getListenable().addListener(this);
+        	zkRegister.getCache().getListenable().addListener(this);
         }
 
         @Override
@@ -109,17 +113,17 @@ public class PushClient implements PushSender {
         }
 
         private ServerApp getServer(String path) {
-            String json = ZkUtil.instance.get(path);
+            String json = zkRegister.get(path);
             if (Strings.isNullOrEmpty(json)) return null;
             return Jsons.fromJson(json, ServerApp.class);
         }
 
         private Collection<ServerApp> getAllServers() {
-            List<String> list = ZkUtil.instance.getChildrenKeys(ZKPath.GATEWAY_SERVER.getPath());
+            List<String> list = zkRegister.getChildrenKeys(ZKPath.GATEWAY_SERVER.getPath());
             if (list == null || list.isEmpty()) return Collections.EMPTY_LIST;
             for (String name : list) {
                 String fullPath = ZKPath.GATEWAY_SERVER.getFullPath(name);
-                String json = ZkUtil.instance.get(fullPath);
+                String json = zkRegister.get(fullPath);
                 if (com.shinemo.mpush.tools.Strings.isBlank(json)) continue;
                 ServerApp server = Jsons.fromJson(json, ServerApp.class);
                 if (server != null) {

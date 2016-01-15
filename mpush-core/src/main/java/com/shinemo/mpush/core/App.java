@@ -34,6 +34,7 @@ public final class App {
     public static void main(String[] args) throws Exception {
         LOGGER.error("mpush app start begin....");
         APP.init();
+        APP.initZkRegister();
         APP.initRedisClient();
         APP.startConnectionServer();
         APP.startGatewayServer();

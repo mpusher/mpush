@@ -5,9 +5,11 @@ import com.shinemo.mpush.api.Client;
 import com.shinemo.mpush.netty.client.NettyClientFactory;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.Strings;
+import com.shinemo.mpush.tools.spi.ServiceContainer;
 import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ServerApp;
-import com.shinemo.mpush.tools.zk.ZkUtil;
+import com.shinemo.mpush.tools.zk.ZkRegister;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,16 +22,18 @@ import java.util.List;
  */
 public class NettyClientTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyClientTest.class);
+    
+    private static final ZkRegister zkRegister = ServiceContainer.getInstance(ZkRegister.class);
 
     public void setUp() throws Exception {
     }
 
     private List<ServerApp> getAllServers() {
-        List<String> list = ZkUtil.instance.getChildrenKeys(ZKPath.CONNECTION_SERVER.getPath());
+        List<String> list = zkRegister.getChildrenKeys(ZKPath.CONNECTION_SERVER.getPath());
         if (list == null || list.isEmpty()) return Collections.EMPTY_LIST;
         List<ServerApp> servers = new ArrayList<>();
         for (String name : list) {
-            String json = ZkUtil.instance.get(ZKPath.CONNECTION_SERVER.getFullPath(name));
+            String json = zkRegister.get(ZKPath.CONNECTION_SERVER.getFullPath(name));
             if (Strings.isBlank(json)) continue;
             ServerApp server = Jsons.fromJson(json, ServerApp.class);
             if (server != null) servers.add(server);
