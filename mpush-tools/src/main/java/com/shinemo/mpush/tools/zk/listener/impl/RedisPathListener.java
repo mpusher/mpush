@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.RedisGroup;
-import com.shinemo.mpush.tools.redis.manage.RedisGroupManage;
+import com.shinemo.mpush.tools.redis.RedisRegister;
 import com.shinemo.mpush.tools.spi.ServiceContainer;
 import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ZkRegister;
@@ -30,6 +30,8 @@ public class RedisPathListener implements TreeCacheListener {
     private static final Logger log = LoggerFactory.getLogger(RedisPathListener.class);
 
     private static final ZkRegister zkRegister = ServiceContainer.getInstance(ZkRegister.class);
+    
+    private static final RedisRegister redisRegister = ServiceContainer.getInstance(RedisRegister.class);
     
     @Override
     public void childEvent(CuratorFramework curatorFramework, TreeCacheEvent event) throws Exception {
@@ -57,7 +59,7 @@ public class RedisPathListener implements TreeCacheListener {
     private void _initData() {
         //获取redis列表
         List<RedisGroup> group = getRedisGroup(ZKPath.REDIS_SERVER.getPath());
-        RedisGroupManage.instance.init(group);
+        redisRegister.init(group);
     }
 
     private void dataRemove(ChildData data) {

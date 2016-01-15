@@ -5,26 +5,31 @@ import java.util.Map;
 import java.util.Set;
 
 import com.shinemo.mpush.tools.redis.listener.MessageListener;
+
 import redis.clients.jedis.JedisPubSub;
 
 import com.google.common.collect.Sets;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.RedisNode;
+import com.shinemo.mpush.tools.redis.RedisRegister;
 import com.shinemo.mpush.tools.redis.RedisUtil;
 import com.shinemo.mpush.tools.redis.pubsub.Subscriber;
+import com.shinemo.mpush.tools.spi.ServiceContainer;
 
 /**
  * redis 对外封装接口
  *
  */
 public class RedisManage {
+	
+	private static final RedisRegister redisRegister = ServiceContainer.getInstance(RedisRegister.class);
 
     /*********************
      * k v redis start
      ********************************/
 
     public static <T> T get(String key, Class<T> clazz) {
-        RedisNode node = RedisGroupManage.instance.randomGetRedisNode(key);
+        RedisNode node = redisRegister.randomGetRedisNode(key);
         return RedisUtil.get(node, key, clazz);
     }
 
@@ -44,13 +49,13 @@ public class RedisManage {
      * @param time     seconds
      */
     public static void set(String key, String value, Integer time) {
-        List<RedisNode> nodeList = RedisGroupManage.instance.hashSet(key);
+        List<RedisNode> nodeList = redisRegister.hashSet(key);
         RedisUtil.set(nodeList, key, value, time);
     }
 
     public static void del(String key) {
 
-        List<RedisNode> nodeList = RedisGroupManage.instance.hashSet(key);
+        List<RedisNode> nodeList = redisRegister.hashSet(key);
         RedisUtil.del(nodeList, key);
 
     }
@@ -63,7 +68,7 @@ public class RedisManage {
      ********************************/
     public static void hset(String namespace, String key, String value) {
 
-        List<RedisNode> nodeList = RedisGroupManage.instance.hashSet(key);
+        List<RedisNode> nodeList = redisRegister.hashSet(key);
         RedisUtil.hset(nodeList, namespace, key, value);
 
     }
@@ -74,25 +79,25 @@ public class RedisManage {
 
     public static <T> T hget(String namespace, String key, Class<T> clazz) {
 
-        RedisNode node = RedisGroupManage.instance.randomGetRedisNode(namespace);
+        RedisNode node = redisRegister.randomGetRedisNode(namespace);
         return RedisUtil.hget(node, namespace, key, clazz);
 
     }
 
     public static void hdel(String namespace, String key) {
-        List<RedisNode> nodeList = RedisGroupManage.instance.hashSet(namespace);
+        List<RedisNode> nodeList = redisRegister.hashSet(namespace);
         RedisUtil.hdel(nodeList, namespace, key);
     }
 
     public static Map<String, String> hgetAll(String namespace) {
 
-        RedisNode node = RedisGroupManage.instance.randomGetRedisNode(namespace);
+        RedisNode node = redisRegister.randomGetRedisNode(namespace);
         return RedisUtil.hgetAll(node, namespace);
 
     }
 
     public static <T> Map<String, T> hgetAll(String namespace, Class<T> clazz) {
-        RedisNode node = RedisGroupManage.instance.randomGetRedisNode(namespace);
+        RedisNode node = redisRegister.randomGetRedisNode(namespace);
         return RedisUtil.hgetAll(node, namespace, clazz);
     }
 
@@ -104,7 +109,7 @@ public class RedisManage {
      * @return
      */
     public static Set<String> hkeys(String namespace) {
-        RedisNode node = RedisGroupManage.instance.randomGetRedisNode(namespace);
+        RedisNode node = redisRegister.randomGetRedisNode(namespace);
         return RedisUtil.hkeys(node, namespace);
     }
 
@@ -118,7 +123,7 @@ public class RedisManage {
      * @return
      */
     public static <T> List<T> hmget(String namespace, Class<T> clazz, String... key) {
-        RedisNode node = RedisGroupManage.instance.randomGetRedisNode(namespace);
+        RedisNode node = redisRegister.randomGetRedisNode(namespace);
         return RedisUtil.hmget(node, namespace, clazz, key);
     }
 
@@ -131,7 +136,7 @@ public class RedisManage {
      * @param time
      */
     public static void hmset(String namespace, Map<String, String> hash, Integer time) {
-        List<RedisNode> nodeList = RedisGroupManage.instance.hashSet(namespace);
+        List<RedisNode> nodeList = redisRegister.hashSet(namespace);
         RedisUtil.hmset(nodeList, namespace, hash, time);
     }
 
@@ -148,7 +153,7 @@ public class RedisManage {
      * 从队列的左边入队
      */
     public static void lpush(String key, String value) {
-        List<RedisNode> nodeList = RedisGroupManage.instance.hashSet(key);
+        List<RedisNode> nodeList = redisRegister.hashSet(key);
         RedisUtil.lpush(nodeList, key, value);
     }
 
@@ -160,7 +165,7 @@ public class RedisManage {
      * 从队列的右边入队
      */
     public static void rpush(String key, String value) {
-        List<RedisNode> nodeList = RedisGroupManage.instance.hashSet(key);
+        List<RedisNode> nodeList = redisRegister.hashSet(key);
         RedisUtil.rpush(nodeList, key, value);
     }
 
@@ -172,7 +177,7 @@ public class RedisManage {
      * 移除并且返回 key 对应的 list 的第一个元素
      */
     public static <T> T lpop(String key, Class<T> clazz) {
-        List<RedisNode> nodeList = RedisGroupManage.instance.hashSet(key);
+        List<RedisNode> nodeList = redisRegister.hashSet(key);
         return RedisUtil.lpop(nodeList, key, clazz);
     }
 
@@ -180,7 +185,7 @@ public class RedisManage {
      * 从队列的右边出队一个元素
      */
     public static <T> T rpop(String key, Class<T> clazz) {
-        List<RedisNode> nodeList = RedisGroupManage.instance.hashSet(key);
+        List<RedisNode> nodeList = redisRegister.hashSet(key);
         return RedisUtil.rpop(nodeList, key, clazz);
     }
 
@@ -191,7 +196,7 @@ public class RedisManage {
      * 偏移量也可以是负数，表示偏移量是从list尾部开始计数。 例如， -1 表示列表的最后一个元素，-2 是倒数第二个，以此类推。
      */
     public static <T> List<T> lrange(String key, int start, int end, Class<T> clazz) {
-        RedisNode node = RedisGroupManage.instance.randomGetRedisNode(key);
+        RedisNode node = redisRegister.randomGetRedisNode(key);
         return RedisUtil.lrange(node, key, start, end, clazz);
     }
 
@@ -199,13 +204,13 @@ public class RedisManage {
      * 返回存储在 key 里的list的长度。 如果 key 不存在，那么就被看作是空list，并且返回长度为 0。 当存储在 key 里的值不是一个list的话，会返回error。
      */
     public static long llen(String key) {
-        RedisNode node = RedisGroupManage.instance.randomGetRedisNode(key);
+        RedisNode node = redisRegister.randomGetRedisNode(key);
         return RedisUtil.llen(node, key);
     }
 
     public static <T> void publish(String channel, T message) {
 
-        RedisNode node = RedisGroupManage.instance.randomGetRedisNode(channel);
+        RedisNode node = redisRegister.randomGetRedisNode(channel);
         RedisUtil.publish(node, channel, message);
 
     }
@@ -214,7 +219,7 @@ public class RedisManage {
 
         Set<RedisNode> set = Sets.newHashSet();
         for (String channel : channels) {
-            List<RedisNode> nodeList = RedisGroupManage.instance.hashSet(channel);
+            List<RedisNode> nodeList = redisRegister.hashSet(channel);
             set.addAll(nodeList);
         }
 
