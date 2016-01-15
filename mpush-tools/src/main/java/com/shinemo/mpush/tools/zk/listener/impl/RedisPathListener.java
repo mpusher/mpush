@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Strings;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.curator.framework.CuratorFramework;
@@ -17,8 +18,9 @@ import org.slf4j.LoggerFactory;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.redis.manage.RedisGroupManage;
+import com.shinemo.mpush.tools.spi.ServiceContainer;
 import com.shinemo.mpush.tools.zk.ZKPath;
-import com.shinemo.mpush.tools.zk.ZkUtil;
+import com.shinemo.mpush.tools.zk.ZkRegister;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
 
 /**
@@ -27,6 +29,8 @@ import com.shinemo.mpush.tools.zk.manage.ServerManage;
 public class RedisPathListener implements TreeCacheListener {
     private static final Logger log = LoggerFactory.getLogger(RedisPathListener.class);
 
+    private static final ZkRegister zkRegister = ServiceContainer.getInstance(ZkRegister.class);
+    
     @Override
     public void childEvent(CuratorFramework curatorFramework, TreeCacheEvent event) throws Exception {
         String data = "";
@@ -65,7 +69,7 @@ public class RedisPathListener implements TreeCacheListener {
     }
 
     private List<RedisGroup> getRedisGroup(String fullPath) {
-        String rawGroup = ZkUtil.instance.get(fullPath);
+        String rawGroup = zkRegister.get(fullPath);
         if (Strings.isNullOrEmpty(rawGroup)) return Collections.EMPTY_LIST;
         List<RedisGroup> group = Jsons.fromJsonToList(rawGroup, RedisGroup[].class);
         if (group == null) return Collections.EMPTY_LIST;

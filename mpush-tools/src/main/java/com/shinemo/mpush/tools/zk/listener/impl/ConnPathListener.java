@@ -2,7 +2,10 @@ package com.shinemo.mpush.tools.zk.listener.impl;
 
 import java.util.List;
 
+import com.shinemo.mpush.tools.spi.ServiceContainer;
 import com.shinemo.mpush.tools.zk.ZKPath;
+import com.shinemo.mpush.tools.zk.ZkRegister;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.curator.framework.CuratorFramework;
@@ -14,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.zk.ServerApp;
-import com.shinemo.mpush.tools.zk.ZkUtil;
 import com.shinemo.mpush.tools.zk.listener.CallBack;
 import com.shinemo.mpush.tools.zk.manage.ServerAppManage;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
@@ -25,6 +27,8 @@ import com.shinemo.mpush.tools.zk.manage.ServerManage;
 public class ConnPathListener implements CallBack {
 
     private static final Logger log = LoggerFactory.getLogger(ConnPathListener.class);
+    
+    private static ZkRegister zkRegister = ServiceContainer.getInstance(ZkRegister.class);
 
     @Override
     public void handler(CuratorFramework client, TreeCacheEvent event, String path) {
@@ -52,7 +56,7 @@ public class ConnPathListener implements CallBack {
 
     private void _initData() {
         //获取机器列表
-        List<String> rawData = ZkUtil.instance.getChildrenKeys(ZKPath.CONNECTION_SERVER.getPath());
+        List<String> rawData = zkRegister.getChildrenKeys(ZKPath.CONNECTION_SERVER.getPath());
         for (String raw : rawData) {
             String fullPath = ZKPath.CONNECTION_SERVER.getFullPath(raw);
             ServerApp app = getServerApp(fullPath);
@@ -73,7 +77,7 @@ public class ConnPathListener implements CallBack {
     }
 
     private ServerApp getServerApp(String fullPath) {
-        String rawApp = ZkUtil.instance.get(fullPath);
+        String rawApp = zkRegister.get(fullPath);
         ServerApp app = Jsons.fromJson(rawApp, ServerApp.class);
         return app;
     }
