@@ -20,6 +20,9 @@ public class JedisRegisterManager implements RedisRegister{
 
     private static List<RedisGroup> groups = Lists.newArrayList();
 
+    /**
+     * zk 启动的时候需要调用这个
+     */
     @Override
     public void init(List<RedisGroup> group) {
         if (group == null || group.isEmpty()) {
