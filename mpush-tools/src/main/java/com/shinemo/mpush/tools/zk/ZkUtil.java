@@ -51,7 +51,7 @@ public class ZkUtil {
      * 初始化
      */
     public void init() {
-        zkConfig = new ZkConfig(ConfigCenter.holder.zkIp(), ConfigCenter.holder.zkNamespace());
+        zkConfig = new ZkConfig(ConfigCenter.holder.zkIp(), ConfigCenter.holder.zkNamespace(),ConfigCenter.holder.zkDigest());
         LOGGER.warn("start registry zk, server lists is: {}.", zkConfig.getIpLists());
         Builder builder = CuratorFrameworkFactory.builder().connectString(zkConfig.getIpLists())
                 .retryPolicy(new ExponentialBackoffRetry(zkConfig.getMinTime(), zkConfig.getMaxRetry(), zkConfig.getMaxTime())).namespace(zkConfig.getNamespace());

@@ -1,9 +1,13 @@
 package com.shinemo.mpush.tools.config;
 
 
+import java.util.List;
+
 import org.aeonbits.owner.Config;
 import org.aeonbits.owner.ConfigFactory;
 import org.aeonbits.owner.Config.Sources;
+
+import com.shinemo.mpush.tools.redis.RedisGroup;
 
 @Sources({"classpath:config.properties"})
 public interface ConfigCenter extends Config{
@@ -73,5 +77,10 @@ public interface ConfigCenter extends Config{
 	@Key("zk_digest")
 	@DefaultValue("shinemoIpo")
 	public String zkDigest();
+	
+	@Separator(";")
+	@Key("redis_group")
+	@ConverterClass(RedisGroupConverter.class)
+	public List<RedisGroup> redisGroups();
 	
 }
