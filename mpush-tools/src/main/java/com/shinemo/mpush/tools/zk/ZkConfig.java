@@ -23,7 +23,11 @@ public class ZkConfig {
     private final String localCachePath;
 
 	public ZkConfig(String ipLists, String namespace) {
-		this(ipLists, namespace, Constants.ZK_MAX_RETRY, Constants.ZK_MIN_TIME, Constants.ZK_MAX_TIME, Constants.ZK_SESSION_TIMEOUT, Constants.ZK_CONNECTION_TIMEOUT,null,Constants.ZK_DEFAULT_CACHE_PATH);
+		this(ipLists, namespace, null);
+	}
+	
+	public ZkConfig(String ipLists, String namespace,String digest) {
+		this(ipLists, namespace, Constants.ZK_MAX_RETRY, Constants.ZK_MIN_TIME, Constants.ZK_MAX_TIME, Constants.ZK_SESSION_TIMEOUT, Constants.ZK_CONNECTION_TIMEOUT,digest,Constants.ZK_DEFAULT_CACHE_PATH);
 	}
 	
 	public ZkConfig(String ipLists, String namespace, int maxRetry, int minTime, int maxTime, int sessionTimeout, int connectionTimeout,String digest,String localCachePath) {

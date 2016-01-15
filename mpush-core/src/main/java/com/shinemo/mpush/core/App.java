@@ -1,6 +1,5 @@
 package com.shinemo.mpush.core;
 
-import com.google.common.collect.Lists;
 import com.shinemo.mpush.api.Server;
 import com.shinemo.mpush.core.server.ConnectionServer;
 import com.shinemo.mpush.core.server.GatewayServer;
@@ -8,14 +7,11 @@ import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.redis.RedisGroup;
-import com.shinemo.mpush.tools.redis.RedisNode;
 import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
 import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZkUtil;
 import com.shinemo.mpush.tools.zk.listener.impl.RedisPathListener;
-
-import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,12 +107,10 @@ public final class App {
     }
 
     public void initRedisClient() throws Exception {
-        Stat stat = ZkUtil.instance.getClient().checkExists().forPath(ZKPath.REDIS_SERVER.getPath());
-        if (stat == null) {
-            RedisNode node1 = new RedisNode("10.1.20.74", 6379, "ShineMoIpo");
-            RedisGroup group1 = new RedisGroup();
-            group1.addRedisNode(node1);
-            List<RedisGroup> groupList = Lists.newArrayList(group1);
+    	
+    	boolean exist = ZkUtil.instance.isExisted(ZKPath.REDIS_SERVER.getPath());
+        if (!exist) {
+            List<RedisGroup> groupList = ConfigCenter.holder.redisGroups();
             ZkUtil.instance.registerPersist(ZKPath.REDIS_SERVER.getPath(), Jsons.toJson(groupList));
         }
         RedisPathListener listener = new RedisPathListener();
