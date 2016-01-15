@@ -113,6 +113,7 @@ public final class App {
     
     public void initZkRegister(){
     	zkRegister = ServiceContainer.getInstance(ZkRegister.class);
+    	zkRegister.init();
     }
 
     public void initRedisClient() throws Exception {
