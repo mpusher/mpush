@@ -14,6 +14,8 @@ import org.apache.curator.framework.CuratorFrameworkFactory.Builder;
 import org.apache.curator.framework.api.ACLProvider;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.utils.CloseableUtils;
 import org.apache.zookeeper.CreateMode;
@@ -22,9 +24,11 @@ import org.apache.zookeeper.data.ACL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.zk.ZkConfig;
 import com.shinemo.mpush.tools.zk.ZkRegister;
+import com.shinemo.mpush.tools.zk.listener.DataChangeListener;
 
 public class ZkRegisterManager implements ZkRegister {
 
@@ -79,11 +83,27 @@ public class ZkRegisterManager implements ZkRegister {
 		try {
 			client.blockUntilConnected();
 			cacheData();
+			registerConnectionLostListener();
 		} catch (final Exception ex) {
 			LOGGER.error("zk connection error" + ToStringBuilder.reflectionToString(zkConfig, ToStringStyle.DEFAULT_STYLE));
 		}
 
 	}
+	
+    // 注册连接状态监听器
+    private void registerConnectionLostListener() {
+        client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
+
+            @Override
+            public void stateChanged(final CuratorFramework client, final ConnectionState newState) {
+                if (ConnectionState.LOST == newState) {
+                	LOGGER.warn(MPushUtil.getInetAddress() + ", lost connection");
+                } else if (ConnectionState.RECONNECTED == newState) {
+                	LOGGER.warn(MPushUtil.getInetAddress() + ", reconnected");
+                }
+            }
+        });
+    }
 
 	// 本地缓存
 	private void cacheData() throws Exception {
@@ -276,6 +296,11 @@ public class ZkRegisterManager implements ZkRegister {
 		} catch (final Exception ex) {
 			LOGGER.error("remove" + key, ex);
 		}
+	}
+	
+	@Override
+	public void registerListener(DataChangeListener listener){
+		cache.getListenable().addListener(listener);
 	}
 
 	@Override

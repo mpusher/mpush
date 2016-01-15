@@ -1,4 +1,4 @@
-package com.shinemo.mpush.tools.zk.manage;
+package com.shinemo.mpush.cs.manage;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -12,19 +12,15 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.shinemo.mpush.tools.zk.ServerApp;
 
-/**
- * 系统中当前可用的app列表
- *
- */
-public class ServerAppManage {
-	
-	private static final Logger log = LoggerFactory.getLogger(ServerAppManage.class);
+public class ConnectionServerManage {
+
+	private static final Logger log = LoggerFactory.getLogger(ConnectionServerManage.class);
 
 	private static Map<String,ServerApp> holder = Maps.newConcurrentMap();
 	
-	public static final ServerAppManage instance = new ServerAppManage();
+	public static final ConnectionServerManage instance = new ConnectionServerManage();
 	
-	private ServerAppManage() {
+	private ConnectionServerManage() {
 	}
 
 	public void addOrUpdate(String fullPath,ServerApp app){
@@ -46,4 +42,5 @@ public class ServerAppManage {
 			log.warn(ToStringBuilder.reflectionToString(app, ToStringStyle.DEFAULT_STYLE));
 		}
 	}
+	
 }

@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.TreeCache;
-
 import com.shinemo.mpush.tools.spi.SPI;
+import com.shinemo.mpush.tools.zk.listener.DataChangeListener;
 
 
 @SPI("zkRegister")
@@ -37,6 +37,8 @@ public interface ZkRegister {
 
 	public ZkConfig getZkConfig();
 
-	TreeCache getCache();
+	public TreeCache getCache();
+
+	public void registerListener(DataChangeListener listener);
 	
 }
