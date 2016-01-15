@@ -7,11 +7,13 @@ import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.redis.RedisGroup;
+import com.shinemo.mpush.tools.spi.ServiceContainer;
 import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
 import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ServerApp;
-import com.shinemo.mpush.tools.zk.ZkUtil;
+import com.shinemo.mpush.tools.zk.ZkRegister;
 import com.shinemo.mpush.tools.zk.listener.impl.RedisPathListener;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +28,8 @@ public final class App {
     private static final App APP = new App();
     private ConnectionServer connectionServer;
     private GatewayServer gatewayServer;
+    
+    private ZkRegister zkRegister = null;
 
     public static void main(String[] args) throws Exception {
         LOGGER.error("mpush app start begin....");
@@ -102,19 +106,23 @@ public final class App {
 
     private void registerServerToZK(int port, ZKPath path) {
         ServerApp app = new ServerApp(MPushUtil.getLocalIp(), port);
-        ZkUtil.instance.registerEphemeralSequential(path.getWatchPath(), Jsons.toJson(app));
+        zkRegister.registerEphemeralSequential(path.getWatchPath(), Jsons.toJson(app));
         LOGGER.error("mpush app register server:{} to zk success", port);
+    }
+    
+    public void initZkRegister(){
+    	zkRegister = ServiceContainer.getInstance(ZkRegister.class);
     }
 
     public void initRedisClient() throws Exception {
     	
-    	boolean exist = ZkUtil.instance.isExisted(ZKPath.REDIS_SERVER.getPath());
+    	boolean exist = zkRegister.isExisted(ZKPath.REDIS_SERVER.getPath());
         if (!exist) {
             List<RedisGroup> groupList = ConfigCenter.holder.redisGroups();
-            ZkUtil.instance.registerPersist(ZKPath.REDIS_SERVER.getPath(), Jsons.toJson(groupList));
+            zkRegister.registerPersist(ZKPath.REDIS_SERVER.getPath(), Jsons.toJson(groupList));
         }
         RedisPathListener listener = new RedisPathListener();
-        ZkUtil.instance.getCache().getListenable().addListener(listener);
+        zkRegister.getCache().getListenable().addListener(listener);
         listener.initData(null);
     }
 }

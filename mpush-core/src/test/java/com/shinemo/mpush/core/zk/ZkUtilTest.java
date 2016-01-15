@@ -1,4 +1,4 @@
-package com.shinemo.mpush.tools.zk;
+package com.shinemo.mpush.core.zk;
 
 import java.util.List;
 
@@ -13,14 +13,18 @@ import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.redis.RedisNode;
+import com.shinemo.mpush.tools.zk.ServerApp;
+import com.shinemo.mpush.tools.zk.ZKPath;
+import com.shinemo.mpush.tools.zk.ZkRegister;
+import com.shinemo.mpush.tools.zk.curator.services.ZkRegisterManager;
 
 public class ZkUtilTest {
 
-    private ZkUtil zkUtil;
+    private ZkRegister zkUtil;
 
     @Before
     public void setUp() throws Exception {
-        zkUtil = ZkUtil.instance;
+        zkUtil = new ZkRegisterManager();
     }
 
     @Test

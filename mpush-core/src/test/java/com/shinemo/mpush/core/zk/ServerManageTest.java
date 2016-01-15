@@ -1,4 +1,4 @@
-package com.shinemo.mpush.tools.zk;
+package com.shinemo.mpush.core.zk;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.tools.MPushUtil;
+import com.shinemo.mpush.tools.zk.ServerApp;
+import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.manage.ServerManage;
 
 public class ServerManageTest {

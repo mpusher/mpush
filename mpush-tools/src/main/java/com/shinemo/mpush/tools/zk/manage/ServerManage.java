@@ -12,9 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.tools.Jsons;
+import com.shinemo.mpush.tools.spi.ServiceContainer;
 import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ServerApp;
-import com.shinemo.mpush.tools.zk.ZkUtil;
+import com.shinemo.mpush.tools.zk.ZkRegister;
 import com.shinemo.mpush.tools.zk.listener.CallBack;
 import com.shinemo.mpush.tools.zk.listener.ListenerDispatcher;
 
@@ -22,8 +23,8 @@ public class ServerManage {
 
     private static final Logger log = LoggerFactory.getLogger(ServerManage.class);
 
-    private static ZkUtil zkUtil = ZkUtil.instance;
-
+    private ZkRegister zkUtil = ServiceContainer.getInstance(ZkRegister.class);
+    
     private final AtomicBoolean startFlag = new AtomicBoolean(false);
 
     private final ServerApp app;
@@ -113,7 +114,7 @@ public class ServerManage {
         zkUtil.close();
     }
 
-    public ZkUtil getZkUtil() {
+    public ZkRegister getZkUtil() {
         return zkUtil;
     }
 
