@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.shinemo.mpush.tools.ConfigCenter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -22,6 +21,8 @@ import org.apache.zookeeper.data.ACL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.curator.framework.CuratorFrameworkFactory.Builder;
+
+import com.shinemo.mpush.tools.config.ConfigCenter;
 
 public class ZkUtil {
 
@@ -50,7 +51,7 @@ public class ZkUtil {
      * 初始化
      */
     public void init() {
-        zkConfig = new ZkConfig(ConfigCenter.INSTANCE.getZkServer(), ConfigCenter.INSTANCE.getZkNamespace());
+        zkConfig = new ZkConfig(ConfigCenter.holder.zkIp(), ConfigCenter.holder.zkNamespace());
         LOGGER.warn("start registry zk, server lists is: {}.", zkConfig.getIpLists());
         Builder builder = CuratorFrameworkFactory.builder().connectString(zkConfig.getIpLists())
                 .retryPolicy(new ExponentialBackoffRetry(zkConfig.getMinTime(), zkConfig.getMaxRetry(), zkConfig.getMaxTime())).namespace(zkConfig.getNamespace());

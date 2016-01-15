@@ -22,7 +22,7 @@ import org.apache.zookeeper.data.ACL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.shinemo.mpush.tools.ConfigCenter;
+import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.zk.ZkConfig;
 import com.shinemo.mpush.tools.zk.ZkRegister;
 import com.shinemo.mpush.tools.zk.ZkUtil;
@@ -50,7 +50,7 @@ public class ZkRegisterManager implements ZkRegister {
 	 */
 	@Override
 	public void init() {
-		zkConfig = new ZkConfig(ConfigCenter.INSTANCE.getZkServer(), ConfigCenter.INSTANCE.getZkNamespace());
+		zkConfig = new ZkConfig(ConfigCenter.holder.zkIp(), ConfigCenter.holder.zkNamespace());
 		LOGGER.warn("start registry zk, server lists is: {}.", zkConfig.getIpLists());
 		Builder builder = CuratorFrameworkFactory.builder().connectString(zkConfig.getIpLists())
 				.retryPolicy(new ExponentialBackoffRetry(zkConfig.getMinTime(), zkConfig.getMaxRetry(), zkConfig.getMaxTime())).namespace(zkConfig.getNamespace());

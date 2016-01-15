@@ -2,7 +2,6 @@ package com.shinemo.mpush.tools.zk;
 
 import java.util.List;
 
-import com.shinemo.mpush.tools.ConfigCenter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Before;
@@ -21,9 +20,7 @@ public class ZkUtilTest {
 
     @Before
     public void setUp() throws Exception {
-        ConfigCenter.INSTANCE.init();
         zkUtil = ZkUtil.instance;
-
     }
 
     @Test
