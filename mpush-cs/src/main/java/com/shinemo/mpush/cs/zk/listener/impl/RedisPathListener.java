@@ -28,9 +28,9 @@ import com.shinemo.mpush.tools.zk.listener.DataChangeListener;
 public class RedisPathListener extends  DataChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(RedisPathListener.class);
 
-	private static final ZkRegister zkRegister = ServiceContainer.getInstance(ZkRegister.class);
+	private final ZkRegister zkRegister = ServiceContainer.getInstance(ZkRegister.class);
 
-	private static final RedisRegister redisRegister = ServiceContainer.getInstance(RedisRegister.class);
+	private final RedisRegister redisRegister = ServiceContainer.getInstance(RedisRegister.class);
 	
 	// 获取redis列表
 	private void _initData() {

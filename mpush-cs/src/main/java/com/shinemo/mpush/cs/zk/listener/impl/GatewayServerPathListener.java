@@ -13,7 +13,7 @@ import com.shinemo.mpush.tools.zk.ZKPath;
 public class GatewayServerPathListener extends AbstractDataChangeListener<GatewayServerApplication>{
 	
 	@SuppressWarnings("unchecked")
-	private static ServerManage<GatewayServerApplication> gatewayServerManage = ServiceContainer.getInstance(ServerManage.class, "gatewayServerManage");
+	private ServerManage<GatewayServerApplication> gatewayServerManage = ServiceContainer.getInstance(ServerManage.class, "gatewayServerManage");
 	
 
 	@Override
