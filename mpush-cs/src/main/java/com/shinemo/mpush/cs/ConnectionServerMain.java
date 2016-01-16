@@ -7,8 +7,8 @@ import com.shinemo.mpush.core.AbstractServer;
 import com.shinemo.mpush.core.server.ConnectionServer;
 import com.shinemo.mpush.cs.zk.listener.impl.ConnectionServerPathListener;
 import com.shinemo.mpush.cs.zk.listener.impl.PushServerPathListener;
-import com.shinemo.mpush.cs.zk.listener.impl.RedisPathListener;
 import com.shinemo.mpush.tools.config.ConfigCenter;
+import com.shinemo.mpush.tools.zk.listener.impl.RedisPathListener;
 
 public class ConnectionServerMain extends AbstractServer<ConnectionServerApplication>{
 	

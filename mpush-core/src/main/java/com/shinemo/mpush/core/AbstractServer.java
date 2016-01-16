@@ -17,6 +17,7 @@ import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
 import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ZkRegister;
 import com.shinemo.mpush.tools.zk.listener.DataChangeListener;
+import com.shinemo.mpush.tools.zk.listener.impl.RedisPathListener;
 
 public abstract class AbstractServer<T extends Application> {
 	
@@ -32,6 +33,7 @@ public abstract class AbstractServer<T extends Application> {
     
 	public AbstractServer() {
 		this.application = getApplication();
+		registerListener(new RedisPathListener());
 	}
 	
 	@SuppressWarnings("unchecked")
