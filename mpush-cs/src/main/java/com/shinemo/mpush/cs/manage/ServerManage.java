@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import com.shinemo.mpush.tools.spi.SPI;
 
-@SPI("redisServerManage")
+@SPI("connectionServerManage")
 public interface ServerManage<T> {
 
 	public void addOrUpdate(String fullPath, T application);

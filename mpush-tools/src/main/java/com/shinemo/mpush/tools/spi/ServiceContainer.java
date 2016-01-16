@@ -7,6 +7,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
 
@@ -27,7 +28,33 @@ public class ServiceContainer {
 
 	// class -> ( beanId -> beanInstance)
 	private static final ConcurrentMap<Class<?>, ConcurrentMap<String, Object>> objectsCachedMap = Maps.newConcurrentMap();
-	
+
+	//暂时不使用这个,但是代码保留
+	@Deprecated
+	public static <T> T load(Class<T> clazz) {
+		try {
+			T instance = ServiceLoader.load(clazz, ServiceContainer.class.getClassLoader()).iterator().next();
+			return instance;
+		} catch (Throwable e) {
+			log.warn("can not load " + clazz, e);
+		}
+		return null;
+	}
+
+	//暂时不使用这个,但是代码保留
+	@Deprecated
+	public static <T> List<T> loadList(Class<T> classType) {
+		List<T> list = Lists.newArrayList();
+		try {
+			for (T instance : ServiceLoader.load(classType, ServiceContainer.class.getClassLoader())) {
+				list.add(instance);
+			}
+			return list;
+		} catch (RuntimeException e) {
+			throw e;
+		}
+	}
+
 	public static <T> T getInstance(Class<T> clazz) {
 
 		if (clazz == null)
@@ -51,30 +78,30 @@ public class ServiceContainer {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> List<T> getInstances(Class<T> clazz){
+	public static <T> List<T> getInstances(Class<T> clazz) {
 		ConcurrentMap<String, Object> objMap = objectsCachedMap.get(clazz);
 		if (objMap == null) {
 			synchronized (clazz) {
 				objMap = objectsCachedMap.get(clazz);
-				if(objMap == null){
+				if (objMap == null) {
 					objMap = Maps.newConcurrentMap();
 					objectsCachedMap.put(clazz, objMap);
 				}
 			}
 		}
 		objMap = objectsCachedMap.get(clazz);
-		if(!objMap.isEmpty()){
-			return Lists.newArrayList((Collection<T>)objMap.values());
+		if (!objMap.isEmpty()) {
+			return Lists.newArrayList((Collection<T>) objMap.values());
 		}
-		
+
 		initClazzInstances(clazz);
-		
+
 		objMap = objectsCachedMap.get(clazz);
-		if(!objMap.isEmpty()){
-			return Lists.newArrayList((Collection<T>)objMap.values());
+		if (!objMap.isEmpty()) {
+			return Lists.newArrayList((Collection<T>) objMap.values());
 		}
 		throw new IllegalStateException("Failed getInstance class(interface: " + clazz);
-		
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -83,7 +110,7 @@ public class ServiceContainer {
 		if (objMap == null) {
 			synchronized (clazz) {
 				objMap = objectsCachedMap.get(clazz);
-				if(objMap==null){
+				if (objMap == null) {
 					objMap = Maps.newConcurrentMap();
 					objectsCachedMap.put(clazz, objMap);
 				}
@@ -96,48 +123,48 @@ public class ServiceContainer {
 		if (obj != null) {
 			return obj;
 		}
-		
-		//初始化所有
+
+		// 初始化所有
 		initClazzInstances(clazz);
-		
+
 		obj = (T) objMap.get(key);
 
 		if (obj != null) {
 			return obj;
 		}
-		
+
 		throw new IllegalStateException("Failed getInstance class(interface: " + clazz + ", key: " + key + ")");
 
 	}
-	
-	private static <T> void initClazzInstances(Class<T> clazz){
-		
+
+	private static <T> void initClazzInstances(Class<T> clazz) {
+
 		Map<String, Class<?>> clazzMap = getClazzMap(clazz);
 		ConcurrentMap<String, Object> objMap = objectsCachedMap.get(clazz);
-		if(objMap.isEmpty()){
+		if (objMap.isEmpty()) {
 			synchronized (clazz) {
 				objMap = objectsCachedMap.get(clazz);
-				if(objMap.isEmpty()){
+				if (objMap.isEmpty()) {
 					Iterator<Entry<String, Class<?>>> iter = clazzMap.entrySet().iterator();
 					while (iter.hasNext()) {
 						Entry<String, Class<?>> entry = iter.next();
-					    String entryKey = entry.getKey();
-					    Class<?> val = entry.getValue();
-					    Object oldObj = objMap.get(entryKey);
-					    if(oldObj==null){
-						    Object newObj;
+						String entryKey = entry.getKey();
+						Class<?> val = entry.getValue();
+						Object oldObj = objMap.get(entryKey);
+						if (oldObj == null) {
+							Object newObj;
 							try {
 								newObj = val.newInstance();
 								objMap.putIfAbsent(entryKey, newObj);
 							} catch (Exception e) {
 							}
-					    }
+						}
 					}
 					objectsCachedMap.put(clazz, objMap);
 				}
 			}
 		}
-		
+
 	}
 
 	private static <T> Map<String, Class<?>> getClazzMap(Class<T> clazz) {
@@ -154,13 +181,21 @@ public class ServiceContainer {
 		Map<String, Class<?>> map = Maps.newHashMap();
 		try {
 			Enumeration<java.net.URL> urls;
-			ClassLoader classLoader = ServiceContainer.class.getClassLoader();
+			// ClassLoader classLoader =
+			// ServiceContainer.class.getClassLoader();
+			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 			if (classLoader != null) {
 				urls = classLoader.getResources(fileName);
 			} else {
 				urls = ClassLoader.getSystemResources(fileName);
 			}
 			if (urls != null) {
+				while (!urls.hasMoreElements() && classLoader != null) {
+					classLoader = classLoader.getParent();
+					if (classLoader != null) {
+						urls = classLoader.getResources(fileName);
+					}
+				}
 				while (urls.hasMoreElements()) {
 					java.net.URL url = urls.nextElement();
 					try {
@@ -205,11 +240,11 @@ public class ServiceContainer {
 		}
 		synchronized (type) {
 			Map<String, Class<?>> oldMap = clazzCacheMap.get(type);
-			if(oldMap==null){
+			if (oldMap == null) {
 				clazzCacheMap.put(type, map);
 			}
 		}
-		
+
 	}
 
 	public static String toLowerCaseFirstOne(String s) {

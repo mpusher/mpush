@@ -14,7 +14,7 @@ import com.shinemo.mpush.tools.zk.ZKPath;
 public class ConnectionServerPathListener extends AbstractDataChangeListener<ConnectionServerApplication>{
 	
 	@SuppressWarnings("unchecked")
-	private ServerManage<ConnectionServerApplication> connectionServerManage = ServiceContainer.getInstance(ServerManage.class, "connectionServerManage");
+	private ServerManage<ConnectionServerApplication> connectionServerManage = ServiceContainer.getInstance(ServerManage.class);
 	
 	@Override
 	public String listenerPath() {
