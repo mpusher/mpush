@@ -118,13 +118,12 @@ public abstract class AbstractServer<T extends Application> {
 		initServer();
 		startServer();
 		registerServerToZk();
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                if (server != null) {
-                	server.stop(null);
-                }
-            }
-        });
+	}
+	
+	public void stop(){
+		if(server!=null){
+			server.stop(null);
+		}
 	}
 	
 }

@@ -29,8 +29,13 @@ public class ConnectionServerMain extends AbstractServer<ConnectionServerApplica
 
 	
 	public static void main(String[] args) {
-		ConnectionServerMain connectionServerMain = new ConnectionServerMain();
+		final ConnectionServerMain connectionServerMain = new ConnectionServerMain();
 		connectionServerMain.start();
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+            	connectionServerMain.stop();
+            }
+        });
 	}
 
 }
