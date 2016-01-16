@@ -35,7 +35,7 @@ public class PushServerPathListener extends DataChangeListener{
 
 	@Override
 	public String listenerPath() {
-		return ZKPath.CONNECTION_SERVER.getWatchPath();
+		return ZKPath.PUSH_SERVER.getWatchPath();
 	}
 	
 
