@@ -9,12 +9,10 @@ import com.google.common.collect.Lists;
 import com.shinemo.mpush.api.Server;
 import com.shinemo.mpush.tools.GenericsUtil;
 import com.shinemo.mpush.tools.Jsons;
-import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.spi.ServiceContainer;
 import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
-import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ZkRegister;
 import com.shinemo.mpush.tools.zk.listener.DataChangeListener;
@@ -53,7 +51,6 @@ public abstract class AbstractServer<T extends Application> {
 
 	//step1 启动 zk
 	private void initZK(){
-		zkRegister = ServiceContainer.getInstance(ZkRegister.class);
     	zkRegister.init();
 	}
 	
@@ -110,8 +107,7 @@ public abstract class AbstractServer<T extends Application> {
 	
 	//step7  注册应用到zk
 	public void registerServerToZk(){
-		ServerApp app = new ServerApp(MPushUtil.getLocalIp(), application.getPort());
-        zkRegister.registerEphemeralSequential(application.getServerRegisterZkPath(), Jsons.toJson(app));
+        zkRegister.registerEphemeralSequential(application.getServerRegisterZkPath(), Jsons.toJson(application));
 	}
 	
 	public void start(){
