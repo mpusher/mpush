@@ -11,7 +11,7 @@ import org.apache.curator.framework.recipes.cache.TreeCacheEvent.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.shinemo.mpush.core.Application;
+import com.shinemo.mpush.common.Application;
 import com.shinemo.mpush.cs.manage.ServerManage;
 import com.shinemo.mpush.tools.GenericsUtil;
 import com.shinemo.mpush.tools.Jsons;

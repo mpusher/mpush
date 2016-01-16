@@ -9,7 +9,7 @@ import com.shinemo.mpush.tools.zk.listener.DataChangeListener;
 
 
 @SPI("zkRegister")
-public interface ZkRegister<T> {
+public interface ZkRegister {
 
 	public void init();
 

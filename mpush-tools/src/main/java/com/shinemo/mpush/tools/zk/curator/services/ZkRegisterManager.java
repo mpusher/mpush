@@ -30,7 +30,7 @@ import com.shinemo.mpush.tools.zk.ZkConfig;
 import com.shinemo.mpush.tools.zk.ZkRegister;
 import com.shinemo.mpush.tools.zk.listener.DataChangeListener;
 
-public class ZkRegisterManager implements ZkRegister<Object> {
+public class ZkRegisterManager implements ZkRegister {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ZkRegisterManager.class);
 
