@@ -1,6 +1,6 @@
 package com.shinemo.mpush.cs;
 
-import com.shinemo.mpush.core.Application;
+import com.shinemo.mpush.common.Application;
 import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.zk.ZKPath;

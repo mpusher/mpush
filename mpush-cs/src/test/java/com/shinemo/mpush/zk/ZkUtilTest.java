@@ -1,4 +1,4 @@
-package com.shinemo.mpush.core.zk;
+package com.shinemo.mpush.zk;
 
 import java.util.List;
 
@@ -8,12 +8,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.shinemo.mpush.core.server.ConnectionServer;
+import com.shinemo.mpush.cs.ConnectionServerApplication;
 import com.shinemo.mpush.tools.Constants;
 import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.redis.RedisNode;
-import com.shinemo.mpush.tools.zk.ServerApp;
 import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ZkRegister;
 import com.shinemo.mpush.tools.zk.curator.services.ZkRegisterManager;
@@ -100,7 +101,7 @@ public class ZkUtilTest {
     @Test
     public void testRegisterIp() {
         String localIp = MPushUtil.getInetAddress();
-        ServerApp app = new ServerApp(localIp, 3000);
+        ConnectionServerApplication app = new ConnectionServerApplication();
         zkUtil.registerPersist("/" + localIp, Jsons.toJson(app));
         String value = zkUtil.get("/" + localIp);
         System.out.println(value);

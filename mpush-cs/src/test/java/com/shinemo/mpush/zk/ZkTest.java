@@ -1,4 +1,4 @@
-package com.shinemo.mpush.core.zk;
+package com.shinemo.mpush.zk;
 
 import org.junit.Test;
 
