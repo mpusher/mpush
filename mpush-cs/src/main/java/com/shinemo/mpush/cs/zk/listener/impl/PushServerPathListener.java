@@ -1,5 +1,7 @@
 package com.shinemo.mpush.cs.zk.listener.impl;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.TreeCacheEvent;
 import org.slf4j.Logger;
@@ -22,7 +24,11 @@ public class PushServerPathListener extends DataChangeListener{
 
 	@Override
 	public void dataChanged(CuratorFramework client, TreeCacheEvent event, String path) throws Exception {
-		
+		String data = "";
+		if (event.getData() != null) {
+			data = ToStringBuilder.reflectionToString(event.getData(), ToStringStyle.MULTI_LINE_STYLE);
+		}
+		log.warn("ConnPathListener other path:" + path + "," + event.getType().name() + "," + data);
 	}
 
 	@Override
