@@ -7,6 +7,7 @@ import org.apache.curator.framework.recipes.cache.TreeCacheEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.listener.DataChangeListener;
 
 /**
@@ -19,7 +20,8 @@ public class PushServerPathListener extends DataChangeListener{
 
 	@Override
 	public void initData() {
-		
+		log.warn("start init push server data");
+		log.warn("end init push server data");
 	}
 
 	@Override
@@ -33,7 +35,7 @@ public class PushServerPathListener extends DataChangeListener{
 
 	@Override
 	public String listenerPath() {
-		return null;
+		return ZKPath.CONNECTION_SERVER.getWatchPath();
 	}
 	
 

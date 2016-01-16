@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.shinemo.mpush.api.Server;
-import com.shinemo.mpush.core.server.ConnectionServer;
 import com.shinemo.mpush.tools.GenericsUtil;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.MPushUtil;
@@ -53,13 +52,13 @@ public abstract class AbstractServer<T extends Application> {
 	}
 
 	//step1 启动 zk
-	public void initZK(){
+	private void initZK(){
 		zkRegister = ServiceContainer.getInstance(ZkRegister.class);
     	zkRegister.init();
 	}
 	
 	//step2 获取redis
-	public void initRedis(){
+	private void initRedis(){
 		boolean exist = zkRegister.isExisted(ZKPath.REDIS_SERVER.getPath());
         if (!exist) {
             List<RedisGroup> groupList = ConfigCenter.holder.redisGroups();
@@ -67,25 +66,30 @@ public abstract class AbstractServer<T extends Application> {
         }
 	}
 	
-	//step3 初始化 listener data
-	public void initListenerData(){
+	//step3 注册listener
+	private void registerListeners(){
+		for(DataChangeListener listener:dataChangeListeners){
+			zkRegister.registerListener(listener);
+		}
+	}
+	
+	//step4 初始化 listener data
+	private void initListenerData(){
 		for(DataChangeListener listener:dataChangeListeners){
 			listener.initData();
 		}
 	}
 	
-	//step4 初始化server
-	public void initServer(){
+	//step5 初始化server
+	private void initServer(){
 		server = getServer();
 	}
 	
-	//step4 启动 netty server
-	public void startServer(){
+	//step6 启动 netty server
+	private void startServer(){
 		ThreadPoolUtil.newThread(new Runnable() {
             @Override
             public void run() {
-            	final int port = ConfigCenter.holder.connectionServerPort();
-                ConnectionServer server = new ConnectionServer(port);
                 server.init();
                 server.start(new Server.Listener() {
                     @Override
@@ -104,7 +108,7 @@ public abstract class AbstractServer<T extends Application> {
 		
 	}
 	
-	//step5  注册应用到zk
+	//step7  注册应用到zk
 	public void registerServerToZk(){
 		ServerApp app = new ServerApp(MPushUtil.getLocalIp(), application.getPort());
         zkRegister.registerEphemeralSequential(application.getServerRegisterZkPath(), Jsons.toJson(app));
@@ -113,7 +117,9 @@ public abstract class AbstractServer<T extends Application> {
 	public void start(){
 		initZK();
 		initRedis();
+		registerListeners();
 		initListenerData();
+		initServer();
 		startServer();
 		registerServerToZk();
 		Runtime.getRuntime().addShutdownHook(new Thread() {

@@ -31,9 +31,9 @@ public class ConnectionServerPathListener extends DataChangeListener{
 
 	@Override
 	public void initData() {
-		log.warn("start init app data");
+		log.warn("start init connection server data");
 		_initData();
-		log.warn("end init app data");
+		log.warn("end init connection server data");
 	}
 
 	private void _initData() {
@@ -84,7 +84,7 @@ public class ConnectionServerPathListener extends DataChangeListener{
 
 	@Override
 	public String listenerPath() {
-		return null;
+		return ZKPath.CONNECTION_SERVER.getWatchPath();
 	}
 
 }

@@ -17,9 +17,9 @@ public abstract class DataChangeListener implements TreeCacheListener{
             return;
         }
         
-        log.warn("DataChangeListener:"+path);
+        log.warn("DataChangeListener:"+path+",listenerPath:"+listenerPath());
         
-        if(listenerPath().equals(path)){
+        if(path.startsWith(listenerPath())){
             dataChanged(client, event, path);
         }
 	}
