@@ -1,1 +1,3 @@
 connectionServerManage=com.shinemo.mpush.cs.manage.impl.ConnectionServerManage
+gatewayServerManage=com.shinemo.mpush.cs.manage.impl.GatewayServerManage
+pushServerManage=com.shinemo.mpush.cs.manage.impl.PushServerManage
