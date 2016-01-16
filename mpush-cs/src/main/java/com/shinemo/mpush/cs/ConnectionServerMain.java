@@ -27,5 +27,10 @@ public class ConnectionServerMain extends AbstractServer<ConnectionServerApplica
         return connectionServer;
 	}
 
+	
+	public static void main(String[] args) {
+		ConnectionServerMain connectionServerMain = new ConnectionServerMain();
+		connectionServerMain.start();
+	}
 
 }

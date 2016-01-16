@@ -110,7 +110,7 @@ public abstract class AbstractServer<T extends Application> {
         zkRegister.registerEphemeralSequential(application.getServerRegisterZkPath(), Jsons.toJson(app));
 	}
 	
-	public void init(){
+	public void start(){
 		initZK();
 		initRedis();
 		initListenerData();
