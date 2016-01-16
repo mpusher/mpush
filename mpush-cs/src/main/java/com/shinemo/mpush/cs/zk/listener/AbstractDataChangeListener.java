@@ -11,18 +11,27 @@ import org.apache.curator.framework.recipes.cache.TreeCacheEvent.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.shinemo.mpush.core.Application;
 import com.shinemo.mpush.cs.manage.ServerManage;
+import com.shinemo.mpush.tools.GenericsUtil;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.spi.ServiceContainer;
 import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ZkRegister;
 import com.shinemo.mpush.tools.zk.listener.DataChangeListener;
 
-public abstract class AbstractDataChangeListener<T> extends DataChangeListener {
+public abstract class AbstractDataChangeListener<T extends Application> extends DataChangeListener {
 	
 	protected static ZkRegister zkRegister = ServiceContainer.getInstance(ZkRegister.class);
 	
 	private static final Logger log = LoggerFactory.getLogger(AbstractDataChangeListener.class);
+
+	private Class<T> clazz;
+	
+	@SuppressWarnings("unchecked")
+	public AbstractDataChangeListener() {
+		clazz = (Class<T>) GenericsUtil.getSuperClassGenericType(this.getClass(), 0);
+	}
 	
 	public void dataChanged(CuratorFramework client, TreeCacheEvent event, String path) throws Exception {
 		String data = "";
@@ -30,11 +39,11 @@ public abstract class AbstractDataChangeListener<T> extends DataChangeListener {
 			data = ToStringBuilder.reflectionToString(event.getData(), ToStringStyle.MULTI_LINE_STYLE);
 		}
 		if (Type.NODE_ADDED == event.getType()) {
-			dataAddOrUpdate(event.getData(),null);
+			dataAddOrUpdate(event.getData(),clazz);
 		} else if (Type.NODE_REMOVED == event.getType()) {
 			dataRemove(event.getData());
 		} else if (Type.NODE_UPDATED == event.getType()) {
-			dataAddOrUpdate(event.getData(),null);
+			dataAddOrUpdate(event.getData(),clazz);
 		} else {
 			log.warn(this.getClass().getSimpleName()+"other path:" + path + "," + event.getType().name() + "," + data);
 		}
@@ -55,7 +64,7 @@ public abstract class AbstractDataChangeListener<T> extends DataChangeListener {
 		List<String> rawData = zkRegister.getChildrenKeys(getRegisterPath());
 		for (String raw : rawData) {
 			String fullPath = ZKPath.CONNECTION_SERVER.getFullPath(raw);
-			T app = getServerApplication(fullPath,null);
+			T app = getServerApplication(fullPath,clazz);
 			getServerManage().addOrUpdate(fullPath, app);
 		}
 	}
