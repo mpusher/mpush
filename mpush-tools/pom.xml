@@ -95,7 +95,10 @@
                     </artifactSet>
                     <transformers>
                       <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                        <resource>META-INF/mpush/services/com.shinemo.mpush.tools.spi.test.TestService</resource>
+                        <resource>META-INF/mpush/services/com.shinemo.mpush.tools.redis.RedisRegister</resource>
+                      </transformer>
+                      <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                        <resource>META-INF/mpush/services/com.shinemo.mpush.tools.zk.ZkRegister</resource>
                       </transformer>
                     </transformers>
                   </configuration>
