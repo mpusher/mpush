@@ -1,4 +1,4 @@
-package com.shinemo.mpush.client;
+package com.shinemo.mpush.ps;
 
 import com.google.common.base.Strings;
 import com.shinemo.mpush.api.Client;

@@ -1,4 +1,4 @@
-package com.shinemo.mpush.client;
+package com.shinemo.mpush.ps;
 
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Command;
