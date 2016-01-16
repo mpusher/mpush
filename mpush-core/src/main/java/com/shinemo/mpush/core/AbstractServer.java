@@ -86,7 +86,7 @@ public abstract class AbstractServer<T extends Application> {
 	}
 	
 	//step6 启动 netty server
-	private void startServer(){
+	public void startServer(final Server server){
 		ThreadPoolUtil.newThread(new Runnable() {
             @Override
             public void run() {
@@ -94,12 +94,12 @@ public abstract class AbstractServer<T extends Application> {
                 server.start(new Server.Listener() {
                     @Override
                     public void onSuccess() {
-                        log.error("mpush app start connection server success....");
+                        log.error("mpush app start "+server.getClass().getSimpleName()+" server success....");
                     }
 
                     @Override
                     public void onFailure(String message) {
-                    	log.error("mpush app start connection server failure, jvm exit with code -1");
+                    	log.error("mpush app start "+server.getClass().getSimpleName()+" server failure, jvm exit with code -1");
                         System.exit(-1);
                     }
                 });
@@ -109,8 +109,8 @@ public abstract class AbstractServer<T extends Application> {
 	}
 	
 	//step7  注册应用到zk
-	public void registerServerToZk(){
-        zkRegister.registerEphemeralSequential(application.getServerRegisterZkPath(), Jsons.toJson(application));
+	public void registerServerToZk(String path,String value){
+        zkRegister.registerEphemeralSequential(path, value);
 	}
 	
 	public void start(){
@@ -119,14 +119,18 @@ public abstract class AbstractServer<T extends Application> {
 		registerListeners();
 		initListenerData();
 		initServer();
-		startServer();
-		registerServerToZk();
+		startServer(server);
+		registerServerToZk(application.getServerRegisterZkPath(),Jsons.toJson(application));
 	}
 	
-	public void stop(){
+	public void stopServer(Server server){
 		if(server!=null){
 			server.stop(null);
 		}
+	}
+	
+	public void stop(){
+		stopServer(server);
 	}
 	
 }

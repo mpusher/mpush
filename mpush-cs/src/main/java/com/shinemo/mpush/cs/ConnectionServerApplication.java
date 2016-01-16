@@ -7,6 +7,7 @@ import com.shinemo.mpush.tools.zk.ZKPath;
 
 public class ConnectionServerApplication extends Application{
 	
+	private transient GatewayServerApplication gatewayServerApplication;
 	
 	public ConnectionServerApplication() {
 		this(ConfigCenter.holder.connectionServerPort(),ZKPath.CONNECTION_SERVER.getWatchPath(),MPushUtil.getLocalIp());
@@ -16,6 +17,14 @@ public class ConnectionServerApplication extends Application{
 		setPort(port);
 		setServerRegisterZkPath(path);
 		setIp(ip);
+	}
+
+	public GatewayServerApplication getGatewayServerApplication() {
+		return gatewayServerApplication;
+	}
+
+	public void setGatewayServerApplication(GatewayServerApplication gatewayServerApplication) {
+		this.gatewayServerApplication = gatewayServerApplication;
 	}
 
 }
