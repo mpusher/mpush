@@ -7,9 +7,11 @@ package com.shinemo.mpush.core;
  */
 public abstract class Application {
 	
+	private String ip;
+	
 	private int port;
 	
-	private String serverRegisterZkPath;
+	private transient String serverRegisterZkPath;
 
 	public int getPort() {
 		return port;
@@ -25,6 +27,14 @@ public abstract class Application {
 
 	public void setServerRegisterZkPath(String serverRegisterZkPath) {
 		this.serverRegisterZkPath = serverRegisterZkPath;
+	}
+
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
 	}
 	
 }
