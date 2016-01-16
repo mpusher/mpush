@@ -1,4 +1,4 @@
-package com.shinemo.mpush.cs.manage;
+package com.shinemo.mpush.cs.manage.impl;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -10,19 +10,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
+import com.shinemo.mpush.cs.manage.ServerManage;
 import com.shinemo.mpush.tools.zk.ServerApp;
 
-public class ConnectionServerManage {
+public class ConnectionServerManage implements ServerManage{
 
 	private static final Logger log = LoggerFactory.getLogger(ConnectionServerManage.class);
 
 	private static Map<String,ServerApp> holder = Maps.newConcurrentMap();
 	
-	public static final ConnectionServerManage instance = new ConnectionServerManage();
-	
-	private ConnectionServerManage() {
-	}
-
 	public void addOrUpdate(String fullPath,ServerApp app){
 		holder.put(fullPath, app);
 		printAppList();

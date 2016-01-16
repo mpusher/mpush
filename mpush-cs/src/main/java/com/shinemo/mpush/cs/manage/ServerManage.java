@@ -1,7 +1,7 @@
 package com.shinemo.mpush.cs.manage;
 
-public class RedisManage {
-	
-	
+public interface ServerManage {
 
+	
+	
 }
