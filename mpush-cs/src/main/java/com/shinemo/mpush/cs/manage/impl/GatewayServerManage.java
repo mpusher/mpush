@@ -10,17 +10,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
-import com.shinemo.mpush.cs.ConnectionServerApplication;
+import com.shinemo.mpush.cs.GatewayServerApplication;
 import com.shinemo.mpush.cs.manage.ServerManage;
 
-public class ConnectionServerManage implements ServerManage<ConnectionServerApplication>{
+public class GatewayServerManage implements ServerManage<GatewayServerApplication>{
 
-	private static final Logger log = LoggerFactory.getLogger(ConnectionServerManage.class);
+	private static final Logger log = LoggerFactory.getLogger(GatewayServerManage.class);
 
-	private static Map<String,ConnectionServerApplication> holder = Maps.newConcurrentMap();
+	private static Map<String,GatewayServerApplication> holder = Maps.newConcurrentMap();
 	
 	@Override
-	public void addOrUpdate(String fullPath,ConnectionServerApplication application){
+	public void addOrUpdate(String fullPath,GatewayServerApplication application){
 		holder.put(fullPath, application);
 		printList();
 	}
@@ -32,12 +32,12 @@ public class ConnectionServerManage implements ServerManage<ConnectionServerAppl
 	}
 	
 	@Override
-	public Collection<ConnectionServerApplication> getList() {
+	public Collection<GatewayServerApplication> getList() {
 		return Collections.unmodifiableCollection(holder.values());
 	}
 	
 	private void printList(){
-		for(ConnectionServerApplication app:holder.values()){
+		for(GatewayServerApplication app:holder.values()){
 			log.warn(ToStringBuilder.reflectionToString(app, ToStringStyle.DEFAULT_STYLE));
 		}
 	}
