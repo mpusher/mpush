@@ -5,6 +5,8 @@ import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 
+import static com.shinemo.mpush.api.protocol.Command.HANDSHAKE;
+
 /**
  * Created by ohun on 2015/12/24.
  */
@@ -20,7 +22,7 @@ public final class HandshakeMessage extends ByteBufMessage {
     public long timestamp;
 
     public HandshakeMessage(Connection connection) {
-        super(new Packet(Command.HANDSHAKE.cmd, genSessionId()), connection);
+        super(new Packet(HANDSHAKE, genSessionId()), connection);
     }
 
     public HandshakeMessage(Packet message, Connection connection) {

@@ -7,6 +7,8 @@ import com.shinemo.mpush.common.ErrorCode;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 
+import static com.shinemo.mpush.api.protocol.Command.ERROR;
+
 /**
  * Created by ohun on 2015/12/28.
  */
@@ -39,7 +41,7 @@ public final class ErrorMessage extends ByteBufMessage {
     }
 
     public static ErrorMessage from(BaseMessage src) {
-        return new ErrorMessage(src.packet.cmd, new Packet(Command.ERROR.cmd
+        return new ErrorMessage(src.packet.cmd, new Packet(ERROR
                 , src.packet.sessionId), src.connection);
     }
 

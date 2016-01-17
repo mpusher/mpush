@@ -31,6 +31,15 @@ public final class Packet implements Serializable {
         this.sessionId = sessionId;
     }
 
+    public Packet(Command cmd) {
+        this.cmd = cmd.cmd;
+    }
+
+    public Packet(Command cmd, int sessionId) {
+        this.cmd = cmd.cmd;
+        this.sessionId = sessionId;
+    }
+
     public int getBodyLength() {
         return body == null ? 0 : body.length;
     }

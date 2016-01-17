@@ -6,6 +6,8 @@ import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 
+import static com.shinemo.mpush.api.protocol.Command.GATEWAY_PUSH;
+
 /**
  * Created by ohun on 2015/12/30.
  */
@@ -14,7 +16,7 @@ public class GatewayPushMessage extends ByteBufMessage {
     public String content;
 
     public GatewayPushMessage(String userId, String content, Connection connection) {
-        super(new Packet(Command.GATEWAY_PUSH.cmd, genSessionId()), connection);
+        super(new Packet(GATEWAY_PUSH, genSessionId()), connection);
         this.userId = userId;
         this.content = content;
     }
