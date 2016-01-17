@@ -1,6 +1,7 @@
 package com.shinemo.mpush.cs.client;
 
 import java.util.List;
+import java.util.concurrent.locks.LockSupport;
 
 import com.shinemo.mpush.api.Client;
 import com.shinemo.mpush.cs.ConnectionServerApplication;
@@ -28,6 +29,8 @@ public class Main {
 		});
 		t.setDaemon(false);
 		t.start();
+		
+		LockSupport.park();
 
 	}
 
