@@ -42,4 +42,8 @@ public class GatewayServerManage implements ServerManage<GatewayServerApplicatio
 		}
 	}
 	
+	public GatewayServerApplication get(String fullpath){
+		return holder.get(fullpath);
+	}
+	
 }
