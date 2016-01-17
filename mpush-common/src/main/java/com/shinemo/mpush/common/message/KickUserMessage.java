@@ -5,6 +5,8 @@ import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 
+import static com.shinemo.mpush.api.protocol.Command.KICK;
+
 /**
  * Created by ohun on 2015/12/29.
  */
@@ -13,7 +15,7 @@ public class KickUserMessage extends ByteBufMessage {
     public String userId;
 
     public KickUserMessage(Connection connection) {
-        super(new Packet(Command.KICK.cmd), connection);
+        super(new Packet(KICK), connection);
     }
 
     public KickUserMessage(Packet message, Connection connection) {
