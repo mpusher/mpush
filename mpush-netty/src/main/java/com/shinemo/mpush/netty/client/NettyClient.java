@@ -1,7 +1,6 @@
 package com.shinemo.mpush.netty.client;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
 
 import com.shinemo.mpush.netty.codec.PacketDecoder;
 import com.shinemo.mpush.netty.codec.PacketEncoder;
@@ -11,18 +10,10 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.netty.util.Timeout;
-import io.netty.util.TimerTask;
-
 import com.shinemo.mpush.api.Client;
-import com.shinemo.mpush.api.Constants;
-import com.shinemo.mpush.api.protocol.Command;
-import com.shinemo.mpush.api.protocol.Packet;
-import com.shinemo.mpush.netty.util.NettySharedHolder;
 
 public  class NettyClient implements Client {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyClient.class);
