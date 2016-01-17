@@ -1,1 +1,1 @@
-gatewayServerManage=com.shinemo.mpush.cs.manage.impl.GatewayServerManage
+gatewayServerManage=com.shinemo.mpush.common.manage.impl.GatewayServerManage
