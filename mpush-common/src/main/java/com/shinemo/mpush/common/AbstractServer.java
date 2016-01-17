@@ -1,4 +1,4 @@
-package com.shinemo.mpush.core;
+package com.shinemo.mpush.common;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.shinemo.mpush.api.Server;
-import com.shinemo.mpush.common.Application;
+import com.shinemo.mpush.common.app.Application;
 import com.shinemo.mpush.tools.GenericsUtil;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.config.ConfigCenter;

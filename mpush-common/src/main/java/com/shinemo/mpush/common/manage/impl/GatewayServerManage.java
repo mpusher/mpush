@@ -1,4 +1,4 @@
-package com.shinemo.mpush.cs.manage.impl;
+package com.shinemo.mpush.common.manage.impl;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
-import com.shinemo.mpush.cs.GatewayServerApplication;
-import com.shinemo.mpush.cs.manage.ServerManage;
+import com.shinemo.mpush.common.app.impl.GatewayServerApplication;
+import com.shinemo.mpush.common.manage.ServerManage;
 
 public class GatewayServerManage implements ServerManage<GatewayServerApplication>{
 

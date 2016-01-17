@@ -1,4 +1,4 @@
-package com.shinemo.mpush.cs.manage;
+package com.shinemo.mpush.common.manage;
 
 import java.util.Collection;
 

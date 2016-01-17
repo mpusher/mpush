@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
+import com.shinemo.mpush.common.manage.ServerManage;
 import com.shinemo.mpush.cs.ConnectionServerApplication;
-import com.shinemo.mpush.cs.manage.ServerManage;
 
 public class ConnectionServerManage implements ServerManage<ConnectionServerApplication>{
 

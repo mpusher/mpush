@@ -3,11 +3,12 @@ package com.shinemo.mpush.cs;
 
 
 import com.shinemo.mpush.api.Server;
-import com.shinemo.mpush.core.AbstractServer;
+import com.shinemo.mpush.common.AbstractServer;
+import com.shinemo.mpush.common.app.impl.GatewayServerApplication;
+import com.shinemo.mpush.common.zk.listener.impl.GatewayServerPathListener;
 import com.shinemo.mpush.core.server.ConnectionServer;
 import com.shinemo.mpush.core.server.GatewayServer;
 import com.shinemo.mpush.cs.zk.listener.impl.ConnectionServerPathListener;
-import com.shinemo.mpush.cs.zk.listener.impl.GatewayServerPathListener;
 import com.shinemo.mpush.tools.Jsons;
 
 public class ConnectionServerMain extends AbstractServer<ConnectionServerApplication>{
