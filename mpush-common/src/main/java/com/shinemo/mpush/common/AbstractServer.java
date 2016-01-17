@@ -123,6 +123,13 @@ public abstract class AbstractServer<T extends Application> {
 		registerServerToZk(application.getServerRegisterZkPath(),Jsons.toJson(application));
 	}
 	
+	public void startClient(){
+		initZK();
+		initRedis();
+		registerListeners();
+		initListenerData();
+	}
+	
 	public void stopServer(Server server){
 		if(server!=null){
 			server.stop(null);
