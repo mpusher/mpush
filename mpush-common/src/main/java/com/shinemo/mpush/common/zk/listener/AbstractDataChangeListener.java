@@ -16,7 +16,6 @@ import com.shinemo.mpush.common.manage.ServerManage;
 import com.shinemo.mpush.tools.GenericsUtil;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.spi.ServiceContainer;
-import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ZkRegister;
 import com.shinemo.mpush.tools.zk.listener.DataChangeListener;
 
@@ -57,13 +56,15 @@ public abstract class AbstractDataChangeListener<T extends Application> extends 
 	
 	public abstract String getRegisterPath();
 	
+	public abstract String getFullPath(String raw);
+	
 	public abstract ServerManage<T> getServerManage();
 
 	private void _initData() {
 		// 获取机器列表
 		List<String> rawData = zkRegister.getChildrenKeys(getRegisterPath());
 		for (String raw : rawData) {
-			String fullPath = ZKPath.CONNECTION_SERVER.getFullPath(raw);
+			String fullPath = getFullPath(raw);
 			T app = getServerApplication(fullPath,clazz);
 			getServerManage().addOrUpdate(fullPath, app);
 		}

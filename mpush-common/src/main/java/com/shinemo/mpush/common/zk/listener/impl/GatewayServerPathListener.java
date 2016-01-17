@@ -31,6 +31,11 @@ public class GatewayServerPathListener extends AbstractDataChangeListener<Gatewa
 		return ZKPath.GATEWAY_SERVER.getPath();
 	}
 
+	@Override
+	public String getFullPath(String raw) {
+		return ZKPath.GATEWAY_SERVER.getFullPath(raw);
+	}
+
 	
 
 }

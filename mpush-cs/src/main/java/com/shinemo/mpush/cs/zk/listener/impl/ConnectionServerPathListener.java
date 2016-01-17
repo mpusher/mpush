@@ -31,4 +31,9 @@ public class ConnectionServerPathListener extends AbstractDataChangeListener<Con
 		return connectionServerManage;
 	}
 
+	@Override
+	public String getFullPath(String raw) {
+		return ZKPath.CONNECTION_SERVER.getFullPath(raw);
+	}
+
 }

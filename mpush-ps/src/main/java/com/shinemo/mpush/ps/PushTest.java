@@ -1,21 +1,14 @@
 package com.shinemo.mpush.ps;
 
 import com.shinemo.mpush.api.PushSender;
-import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.concurrent.locks.LockSupport;
-
 
 /**
  * Created by ohun on 2016/1/7.
  */
 public class PushTest {
-
-    @Test
-    public void testSend() throws Exception {
-
-    }
 
     public static void main(String[] args) throws Exception {
         GatewayClientMain client = new GatewayClientMain();
