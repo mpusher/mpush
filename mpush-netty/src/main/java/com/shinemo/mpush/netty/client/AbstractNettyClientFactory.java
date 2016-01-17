@@ -1,7 +1,6 @@
 package com.shinemo.mpush.netty.client;
 
 import java.text.MessageFormat;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.channel.ChannelHandler;
