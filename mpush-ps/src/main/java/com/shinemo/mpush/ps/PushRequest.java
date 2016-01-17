@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PushRequest implements PushSender.Callback, Runnable {
 	
-	private static GatewayClientManage gatewayServerManage = (GatewayClientManage)ServiceContainer.getInstance(ServerManage.class, "psGatewayServerManage");
+	private static GatewayClientManage gatewayClientManage = (GatewayClientManage)ServiceContainer.getInstance(ServerManage.class, "gatewayClientManage");
 	
     private static final Logger LOGGER = LoggerFactory.getLogger(PushRequest.class);
     private PushSender.Callback callback;
@@ -162,7 +162,7 @@ public class PushRequest implements PushSender.Callback, Runnable {
 
         //2.通过网关连接，把消息发送到所在机器
         ClientLocation location = router.getRouteValue();
-        Connection gatewayConn = gatewayServerManage.getConnection(location.getHost());
+        Connection gatewayConn = gatewayClientManage.getConnection(location.getHost());
         if (gatewayConn == null || !gatewayConn.isConnected()) {
             this.onFailure(userId);
             return;

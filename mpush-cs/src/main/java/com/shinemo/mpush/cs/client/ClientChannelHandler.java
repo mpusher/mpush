@@ -1,4 +1,4 @@
-package com.shinemo.mpush.core.netty;
+package com.shinemo.mpush.cs.client;
 
 import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.connection.Connection;

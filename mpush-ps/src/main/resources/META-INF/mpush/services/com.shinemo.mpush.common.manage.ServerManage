@@ -1,1 +1,1 @@
-psGatewayServerManage=com.shinemo.mpush.common.manage.impl.GatewayServerManage
+gatewayClientManage=com.shinemo.mpush.ps.GatewayClientManage
