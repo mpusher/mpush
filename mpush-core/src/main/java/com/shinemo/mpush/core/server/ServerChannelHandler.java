@@ -5,7 +5,6 @@ import com.shinemo.mpush.api.connection.ConnectionManager;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.PacketReceiver;
-import com.shinemo.mpush.common.security.CipherBox;
 import com.shinemo.mpush.netty.connection.NettyConnection;
 
 import io.netty.channel.ChannelHandler;
