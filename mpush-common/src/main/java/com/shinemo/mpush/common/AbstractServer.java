@@ -13,6 +13,7 @@ import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.spi.ServiceContainer;
+import com.shinemo.mpush.tools.thread.ThreadNameSpace;
 import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
 import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ZkRegister;
@@ -104,7 +105,7 @@ public abstract class AbstractServer<T extends Application> {
                     }
                 });
             }
-        }, "conn-server", false).start();
+        }, ThreadNameSpace.getServerName(server.getClass().getSimpleName()), false).start();
 		
 	}
 	
