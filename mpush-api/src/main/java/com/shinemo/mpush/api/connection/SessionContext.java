@@ -43,14 +43,10 @@ public final class SessionContext {
         return deviceId != null && deviceId.length() > 0;
     }
 
-    @Override
-    public String toString() {
-        return "SessionContext{" +
-                ", osName='" + osName + '\'' +
-                ", osVersion='" + osVersion + '\'' +
-                ", clientVersion='" + clientVersion + '\'' +
-                ", deviceId='" + deviceId + '\'' +
-                ", heartbeat=" + heartbeat +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "SessionContext [osName=" + osName + ", osVersion=" + osVersion + ", clientVersion=" + clientVersion + ", deviceId=" + deviceId + ", heartbeat=" + heartbeat + ", cipher=" + cipher
+				+ "]";
+	}
+
 }
