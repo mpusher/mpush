@@ -87,4 +87,8 @@ public interface ConfigCenter extends Config{
 	@ConverterClass(RedisGroupConverter.class)
 	public List<RedisGroup> redisGroups();
 	
+	@Key("scan_conn_task_cycle")
+	@DefaultValue("59000")
+	public long scanConnTaskCycle();
+	
 }

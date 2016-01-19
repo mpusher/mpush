@@ -1,9 +1,11 @@
 package com.shinemo.mpush.netty.client;
 
 import java.text.MessageFormat;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.channel.ChannelHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,21 +50,32 @@ public abstract class AbstractNettyClientFactory {
         String key = String.format(format, remoteHost, port);
         return cachedClients.getIfPresent(key);
     }
-
-    public Client createGet(String remoteHost, int port, ChannelHandler handler) {
-        Client client = createClient(remoteHost, port, handler);
-        if (client != null) {
-            String key = String.format(format, remoteHost, port);
-            cachedClients.put(key, client);
-        }
-        return client;
+    
+    public Client get(final String remoteHost,final int port,final ChannelHandler handler) throws Exception{
+    	String key = String.format(format, remoteHost, port);
+    	Client client = cachedClients.get(key, new Callable<Client>() {
+    		@Override
+    		public Client call() throws Exception {
+    			Client client = createClient(remoteHost, port, handler);
+    			if(client!=null){
+    				client.startHeartBeat();
+    			}
+    			return client;
+    		}
+		});
+    	if(client == null || !client.isConnected()){
+    		cachedClients.invalidate(key);
+    		return null;
+    	}
+    	return client;
     }
+
 
     abstract Client createClient(String remoteHost, int port, ChannelHandler handler);
 
     public void remove(Client client) {
         if (client != null) {
-            cachedClients.invalidate(client.getUri());
+            cachedClients.invalidate(client.getUrl());
             LOGGER.warn(MessageFormat.format("[Remoting] {0} is removed", client));
         }
     }

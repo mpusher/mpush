@@ -34,4 +34,10 @@ public interface Connection {
     boolean heartbeatTimeout();
 
     void updateLastReadTime();
+
+	int inceaseAndGetHbTimes();
+
+	void resetHbTimes();
+
+	long getLastReadTime();
 }
