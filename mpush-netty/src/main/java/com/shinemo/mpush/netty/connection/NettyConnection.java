@@ -24,8 +24,9 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     private Channel channel;
     private volatile int status = STATUS_NEW;
     private long lastReadTime;
-    @SuppressWarnings("unused")
 	private long lastWriteTime;
+    
+    private int hbTimes = 0;
 
     @Override
     public void init(Channel channel, boolean security) {
@@ -93,6 +94,11 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     public void updateLastReadTime() {
         lastReadTime = System.currentTimeMillis();
     }
+    
+    @Override
+    public long getLastReadTime(){
+    	return lastReadTime;
+    }
 
     @Override
     public void operationComplete(ChannelFuture future) throws Exception {
@@ -106,13 +112,22 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     public void updateLastWriteTime(){
     	lastWriteTime = System.currentTimeMillis();
     }
+    
+    @Override
+    public int inceaseAndGetHbTimes() {
+        return ++hbTimes;
+    }
 
     @Override
-    public String toString() {
-        return "NettyConnection{" +
-                "context=" + context +
-                ", channel=" + channel +
-                ", status=" + status +
-                '}';
+    public void resetHbTimes() {
+        hbTimes = 0;
     }
+
+	@Override
+	public String toString() {
+		return "NettyConnection [context=" + context + ", channel=" + channel + ", status=" + status + ", lastReadTime=" + lastReadTime + ", lastWriteTime=" + lastWriteTime + ", hbTimes=" + hbTimes
+				+ "]";
+	}
+    
+
 }

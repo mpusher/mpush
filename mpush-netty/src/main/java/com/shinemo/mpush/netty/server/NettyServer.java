@@ -4,12 +4,14 @@ import com.shinemo.mpush.api.Server;
 import com.shinemo.mpush.netty.codec.PacketDecoder;
 import com.shinemo.mpush.netty.codec.PacketEncoder;
 import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,7 @@ public abstract class NettyServer implements Server {
 
     public NettyServer(int port) {
         this.port = port;
+        
     }
 
     public abstract void init();

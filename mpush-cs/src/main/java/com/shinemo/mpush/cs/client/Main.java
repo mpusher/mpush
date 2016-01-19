@@ -9,7 +9,7 @@ import com.shinemo.mpush.netty.client.NettyClientFactory;
 
 public class Main {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		ConnectionClientMain main = new ConnectionClientMain();
 		main.start();
 		
@@ -19,7 +19,7 @@ public class Main {
 		int index = (int) ((Math.random() % serverList.size()) * serverList.size());
 		ConnectionServerApplication server = serverList.get(index);
 		ClientChannelHandler handler = new ClientChannelHandler();
-		final Client client = NettyClientFactory.INSTANCE.createGet(server.getIp(), server.getPort(), handler);
+		final Client client = NettyClientFactory.INSTANCE.get(server.getIp(), server.getPort(), handler);
 		client.init();
 		Thread t = new Thread(new Runnable() {
 			@Override

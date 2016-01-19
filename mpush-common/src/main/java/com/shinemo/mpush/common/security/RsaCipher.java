@@ -28,4 +28,10 @@ public final class RsaCipher implements Cipher {
     public byte[] encrypt(byte[] data) {
         return RSAUtils.encryptByPublicKey(data, publicKey);
     }
+
+	@Override
+	public String toString() {
+		return "RsaCipher [privateKey=" + new String(privateKey.getEncoded()) + ", publicKey=" + new String(publicKey.getEncoded()) + "]";
+	}
+    
 }

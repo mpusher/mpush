@@ -1,19 +1,25 @@
 package com.shinemo.mpush.api;
 
-import io.netty.channel.ChannelHandler;
 
 public interface Client {
 
-    void init();
-
-    void start();
-
-    void stop();
 
     boolean isConnected();
 
-    String getUri();
+	String getHost();
 
-    ChannelHandler getHandler();
+	int getPort();
+
+	void close(String cause);
+
+	boolean isEnabled();
+
+	void resetHbTimes();
+
+	int inceaseAndGetHbTimes();
+
+	String getUrl();
+
+	void startHeartBeat() throws Exception;
 
 }

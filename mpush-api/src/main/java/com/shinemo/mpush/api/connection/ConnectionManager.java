@@ -1,5 +1,7 @@
 package com.shinemo.mpush.api.connection;
 
+import java.util.List;
+
 import io.netty.channel.Channel;
 
 /**
@@ -12,4 +14,8 @@ public interface ConnectionManager {
     void remove(Channel channel);
 
     void add(Connection connection);
+
+	List<Connection> getConnections();
+
+	void init();
 }
