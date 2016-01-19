@@ -68,6 +68,8 @@ public final class NettyConnectionManager implements ConnectionManager {
         public HeartbeatCheckTask(int heartbeat, Connection connection) {
             this.heartbeat = heartbeat;
             this.connection = connection;
+            Thread.currentThread().setName("heart-beat-check-task:"+connection.getId());
+            LOGGER.warn("heart-beat-check-task:"+connection.getId()+",start");
         }
 
         public void startTimeout() {
