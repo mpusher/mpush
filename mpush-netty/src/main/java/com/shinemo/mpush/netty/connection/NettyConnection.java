@@ -99,6 +99,10 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
             LOGGER.error("send msg error");
         }
     }
+    
+    public void updateLastWriteTime(){
+    	lastWriteTime = System.currentTimeMillis();
+    }
 
     @Override
     public String toString() {
