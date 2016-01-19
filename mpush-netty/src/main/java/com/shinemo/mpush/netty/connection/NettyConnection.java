@@ -6,9 +6,11 @@ import com.shinemo.mpush.api.event.ConnectionCloseEvent;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.common.EventBus;
 import com.shinemo.mpush.common.security.CipherBox;
+
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +24,8 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     private Channel channel;
     private volatile int status = STATUS_NEW;
     private long lastReadTime;
-    private long lastWriteTime;
+    @SuppressWarnings("unused")
+	private long lastWriteTime;
 
     @Override
     public void init(Channel channel, boolean security) {
