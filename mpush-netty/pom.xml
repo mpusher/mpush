@@ -26,6 +26,10 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-epoll</artifactId>
+            <classifier>${os.detected.classifier}</classifier>
+        </dependency>
     </dependencies>
 </project>
