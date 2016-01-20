@@ -34,6 +34,7 @@ public final class ConnectionServer extends NettyServer {
 
     @Override
     public void init() {
+        super.init();
         MessageDispatcher receiver = new MessageDispatcher();
         receiver.register(Command.HEARTBEAT, new HeartBeatHandler());
         receiver.register(Command.HANDSHAKE, new HandshakeHandler());

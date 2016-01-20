@@ -8,6 +8,8 @@ import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -15,7 +17,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by ohun on 2015/12/22.
@@ -23,41 +25,50 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class NettyServer implements Server {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyServer.class);
-    private final AtomicBoolean startFlag = new AtomicBoolean(false);
+
+    public enum State {Created, Initialized, Starting, Started, Shutdown}
+
+    protected final AtomicReference<State> serverState = new AtomicReference(State.Created);
+
     private final int port;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
-    private boolean hasInit = false;
 
     public NettyServer(int port) {
         this.port = port;
         
     }
 
-    public abstract void init();
+    public void init() {
+        if (!serverState.compareAndSet(State.Created, State.Initialized)) {
+            throw new IllegalStateException("Server already init");
+        }
+    }
 
     @Override
     public boolean isRunning() {
-        return startFlag.get();
+        return serverState.get() == State.Started;
     }
 
     @Override
     public void stop(Listener listener) {
-        LOGGER.info("netty server stop now");
-        this.startFlag.set(false);
+        if (!serverState.compareAndSet(State.Started, State.Shutdown)) {
+            throw new IllegalStateException("The server is already shutdown.");
+        }
         if (workerGroup != null) workerGroup.shutdownGracefully().syncUninterruptibly();
         if (bossGroup != null) bossGroup.shutdownGracefully().syncUninterruptibly();
+        LOGGER.warn("netty server stop now");
     }
 
     @Override
     public void start(final Listener listener) {
-        if (!startFlag.compareAndSet(false, true)) {
-            return;
+        if (!serverState.compareAndSet(State.Initialized, State.Starting)) {
+            throw new IllegalStateException("Server already started or have not init");
         }
-        if (!hasInit) {
-            hasInit = true;
-            init();
-        }
+        createNioServer(listener);
+    }
+
+    private void createServer(final Listener listener, EventLoopGroup boss, EventLoopGroup work, Class<? extends ServerChannel> clazz) {
         /***
          * NioEventLoopGroup 是用来处理I/O操作的多线程事件循环器，
          * Netty提供了许多不同的EventLoopGroup的实现用来处理不同传输协议。
@@ -68,8 +79,8 @@ public abstract class NettyServer implements Server {
          * 如何知道多少个线程已经被使用，如何映射到已经创建的Channels上都需要依赖于EventLoopGroup的实现，
          * 并且可以通过构造函数来配置他们的关系。
          */
-        this.bossGroup = new NioEventLoopGroup(1, ThreadPoolUtil.getBossExecutor());
-        this.workerGroup = new NioEventLoopGroup(0, ThreadPoolUtil.getWorkExecutor());
+        this.bossGroup = boss;
+        this.workerGroup = work;
 
         try {
 
@@ -89,7 +100,7 @@ public abstract class NettyServer implements Server {
              * ServerSocketChannel以NIO的selector为基础进行实现的，用来接收新的连接
              * 这里告诉Channel如何获取新的连接.
              */
-            b.channel(NioServerSocketChannel.class);
+            b.channel(clazz);
 
 
             /***
@@ -127,7 +138,7 @@ public abstract class NettyServer implements Server {
                     }
                 }
             });
-
+            serverState.set(State.Started);
             /**
              * 这里会一直等待，直到socket被关闭
              */
@@ -142,6 +153,19 @@ public abstract class NettyServer implements Server {
              */
             stop(null);
         }
+    }
+
+    private void createNioServer(final Listener listener) {
+        NioEventLoopGroup bossGroup = new NioEventLoopGroup(1, ThreadPoolUtil.getBossExecutor());
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup(0, ThreadPoolUtil.getWorkExecutor());
+        createServer(listener, bossGroup, workerGroup, NioServerSocketChannel.class);
+    }
+
+
+    private void createEpollServer(final Listener listener) {
+        EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1, ThreadPoolUtil.getBossExecutor());
+        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(0, ThreadPoolUtil.getWorkExecutor());
+        createServer(listener, bossGroup, workerGroup, EpollServerSocketChannel.class);
     }
 
     protected void initOptions(ServerBootstrap b) {

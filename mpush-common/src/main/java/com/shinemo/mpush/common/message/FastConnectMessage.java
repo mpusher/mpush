@@ -5,6 +5,8 @@ import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 
+import static com.shinemo.mpush.api.protocol.Command.FAST_CONNECT;
+
 /**
  * Created by ohun on 2015/12/25.
  */
@@ -15,7 +17,7 @@ public final class FastConnectMessage extends ByteBufMessage {
     public int maxHeartbeat;
 
     public FastConnectMessage(Connection connection) {
-        super(new Packet(Command.FAST_CONNECT.cmd, genSessionId()), connection);
+        super(new Packet(FAST_CONNECT, genSessionId()), connection);
     }
 
     public FastConnectMessage(Packet message, Connection connection) {
