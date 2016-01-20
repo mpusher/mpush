@@ -3,7 +3,9 @@ package com.shinemo.mpush.cs.client;
 import java.util.List;
 import java.util.concurrent.locks.LockSupport;
 
+import com.google.common.collect.Lists;
 import com.shinemo.mpush.api.Client;
+import com.shinemo.mpush.core.client.ClientChannelHandler;
 import com.shinemo.mpush.cs.ConnectionServerApplication;
 import com.shinemo.mpush.netty.client.NettyClientFactory;
 
@@ -18,17 +20,15 @@ public class Main {
 		
 		int index = (int) ((Math.random() % serverList.size()) * serverList.size());
 		ConnectionServerApplication server = serverList.get(index);
-		ClientChannelHandler handler = new ClientChannelHandler();
-		final Client client = NettyClientFactory.INSTANCE.get(server.getIp(), server.getPort(), handler);
-		client.init();
-		Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				client.start();
-			}
-		});
-		t.setDaemon(false);
-		t.start();
+		
+		List<Client> clientList = Lists.newArrayList();
+		
+		for(int i = 0;i<100;i++){
+			ClientChannelHandler handler = new ClientChannelHandler();
+			
+			final Client client = NettyClientFactory.INSTANCE.get(server.getIp(), server.getPort(), handler, true);
+			clientList.add(client);
+		}
 		
 		LockSupport.park();
 

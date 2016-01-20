@@ -1,5 +1,9 @@
 package com.shinemo.mpush.api;
 
+import io.netty.channel.Channel;
+
+import com.shinemo.mpush.api.connection.Connection;
+
 
 public interface Client {
 
@@ -21,5 +25,13 @@ public interface Client {
 	String getUrl();
 
 	void startHeartBeat() throws Exception;
+	
+	void stop();
+	
+	Connection getConnection();
+
+	Channel getChannel();
+
+	void initConnection(Connection connection);
 
 }
