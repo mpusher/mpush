@@ -20,6 +20,7 @@ public final class GatewayServer extends NettyServer {
 
     @Override
     public void init() {
+        super.init();
         MessageDispatcher receiver = new MessageDispatcher();
         receiver.register(Command.GATEWAY_PUSH, new GatewayPushHandler());
         NettyConnectionManager connectionManager = new NettyConnectionManager();
