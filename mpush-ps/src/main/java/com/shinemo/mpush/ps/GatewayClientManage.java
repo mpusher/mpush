@@ -18,9 +18,14 @@ public class GatewayClientManage extends GatewayServerManage{
 	@Override
 	public void addOrUpdate(String fullPath, GatewayServerApplication application) {
 		super.addOrUpdate(fullPath, application);
-		Client client = NettyClientFactory.INSTANCE.createClient(application.getIp(), application.getPort(),new GatewayClientChannelHandler());
-		application2Client.put(application, client);
-		ip2Client.put(application.getIp()+":"+application.getPort(), client);
+		try{
+			Client client = NettyClientFactory.INSTANCE.get(application.getIp(), application.getPort(), new GatewayClientChannelHandler(), false);
+			application2Client.put(application, client);
+			ip2Client.put(application.getIp()+":"+application.getPort(), client);
+		}catch(Exception e){
+			
+		}
+	
 	}
 	
 
@@ -45,7 +50,7 @@ public class GatewayClientManage extends GatewayServerManage{
 	public Connection getConnection(String ipAndPort) {
         Client client = ip2Client.get(ipAndPort);
         if (client == null) return null;
-        return ((GatewayClientChannelHandler) client.getHandler()).getConnection();
+        return client.getConnection();
     }
 
 

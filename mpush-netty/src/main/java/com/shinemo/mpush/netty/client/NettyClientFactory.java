@@ -22,7 +22,7 @@ public class NettyClientFactory extends AbstractNettyClientFactory {
 
     public static final NettyClientFactory INSTANCE = new NettyClientFactory();
 
-    public Client createClient(String host, int port, final ChannelHandler handler) {
+    public Client createClient(String host, int port, final ChannelHandler handler,boolean security) {
     	
     	EventLoopGroup workerGroup = new NioEventLoopGroup();
         final Bootstrap bootstrap = new Bootstrap();
@@ -47,8 +47,14 @@ public class NettyClientFactory extends AbstractNettyClientFactory {
 		ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
 		if (future.awaitUninterruptibly(4000) && future.isSuccess() && future.channel().isActive()) {
 			Channel channel = future.channel();
-			Client client = new NettyClient(host,port, channel);
-			return client;
+			if(security){
+				Client client = new SecurityNettyClient(host,port, channel);
+				return client;
+			}else{
+				Client client = new NettyClient(host,port, channel);
+				return client;
+			}
+
 		} else {
 			future.cancel(true);
 			future.channel().close();
@@ -60,6 +66,10 @@ public class NettyClientFactory extends AbstractNettyClientFactory {
     public Client getClient(final Client client) throws Exception {
 		return get(client.getHost(),client.getPort());
 	}
+    
+    public Client getClient(final Channel channel){
+    	return getClient(channel);
+    }
 
 	public void remove(final Client client) {
 		super.remove(client);

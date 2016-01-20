@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.api.Client;
+import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.netty.util.NettySharedHolder;
 import com.shinemo.mpush.tools.config.ConfigCenter;
@@ -25,13 +26,28 @@ public  class NettyClient implements Client {
     private final int port;
     private Channel channel;
     private int hbTimes;
-
+    private Connection connection;
+    
     public NettyClient(final String host, final int port, Channel channel) {
         this.host = host;
         this.port = port;
         this.channel = channel;
     }
+    
+    @Override
+	public Channel getChannel() {
+		return channel;
+	}
 
+	public void setChannel(Channel channel) {
+		this.channel = channel;
+	}
+
+	@Override
+	public void initConnection(Connection connection){
+    	this.connection = connection;
+    }
+    
     @Override
 	public void close(String cause) {
 		if (!StringUtils.isBlank(cause) && !"null".equals(cause.trim())) {
@@ -104,6 +120,16 @@ public  class NettyClient implements Client {
 	@Override
 	public int getPort() {
 		return port;
+	}
+	
+	@Override
+	public void stop(){
+		
+	}
+
+	@Override
+	public Connection getConnection() {
+		return connection;
 	}
 
 }
