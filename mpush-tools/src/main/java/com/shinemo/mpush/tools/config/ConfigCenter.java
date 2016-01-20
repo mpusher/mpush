@@ -26,12 +26,10 @@ public interface ConfigCenter extends Config {
 
     @Key("min_heartbeat")
     @DefaultValue("10000")
-        //10s
     int minHeartbeat();
 
     @Key("max_heartbeat")
     @DefaultValue("1800000")
-        //30min
     int maxHeartbeat();
 
     @Key("max_hb_timeout_times")
@@ -40,7 +38,6 @@ public interface ConfigCenter extends Config {
 
     @Key("session_expired_time")
     @DefaultValue("86400")
-        //unit second
     int sessionExpiredTime();
 
     @Key("ras_key_length")
