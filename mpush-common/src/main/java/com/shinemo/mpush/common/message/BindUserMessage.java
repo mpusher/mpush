@@ -14,7 +14,7 @@ public final class BindUserMessage extends ByteBufMessage {
     public String tags;
 
     public BindUserMessage(Connection connection) {
-        super(new Packet(Command.BIND.cmd, genSessionId()), connection);
+        super(new Packet(Command.BIND, genSessionId()), connection);
     }
 
     public BindUserMessage(Packet message, Connection connection) {

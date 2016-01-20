@@ -38,6 +38,7 @@
         <ql-version>1.0.0-SNAPSHOT</ql-version>
         <core-version>1.0.0-SNAPSHOT</core-version>
         <netty.version>5.0.0.Alpha2</netty.version>
+        <os.detected.classifier>linux-x86_64</os.detected.classifier>
     </properties>
 
 
@@ -55,6 +56,12 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-transport</artifactId>
                 <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport-native-epoll</artifactId>
+                <version>${netty.version}</version>
+                <classifier>${os.detected.classifier}</classifier>
             </dependency>
             <!-- ======================================== -->
             <!-- 第三方依赖 -->
