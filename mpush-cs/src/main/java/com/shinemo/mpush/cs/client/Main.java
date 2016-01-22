@@ -20,7 +20,7 @@ public class Main {
 		int index = (int) ((Math.random() % serverList.size()) * serverList.size());
 		ConnectionServerApplication server = serverList.get(index);
 
-		for(int i = 0;i<100;i++){
+		for(int i = 0;i<1;i++){
 			String clientVersion =  "1.0." + i;
 			String osName = "android";
 			String osVersion = "1.0.1";

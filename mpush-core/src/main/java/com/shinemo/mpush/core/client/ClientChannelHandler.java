@@ -102,16 +102,13 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter {
         
         Client client = NettyClientFactory.INSTANCE.getCientByChannel(ctx.channel());
         if(client instanceof SecurityNettyClient){
+        	connection.init(ctx.channel(), true);
+            client.initConnection(connection);
             tryFastConnect((SecurityNettyClient)client);
         }else{
         	connection.init(ctx.channel(), false);
+            client.initConnection(connection);
         }
-        client.initConnection(connection);
-        
-        if(client instanceof SecurityNettyClient){
-        	connection.init(ctx.channel(), true);
-        }
-
     }
 
     @Override

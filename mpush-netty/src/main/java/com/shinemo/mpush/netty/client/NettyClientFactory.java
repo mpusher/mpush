@@ -54,7 +54,6 @@ public class NettyClientFactory {
                 .option(ChannelOption.SO_KEEPALIVE, true)//
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)//
                 .channel(NioSocketChannel.class)
-                .handler(handler)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 4000);
         
         bootstrap.handler(new ChannelInitializer<SocketChannel>() { // (4)
