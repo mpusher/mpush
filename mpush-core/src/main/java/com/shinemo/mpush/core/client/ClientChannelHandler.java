@@ -37,7 +37,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        Client client = NettyClientFactory.INSTANCE.get(ctx.channel());
+        Client client = NettyClientFactory.INSTANCE.getCientByChannel(ctx.channel());
         client.getConnection().updateLastReadTime();
         if(client instanceof SecurityNettyClient){
         	
@@ -91,8 +91,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        Client client = NettyClientFactory.INSTANCE.get(ctx.channel());
-        NettyClientFactory.INSTANCE.remove(client);
+        NettyClientFactory.INSTANCE.remove(ctx.channel());
         LOGGER.error("caught an ex, channel={}", ctx.channel(), cause);
     }
 
@@ -100,9 +99,9 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.info("client connect channel={}", ctx.channel());
         Connection connection = new NettyConnection();
-        Client client = NettyClientFactory.INSTANCE.get(ctx.channel());
+        
+        Client client = NettyClientFactory.INSTANCE.getCientByChannel(ctx.channel());
         if(client instanceof SecurityNettyClient){
-        	
             tryFastConnect((SecurityNettyClient)client);
         }else{
         	connection.init(ctx.channel(), false);
@@ -118,8 +117,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.info("client disconnect channel={}", ctx.channel());
-        Client client = NettyClientFactory.INSTANCE.get(ctx.channel());
-        NettyClientFactory.INSTANCE.remove(client);
+        NettyClientFactory.INSTANCE.remove(ctx.channel());;
     }
     
     private void tryFastConnect(SecurityNettyClient securityNettyClient) {
