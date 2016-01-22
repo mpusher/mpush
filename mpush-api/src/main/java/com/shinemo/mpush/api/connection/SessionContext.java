@@ -45,8 +45,7 @@ public final class SessionContext {
 
 	@Override
 	public String toString() {
-		return "SessionContext [osName=" + osName + ", osVersion=" + osVersion + ", clientVersion=" + clientVersion + ", deviceId=" + deviceId + ", heartbeat=" + heartbeat + ", cipher=" + cipher
-				+ "]";
+		return "SessionContext [osName=" + osName + ", osVersion=" + osVersion + ", clientVersion=" + clientVersion + ", deviceId=" + deviceId + ", heartbeat=" + heartbeat + "]";
 	}
 
 }
