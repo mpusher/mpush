@@ -19,6 +19,7 @@ import com.shinemo.mpush.common.security.CipherBox;
 import com.shinemo.mpush.netty.client.NettyClientFactory;
 import com.shinemo.mpush.netty.client.SecurityNettyClient;
 import com.shinemo.mpush.netty.connection.NettyConnection;
+
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
@@ -80,6 +81,11 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter {
                 } else if (command == Command.PUSH) {
                     PushMessage message = new PushMessage(packet, connection);
                     LOGGER.info("receive an push message, content=" + message.content);
+                }else if(command == Command.HEARTBEAT){
+                	connection.send(packet);  // ping -> pong
+                	LOGGER.info("receive an heart beat message");
+                }else{
+                	LOGGER.info("receive an  message, type=" + command.cmd+","+packet);
                 }
             }
         	
