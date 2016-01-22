@@ -21,13 +21,9 @@ public class Main {
 		int index = (int) ((Math.random() % serverList.size()) * serverList.size());
 		ConnectionServerApplication server = serverList.get(index);
 		
-		List<Client> clientList = Lists.newArrayList();
-		
 		for(int i = 0;i<100;i++){
 			ClientChannelHandler handler = new ClientChannelHandler();
-			
-			final Client client = NettyClientFactory.INSTANCE.get(server.getIp(), server.getPort(), handler, true);
-			clientList.add(client);
+			NettyClientFactory.INSTANCE.createClient(server.getIp(), server.getPort(), handler, true);
 		}
 		
 		LockSupport.park();
