@@ -7,6 +7,7 @@ import com.shinemo.mpush.api.connection.Connection;
 
 public interface Client {
 
+	void init(Channel channel);
 
     boolean isConnected();
 

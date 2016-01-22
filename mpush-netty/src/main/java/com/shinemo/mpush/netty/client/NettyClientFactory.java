@@ -25,8 +25,27 @@ public class NettyClientFactory {
     public static final NettyClientFactory INSTANCE = new NettyClientFactory();
     
     private final Map<Channel, Client> channel2Client = Maps.newConcurrentMap();
+    
+    public Client create(String host,int port,final ChannelHandler handler){
+    	Client client = new NettyClient(host, port);
+    	return init(client, handler);
+    }
+    
+    public Client createSecurityClient(String host,int port,final ChannelHandler handler,byte[] clientKey,byte[] iv,String clientVersion,
+    		                           String deviceId,String osName,String osVersion,String userId,String cipher){
+    	SecurityNettyClient client = new SecurityNettyClient(host, port);
+    	client.setClientKey(clientKey);
+    	client.setIv(iv);
+    	client.setClientVersion(clientVersion);
+    	client.setDeviceId(deviceId);
+    	client.setOsName(osName);
+    	client.setOsVersion(osVersion);
+    	client.setUserId(userId);
+    	client.setCipher(cipher);
+    	return init(client, handler);
+    }
 
-    public Client createClient(String host, int port, final ChannelHandler handler,boolean security) {
+    public Client init(Client client, final ChannelHandler handler) {
         final Bootstrap bootstrap = new Bootstrap();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         bootstrap.group(workerGroup)//
@@ -48,22 +67,16 @@ public class NettyClientFactory {
         });
         
         
-        ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
+        ChannelFuture future = bootstrap.connect(new InetSocketAddress(client.getHost(), client.getPort()));
         if (future.awaitUninterruptibly(4000) && future.isSuccess() && future.channel().isActive()) {
             Channel channel = future.channel();
-            
-            Client client = null;
-            if(security){
-				client = new SecurityNettyClient(host,port, channel);
-			}else{
-				client = new NettyClient(host,port, channel);
-			}
+            client.init(channel);
             channel2Client.put(channel, client);
             return client;
         } else {
             future.cancel(true);
             future.channel().close();
-            log.warn("[remoting] failure to connect:" + host+","+port);
+            log.warn("[remoting] failure to connect:" + client);
             return null;
         }
     }

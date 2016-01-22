@@ -19,7 +19,7 @@ public class GatewayClientManage extends GatewayServerManage{
 	public void addOrUpdate(String fullPath, GatewayServerApplication application) {
 		super.addOrUpdate(fullPath, application);
 		try{
-			Client client = NettyClientFactory.INSTANCE.createClient(application.getIp(), application.getPort(), new GatewayClientChannelHandler(), false);
+			Client client = NettyClientFactory.INSTANCE.create(application.getIp(), application.getPort(), new GatewayClientChannelHandler());
 			application2Client.put(application, client);
 			ip2Client.put(application.getIp()+":"+application.getPort(), client);
 		}catch(Exception e){

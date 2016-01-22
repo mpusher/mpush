@@ -28,10 +28,9 @@ public  class NettyClient implements Client {
     private int hbTimes;
     private Connection connection;
     
-    public NettyClient(final String host, final int port, Channel channel) {
+    public NettyClient(final String host, final int port) {
         this.host = host;
         this.port = port;
-        this.channel = channel;
     }
     
     @Override
@@ -132,4 +131,15 @@ public  class NettyClient implements Client {
 		return connection;
 	}
 
+	@Override
+	public void init(Channel channel) {
+		this.channel = channel;
+	}
+
+	@Override
+	public String toString() {
+		return "NettyClient [host=" + host + ", port=" + port + ", channel=" + channel + ", hbTimes=" + hbTimes + ", connection=" + connection + "]";
+	}
+
+	
 }

@@ -1,8 +1,6 @@
 package com.shinemo.mpush.netty.client;
 
 
-import io.netty.channel.*;
-
 
 public  class SecurityNettyClient extends NettyClient {
 
@@ -17,8 +15,8 @@ public  class SecurityNettyClient extends NettyClient {
 	
 	private String cipher; //快速重连的时候使用
 	
-	public SecurityNettyClient(String host, int port, Channel channel) {
-		super(host, port, channel);
+	public SecurityNettyClient(String host, int port) {
+		super(host, port);
 	}
 
 	public byte[] getClientKey() {
