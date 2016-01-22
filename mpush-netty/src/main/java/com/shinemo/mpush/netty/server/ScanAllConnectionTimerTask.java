@@ -31,10 +31,11 @@ public class ScanAllConnectionTimerTask implements TimerTask{
 	
 	@Override
 	public void run(Timeout timeout) throws Exception {
-		log.warn("start deal ScanAllConnectionTimerTask ");
+		
 		try {
             long now = System.currentTimeMillis();
             List<Connection> connections = connectionManager.getConnections();
+            log.warn("start deal ScanAllConnectionTimerTask:size,"+connections.size());
             if (connections != null) {
                 for (final Connection conn : connections) {
                 	if (!conn.isConnected()) {
