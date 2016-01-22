@@ -26,7 +26,7 @@ public class NettyClientFactory {
     
     private final Map<Channel, Client> channel2Client = Maps.newConcurrentMap();
 
-    public void createClient(String host, int port, final ChannelHandler handler,boolean security) {
+    public Client createClient(String host, int port, final ChannelHandler handler,boolean security) {
         final Bootstrap bootstrap = new Bootstrap();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         bootstrap.group(workerGroup)//
@@ -59,10 +59,12 @@ public class NettyClientFactory {
 				client = new NettyClient(host,port, channel);
 			}
             channel2Client.put(channel, client);
+            return client;
         } else {
             future.cancel(true);
             future.channel().close();
             log.warn("[remoting] failure to connect:" + host+","+port);
+            return null;
         }
     }
 
