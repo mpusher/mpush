@@ -12,7 +12,7 @@ public interface Constants {
     String JVM_LOG_PATH = "/opt/";
 
     int THREAD_QUEUE_SIZE = 10000;
-    int MIN_POOL_SIZE = 50;
+    int MIN_POOL_SIZE = 200;
     int MAX_POOL_SIZE = 500;
 
     int MIN_BOSS_POOL_SIZE = 10;

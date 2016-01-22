@@ -82,7 +82,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter {
                     PushMessage message = new PushMessage(packet, connection);
                     LOGGER.info("receive an push message, content=" + message.content);
                 }else if(command == Command.HEARTBEAT){
-                	connection.send(packet);  // ping -> pong
+//                	connection.send(packet);  // ping -> pong
                 	LOGGER.info("receive an heart beat message");
                 }else{
                 	LOGGER.info("receive an  message, type=" + command.cmd+","+packet);
@@ -107,11 +107,21 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter {
         Connection connection = new NettyConnection();
         
         Client client = NettyClientFactory.INSTANCE.getCientByChannel(ctx.channel());
+        
+        if(client == null){ //可能存在那边还没有插入，导致这边不存在，需要sleep 一下。
+        	
+        	LOGGER.error("client is null:"+ctx.channel());
+        	
+        	Thread.sleep(10);
+        	client = NettyClientFactory.INSTANCE.getCientByChannel(ctx.channel());
+        }
+        
         if(client instanceof SecurityNettyClient){
         	connection.init(ctx.channel(), true);
             client.initConnection(connection);
             tryFastConnect((SecurityNettyClient)client);
         }else{
+        	LOGGER.error("connection is not support appear hear:"+ client);
         	connection.init(ctx.channel(), false);
             client.initConnection(connection);
         }
