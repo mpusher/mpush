@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
@@ -17,6 +16,7 @@ import com.google.common.collect.Maps;
 import com.shinemo.mpush.api.Client;
 import com.shinemo.mpush.netty.codec.PacketDecoder;
 import com.shinemo.mpush.netty.codec.PacketEncoder;
+import com.shinemo.mpush.netty.util.NettySharedHolder;
 
 public class NettyClientFactory {
 	
@@ -47,8 +47,7 @@ public class NettyClientFactory {
 
     public Client init(Client client, final ChannelHandler handler) {
         final Bootstrap bootstrap = new Bootstrap();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
-        bootstrap.group(workerGroup)//
+        bootstrap.group(NettySharedHolder.workerGroup)//
         		.option(ChannelOption.TCP_NODELAY, true)//
                 .option(ChannelOption.SO_REUSEADDR, true)//
                 .option(ChannelOption.SO_KEEPALIVE, true)//
@@ -71,6 +70,7 @@ public class NettyClientFactory {
             Channel channel = future.channel();
             client.init(channel);
             channel2Client.put(channel, client);
+            log.error("init channel:"+channel);
             return client;
         } else {
             future.cancel(true);

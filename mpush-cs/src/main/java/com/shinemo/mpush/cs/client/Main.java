@@ -20,7 +20,7 @@ public class Main {
 		int index = (int) ((Math.random() % serverList.size()) * serverList.size());
 		ConnectionServerApplication server = serverList.get(index);
 
-		for(int i = 0;i<1;i++){
+		for(int i = 0;i<100;i++){
 			String clientVersion =  "1.0." + i;
 			String osName = "android";
 			String osVersion = "1.0.1";
@@ -31,6 +31,7 @@ public class Main {
 			byte[] iv = CipherBox.INSTANCE.randomAESIV();
 			ClientChannelHandler handler = new ClientChannelHandler();
 			NettyClientFactory.INSTANCE.createSecurityClient(server.getIp(), server.getPort(), handler, clientKey, iv, clientVersion, deviceId, osName, osVersion, userId, cipher);
+			Thread.sleep(10);
 		}
 		
 		LockSupport.park();
