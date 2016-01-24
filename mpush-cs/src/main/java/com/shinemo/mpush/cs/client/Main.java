@@ -7,6 +7,7 @@ import com.shinemo.mpush.common.security.CipherBox;
 import com.shinemo.mpush.core.client.ClientChannelHandler;
 import com.shinemo.mpush.cs.ConnectionServerApplication;
 import com.shinemo.mpush.netty.client.NettyClientFactory;
+import com.shinemo.mpush.netty.client.SecurityNettyClient;
 
 public class Main {
 
@@ -20,7 +21,7 @@ public class Main {
 		int index = (int) ((Math.random() % serverList.size()) * serverList.size());
 		ConnectionServerApplication server = serverList.get(index);
 
-		for(int i = 0;i<100;i++){
+		for(int i = 0;i<500;i++){
 			String clientVersion =  "1.0." + i;
 			String osName = "android";
 			String osVersion = "1.0.1";
@@ -29,8 +30,19 @@ public class Main {
 			String cipher = "";
 			byte[] clientKey = CipherBox.INSTANCE.randomAESKey();
 			byte[] iv = CipherBox.INSTANCE.randomAESIV();
-			ClientChannelHandler handler = new ClientChannelHandler();
-			NettyClientFactory.INSTANCE.createSecurityClient(server.getIp(), server.getPort(), handler, clientKey, iv, clientVersion, deviceId, osName, osVersion, userId, cipher);
+			
+			SecurityNettyClient client = new SecurityNettyClient(server.getIp(), server.getPort());
+	    	client.setClientKey(clientKey);
+	    	client.setIv(iv);
+	    	client.setClientVersion(clientVersion);
+	    	client.setDeviceId(deviceId);
+	    	client.setOsName(osName);
+	    	client.setOsVersion(osVersion);
+	    	client.setUserId(userId);
+	    	client.setCipher(cipher);
+			
+			ClientChannelHandler handler = new ClientChannelHandler(client);
+			NettyClientFactory.INSTANCE.create(handler);
 			Thread.sleep(10);
 		}
 		
