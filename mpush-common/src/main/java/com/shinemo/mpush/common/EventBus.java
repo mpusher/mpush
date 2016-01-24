@@ -20,7 +20,7 @@ public class EventBus {
     private final com.google.common.eventbus.EventBus eventBus;
 
     public EventBus() {
-        Executor executor = ThreadPoolUtil.getThreadPoolManager().getThreadExecutor("event-bus-pool", 4, 4);
+        Executor executor = ThreadPoolUtil.getThreadPoolManager().getThreadExecutor("event-bus-pool", 10, 10);
         eventBus = new AsyncEventBus(executor, new SubscriberExceptionHandler() {
             @Override
             public void handleException(Throwable exception, SubscriberExceptionContext context) {

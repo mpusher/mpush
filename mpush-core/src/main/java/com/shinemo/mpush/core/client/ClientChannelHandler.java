@@ -16,6 +16,7 @@ import com.shinemo.mpush.common.message.OkMessage;
 import com.shinemo.mpush.common.message.PushMessage;
 import com.shinemo.mpush.common.security.AesCipher;
 import com.shinemo.mpush.common.security.CipherBox;
+import com.shinemo.mpush.netty.client.ChannelClientHandler;
 import com.shinemo.mpush.netty.client.NettyClientFactory;
 import com.shinemo.mpush.netty.client.SecurityNettyClient;
 import com.shinemo.mpush.netty.connection.NettyConnection;
@@ -32,10 +33,21 @@ import org.slf4j.LoggerFactory;
  * Created by ohun on 2015/12/19.
  */
 @ChannelHandler.Sharable
-public final class ClientChannelHandler extends ChannelHandlerAdapter {
+public final class ClientChannelHandler extends ChannelHandlerAdapter implements ChannelClientHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientChannelHandler.class);
-
+    
+    private Client client;
+    
+    public ClientChannelHandler(Client client) {
+    	this.client = client;
+	}
+    
+    @Override
+    public Client getClient() {
+    	return client;
+    }
+    
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Client client = NettyClientFactory.INSTANCE.getCientByChannel(ctx.channel());
@@ -105,16 +117,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.info("client connect channel={}", ctx.channel());
         Connection connection = new NettyConnection();
-        
-        Client client = NettyClientFactory.INSTANCE.getCientByChannel(ctx.channel());
-        
-        if(client == null){ //可能存在那边还没有插入，导致这边不存在，需要sleep 一下。
-        	
-        	LOGGER.error("client is null:"+ctx.channel());
-        	
-        	Thread.sleep(10);
-        	client = NettyClientFactory.INSTANCE.getCientByChannel(ctx.channel());
-        }
+        NettyClientFactory.INSTANCE.put(ctx.channel(), client);
         
         if(client instanceof SecurityNettyClient){
         	connection.init(ctx.channel(), true);
