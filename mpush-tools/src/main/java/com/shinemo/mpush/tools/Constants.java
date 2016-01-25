@@ -9,7 +9,7 @@ public interface Constants {
     Charset UTF_8 = Charset.forName("UTF-8");
     byte[] EMPTY_BYTES = new byte[0];
 
-    String JVM_LOG_PATH = "/opt/";
+    String JVM_LOG_PATH = "/opt/logs/mpush/";
 
     int THREAD_QUEUE_SIZE = 10000;
     int MIN_POOL_SIZE = 200;
