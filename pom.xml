@@ -23,6 +23,8 @@
         <module>mpush-client</module>
         <module>mpush-cs</module>
         <module>mpush-ps</module>
+        <module>mpush-monitor</module>
+        <module>mpush-log</module>
     </modules>
 
     <properties>
