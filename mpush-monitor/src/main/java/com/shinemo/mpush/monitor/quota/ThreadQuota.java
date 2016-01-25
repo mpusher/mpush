@@ -1,7 +1,7 @@
-package com.shinemo.mpush.monitor.mbean;
+package com.shinemo.mpush.monitor.quota;
 
 
-public interface ThreadMBean {
+public interface ThreadQuota {
 
 	public int daemonThreadCount();
 	

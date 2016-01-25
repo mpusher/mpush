@@ -11,6 +11,8 @@ public class MonitorData {
 	private Map<String, Object> gcMap;
 
 	private Map<String, Object> threadMap;
+	
+	private Map<String,Object> infoMap;
 
 	public MonitorData() {
 		this.timestamp = System.currentTimeMillis();
@@ -42,6 +44,14 @@ public class MonitorData {
 
 	public Long getTimestamp() {
 		return timestamp;
+	}
+
+	public Map<String, Object> getInfoMap() {
+		return infoMap;
+	}
+
+	public void setInfoMap(Map<String, Object> infoMap) {
+		this.infoMap = infoMap;
 	}
 
 }

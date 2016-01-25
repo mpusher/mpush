@@ -1,6 +1,6 @@
-package com.shinemo.mpush.monitor.mbean;
+package com.shinemo.mpush.monitor.quota;
 
-public interface GCMBean {
+public interface GCMQuota {
 
 	public long yongGcCollectionCount();
 	
