@@ -21,6 +21,10 @@
             <groupId>com.shinemo.mpush</groupId>
             <artifactId>mpush-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.shinemo.mpush</groupId>
+            <artifactId>mpush-monitor</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
