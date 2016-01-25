@@ -1,11 +1,11 @@
-package com.shinemo.mpush.monitor.mbean;
+package com.shinemo.mpush.monitor.quota;
 
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
 
-public abstract class BaseMBean {
+public abstract class BaseQuota {
 
 	protected final static List<String> fullGcName = Lists.newArrayList("ConcurrentMarkSweep", "MarkSweepCompact", "PS MarkSweep", "G1 Old Generation",
 			"Garbage collection optimized for short pausetimes Old Collector", "Garbage collection optimized for throughput Old Collector",

@@ -1,14 +1,14 @@
-package com.shinemo.mpush.monitor.mbean.impl;
+package com.shinemo.mpush.monitor.quota.impl;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-import com.shinemo.mpush.monitor.mbean.BaseMBean;
-import com.shinemo.mpush.monitor.mbean.ThreadMBean;
+import com.shinemo.mpush.monitor.quota.BaseQuota;
+import com.shinemo.mpush.monitor.quota.ThreadQuota;
 
-public class JVMThread extends BaseMBean implements ThreadMBean{
+public class JVMThread extends BaseQuota implements ThreadQuota{
 
 	private ThreadMXBean  threadMXBean;
 	

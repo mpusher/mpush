@@ -1,4 +1,4 @@
-package com.shinemo.mpush.monitor.mbean.impl;
+package com.shinemo.mpush.monitor.quota.impl;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-import com.shinemo.mpush.monitor.mbean.BaseMBean;
-import com.shinemo.mpush.monitor.mbean.MemoryMBean;
+import com.shinemo.mpush.monitor.quota.BaseQuota;
+import com.shinemo.mpush.monitor.quota.MemoryQuota;
 
-public class JVMMemory extends BaseMBean implements MemoryMBean {
+public class JVMMemory extends BaseQuota implements MemoryQuota {
 
 	public static final JVMMemory instance = new JVMMemory();
 

@@ -1,14 +1,14 @@
-package com.shinemo.mpush.monitor.mbean.impl;
+package com.shinemo.mpush.monitor.quota.impl;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-import com.shinemo.mpush.monitor.mbean.BaseMBean;
-import com.shinemo.mpush.monitor.mbean.GCMBean;
+import com.shinemo.mpush.monitor.quota.BaseQuota;
+import com.shinemo.mpush.monitor.quota.GCMQuota;
 
-public class JVMGC extends BaseMBean implements GCMBean {
+public class JVMGC extends BaseQuota implements GCMQuota {
 
 	public static final JVMGC instance = new JVMGC();
 
