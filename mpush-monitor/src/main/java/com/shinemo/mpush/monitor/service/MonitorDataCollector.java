@@ -15,9 +15,11 @@ public class MonitorDataCollector {
 	
 	private static final Logger log = LoggerFactory.getLogger(MonitorDataCollector.class);
 	
-	private static volatile boolean dump = false;
+	private static volatile boolean dumpJstack = false;
 	
-	private static String path = "/opt/logs/bops/";
+	private static volatile boolean dumpJmap = false;
+	
+	private static String currentPath = "/opt/logs/";
 	
 	public static MonitorData collect(){
 		MonitorData data = new MonitorData();
@@ -27,6 +29,10 @@ public class MonitorDataCollector {
 		data.setThreadMap(JVMThread.instance.toMap());
 		return data;
 	}
+	
+	public void setPath(String path) {
+		currentPath = path;
+    }
 	
 	public static void start(){
 		new Thread(new Runnable() {
@@ -38,12 +44,19 @@ public class MonitorDataCollector {
                 	log.error("monitor data:"+Jsons.toJson(monitorData));
                 	
                 	double load = JVMInfo.instance.load();
-                	if(load>2){
-                		if(!dump){
-                			dump = true;
-                			JVMUtil.dumpJstack(path);
+                	if(load>4){
+                		if(!dumpJstack){
+                			dumpJstack = true;
+                			JVMUtil.dumpJstack(currentPath);
                 		}
                 		
+                	}
+                	
+                	if(load>4){
+                		if(!dumpJmap){
+                			dumpJmap = true;
+                			JVMUtil.dumpJmap(currentPath);
+                		}
                 	}
                 	
                     try {//10s
@@ -54,6 +67,10 @@ public class MonitorDataCollector {
                 }
             }
         }).start();
+	}
+	
+	public static void main(String[] args) {
+		MonitorDataCollector.start();
 	}
 	
 }
