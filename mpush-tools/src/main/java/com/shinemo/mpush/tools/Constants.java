@@ -20,6 +20,10 @@ public interface Constants {
 
     int MIN_WORK_POOL_SIZE = 10;
     int MAX_WORK_POOL_SIZE = 250;
+    
+    int BIZ_POOL_SIZE = 20;
+    
+    int EVENT_BUS_POOL_SIZE = 10;
 
     //zk
     int ZK_MAX_RETRY = 3;

@@ -88,4 +88,7 @@ public interface ConfigCenter extends Config {
     @Key("scan_conn_task_cycle")
     @DefaultValue("59000")
     long scanConnTaskCycle();
+    
+    @DefaultValue("/opt/shinemo/mpush/")
+    String logPath();
 }

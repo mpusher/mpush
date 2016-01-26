@@ -11,6 +11,10 @@ public class ThreadNameSpace {
      * netty worker 线程
      */
     public static final String NETTY_WORKER = "mp-worker";
+    
+    public static final String EVENT_BUS = "mp-event-bus";
+    
+    public static final String BIZ = "mp-biz";
 
     /**
      * connection 定期检测线程

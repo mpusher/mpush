@@ -1,10 +1,5 @@
 package com.shinemo.mpush.tools.thread.threadpool;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -12,8 +7,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.shinemo.mpush.tools.Constants;
 import com.shinemo.mpush.tools.JVMUtil;
+import com.shinemo.mpush.tools.config.ConfigCenter;
 
 public class IgnoreRunsPolicy implements RejectedExecutionHandler{
 
@@ -21,7 +16,9 @@ public class IgnoreRunsPolicy implements RejectedExecutionHandler{
 
 	private volatile boolean dump = false;
 	
-	private ThreadPoolContext context;
+	private static final String preFixPath = ConfigCenter.holder.logPath();
+	
+	private final ThreadPoolContext context;
 	
 	public IgnoreRunsPolicy(ThreadPoolContext context) {
 		this.context = context;
@@ -36,29 +33,9 @@ public class IgnoreRunsPolicy implements RejectedExecutionHandler{
 	private void dumpJVMInfo(){
 		if (!dump) {
 			dump = true;
-            Executors.newSingleThreadExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    String logPath = Constants.JVM_LOG_PATH;
-                    FileOutputStream jstackStream = null;
-                    try {
-                        jstackStream = new FileOutputStream(new File(logPath, "jstack.log"));
-                        JVMUtil.jstack(jstackStream);
-                    } catch (FileNotFoundException e) {
-                    	log.error("", "Dump JVM cache Error!", e);
-                    } catch (Throwable t) {
-                    	log.error("", "Dump JVM cache Error!", t);
-                    } finally {
-                        if (jstackStream != null) {
-                            try {
-                                jstackStream.close();
-                            } catch (IOException e) {
-                            }
-                        }
-                    }
-                }
-            });
-
+			log.error("start dump jvm info");
+			JVMUtil.dumpJstack(preFixPath+"/"+context.getName());
+			log.error("end dump jvm info");
         }
 	}
 }

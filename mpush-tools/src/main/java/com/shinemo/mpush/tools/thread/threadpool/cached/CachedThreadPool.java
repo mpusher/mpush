@@ -42,5 +42,5 @@ public class CachedThreadPool implements ThreadPool {
 		return new ThreadPoolExecutor(cores, threads, alive, TimeUnit.MILLISECONDS, blockingQueue, threadFactory, new IgnoreRunsPolicy(context));
 
 	}
-
+	
 }

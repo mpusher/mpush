@@ -84,8 +84,8 @@ public class MonitorDataCollector {
                 		}
                 	}
                 	
-                    try {//10s
-                        Thread.sleep(10000L);
+                    try {//30s
+                        Thread.sleep(30000L);
                     } catch (InterruptedException e) {
                     	log.warn("monitor data exception",e);
                     }
