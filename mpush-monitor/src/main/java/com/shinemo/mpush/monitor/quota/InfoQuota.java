@@ -4,4 +4,5 @@ public interface InfoQuota {
 
 	public String pid();
 	
+	public double load();
 }
