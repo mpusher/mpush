@@ -15,11 +15,23 @@ public class MonitorDataCollector {
 	
 	private static final Logger log = LoggerFactory.getLogger(MonitorDataCollector.class);
 	
-	private static volatile boolean dumpJstack = false;
+	private static volatile boolean dumpFirstJstack = false;
+	
+	private static volatile boolean dumpSecondJstack = false;
+	
+	private static volatile boolean dumpThirdJstack = false;
 	
 	private static volatile boolean dumpJmap = false;
 	
 	private static String currentPath = "/opt/logs/";
+	
+	private static int firstJstack = 2;
+	
+	private static int secondJstack = 4;
+	
+	private static int thirdJstack = 6;
+	
+	private static int firstJmap = 4;
 	
 	public static MonitorData collect(){
 		MonitorData data = new MonitorData();
@@ -44,15 +56,28 @@ public class MonitorDataCollector {
                 	log.error("monitor data:"+Jsons.toJson(monitorData));
                 	
                 	double load = JVMInfo.instance.load();
-                	if(load>4){
-                		if(!dumpJstack){
-                			dumpJstack = true;
+                	if(load>firstJstack){
+                		if(!dumpFirstJstack){
+                			dumpFirstJstack = true;
                 			JVMUtil.dumpJstack(currentPath);
                 		}
-                		
                 	}
                 	
-                	if(load>4){
+                	if(load>secondJstack){
+                		if(!dumpSecondJstack){
+                			dumpSecondJstack = true;
+                			JVMUtil.dumpJmap(currentPath);
+                		}
+                	}
+                	
+                	if(load>thirdJstack){
+                		if(!dumpThirdJstack){
+                			dumpThirdJstack = true;
+                			JVMUtil.dumpJmap(currentPath);
+                		}
+                	}
+                	
+                	if(load>firstJmap){
                 		if(!dumpJmap){
                 			dumpJmap = true;
                 			JVMUtil.dumpJmap(currentPath);
