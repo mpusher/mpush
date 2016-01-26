@@ -5,7 +5,8 @@ import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.SubscriberExceptionContext;
 import com.google.common.eventbus.SubscriberExceptionHandler;
 import com.shinemo.mpush.api.event.Event;
-import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
+import com.shinemo.mpush.tools.thread.threadpool.ThreadPoolManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ public class EventBus {
     private final com.google.common.eventbus.EventBus eventBus;
 
     public EventBus() {
-        Executor executor = ThreadPoolUtil.getThreadPoolManager().getThreadExecutor("event-bus-pool", 10, 10);
+        Executor executor = ThreadPoolManager.eventBusExecutor;
         eventBus = new AsyncEventBus(executor, new SubscriberExceptionHandler() {
             @Override
             public void handleException(Throwable exception, SubscriberExceptionContext context) {

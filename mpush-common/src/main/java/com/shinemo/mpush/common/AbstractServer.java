@@ -13,8 +13,7 @@ import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.spi.ServiceContainer;
-import com.shinemo.mpush.tools.thread.ThreadNameSpace;
-import com.shinemo.mpush.tools.thread.ThreadPoolUtil;
+import com.shinemo.mpush.tools.thread.threadpool.ThreadPoolManager;
 import com.shinemo.mpush.tools.zk.ZKPath;
 import com.shinemo.mpush.tools.zk.ZkRegister;
 import com.shinemo.mpush.tools.zk.listener.DataChangeListener;
@@ -88,7 +87,7 @@ public abstract class AbstractServer<T extends Application> {
 	
 	//step6 启动 netty server
 	public void startServer(final Server server){
-		ThreadPoolUtil.newThread(new Runnable() {
+		Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 server.init();
@@ -105,8 +104,9 @@ public abstract class AbstractServer<T extends Application> {
                     }
                 });
             }
-        }, ThreadNameSpace.getServerName(server.getClass().getSimpleName()), false).start();
-		
+        };
+        ThreadPoolManager.bizExecutor.execute(runnable);
+        
 	}
 	
 	//step7  注册应用到zk
