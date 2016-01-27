@@ -14,6 +14,8 @@ public class ThreadNameSpace {
     
     public static final String EVENT_BUS = "mp-event-bus";
     
+    public static final String REDIS = "mp-redis";
+    
     public static final String BIZ = "mp-biz";
 
     /**

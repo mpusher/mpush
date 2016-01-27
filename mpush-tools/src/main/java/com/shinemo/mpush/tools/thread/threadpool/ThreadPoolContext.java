@@ -14,13 +14,15 @@ public class ThreadPoolContext {
 	private final int queueCapacity;  // 允许缓冲在队列中的任务数 (0:不缓冲、负数：无限大、正数：缓冲的任务数)
 	private final int keepAliveSeconds;// 存活时间
 	
-	public static ThreadPoolContext BOSS_THREAD_POOL = CachedThreadPoolContext.create(ThreadNameSpace.NETTY_BOSS, Constants.MIN_BOSS_POOL_SIZE, Constants.MAX_BOSS_POLL_SIZE, 60*5);
+	public static ThreadPoolContext BOSS_THREAD_POOL = CachedThreadPoolContext.create(ThreadNameSpace.NETTY_BOSS, Constants.MIN_BOSS_POOL_SIZE, Constants.MAX_BOSS_POOL_SIZE, 60*5,Constants.BOSS_THREAD_QUEUE_SIZE);
 	
-	public static ThreadPoolContext WORK_THREAD_POOL = CachedThreadPoolContext.create(ThreadNameSpace.NETTY_WORKER, Constants.MIN_WORK_POOL_SIZE, Constants.MAX_WORK_POOL_SIZE, 60*5);
+	public static ThreadPoolContext WORK_THREAD_POOL = CachedThreadPoolContext.create(ThreadNameSpace.NETTY_WORKER, Constants.MIN_WORK_POOL_SIZE, Constants.MAX_WORK_POOL_SIZE, 60*5,Constants.WORK_THREAD_QUEUE_SIZE);
 	
 	public static ThreadPoolContext BIZ_THREAD_POOL = FixedThreadPoolContext.create(ThreadNameSpace.BIZ, Constants.BIZ_POOL_SIZE);
 	
 	public static ThreadPoolContext EVENT_BUS_THREAD_POOL = FixedThreadPoolContext.create(ThreadNameSpace.EVENT_BUS, Constants.EVENT_BUS_POOL_SIZE);
+	
+	public static ThreadPoolContext REDIS_THREAD_POOL = FixedThreadPoolContext.create(ThreadNameSpace.REDIS, Constants.REDIS_POOL_SIZE,Constants.REDIS_THREAD_QUEUE_SIZE);
 	
 	public ThreadPoolContext(String name, int corePoolSize, int maxPoolSize, int queueCapacity, int keepAliveSeconds) {
 		this.name = name;
