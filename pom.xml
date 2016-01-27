@@ -31,7 +31,7 @@
         <java.version>1.7</java.version>
         <spring-version>4.0.0.RELEASE</spring-version>
         <mpush-api-version>1.0-SNAPSHOT</mpush-api-version>
-        <mpush-tools-version>1.0-SNAPSHOT</mpush-tools-version>
+        <mpush-tools-version>1.0.1-SNAPSHOT</mpush-tools-version>
         <mpush-common-version>1.0-SNAPSHOT</mpush-common-version>
         <mpush-netty-version>1.0-SNAPSHOT</mpush-netty-version>
         <mpush-core-version>1.0-SNAPSHOT</mpush-core-version>
@@ -231,7 +231,7 @@
                     <skipTests>true</skipTests>
                 </configuration>
             </plugin>
-            <!-- <plugin>
+            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.6</version>
                 <configuration>
@@ -248,7 +248,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin> -->
+            </plugin>
         </plugins>
     </build>
 

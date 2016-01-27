@@ -22,21 +22,21 @@ public class FixedThreadPool implements ThreadPool {
 	@Override
 	public Executor getExecutor(ThreadPoolContext context) {
 		String name = context.getName();
-		int threads = context.getThreads();
-		int queues = context.getQueues();
+		int corePoolSize = context.getCorePoolSize();
+		int queueCapacity = context.getQueueCapacity();
 
 		BlockingQueue<Runnable> blockingQueue = null;
-		if (queues == 0) {
+		if (queueCapacity == 0) {
 			blockingQueue = new SynchronousQueue<Runnable>();
-		} else if (queues < 0) {
+		} else if (queueCapacity < 0) {
 			blockingQueue = new LinkedBlockingQueue<Runnable>();
 		} else {
-			blockingQueue = new LinkedBlockingQueue<Runnable>(queues);
+			blockingQueue = new LinkedBlockingQueue<Runnable>(queueCapacity);
 		}
 
 		final ThreadFactory threadFactory = new NamedThreadFactory(name);
 
-		return new ThreadPoolExecutor(threads, threads, 0, TimeUnit.MILLISECONDS, blockingQueue, threadFactory, new IgnoreRunsPolicy(context));
+		return new ThreadPoolExecutor(corePoolSize, corePoolSize, 0, TimeUnit.SECONDS, blockingQueue, threadFactory, new IgnoreRunsPolicy(context));
 	}
 
 }
