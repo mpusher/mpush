@@ -122,6 +122,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
         if(client instanceof SecurityNettyClient){
         	connection.init(ctx.channel(), true);
             client.initConnection(connection);
+            client.init(ctx.channel());
             tryFastConnect((SecurityNettyClient)client);
         }else{
         	LOGGER.error("connection is not support appear hear:"+ client);
