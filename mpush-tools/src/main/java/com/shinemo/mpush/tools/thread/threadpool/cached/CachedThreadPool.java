@@ -23,23 +23,23 @@ public class CachedThreadPool implements ThreadPool {
 	public Executor getExecutor(ThreadPoolContext context) {
 
 		String name = context.getName();
-		int cores = context.getCores();
-		int threads = context.getThreads();
-		int queues = context.getQueues();
-		int alive = context.getAlive();
+		int corePoolSize = context.getCorePoolSize();
+		int maxPoolSize = context.getMaxPoolSize();
+		int queueCapacity = context.getQueueCapacity();
+		int keepAliveSeconds = context.getKeepAliveSeconds();
 
 		final ThreadFactory threadFactory = new NamedThreadFactory(name);
 		
 		BlockingQueue<Runnable> blockingQueue = null;
-		if(queues == 0){
+		if(queueCapacity == 0){
 			blockingQueue = new SynchronousQueue<Runnable>();
-		}else if(queues<0){
+		}else if(queueCapacity<0){
 			blockingQueue = new LinkedBlockingQueue<Runnable>();
 		}else{
-			blockingQueue = new LinkedBlockingQueue<Runnable>(queues);
+			blockingQueue = new LinkedBlockingQueue<Runnable>(queueCapacity);
 		}
 		
-		return new ThreadPoolExecutor(cores, threads, alive, TimeUnit.MILLISECONDS, blockingQueue, threadFactory, new IgnoreRunsPolicy(context));
+		return new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveSeconds, TimeUnit.SECONDS, blockingQueue, threadFactory, new IgnoreRunsPolicy(context));
 
 	}
 	

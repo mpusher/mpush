@@ -1,10 +1,8 @@
 package com.shinemo.mpush.tools.thread.threadpool;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadPoolExecutor;
 
 
 import com.shinemo.mpush.tools.spi.ServiceContainer;
@@ -33,19 +31,6 @@ public class ThreadPoolManager {
 		return poolCache;
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder("current thread allocation policy:");
-		Iterator<Map.Entry<String, Executor>> ite = poolCache.entrySet().iterator();
-		while (ite.hasNext()) {
-			Map.Entry<String, Executor> entry = ite.next();
-			String serviceUniqName = entry.getKey();
-			ThreadPoolExecutor executor = (ThreadPoolExecutor)entry.getValue();
-			sb.append("serviceName[" + serviceUniqName + "]coreThreadNums:" + executor.getCorePoolSize() + " maxThreadNums:" + executor.getMaximumPoolSize() + " activityThreadNums:"
-					+ executor.getActiveCount());
-		}
-
-		return sb.toString();
-	}
+	
 
 }
