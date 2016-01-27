@@ -1,6 +1,7 @@
 package com.shinemo.mpush.tools.crypto;
 
 import com.shinemo.mpush.tools.Pair;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -8,14 +9,15 @@ import java.net.URL;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
-import static org.junit.Assert.*;
-
 /**
  * Created by ohun on 2015/12/25.
  */
 public class RSAUtilsTest {
     String publicKey;
     String privateKey;
+    
+    String publicKey2;
+    String privateKey2;
 
     @Before
     public void setUp() throws Exception {
@@ -25,6 +27,10 @@ public class RSAUtilsTest {
             privateKey = RSAUtils.encodeBase64(pair.value);
             System.out.println("公钥: \n\r" + publicKey);
             System.out.println("私钥： \n\r" + privateKey);
+            
+            pair = RSAUtils.genKeyPair();
+            publicKey2 = RSAUtils.encodeBase64(pair.key);
+            privateKey2 = RSAUtils.encodeBase64(pair.value);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -32,12 +38,24 @@ public class RSAUtilsTest {
 
     @Test
     public void testGetKeys() throws Exception {
-
+    	String source = "这是一行测试RSA数字签名的无意义文字";
+    	byte[] data = source.getBytes();
+        byte[] encodedData = RSAUtils.encryptByPublicKey(data, publicKey);
+        System.out.println("加密后:\n" + new String(encodedData));
+        byte[] decodedData = RSAUtils.decryptByPrivateKey(encodedData, privateKey);
+        String target = new String(decodedData);
+        System.out.println("解密后:\n" + target);
+        
+        decodedData = RSAUtils.decryptByPrivateKey(encodedData, privateKey2);
+        target = new String(decodedData);
+        System.out.println("解密后2:\n" + target);
+        
     }
 
     @Test
     public void testGetPrivateKey() throws Exception {
-
+    	System.out.println("公钥: \n\r" + publicKey);
+        System.out.println("私钥： \n\r" + privateKey);
     }
 
     @Test
