@@ -37,9 +37,7 @@
         <mpush-core-version>1.0-SNAPSHOT</mpush-core-version>
         <mpush-client-version>1.0-SNAPSHOT</mpush-client-version>
         <mpush-monitor-version>1.0.1-SNAPSHOT</mpush-monitor-version>
-        <dal-version>1.0.0-SNAPSHOT</dal-version>
-        <ql-version>1.0.0-SNAPSHOT</ql-version>
-        <core-version>1.0.0-SNAPSHOT</core-version>
+        <mpush-log-version>1.0-SNAPSHOT</mpush-log-version>
         <netty.version>5.0.0.Alpha2</netty.version>
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
     </properties>
@@ -128,6 +126,11 @@
                 <groupId>com.shinemo.mpush</groupId>
                 <artifactId>mpush-monitor</artifactId>
                 <version>${mpush-monitor-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.shinemo.mpush</groupId>
+                <artifactId>mpush-log</artifactId>
+                <version>${mpush-log-version}</version>
             </dependency>
             <!-- ================================================= -->
             <!-- 日志 -->
