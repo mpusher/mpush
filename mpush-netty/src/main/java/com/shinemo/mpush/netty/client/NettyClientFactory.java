@@ -104,7 +104,6 @@ public class NettyClientFactory {
         ChannelFuture future = bootstrap.connect(new InetSocketAddress(client.getHost(), client.getPort()));
         if (future.awaitUninterruptibly(4000) && future.isSuccess() && future.channel().isActive()) {
             Channel channel = future.channel();
-            client.init(channel);
             log.error("init channel:"+channel);
             return client;
         } else {
