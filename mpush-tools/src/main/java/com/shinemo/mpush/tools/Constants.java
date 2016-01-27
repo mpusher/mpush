@@ -15,15 +15,20 @@ public interface Constants {
     int MIN_POOL_SIZE = 200;
     int MAX_POOL_SIZE = 500;
 
-    int MIN_BOSS_POOL_SIZE = 10;
-    int MAX_BOSS_POLL_SIZE = 50;
+    int MIN_BOSS_POOL_SIZE = 50;
+    int MAX_BOSS_POOL_SIZE = 100;
+    int BOSS_THREAD_QUEUE_SIZE = 10000;
 
-    int MIN_WORK_POOL_SIZE = 10;
-    int MAX_WORK_POOL_SIZE = 250;
+    int MIN_WORK_POOL_SIZE = 50;
+    int MAX_WORK_POOL_SIZE = 150;
+    int WORK_THREAD_QUEUE_SIZE = 10000;
     
     int BIZ_POOL_SIZE = 20;
     
     int EVENT_BUS_POOL_SIZE = 10;
+    
+    int REDIS_POOL_SIZE = 3;
+    int REDIS_THREAD_QUEUE_SIZE = 10000;
 
     //zk
     int ZK_MAX_RETRY = 3;
