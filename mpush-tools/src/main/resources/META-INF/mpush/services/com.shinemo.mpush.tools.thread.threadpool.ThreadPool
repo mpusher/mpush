@@ -1,2 +1,2 @@
 cachedThreadPool=com.shinemo.mpush.tools.thread.threadpool.cached.CachedThreadPool
-fixedThreadPool=com.shinemo.mpush.tools.thread.threadpool.cached.FixedThreadPool
+fixedThreadPool=com.shinemo.mpush.tools.thread.threadpool.fixed.FixedThreadPool
