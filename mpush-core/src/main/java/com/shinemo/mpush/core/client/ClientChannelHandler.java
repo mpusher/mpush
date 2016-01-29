@@ -17,6 +17,7 @@ import com.shinemo.mpush.common.message.PushMessage;
 import com.shinemo.mpush.common.security.AesCipher;
 import com.shinemo.mpush.common.security.CipherBox;
 import com.shinemo.mpush.netty.client.ChannelClientHandler;
+import com.shinemo.mpush.netty.client.NettyClient;
 import com.shinemo.mpush.netty.client.NettyClientFactory;
 import com.shinemo.mpush.netty.client.SecurityNettyClient;
 import com.shinemo.mpush.netty.connection.NettyConnection;
@@ -50,12 +51,9 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
     
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        Client client = NettyClientFactory.INSTANCE.getCientByChannel(ctx.channel());
         client.getConnection().updateLastReadTime();
         if(client instanceof SecurityNettyClient){
-        	
         	SecurityNettyClient securityNettyClient = (SecurityNettyClient)client;
-        	
         	Connection connection = client.getConnection();
         	//加密
         	if (msg instanceof Packet) {
@@ -101,15 +99,14 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                 }
             }
         	
-        }else{
-        	//不加密
+        }else if(client instanceof NettyClient){//不加密
+        	
         }
     	LOGGER.warn("update currentTime:"+ctx.channel()+","+ToStringBuilder.reflectionToString(msg));
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-    	Client client = NettyClientFactory.INSTANCE.getCientByChannel(ctx.channel());
     	if(client instanceof SecurityNettyClient){
             NettyClientFactory.INSTANCE.remove(ctx.channel());
     	}else{
@@ -139,7 +136,6 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    	Client client = NettyClientFactory.INSTANCE.getCientByChannel(ctx.channel());
     	if(client instanceof SecurityNettyClient){
     		NettyClientFactory.INSTANCE.remove(ctx.channel());
     	}else{

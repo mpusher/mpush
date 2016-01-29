@@ -14,9 +14,9 @@ import com.shinemo.mpush.api.Client;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.common.app.impl.GatewayServerApplication;
 import com.shinemo.mpush.common.manage.ServerManage;
-import com.shinemo.mpush.core.client.ClientChannelHandler;
 import com.shinemo.mpush.netty.client.NettyClient;
 import com.shinemo.mpush.netty.client.NettyClientFactory;
+import com.shinemo.mpush.ps.client.ClientChannelHandler;
 
 public class GatewayServerManage implements ServerManage<GatewayServerApplication>{
 
