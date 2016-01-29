@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import com.shinemo.mpush.api.PushSender.Callback;
 import com.shinemo.mpush.common.AbstractClient;
-import com.shinemo.mpush.common.zk.listener.impl.GatewayServerPathListener;
+import com.shinemo.mpush.ps.zk.listener.impl.GatewayServerPathListener;
 
 public class GatewayClientMain extends AbstractClient {
 

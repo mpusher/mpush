@@ -7,6 +7,7 @@ import com.shinemo.mpush.common.manage.ServerManage;
 import com.shinemo.mpush.common.message.gateway.GatewayPushMessage;
 import com.shinemo.mpush.common.router.ConnectionRouterManager;
 import com.shinemo.mpush.common.router.RemoteRouter;
+import com.shinemo.mpush.ps.manage.impl.GatewayServerManage;
 import com.shinemo.mpush.tools.spi.ServiceContainer;
 
 import io.netty.channel.ChannelFuture;
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PushRequest implements PushSender.Callback, Runnable {
 	
-	private static GatewayClientManage gatewayClientManage = (GatewayClientManage)ServiceContainer.getInstance(ServerManage.class, "gatewayClientManage");
+	private static GatewayServerManage gatewayClientManage = (GatewayServerManage)ServiceContainer.getInstance(ServerManage.class, "gatewayClientManage");
 	
     private static final Logger LOGGER = LoggerFactory.getLogger(PushRequest.class);
     private PushSender.Callback callback;
