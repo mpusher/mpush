@@ -60,7 +60,6 @@ public class NettyClientFactory {
          }
     }
     
-    @Deprecated
     public Client create(String host,int port,final ChannelHandler handler){
     	Client client = new NettyClient(host, port);
     	return init(client, handler);

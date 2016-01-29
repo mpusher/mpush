@@ -12,6 +12,11 @@ import com.shinemo.mpush.tools.thread.threadpool.ThreadPoolManager;
 
 public class JVMThreadPool extends BaseQuota implements ThreadPoolQuota{
 
+	public static final JVMThreadPool instance = new JVMThreadPool();
+	
+	private JVMThreadPool() {
+	}
+	
 	private Map<String, Executor> pool = null;
 	
 	@Override

@@ -21,8 +21,8 @@ public class ConnectionServerMain extends AbstractServer<ConnectionServerApplica
 	
 	public ConnectionServerMain(){
 		
-		registerListener(new ConnectionServerPathListener());
-		registerListener(new GatewayServerPathListener());
+//		registerListener(new ConnectionServerPathListener());
+//		registerListener(new GatewayServerPathListener());
 		
 		connectionServerApplication = (ConnectionServerApplication)application;
 		gatewayServerApplication =  new GatewayServerApplication();

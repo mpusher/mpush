@@ -1,4 +1,4 @@
-package com.shinemo.mpush.common.manage.impl;
+package com.shinemo.mpush.ps.manage.impl;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -10,8 +10,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
+import com.shinemo.mpush.api.Client;
+import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.common.app.impl.GatewayServerApplication;
 import com.shinemo.mpush.common.manage.ServerManage;
+import com.shinemo.mpush.netty.client.NettyClientFactory;
+import com.shinemo.mpush.ps.GatewayClientChannelHandler;
 
 public class GatewayServerManage implements ServerManage<GatewayServerApplication>{
 
@@ -19,14 +23,33 @@ public class GatewayServerManage implements ServerManage<GatewayServerApplicatio
 
 	private static Map<String,GatewayServerApplication> holder = Maps.newConcurrentMap();
 	
+	private final Map<GatewayServerApplication, Client> application2Client = Maps.newConcurrentMap();
+    
+    private final Map<String,Client> ip2Client = Maps.newConcurrentMap();
+	
 	@Override
 	public void addOrUpdate(String fullPath,GatewayServerApplication application){
 		holder.put(fullPath, application);
+		try{
+			Client client = NettyClientFactory.INSTANCE.create(application.getIp(), application.getPort(), new GatewayClientChannelHandler());
+			application2Client.put(application, client);
+			ip2Client.put(application.getIp()+":"+application.getPort(), client);
+		}catch(Exception e){
+			
+		}
 		printList();
 	}
 	
 	@Override
 	public void remove(String fullPath){
+		GatewayServerApplication application = get(fullPath);
+		if(application!=null){
+			Client client = application2Client.get(application);
+			if(client!=null){
+				client.stop();
+			}
+		}
+		ip2Client.remove(application.getIp()+":"+application.getPort());
 		holder.remove(fullPath);
 		printList();
 	}
@@ -45,5 +68,16 @@ public class GatewayServerManage implements ServerManage<GatewayServerApplicatio
 	public GatewayServerApplication get(String fullpath){
 		return holder.get(fullpath);
 	}
+
+	public Client getClient(GatewayServerApplication application){
+		return application2Client.get(application);
+	}
+	
+	public Connection getConnection(String ipAndPort) {
+        Client client = ip2Client.get(ipAndPort);
+        if (client == null) return null;
+        return client.getConnection();
+    }
 	
 }
+
