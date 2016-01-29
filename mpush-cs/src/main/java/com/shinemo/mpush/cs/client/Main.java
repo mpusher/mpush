@@ -17,11 +17,10 @@ public class Main {
 		
 		List<ConnectionServerApplication> serverList = main.getApplicationList();
 		
-		
 		int index = (int) ((Math.random() % serverList.size()) * serverList.size());
 		ConnectionServerApplication server = serverList.get(index);
 
-		for(int i = 0;i<1000;i++){
+		for(int i = 0;i<10;i++){
 			String clientVersion =  "1.0." + i;
 			String osName = "android";
 			String osVersion = "1.0.1";

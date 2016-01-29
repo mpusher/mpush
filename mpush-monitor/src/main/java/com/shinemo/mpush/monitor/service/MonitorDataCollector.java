@@ -8,6 +8,7 @@ import com.shinemo.mpush.monitor.quota.impl.JVMGC;
 import com.shinemo.mpush.monitor.quota.impl.JVMInfo;
 import com.shinemo.mpush.monitor.quota.impl.JVMMemory;
 import com.shinemo.mpush.monitor.quota.impl.JVMThread;
+import com.shinemo.mpush.monitor.quota.impl.JVMThreadPool;
 import com.shinemo.mpush.tools.JVMUtil;
 import com.shinemo.mpush.tools.Jsons;
 
@@ -39,6 +40,7 @@ public class MonitorDataCollector {
 		data.setGcMap(JVMGC.instance.toMap());
 		data.setMemoryMap(JVMMemory.instance.toMap());
 		data.setThreadMap(JVMThread.instance.toMap());
+		data.setThreadPoolMap(JVMThreadPool.instance.toMap());
 		return data;
 	}
 	

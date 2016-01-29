@@ -12,6 +12,8 @@ public class MonitorData {
 
 	private Map<String, Object> threadMap;
 	
+	private Map<String,Object> threadPoolMap;
+	
 	private Map<String,Object> infoMap;
 
 	public MonitorData() {
@@ -54,4 +56,12 @@ public class MonitorData {
 		this.infoMap = infoMap;
 	}
 
+	public Map<String, Object> getThreadPoolMap() {
+		return threadPoolMap;
+	}
+
+	public void setThreadPoolMap(Map<String, Object> threadPoolMap) {
+		this.threadPoolMap = threadPoolMap;
+	}
+	
 }
