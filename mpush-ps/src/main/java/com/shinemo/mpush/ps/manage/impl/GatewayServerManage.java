@@ -14,8 +14,9 @@ import com.shinemo.mpush.api.Client;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.common.app.impl.GatewayServerApplication;
 import com.shinemo.mpush.common.manage.ServerManage;
+import com.shinemo.mpush.core.client.ClientChannelHandler;
+import com.shinemo.mpush.netty.client.NettyClient;
 import com.shinemo.mpush.netty.client.NettyClientFactory;
-import com.shinemo.mpush.ps.GatewayClientChannelHandler;
 
 public class GatewayServerManage implements ServerManage<GatewayServerApplication>{
 
@@ -31,9 +32,11 @@ public class GatewayServerManage implements ServerManage<GatewayServerApplicatio
 	public void addOrUpdate(String fullPath,GatewayServerApplication application){
 		holder.put(fullPath, application);
 		try{
-			Client client = NettyClientFactory.INSTANCE.create(application.getIp(), application.getPort(), new GatewayClientChannelHandler());
+			Client client = new NettyClient(application.getIp(), application.getPort());
+			ClientChannelHandler handler = new ClientChannelHandler(client);
+			NettyClientFactory.INSTANCE.create(handler);
 			application2Client.put(application, client);
-			ip2Client.put(application.getIp()+":"+application.getPort(), client);
+			ip2Client.put(application.getIp(), client);
 		}catch(Exception e){
 			
 		}

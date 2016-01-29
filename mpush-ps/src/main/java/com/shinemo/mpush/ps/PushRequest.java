@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PushRequest implements PushSender.Callback, Runnable {
 	
-	private static GatewayServerManage gatewayClientManage = (GatewayServerManage)ServiceContainer.getInstance(ServerManage.class, "gatewayClientManage");
+	private static GatewayServerManage gatewayClientManage = (GatewayServerManage)ServiceContainer.getInstance(ServerManage.class, "gatewayServerManage");
 	
     private static final Logger LOGGER = LoggerFactory.getLogger(PushRequest.class);
     private PushSender.Callback callback;

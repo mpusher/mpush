@@ -109,7 +109,13 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        NettyClientFactory.INSTANCE.remove(ctx.channel());
+    	Client client = NettyClientFactory.INSTANCE.getCientByChannel(ctx.channel());
+    	if(client instanceof SecurityNettyClient){
+            NettyClientFactory.INSTANCE.remove(ctx.channel());
+    	}else{
+    		client.close("exception");
+    	}
+
         LOGGER.error("caught an ex, channel={}", ctx.channel(), cause);
     }
 
@@ -117,9 +123,9 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.info("client connect channel={}", ctx.channel());
         Connection connection = new NettyConnection();
-        NettyClientFactory.INSTANCE.put(ctx.channel(), client);
         
         if(client instanceof SecurityNettyClient){
+        	NettyClientFactory.INSTANCE.put(ctx.channel(), client);
         	connection.init(ctx.channel(), true);
             client.initConnection(connection);
             client.init(ctx.channel());
@@ -133,8 +139,13 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    	Client client = NettyClientFactory.INSTANCE.getCientByChannel(ctx.channel());
+    	if(client instanceof SecurityNettyClient){
+    		NettyClientFactory.INSTANCE.remove(ctx.channel());
+    	}else{
+    		client.close("inactive");
+    	}
         LOGGER.info("client disconnect channel={}", ctx.channel());
-        NettyClientFactory.INSTANCE.remove(ctx.channel());;
     }
     
     private void tryFastConnect(SecurityNettyClient securityNettyClient) {
