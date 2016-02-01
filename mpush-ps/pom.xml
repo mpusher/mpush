@@ -9,29 +9,26 @@
 
     <artifactId>mpush-ps</artifactId>
     <packaging>jar</packaging>
-
+    <version>${mpush-ps-version}</version>
     <name>mpush-ps</name>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 
     <dependencies>
-      <dependency>
-          <groupId>com.shinemo.mpush</groupId>
-          <artifactId>mpush-api</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>com.shinemo.mpush</groupId>
-          <artifactId>mpush-netty</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>com.shinemo.mpush</groupId>
-          <artifactId>mpush-tools</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>com.shinemo.mpush</groupId>
-          <artifactId>mpush-core</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>com.shinemo.mpush</groupId>
+            <artifactId>mpush-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.shinemo.mpush</groupId>
+            <artifactId>mpush-netty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.shinemo.mpush</groupId>
+            <artifactId>mpush-tools</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.shinemo.mpush</groupId>
+            <artifactId>mpush-core</artifactId>
+        </dependency>
     </dependencies>
 </project>

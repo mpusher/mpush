@@ -9,13 +9,9 @@
 
     <artifactId>mpush-monitor</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>${mpush-monitor-version}</version>
 
     <name>mpush-monitor</name>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 
     <dependencies>
       <dependency>

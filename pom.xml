@@ -29,15 +29,16 @@
 
     <properties>
         <java.version>1.7</java.version>
-        <spring-version>4.0.0.RELEASE</spring-version>
-        <mpush-api-version>1.0-SNAPSHOT</mpush-api-version>
+        <mpush-api-version>1.0.1-SNAPSHOT</mpush-api-version>
         <mpush-tools-version>1.0.1-SNAPSHOT</mpush-tools-version>
-        <mpush-common-version>1.0-SNAPSHOT</mpush-common-version>
-        <mpush-netty-version>1.0-SNAPSHOT</mpush-netty-version>
-        <mpush-core-version>1.0-SNAPSHOT</mpush-core-version>
-        <mpush-client-version>1.0-SNAPSHOT</mpush-client-version>
+        <mpush-common-version>1.0.1-SNAPSHOT</mpush-common-version>
+        <mpush-netty-version>1.0.1-SNAPSHOT</mpush-netty-version>
+        <mpush-core-version>1.0.1-SNAPSHOT</mpush-core-version>
+        <mpush-client-version>1.0.1-SNAPSHOT</mpush-client-version>
         <mpush-monitor-version>1.0.1-SNAPSHOT</mpush-monitor-version>
-        <mpush-log-version>1.0-SNAPSHOT</mpush-log-version>
+        <mpush-log-version>1.0.1-SNAPSHOT</mpush-log-version>
+        <mpush-cs-version>1.0.1-SNAPSHOT</mpush-cs-version>
+        <mpush-ps-version>1.0.1-SNAPSHOT</mpush-ps-version>
         <netty.version>5.0.0.Alpha2</netty.version>
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
     </properties>
@@ -235,6 +236,24 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <finalName>mpush</finalName>
+                    <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
