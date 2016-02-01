@@ -11,6 +11,13 @@
     </formats>
     <fileSets>
         <fileSet>
+            <directory>/</directory>
+            <outputDirectory/>
+            <includes>
+                <include>config.properties</include>
+            </includes>
+        </fileSet>
+        <fileSet>
             <directory>mpush-cs/target/</directory>
             <outputDirectory/>
             <includes>
