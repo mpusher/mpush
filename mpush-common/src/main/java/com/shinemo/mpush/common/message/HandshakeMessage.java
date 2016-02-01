@@ -1,10 +1,9 @@
 package com.shinemo.mpush.common.message;
 
 import com.shinemo.mpush.api.connection.Connection;
-import com.shinemo.mpush.api.exception.MessageException;
 import com.shinemo.mpush.api.protocol.Packet;
-
 import io.netty.buffer.ByteBuf;
+
 import static com.shinemo.mpush.api.protocol.Command.HANDSHAKE;
 
 /**
@@ -31,9 +30,6 @@ public final class HandshakeMessage extends ByteBufMessage {
 
     @Override
     public void decode(ByteBuf body) {
-    	if(body.readableBytes()<=0){
-    		throw new MessageException("body is null");
-    	}
         deviceId = decodeString(body);
         osName = decodeString(body);
         osVersion = decodeString(body);
