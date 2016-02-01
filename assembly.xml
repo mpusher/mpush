@@ -18,14 +18,14 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>./target/</directory>
+            <directory>mpush-cs/target/</directory>
             <outputDirectory/>
             <includes>
                 <include>lib/*.jar</include>
             </includes>
         </fileSet>
         <fileSet>
-            <directory>./target/</directory>
+            <directory>mpush-cs/target/</directory>
             <outputDirectory/>
             <includes>
                 <include>mpush-cs.jar</include>
