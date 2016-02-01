@@ -26,8 +26,8 @@ public final class AESUtils {
             return cipher.doFinal(data);
         } catch (Exception e) {
             LOGGER.error("encrypt ex, decryptKey=" + encryptKey, e);
+            throw new RuntimeException("AES encrypt ex", e);
         }
-        return Constants.EMPTY_BYTES;
     }
 
     public static byte[] decrypt(byte[] data, byte[] decryptKey, byte[] iv) {
@@ -39,7 +39,7 @@ public final class AESUtils {
             return cipher.doFinal(data);
         } catch (Exception e) {
             LOGGER.error("decrypt ex, decryptKey=" + decryptKey, e);
+            throw new RuntimeException("AES decrypt ex", e);
         }
-        return Constants.EMPTY_BYTES;
     }
 }

@@ -169,8 +169,8 @@ public class RSAUtils {
             return (RSAPublicKey) keyFactory.generatePublic(keySpec);
         } catch (Exception e) {
             LOGGER.error("getPublicKey ex modulus={}, exponent={}", modulus, exponent, e);
+            throw new RuntimeException("Get PublicKey ex", e);
         }
-        return null;
     }
 
     /**
@@ -192,7 +192,7 @@ public class RSAUtils {
             return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
         } catch (Exception e) {
             LOGGER.error("getPrivateKey ex modulus={}, exponent={}", modulus, exponent, e);
-            return null;
+            throw new RuntimeException("Get PrivateKey ex", e);
         }
     }
 
@@ -215,8 +215,8 @@ public class RSAUtils {
             return doFinal(cipher, data, key_len - 11);
         } catch (Exception e) {
             LOGGER.error("encryptByPublicKey ex", e);
+            throw new RuntimeException("RSA encrypt ex", e);
         }
-        return Constants.EMPTY_BYTES;
     }
 
     /**
@@ -237,8 +237,8 @@ public class RSAUtils {
             return doFinal(cipher, data, key_len);
         } catch (Exception e) {
             LOGGER.error("decryptByPrivateKey ex", e);
+            throw new RuntimeException("RSA encrypt ex", e);
         }
-        return Constants.EMPTY_BYTES;
     }
 
     /**
