@@ -11,7 +11,10 @@ import java.util.List;
 /**
  * 针对每个配置项，建议各个对象自己持有，不建议每次都通过ConfigCenter获取，有性能损耗
  */
-@Sources({"classpath:config.properties"})
+@Sources({
+        "classpath:config.properties",
+        "file:/${user.dir}/config.properties"
+})
 public interface ConfigCenter extends Config {
 
     ConfigCenter holder = ConfigFactory.create(ConfigCenter.class);
@@ -88,7 +91,7 @@ public interface ConfigCenter extends Config {
     @Key("scan_conn_task_cycle")
     @DefaultValue("59000")
     long scanConnTaskCycle();
-    
+
     @DefaultValue("/opt/shinemo/mpush/")
     String logPath();
 }
