@@ -1,65 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="false">
-	<!-- WARN 级别日志 -->
-	<appender name="WARN_APPENDER"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${log.home}/mpush-warn.log</file>
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>WARN</level>
-		</filter>
-		<append>true</append>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${log.home}/mpush-warn.log.%d{yyyy-MM-dd}
-			</fileNamePattern>
-			<maxHistory>2</maxHistory>
-		</rollingPolicy>
-		<encoder charset="UTF-8">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level -
-				%logger{35} - %msg%n</pattern>
-		</encoder>
-	</appender>
 
-	<!-- INFO 级别日志 -->
-	<appender name="INFO_APPENDER"
+	<!-- 日志 -->
+	<appender name="MPUSH_APPENDER"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${log.home}/mpush-info.log</file>
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>INFO</level>
-		</filter>
-		<append>true</append>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${log.home}/mpush-info.log.%d{yyyy-MM-dd}
-			</fileNamePattern>
-			<maxHistory>10</maxHistory>
-		</rollingPolicy>
-		<encoder charset="UTF-8">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level -
-				%logger{35} - %msg%n</pattern>
-		</encoder>
-	</appender>
-
-	<!-- ERROR 级别日志 -->
-	<appender name="ERROR_APPENDER"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${log.home}/mpush-error.log</file>
+		<file>${log.home}/mpush.log</file>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
 			<level>error</level>
 		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${log.home}/mpush-error.log.%d{yyyy-MM-dd}
+			<fileNamePattern>${log.home}/mpush.log.%d{yyyy-MM-dd}
 			</fileNamePattern>
 			<maxHistory>10</maxHistory>
 		</rollingPolicy>
 		<encoder charset="UTF-8">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level -
-				%logger{35} - %msg%n</pattern>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
 		</encoder>
 	</appender>
 
 	<!-- monitor log -->
-	<appender name="MONITOR_APPENDER"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
+	<appender name="MONITOR_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!--日志文件名称 -->
 		<file>${log.home}/mpush-monitor.log</file>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -72,17 +33,17 @@
 			<maxHistory>5</maxHistory>
 		</rollingPolicy>
 		<encoder charset="UTF-8">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level -
-				%logger{35} - %msg%n</pattern>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
 		</encoder>
 	</appender>
 
-
+    <logger name="com.shinemo.mpush.monitor.service" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="MONITOR_APPENDER"/>
+    </logger>
 
 	<root>
 		<level value="${loglevel}" />
-		<appender-ref ref="WARN_APPENDER" />
-		<appender-ref ref="INFO_APPENDER" />
-		<appender-ref ref="ERROR_APPENDER" />
+		<appender-ref ref="MPUSH_APPENDER" />
 	</root>
 </configuration>
