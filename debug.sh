@@ -12,6 +12,6 @@ cd $base_dir/target
 tar -xzvf ./mpush-jar-with-dependency.tar.gz
 echo "start start mpush..."
 
-java -jar $base_dir/target/mpush/mpush-cs.jar  -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n &
+java -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 -jar $base_dir/target/mpush/mpush-cs.jar &
 
 echo "end start mpush..."
