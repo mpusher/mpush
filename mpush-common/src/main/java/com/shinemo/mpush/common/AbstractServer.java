@@ -66,6 +66,11 @@ public abstract class AbstractServer<T extends Application> {
             List<RedisGroup> groupList = ConfigCenter.holder.redisGroups();
             zkRegister.registerPersist(ZKPath.REDIS_SERVER.getPath(), Jsons.toJson(groupList));
         }
+        //强刷
+        if(ConfigCenter.holder.forceWriteRedisGroupInfo()){
+        	List<RedisGroup> groupList = ConfigCenter.holder.redisGroups();
+            zkRegister.registerPersist(ZKPath.REDIS_SERVER.getPath(), Jsons.toJson(groupList));
+        }
 	}
 	
 	//step3 注册listener
