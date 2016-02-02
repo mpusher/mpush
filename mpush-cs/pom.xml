@@ -26,12 +26,18 @@
     <build>
         <finalName>mpush-cs</finalName>
 
-        <!-- 指定编译时的Resource目录 -->
+        <filters>
+          <filter>../conf-${deploy.env}.properties</filter>
+        </filters>
+
         <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
+          <resource>
+            <directory>src/main/resources</directory>
+            <includes>
+              <include>**/*</include>
+            </includes>
+            <filtering>true</filtering>
+          </resource>
         </resources>
 
         <plugins>
