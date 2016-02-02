@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.shinemo.mpush.api.Server;
 import com.shinemo.mpush.common.app.Application;
@@ -60,7 +61,8 @@ public abstract class AbstractServer<T extends Application> {
 	//step2 获取redis
 	private void initRedis(){
 		boolean exist = zkRegister.isExisted(ZKPath.REDIS_SERVER.getPath());
-        if (!exist) {
+		String rawGroup = zkRegister.get(ZKPath.REDIS_SERVER.getPath());
+        if (!exist||Strings.isNullOrEmpty(rawGroup)) {
             List<RedisGroup> groupList = ConfigCenter.holder.redisGroups();
             zkRegister.registerPersist(ZKPath.REDIS_SERVER.getPath(), Jsons.toJson(groupList));
         }

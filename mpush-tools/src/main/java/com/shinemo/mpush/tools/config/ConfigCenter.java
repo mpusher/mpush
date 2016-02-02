@@ -87,6 +87,9 @@ public interface ConfigCenter extends Config {
     @Key("redis_group")
     @ConverterClass(RedisGroupConverter.class)
     List<RedisGroup> redisGroups();
+    
+    @Key("force_write_redis_group_info")
+    boolean forceWriteRedisGroupInfo();
 
     @Key("scan_conn_task_cycle")
     @DefaultValue("59000")
@@ -94,4 +97,6 @@ public interface ConfigCenter extends Config {
 
     @DefaultValue("/opt/shinemo/mpush/")
     String logPath();
+    
+    
 }
