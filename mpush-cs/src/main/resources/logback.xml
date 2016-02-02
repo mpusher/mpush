@@ -6,7 +6,7 @@
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${log.home}/mpush.log</file>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>error</level>
+			<level>warn</level>
 		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
