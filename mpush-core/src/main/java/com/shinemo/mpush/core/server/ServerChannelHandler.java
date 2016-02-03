@@ -5,6 +5,7 @@ import com.shinemo.mpush.api.connection.ConnectionManager;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.PacketReceiver;
+import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.netty.connection.NettyConnection;
 
 import io.netty.channel.ChannelHandler;
@@ -39,6 +40,7 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Connection connection = connectionManager.get(ctx.channel());
+        connection.close();
     	LOGGER.warn("update currentTime:"+ctx.channel()+","+ToStringBuilder.reflectionToString(msg));
         connection.updateLastReadTime();
         receiver.onReceive((Packet) msg, connection);
@@ -47,12 +49,13 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         connectionManager.remove(ctx.channel());
+        LoggerManage.log(security, "client exceptionCaught channel=", ctx.channel());
         LOGGER.error("caught an ex, channel={}", ctx.channel(), cause);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        LOGGER.info("client connect channel={}", ctx.channel());
+    	LoggerManage.log(security, "client connect channel=%s", ctx.channel());
         Connection connection = new NettyConnection();
         connection.init(ctx.channel(), security);
         connectionManager.add(connection);
@@ -60,7 +63,7 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        LOGGER.info("client disconnect channel={}", ctx.channel());
+        LoggerManage.log(security, "client disconnect channel=", ctx.channel());
         connectionManager.remove(ctx.channel());
     }
 }
