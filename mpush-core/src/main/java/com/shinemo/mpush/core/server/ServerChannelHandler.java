@@ -38,7 +38,6 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Connection connection = connectionManager.get(ctx.channel());
-        connection.close();
         LOGGER.debug("update currentTime:" + ctx.channel() + "," + msg);
         connection.updateLastReadTime();
         receiver.onReceive((Packet) msg, connection);
@@ -47,7 +46,7 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         connectionManager.remove(ctx.channel());
-        LoggerManage.log(security, "client exceptionCaught channel=", ctx.channel());
+        LoggerManage.log(security, "client exceptionCaught channel=%s", ctx.channel());
         LOGGER.error("caught an ex, channel={}", ctx.channel(), cause);
     }
 
