@@ -60,7 +60,7 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        LoggerManage.log(security, "client disconnect channel=", ctx.channel());
+        LoggerManage.log(security, "client disconnect channel=%s", ctx.channel());
         connectionManager.remove(ctx.channel());
     }
 }
