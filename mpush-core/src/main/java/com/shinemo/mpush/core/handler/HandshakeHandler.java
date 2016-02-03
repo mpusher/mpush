@@ -31,6 +31,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
 
     @Override
     public void handle(HandshakeMessage message) {
+    	
         byte[] iv = message.iv;//AES密钥向量16位
         byte[] clientKey = message.clientKey;//客户端随机数16位
         byte[] serverKey = CipherBox.INSTANCE.randomAESKey();//服务端随机数16位
