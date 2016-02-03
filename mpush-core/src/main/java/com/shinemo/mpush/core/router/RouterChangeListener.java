@@ -63,6 +63,7 @@ public final class RouterChangeListener implements MessageListener {
         message.send(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
+                future.channel().close();
                 if (future.isSuccess()) {
                     LOGGER.info("kick local connection success, userId={}, router={}", userId, router);
                 } else {
