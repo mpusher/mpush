@@ -1,9 +1,7 @@
 package com.shinemo.mpush.core.router;
 
 import com.shinemo.mpush.api.connection.Connection;
-import com.shinemo.mpush.api.connection.ConnectionManager;
 import com.shinemo.mpush.api.router.Router;
-import com.shinemo.mpush.netty.connection.NettyConnectionManager;
 
 /**
  * Created by ohun on 2015/12/23.
