@@ -1,6 +1,7 @@
 package com.shinemo.mpush.ps;
 
 import com.shinemo.mpush.api.PushSender;
+import com.shinemo.mpush.tools.Jsons;
 
 import java.util.Arrays;
 import java.util.concurrent.locks.LockSupport;
@@ -14,29 +15,35 @@ public class Main {
         GatewayClientMain client = new GatewayClientMain();
         client.start();
         Thread.sleep(1000);
-        client.send("this a first push", Arrays.asList("user-0", "user-1", "user-2", "user-3", "user-4"),
-                new PushSender.Callback() {
-                    @Override
-                    public void onSuccess(String userId) {
-                        System.err.println("push onSuccess userId=" + userId);
-                    }
+        for (int i = 0; i < 100; i++) {
+            PushContent content = new PushContent("msgId_" + (i % 2), "MPush", "this a first push." + i);
 
-                    @Override
-                    public void onFailure(String userId) {
-                        System.err.println("push onFailure userId=" + userId);
-                    }
+            client.send(Jsons.toJson(content), Arrays.asList("43", "8"),
+                    new PushSender.Callback() {
+                        @Override
+                        public void onSuccess(String userId) {
+                            System.err.println("push onSuccess userId=" + userId);
+                        }
 
-                    @Override
-                    public void onOffline(String userId) {
-                        System.err.println("push onOffline userId=" + userId);
-                    }
+                        @Override
+                        public void onFailure(String userId) {
+                            System.err.println("push onFailure userId=" + userId);
+                        }
 
-                    @Override
-                    public void onTimeout(String userId) {
-                        System.err.println("push onTimeout userId=" + userId);
+                        @Override
+                        public void onOffline(String userId) {
+                            System.err.println("push onOffline userId=" + userId);
+                        }
+
+                        @Override
+                        public void onTimeout(String userId) {
+                            System.err.println("push onTimeout userId=" + userId);
+                        }
                     }
-                }
-        );
+            );
+            Thread.sleep(10000);
+        }
         LockSupport.park();
     }
+
 }
