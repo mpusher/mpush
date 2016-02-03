@@ -11,7 +11,7 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>mpush-cs/</directory>
+            <directory>mpush-cs/target/classes/</directory>
             <outputDirectory/>
             <includes>
                 <include>config.properties</include>

@@ -5,10 +5,7 @@ import java.util.concurrent.TimeUnit;
 import com.shinemo.mpush.api.connection.ConnectionManager;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.common.MessageDispatcher;
-import com.shinemo.mpush.core.handler.BindUserHandler;
-import com.shinemo.mpush.core.handler.FastConnectHandler;
-import com.shinemo.mpush.core.handler.HandshakeHandler;
-import com.shinemo.mpush.core.handler.HeartBeatHandler;
+import com.shinemo.mpush.core.handler.*;
 import com.shinemo.mpush.netty.connection.NettyConnectionManager;
 import com.shinemo.mpush.netty.server.NettyServer;
 import com.shinemo.mpush.netty.server.ScanAllConnectionTimerTask;
@@ -24,12 +21,12 @@ import io.netty.channel.ChannelOption;
  */
 public final class ConnectionServer extends NettyServer {
     private ServerChannelHandler channelHandler;
-    
+
     private ConnectionManager connectionManager = new NettyConnectionManager();
 
     public ConnectionServer(int port) {
         super(port);
-        NettySharedHolder.HASHED_WHEEL_TIMER.newTimeout(new ScanAllConnectionTimerTask(connectionManager), ConfigCenter.holder.scanConnTaskCycle()/1000, TimeUnit.SECONDS);
+        NettySharedHolder.HASHED_WHEEL_TIMER.newTimeout(new ScanAllConnectionTimerTask(connectionManager), ConfigCenter.holder.scanConnTaskCycle() / 1000, TimeUnit.SECONDS);
     }
 
     @Override
@@ -39,6 +36,7 @@ public final class ConnectionServer extends NettyServer {
         receiver.register(Command.HEARTBEAT, new HeartBeatHandler());
         receiver.register(Command.HANDSHAKE, new HandshakeHandler());
         receiver.register(Command.BIND, new BindUserHandler());
+        receiver.register(Command.UNBIND, new UnbindUserHandler());
         receiver.register(Command.FAST_CONNECT, new FastConnectHandler());
         connectionManager.init();
         channelHandler = new ServerChannelHandler(true, connectionManager, receiver);

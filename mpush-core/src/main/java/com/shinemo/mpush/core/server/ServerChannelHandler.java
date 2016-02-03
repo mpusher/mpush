@@ -11,8 +11,6 @@ import com.shinemo.mpush.netty.connection.NettyConnection;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +39,7 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Connection connection = connectionManager.get(ctx.channel());
         connection.close();
-    	LOGGER.warn("update currentTime:"+ctx.channel()+","+ToStringBuilder.reflectionToString(msg));
+        LOGGER.debug("update currentTime:" + ctx.channel() + "," + msg);
         connection.updateLastReadTime();
         receiver.onReceive((Packet) msg, connection);
     }

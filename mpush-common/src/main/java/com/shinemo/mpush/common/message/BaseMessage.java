@@ -44,6 +44,9 @@ public abstract class BaseMessage implements Message {
                     tmp = result;
                 }
             }
+            if (tmp.length == 0) {
+                throw new RuntimeException("message decode ex");
+            }
             packet.body = tmp;
             decode(packet.body);
         }
@@ -64,8 +67,11 @@ public abstract class BaseMessage implements Message {
             //2.加密
             SessionContext context = connection.getSessionContext();
             if (context.cipher != null) {
-                tmp = context.cipher.encrypt(tmp);
-                packet.setFlag(Constants.CRYPTO_FLAG);
+                byte[] result = context.cipher.encrypt(tmp);
+                if (result.length > 0) {
+                    tmp = result;
+                    packet.setFlag(Constants.CRYPTO_FLAG);
+                }
             }
             packet.body = tmp;
         }
