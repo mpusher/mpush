@@ -108,21 +108,17 @@ public class JVMUtil {
     }
     
     public static void jMap(String fileName, boolean live) {
+    	 File f = new File(fileName, System.currentTimeMillis()+"-jmap.log");
+         String currentFileName = f.getPath();
         try {
             initHotspotMBean();
-            
-
-            
-            File f = new File(fileName, System.currentTimeMillis()+"-jmap.log");
-            String currentFileName = f.getPath();
             if (f.exists()) {
                 f.delete();
             }
             
-            
             hotspotMBean.dumpHeap(currentFileName, live);
         } catch (Exception e) {
-        	log.error("dumpHeap Error!", e);
+        	log.error("dumpHeap Error!"+currentFileName, e);
         }
     }
 	
