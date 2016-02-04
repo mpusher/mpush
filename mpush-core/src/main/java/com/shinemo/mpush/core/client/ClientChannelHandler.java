@@ -2,12 +2,17 @@ package com.shinemo.mpush.core.client;
 
 
 
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.Client;
+import com.shinemo.mpush.api.RedisKey;
 import com.shinemo.mpush.common.message.BindUserMessage;
 import com.shinemo.mpush.common.message.ErrorMessage;
+import com.shinemo.mpush.common.message.FastConnectMessage;
 import com.shinemo.mpush.common.message.FastConnectOkMessage;
 import com.shinemo.mpush.common.message.HandshakeMessage;
 import com.shinemo.mpush.common.message.HandshakeOkMessage;
@@ -21,7 +26,10 @@ import com.shinemo.mpush.netty.client.NettyClient;
 import com.shinemo.mpush.netty.client.NettyClientFactory;
 import com.shinemo.mpush.netty.client.SecurityNettyClient;
 import com.shinemo.mpush.netty.connection.NettyConnection;
+import com.shinemo.mpush.tools.redis.manage.RedisManage;
 
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
@@ -67,6 +75,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                     client.startHeartBeat();
                     LOGGER.info("会话密钥：{}，message={}", sessionKey, message);
                     bindUser(securityNettyClient);
+                    saveToRedisForFastConnection(securityNettyClient.getDeviceId(), message.sessionId, message.expireTime);
                 } else if (command == Command.FAST_CONNECT) {
                     String cipherStr = securityNettyClient.getCipher();
                     String[] cs = cipherStr.split(",");
@@ -92,7 +101,6 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                     PushMessage message = new PushMessage(packet, connection);
                     LOGGER.info("receive an push message, content=" + message.content);
                 }else if(command == Command.HEARTBEAT){
-//                	connection.send(packet);  // ping -> pong
                 	LOGGER.info("receive an heart beat message");
                 }else{
                 	LOGGER.info("receive an  message, type=" + command.cmd+","+packet);
@@ -144,36 +152,38 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
         LOGGER.info("client disconnect channel={}", ctx.channel());
     }
     
-    private void tryFastConnect(SecurityNettyClient securityNettyClient) {
+    private void tryFastConnect(final SecurityNettyClient securityNettyClient) {
     	handshake(securityNettyClient);
-//        if (sessionTickets == null) {
-//            
-//            return;
-//        }
-//        String sessionId = (String) sessionTickets.get("sessionId");
-//        if (sessionId == null) {
-//            handshake();
-//            return;
-//        }
-//        String expireTime = (String) sessionTickets.get("expireTime");
-//        if (expireTime != null) {
-//            long exp = Long.parseLong(expireTime);
-//            if (exp < System.currentTimeMillis()) {
-//                handshake();
-//                return;
-//            }
-//        }
-//        FastConnectMessage message = new FastConnectMessage(connection);
-//        message.deviceId = deviceId;
-//        message.sessionId = sessionId;
-//        message.send(new ChannelFutureListener() {
-//            @Override
-//            public void operationComplete(ChannelFuture channelFuture) throws Exception {
-//                if (!channelFuture.isSuccess()) {
-//                    handshake();
-//                }
-//            }
-//        });
+    	
+    	Map<String, String> sessionTickets = getFastConnectionInfo(securityNettyClient.getDeviceId());
+    	
+        if (sessionTickets == null) {
+            return;
+        }
+        String sessionId = (String) sessionTickets.get("sessionId");
+        if (sessionId == null) {
+        	handshake(securityNettyClient);
+            return;
+        }
+        String expireTime = (String) sessionTickets.get("expireTime");
+        if (expireTime != null) {
+            long exp = Long.parseLong(expireTime);
+            if (exp < System.currentTimeMillis()) {
+                handshake(securityNettyClient);
+                return;
+            }
+        }
+        FastConnectMessage message = new FastConnectMessage(securityNettyClient.getConnection());
+        message.deviceId = securityNettyClient.getDeviceId();
+        message.sessionId = sessionId;
+        message.send(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                if (!channelFuture.isSuccess()) {
+                    handshake(securityNettyClient);
+                }
+            }
+        });
     }
     
     private void bindUser(SecurityNettyClient client) {
@@ -182,22 +192,18 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
         message.send();
     }
 
-//    private void saveToken(HandshakeOkMessage message, SessionContext context) {
-//        try {
-//            Map<String, Serializable> map = new HashMap<>();
-//            map.put("sessionId", message.sessionId);
-//            map.put("serverHost", message.serverHost);
-//            map.put("expireTime", Long.toString(message.expireTime));
-//            map.put("cipher", context.cipher.toString());
-//            map.put("deviceId", deviceId);
-//            map.put("userId", userId);
-//            String path = this.getClass().getResource("/").getFile();
-//            FileOutputStream out = new FileOutputStream(new File(path, "token.dat"));
-//            out.write(Jsons.toJson(map).getBytes(Constants.UTF_8));
-//            out.close();
-//        } catch (Exception e) {
-//        }
-//    }
+    private void saveToRedisForFastConnection(String deviceId,String sessionId,Long expireTime){
+    	Map<String, String> map = Maps.newHashMap();
+    	map.put("sessionId", sessionId);
+    	map.put("expireTime", expireTime+"");
+    	String key = RedisKey.getDeviceIdKey(deviceId);
+    	RedisManage.set(key, map,60*5); //5分钟
+    }
+    
+    private Map<String, String> getFastConnectionInfo(String deviceId){
+    	String key = RedisKey.getDeviceIdKey(deviceId);
+    	return RedisManage.get(key, Map.class);
+    }
     
     private void handshake(SecurityNettyClient client) {
       HandshakeMessage message = new HandshakeMessage(client.getConnection());
