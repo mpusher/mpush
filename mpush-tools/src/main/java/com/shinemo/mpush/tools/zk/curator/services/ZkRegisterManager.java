@@ -52,7 +52,7 @@ public class ZkRegisterManager implements ZkRegister {
 	@Override
 	public void init() {
 		zkConfig = new ZkConfig(ConfigCenter.holder.zkIp(), ConfigCenter.holder.zkNamespace(),ConfigCenter.holder.zkDigest());
-		LoggerManage.log(LogType.ZK, "start registry zk, server lists is:%s", zkConfig.getIpLists());
+		LoggerManage.info(LogType.ZK, "start registry zk, server lists is:%s", zkConfig.getIpLists());
 		Builder builder = CuratorFrameworkFactory.builder().connectString(zkConfig.getIpLists())
 				.retryPolicy(new ExponentialBackoffRetry(zkConfig.getMinTime(), zkConfig.getMaxRetry(), zkConfig.getMaxTime())).namespace(zkConfig.getNamespace());
 		if (zkConfig.getConnectionTimeout() > 0) {
