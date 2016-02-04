@@ -14,7 +14,10 @@ import com.shinemo.mpush.common.security.AesCipher;
 import com.shinemo.mpush.common.security.CipherBox;
 import com.shinemo.mpush.core.session.ReusableSession;
 import com.shinemo.mpush.core.session.ReusableSessionManager;
+import com.shinemo.mpush.log.LogType;
+import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.tools.MPushUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +90,6 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
 
         //9.触发握手成功事件
         EventBus.INSTANCE.post(new HandshakeEvent(message.getConnection(), heartbeat));
-        LOGGER.warn("handshake success, session={}", context);
+        LoggerManage.log(LogType.CONNECTION, "client handshake success:%s", context);
     }
 }
