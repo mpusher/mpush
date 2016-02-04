@@ -33,5 +33,9 @@ public class RedisNode {
 		this.port = port;
 		this.password = password;
 	}
+	@Override
+	public String toString() {
+		return "RedisNode [ip=" + ip + ", port=" + port + ", password=" + password + "]";
+	}
 	
 }

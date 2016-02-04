@@ -6,6 +6,8 @@ import java.util.concurrent.Executor;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.shinemo.mpush.log.LogType;
+import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.tools.redis.manage.RedisManage;
 import com.shinemo.mpush.tools.redis.pubsub.Subscriber;
 import com.shinemo.mpush.tools.thread.threadpool.ThreadPoolManager;
@@ -15,6 +17,8 @@ public class ListenerDispatcher implements MessageListener {
     public static final ListenerDispatcher INSTANCE = new ListenerDispatcher();
 
     private Map<String, List<MessageListener>> subscribes = Maps.newTreeMap();
+    
+    private ListenerDispatcher(){}
 
     private Executor executor = ThreadPoolManager.redisExecutor;
 
@@ -22,6 +26,7 @@ public class ListenerDispatcher implements MessageListener {
     public void onMessage(final String channel, final String message) {
         List<MessageListener> listeners = subscribes.get(channel);
         if (listeners == null) {
+        	LoggerManage.info(LogType.REDIS, "cannot find listener:%s,%s", channel,message);
             return;
         }
         for (final MessageListener listener : listeners) {
@@ -41,7 +46,6 @@ public class ListenerDispatcher implements MessageListener {
             subscribes.put(channel, listeners);
         }
         listeners.add(listener);
-        Subscriber subscriber = new Subscriber();
-        RedisManage.subscribe(subscriber, channel);
+        RedisManage.subscribe(Subscriber.holder, channel);
     }
 }
