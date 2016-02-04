@@ -63,11 +63,4 @@ public class Subscriber extends JedisPubSub {
         super.unsubscribe(channels);
     }
 
-    public void subscribe(MessageListener listener, String... channels) {
-    	LoggerManage.log(LogType.REDIS, "subscribe:%s",Jsons.toJson(channels));
-        for (String channel : channels) {
-            dispatcher.subscribe(channel, listener);
-        }
-    }
-
 }

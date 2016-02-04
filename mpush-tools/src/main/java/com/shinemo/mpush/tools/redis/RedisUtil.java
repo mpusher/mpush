@@ -477,16 +477,15 @@ public class RedisUtil {
         }
     }
 
-    //TODO 使用别的线程
     public static void subscribe(Set<RedisNode> nodeList, final JedisPubSub pubsub, final String... channels) {
         for (final RedisNode node : nodeList) {
-        	Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    subscribe(node, pubsub, channels);
-                }
-            };
-            ThreadPoolManager.bizExecutor.execute(runnable);
+        	String name = node.getIp()+"_"+Jsons.toJson(channels);
+        	ThreadPoolManager.newThread(name, new Runnable() {
+				@Override
+				public void run() {
+					subscribe(node, pubsub, channels);
+				}
+			});
         }
     }
 

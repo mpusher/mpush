@@ -19,18 +19,23 @@ public class ThreadPoolManager {
 	public static Executor workExecutor = cachedThreadPool.getExecutor(ThreadPoolContext.WORK_THREAD_POOL);
 	public static Executor bizExecutor = fixedThreadPool.getExecutor(ThreadPoolContext.BIZ_THREAD_POOL);
 	public static Executor eventBusExecutor = fixedThreadPool.getExecutor(ThreadPoolContext.EVENT_BUS_THREAD_POOL);
-	public static Executor zkExecutor = fixedThreadPool.getExecutor(ThreadPoolContext.ZK_THREAD_POOL);
+	public static Executor redisExecutor = fixedThreadPool.getExecutor(ThreadPoolContext.REDIS_THREAD_POOL);
 	
 	static{
 		poolCache.put(ThreadPoolContext.BOSS_THREAD_POOL.getName(), bossExecutor);
 		poolCache.put(ThreadPoolContext.WORK_THREAD_POOL.getName(), workExecutor);
 		poolCache.put(ThreadPoolContext.BIZ_THREAD_POOL.getName(), bizExecutor);
 		poolCache.put(ThreadPoolContext.EVENT_BUS_THREAD_POOL.getName(), eventBusExecutor);
-		poolCache.put(ThreadPoolContext.ZK_THREAD_POOL.getName(), zkExecutor);
+		poolCache.put(ThreadPoolContext.REDIS_THREAD_POOL.getName(), redisExecutor);
 	}
 	
 	public static final Map<String, Executor> getPool(){
 		return poolCache;
+	}
+	
+	public static final Thread newThread(String name,Runnable target){
+		Thread thread = new Thread(target, name);
+		return thread;
 	}
 
 	
