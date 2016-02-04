@@ -1,10 +1,8 @@
 package com.shinemo.mpush.common.security;
 
-import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.connection.Cipher;
 import com.shinemo.mpush.tools.crypto.AESUtils;
 
-import java.util.Arrays;
 
 /**
  * Created by ohun on 2015/12/28.
