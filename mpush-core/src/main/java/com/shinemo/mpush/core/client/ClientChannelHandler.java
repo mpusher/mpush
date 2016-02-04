@@ -200,7 +200,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
     	Map<String, String> map = Maps.newHashMap();
     	map.put("sessionId", sessionId);
     	map.put("expireTime", expireTime+"");
-    	map.put("cipherStr", new String(sessionKey)+","+new String(client.getIv()));
+    	map.put("cipherStr", client.getConnection().getSessionContext().cipher.toString());
     	String key = RedisKey.getDeviceIdKey(client.getDeviceId());
     	RedisManage.set(key, map,60*5); //5分钟
     }
