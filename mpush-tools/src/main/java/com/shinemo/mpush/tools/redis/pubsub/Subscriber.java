@@ -3,15 +3,13 @@ package com.shinemo.mpush.tools.redis.pubsub;
 import com.shinemo.mpush.log.LogType;
 import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.tools.Jsons;
-import com.shinemo.mpush.tools.redis.listener.MessageListener;
-
 import com.shinemo.mpush.tools.redis.listener.ListenerDispatcher;
 
 import redis.clients.jedis.JedisPubSub;
 
 public class Subscriber extends JedisPubSub {
 
-    private ListenerDispatcher dispatcher = ListenerDispatcher.INSTANCE;
+    private static ListenerDispatcher dispatcher = ListenerDispatcher.INSTANCE;
     
     @Override
     public void onMessage(String channel, String message) {

@@ -31,7 +31,6 @@ public final class RouterChangeListener extends AbstractEventContainer implement
 
     public RouterChangeListener() {
     	ListenerDispatcher.INSTANCE.subscribe(getKickChannel(), this);
-//        RedisManage.subscribe(this, getKickChannel());
     }
 
     public String getKickChannel() {
