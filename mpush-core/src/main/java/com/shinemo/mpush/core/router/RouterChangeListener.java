@@ -9,6 +9,8 @@ import com.shinemo.mpush.api.router.Router;
 import com.shinemo.mpush.common.AbstractEventContainer;
 import com.shinemo.mpush.common.message.KickUserMessage;
 import com.shinemo.mpush.common.router.RemoteRouter;
+import com.shinemo.mpush.log.LogType;
+import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.redis.listener.ListenerDispatcher;
@@ -18,14 +20,10 @@ import com.shinemo.mpush.tools.redis.manage.RedisManage;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Created by ohun on 2016/1/4.
  */
 public final class RouterChangeListener extends AbstractEventContainer implements MessageListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RouterChangeListener.class);
     public static final String KICK_CHANNEL_ = "/mpush/kick/";
     private final String kick_channel = KICK_CHANNEL_ + MPushUtil.getLocalIp();
 
@@ -71,9 +69,9 @@ public final class RouterChangeListener extends AbstractEventContainer implement
             public void operationComplete(ChannelFuture future) throws Exception {
                 future.channel().close();
                 if (future.isSuccess()) {
-                    LOGGER.info("kick local connection success, userId={}, router={}", userId, router);
+                	LoggerManage.info(LogType.CONNECTION, "kick local connection success, userId=%s, router=%s", userId, router);
                 } else {
-                    LOGGER.error("kick local connection failure, userId={}, router={}", userId, router);
+                	LoggerManage.info(LogType.CONNECTION, "kick local connection failure, userId=%s, router=%s", userId, router);
                 }
             }
         });
@@ -92,7 +90,7 @@ public final class RouterChangeListener extends AbstractEventContainer implement
         ClientLocation location = router.getRouteValue();
         //1.如果目标机器是当前机器，就不要再发送广播了，直接忽略
         if (location.getHost().equals(MPushUtil.getLocalIp())) {
-            LOGGER.error("kick remote user but router in local, userId={}", userId);
+        	LoggerManage.info(LogType.CONNECTION, "kick remote user but router in local, userId=%s", userId);
             return;
         }
 
@@ -116,7 +114,7 @@ public final class RouterChangeListener extends AbstractEventContainer implement
     public void onReceiveKickRemoteMsg(KickRemoteMsg msg) {
         //1.如果当前机器不是目标机器，直接忽略
         if (!msg.targetServer.equals(MPushUtil.getLocalIp())) {
-            LOGGER.error("receive kick remote msg, target server error, localIp={}, msg={}", MPushUtil.getLocalIp(), msg);
+        	LoggerManage.info(LogType.CONNECTION, "receive kick remote msg, target server error, localIp=%s, msg=%s", MPushUtil.getLocalIp(), msg);
             return;
         }
 
@@ -125,13 +123,13 @@ public final class RouterChangeListener extends AbstractEventContainer implement
         LocalRouterManager routerManager = RouterCenter.INSTANCE.getLocalRouterManager();
         LocalRouter router = routerManager.lookup(userId);
         if (router != null) {
-            LOGGER.info("receive kick remote msg, msg={}", msg);
+        	LoggerManage.info(LogType.CONNECTION, "receive kick remote msg, msg=%s", msg);
             //2.1删除本地路由信息
             routerManager.unRegister(userId);
             //2.2发送踢人消息到客户端
             kickLocal(userId, router);
         } else {
-            LOGGER.warn("no local router find, kick failure, msg={}", msg);
+        	LoggerManage.info(LogType.CONNECTION, "no local router find, kick failure, msg=%s", msg);
         }
     }
 
@@ -142,10 +140,10 @@ public final class RouterChangeListener extends AbstractEventContainer implement
             if (msg != null) {
                 onReceiveKickRemoteMsg(msg);
             } else {
-                LOGGER.warn("receive an error kick message={}", message);
+            	LoggerManage.info(LogType.CONNECTION, "receive an error kick message=%s", message);
             }
         } else {
-            LOGGER.warn("receive an error redis channel={}", channel);
+        	LoggerManage.info(LogType.CONNECTION, "receive an error redis channel=%s",channel);
         }
     }
 }
