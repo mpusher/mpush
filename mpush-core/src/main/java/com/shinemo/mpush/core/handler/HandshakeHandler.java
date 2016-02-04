@@ -88,7 +88,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
         //9.保存可复用session到Redis, 用于快速重连
         ReusableSessionManager.INSTANCE.cacheSession(session);
 
-        //9.触发握手成功事件
+        //10.触发握手成功事件
         EventBus.INSTANCE.post(new HandshakeEvent(message.getConnection(), heartbeat));
         LoggerManage.log(LogType.CONNECTION, "client handshake success:%s", context);
     }

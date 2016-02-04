@@ -22,7 +22,7 @@
         <module>mpush-common</module>
         <module>mpush-client</module>
         <module>mpush-cs</module>
-        <module>mpush-ps</module>
+        <module>mpush-test</module>
         <module>mpush-monitor</module>
         <module>mpush-log</module>
     </modules>
@@ -38,7 +38,7 @@
         <mpush-monitor-version>1.0.2-SNAPSHOT</mpush-monitor-version>
         <mpush-log-version>1.0.2-SNAPSHOT</mpush-log-version>
         <mpush-cs-version>1.0.2-SNAPSHOT</mpush-cs-version>
-        <mpush-ps-version>1.0.2-SNAPSHOT</mpush-ps-version>
+        <mpush-test-version>1.0.2-SNAPSHOT</mpush-test-version>
         <netty.version>5.0.0.Alpha2</netty.version>
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
     </properties>
@@ -132,6 +132,16 @@
                 <groupId>com.shinemo.mpush</groupId>
                 <artifactId>mpush-log</artifactId>
                 <version>${mpush-log-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.shinemo.mpush</groupId>
+                <artifactId>mpush-test</artifactId>
+                <version>${mpush-test-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.shinemo.mpush</groupId>
+                <artifactId>mpush-cs</artifactId>
+                <version>${mpush-cs-version}</version>
             </dependency>
             <!-- ================================================= -->
             <!-- 日志 -->
