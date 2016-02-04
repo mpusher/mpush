@@ -11,6 +11,7 @@ import com.shinemo.mpush.common.message.KickUserMessage;
 import com.shinemo.mpush.common.router.RemoteRouter;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.MPushUtil;
+import com.shinemo.mpush.tools.redis.listener.ListenerDispatcher;
 import com.shinemo.mpush.tools.redis.listener.MessageListener;
 import com.shinemo.mpush.tools.redis.manage.RedisManage;
 
@@ -29,7 +30,8 @@ public final class RouterChangeListener extends AbstractEventContainer implement
     private final String kick_channel = KICK_CHANNEL_ + MPushUtil.getLocalIp();
 
     public RouterChangeListener() {
-        RedisManage.subscribe(this, getKickChannel());
+    	ListenerDispatcher.INSTANCE.subscribe(getKickChannel(), this);
+//        RedisManage.subscribe(this, getKickChannel());
     }
 
     public String getKickChannel() {

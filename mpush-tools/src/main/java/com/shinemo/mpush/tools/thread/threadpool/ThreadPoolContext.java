@@ -24,8 +24,6 @@ public class ThreadPoolContext {
 	
 	public static ThreadPoolContext REDIS_THREAD_POOL = FixedThreadPoolContext.create(ThreadNameSpace.REDIS, Constants.REDIS_POOL_SIZE,Constants.REDIS_THREAD_QUEUE_SIZE);
 	
-	public static ThreadPoolContext ZK_THREAD_POOL = FixedThreadPoolContext.create(ThreadNameSpace.ZK, Constants.ZK_POOL_SIZE,Constants.ZK_THREAD_QUEUE_SIZE);
-	
 	public ThreadPoolContext(String name, int corePoolSize, int maxPoolSize, int queueCapacity, int keepAliveSeconds) {
 		this.name = name;
 		this.corePoolSize = corePoolSize;

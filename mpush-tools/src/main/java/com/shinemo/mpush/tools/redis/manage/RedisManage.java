@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.shinemo.mpush.tools.redis.listener.MessageListener;
 
 import redis.clients.jedis.JedisPubSub;
 
@@ -13,7 +12,6 @@ import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.RedisNode;
 import com.shinemo.mpush.tools.redis.RedisRegister;
 import com.shinemo.mpush.tools.redis.RedisUtil;
-import com.shinemo.mpush.tools.redis.pubsub.Subscriber;
 import com.shinemo.mpush.tools.spi.ServiceContainer;
 
 /**
@@ -225,11 +223,4 @@ public class RedisManage {
 
         RedisUtil.subscribe(set, pubsub, channels);
     }
-
-    public static void subscribe(MessageListener listener, String... channel) {
-        Subscriber subscriber = new Subscriber();
-        subscriber.subscribe(listener, channel);
-        subscribe(subscriber, channel);
-    }
-
 }

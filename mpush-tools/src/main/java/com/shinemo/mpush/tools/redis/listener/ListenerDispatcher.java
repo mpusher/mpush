@@ -3,10 +3,12 @@ package com.shinemo.mpush.tools.redis.listener;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.shinemo.mpush.tools.redis.manage.RedisManage;
+import com.shinemo.mpush.tools.redis.pubsub.Subscriber;
+import com.shinemo.mpush.tools.thread.threadpool.ThreadPoolManager;
 
 public class ListenerDispatcher implements MessageListener {
 
@@ -14,7 +16,7 @@ public class ListenerDispatcher implements MessageListener {
 
     private Map<String, List<MessageListener>> subscribes = Maps.newTreeMap();
 
-    private Executor executor = Executors.newFixedThreadPool(5);
+    private Executor executor = ThreadPoolManager.redisExecutor;
 
     @Override
     public void onMessage(final String channel, final String message) {
@@ -39,5 +41,7 @@ public class ListenerDispatcher implements MessageListener {
             subscribes.put(channel, listeners);
         }
         listeners.add(listener);
+        Subscriber subscriber = new Subscriber();
+        RedisManage.subscribe(subscriber, channel);
     }
 }
