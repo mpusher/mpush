@@ -1,7 +1,6 @@
 package com.shinemo.mpush.tools;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -61,10 +60,8 @@ public class JVMUtil {
                 try {
                     jstackStream = new FileOutputStream(new File(logPath, System.currentTimeMillis()+"-jstack.log"));
                     JVMUtil.jstack(jstackStream);
-                } catch (FileNotFoundException e) {
-                	log.error("", "Dump JVM cache Error!", e);
                 } catch (Throwable t) {
-                	log.error("", "Dump JVM cache Error!", t);
+                	log.error("Dump JVM cache Error!", t);
                 } finally {
                     if (jstackStream != null) {
                         try {
@@ -95,7 +92,7 @@ public class JVMUtil {
                 }
             });
         } catch (Exception e) {
-            log.error("", "getHotspotMBean Error!", e);
+            log.error("getHotspotMBean Error!", e);
             return null;
         }
     }
@@ -125,7 +122,7 @@ public class JVMUtil {
             
             hotspotMBean.dumpHeap(currentFileName, live);
         } catch (Exception e) {
-        	log.error("", "dumpHeap Error!", e);
+        	log.error("dumpHeap Error!", e);
         }
     }
 	
