@@ -1,4 +1,4 @@
-package com.shinemo.mpush.tools.redis;
+package com.shinemo.mpush.test.redis;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -9,6 +9,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.shinemo.mpush.tools.redis.RedisNode;
+import com.shinemo.mpush.tools.redis.RedisUtil;
 
 import redis.clients.jedis.Jedis;
 

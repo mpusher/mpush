@@ -1,4 +1,4 @@
-package com.shinemo.mpush.tools.redis;
+package com.shinemo.mpush.test.redis;
 
 import java.io.Serializable;
 import java.util.Date;

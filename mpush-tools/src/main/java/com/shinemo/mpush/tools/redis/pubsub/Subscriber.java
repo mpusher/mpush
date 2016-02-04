@@ -11,6 +11,10 @@ public class Subscriber extends JedisPubSub {
 
     private static ListenerDispatcher dispatcher = ListenerDispatcher.INSTANCE;
     
+    public static Subscriber holder = new Subscriber();
+    
+    private Subscriber(){}
+    
     @Override
     public void onMessage(String channel, String message) {
     	LoggerManage.log(LogType.REDIS, "onMessage:%s,%s", channel,message);

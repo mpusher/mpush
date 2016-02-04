@@ -1,4 +1,4 @@
-package com.shinemo.mpush.tools.redis;
+package com.shinemo.mpush.test.redis;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.shinemo.mpush.tools.Jsons;
+import com.shinemo.mpush.tools.redis.RedisPoolConfig;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;

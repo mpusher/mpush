@@ -470,7 +470,7 @@ public class RedisUtil {
             jedis = getClient(node);
             jedis.publish(channel, value);
         } catch (Exception e) {
-        	LoggerManage.execption(LogType.REDIS, e, "redis publish exception:%s,%s,%s",value,node,channel);
+        	LoggerManage.execption(LogType.REDIS, e, "redis publish exception:%s,%s,%s",value,Jsons.toJson(node),Jsons.toJson(channel));
         } finally {
             // 返还到连接池
             close(jedis);
@@ -485,7 +485,7 @@ public class RedisUtil {
 				public void run() {
 					subscribe(node, pubsub, channels);
 				}
-			});
+			}).start();
         }
     }
 
@@ -496,7 +496,7 @@ public class RedisUtil {
             jedis = getClient(node);
             jedis.subscribe(pubsub, channel);
         } catch (Exception e) {
-        	LoggerManage.execption(LogType.REDIS, e, "redis subscribe exception:%s,%s",node,channel);
+        	LoggerManage.execption(LogType.REDIS, e, "redis subscribe exception:%s,%s",Jsons.toJson(node),Jsons.toJson(channel));
         } finally {
             // 返还到连接池
             close(jedis);
