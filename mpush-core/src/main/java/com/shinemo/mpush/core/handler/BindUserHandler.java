@@ -9,6 +9,9 @@ import com.shinemo.mpush.common.message.BindUserMessage;
 import com.shinemo.mpush.common.message.ErrorMessage;
 import com.shinemo.mpush.common.message.OkMessage;
 import com.shinemo.mpush.core.router.RouterCenter;
+import com.shinemo.mpush.log.LogType;
+import com.shinemo.mpush.log.LoggerManage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +40,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             boolean success = RouterCenter.INSTANCE.register(message.userId, message.getConnection());
             if (success) {
                 OkMessage.from(message).setData("bind success").send();
-                LOGGER.warn("bind user success, userId={}, session={}", message.userId, context);
+                LoggerManage.log(LogType.CONNECTION, "bind user success, userId=%s, session=%s", message.userId, context);
             } else {
                 //3.注册失败再处理下，防止本地注册成功，远程注册失败的情况，只有都成功了才叫成功
                 RouterCenter.INSTANCE.unRegister(message.userId);
