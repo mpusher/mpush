@@ -2,9 +2,8 @@ package com.shinemo.mpush.tools.redis.pubsub;
 
 import com.shinemo.mpush.log.LogType;
 import com.shinemo.mpush.log.LoggerManage;
+import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.listener.MessageListener;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.shinemo.mpush.tools.redis.listener.ListenerDispatcher;
 
@@ -60,12 +59,12 @@ public class Subscriber extends JedisPubSub {
 
     @Override
     public void unsubscribe(String... channels) {
-    	LoggerManage.log(LogType.REDIS, "unsubscribe:%s",ToStringBuilder.reflectionToString(channels));
+    	LoggerManage.log(LogType.REDIS, "unsubscribe:%s",Jsons.toJson(channels));
         super.unsubscribe(channels);
     }
 
     public void subscribe(MessageListener listener, String... channels) {
-    	LoggerManage.log(LogType.REDIS, "subscribe:%s",ToStringBuilder.reflectionToString(channels));
+    	LoggerManage.log(LogType.REDIS, "subscribe:%s",Jsons.toJson(channels));
         for (String channel : channels) {
             dispatcher.subscribe(channel, listener);
         }

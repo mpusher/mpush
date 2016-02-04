@@ -5,6 +5,7 @@ import com.shinemo.mpush.api.connection.ConnectionManager;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.PacketReceiver;
+import com.shinemo.mpush.log.LogLevel;
 import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.netty.connection.NettyConnection;
 
@@ -47,13 +48,13 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         connectionManager.remove(ctx.channel());
-        LoggerManage.log(security, "client exceptionCaught channel=%s", ctx.channel());
+        LoggerManage.log(security, LogLevel.INFO,"client exceptionCaught channel=%s", ctx.channel());
         LOGGER.error("caught an ex, channel={}", ctx.channel(), cause);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    	LoggerManage.log(security, "client connect channel=%s", ctx.channel());
+    	LoggerManage.log(security,LogLevel.INFO,"client connect channel=%s", ctx.channel());
         Connection connection = new NettyConnection();
         connection.init(ctx.channel(), security);
         connectionManager.add(connection);
@@ -61,7 +62,7 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        LoggerManage.log(security, "client disconnect channel=%s", ctx.channel());
+        LoggerManage.log(security,LogLevel.INFO,"client disconnect channel=%s", ctx.channel());
         connectionManager.remove(ctx.channel());
     }
 }

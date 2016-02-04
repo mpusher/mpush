@@ -28,7 +28,23 @@ public class LoggerManage {
 	
 	
 	public static void log(LogType type,String format,Object... arguments){
-		log(type, null, format, arguments);
+		warn(type, format, arguments);
+	}
+	
+	public static void warn(LogType type,String format,Object... arguments){
+		log(type, LogLevel.WARN, null, format, arguments);
+	}
+	
+	public static void info(LogType type,String format,Object... arguments){
+		log(type, LogLevel.INFO, null, format, arguments);
+	}
+	
+	public static void error(LogType type,String format,Object... arguments){
+		log(type, LogLevel.ERROR, null, format, arguments);
+	}
+	
+	public static void debug(LogType type,String format,Object... arguments){
+		log(type, LogLevel.DEBUG, null, format, arguments);
 	}
 	
 	public static Logger getLog(LogType type){
@@ -39,39 +55,70 @@ public class LoggerManage {
 		return log;
 	}
 	
-	public static void log(LogType type,Throwable ex,String format,Object... arguments){
-		String ret = String.format(format, arguments);
-		Logger log = map.get(type);
-		if(ex!=null){
-			if(log!=null){
-				log.info(ret,ex);
-			}else{
-				defaultLog.info(ret,ex);
-			}
-		}else{
-			if(log!=null){
-				log.info(ret);
-			}else{
-				defaultLog.info(ret);
-			}
-		}
+	public static void execption(LogType type,Throwable ex,String format,Object... arguments){
+		log(type, LogLevel.ERROR, ex, format, arguments);
 	}
 	
 	/**
-	 * security的log 为 connectionLog的log
-	 * @param security
+	 * 默认 level 为warn
+	 * @param type
+	 * @param level
+	 * @param ex
 	 * @param format
 	 * @param arguments
 	 */
-	public static void log(boolean security,String format,Object... arguments){
+	public static void log(LogType type,LogLevel level,Throwable ex,String format,Object... arguments){
 		String ret = String.format(format, arguments);
-		if(security){
-			connectionLog.info(ret);
+		if(level == null){
+			level = LogLevel.WARN;
+		}
+		Logger log = map.get(type);
+		if(ex!=null){
+			if(log!=null){
+				if(level.equals(LogLevel.WARN)){
+					log.warn(ret,ex);
+				}else if(level.equals(LogLevel.INFO)){
+					log.info(ret,ex);
+				}else if(level.equals(LogLevel.DEBUG)){
+					log.debug(ret,ex);
+				}else if(level.equals(LogLevel.ERROR)){
+					log.error(ret,ex);
+				}
+			}else{
+				defaultLog.warn(ret,ex);
+			}
 		}else{
-			pushLog.info(ret);
+			if(log!=null){
+				if(level.equals(LogLevel.WARN)){
+					log.warn(ret);
+				}else if(level.equals(LogLevel.INFO)){
+					log.info(ret);
+				}else if(level.equals(LogLevel.DEBUG)){
+					log.debug(ret);
+				}else if(level.equals(LogLevel.ERROR)){
+					log.error(ret);
+				}
+			}else{
+				defaultLog.warn(ret);
+			}
 		}
 	}
 	
+
+	/**
+	 * security的log 为 connectionLog的log
+	 * @param security
+	 * @param level
+	 * @param format
+	 * @param arguments
+	 */
+	public static void log(boolean security,LogLevel level,String format,Object... arguments){
+		if(security){
+			log(LogType.CONNECTION, level, null, format, arguments);
+		}else{
+			log(LogType.PUSH, level, null, format, arguments);
+		}
+	}	
 	public static void main(String[] args) {
 		String format = "client connect channel=%s";
 		System.out.println(String.format(format, "hi"));
