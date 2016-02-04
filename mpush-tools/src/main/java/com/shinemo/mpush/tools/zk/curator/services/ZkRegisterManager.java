@@ -6,8 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.CuratorFrameworkFactory.Builder;
@@ -21,9 +19,10 @@ import org.apache.curator.utils.CloseableUtils;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.shinemo.mpush.log.LogType;
+import com.shinemo.mpush.log.LoggerManage;
+import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.zk.ZkConfig;
@@ -31,8 +30,6 @@ import com.shinemo.mpush.tools.zk.ZkRegister;
 import com.shinemo.mpush.tools.zk.listener.DataChangeListener;
 
 public class ZkRegisterManager implements ZkRegister {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(ZkRegisterManager.class);
 
 	private ZkConfig zkConfig;
 
@@ -55,7 +52,7 @@ public class ZkRegisterManager implements ZkRegister {
 	@Override
 	public void init() {
 		zkConfig = new ZkConfig(ConfigCenter.holder.zkIp(), ConfigCenter.holder.zkNamespace(),ConfigCenter.holder.zkDigest());
-		LOGGER.warn("start registry zk, server lists is: {}.", zkConfig.getIpLists());
+		LoggerManage.log(LogType.ZK, "start registry zk, server lists is:%s", zkConfig.getIpLists());
 		Builder builder = CuratorFrameworkFactory.builder().connectString(zkConfig.getIpLists())
 				.retryPolicy(new ExponentialBackoffRetry(zkConfig.getMinTime(), zkConfig.getMaxRetry(), zkConfig.getMaxTime())).namespace(zkConfig.getNamespace());
 		if (zkConfig.getConnectionTimeout() > 0) {
@@ -85,7 +82,7 @@ public class ZkRegisterManager implements ZkRegister {
 			cacheData();
 			registerConnectionLostListener();
 		} catch (final Exception ex) {
-			LOGGER.error("zk connection error" + ToStringBuilder.reflectionToString(zkConfig, ToStringStyle.DEFAULT_STYLE));
+			LoggerManage.log(LogType.ZK,ex,"zk connection error:%s", Jsons.toJson(zkConfig));
 		}
 
 	}
@@ -97,9 +94,9 @@ public class ZkRegisterManager implements ZkRegister {
             @Override
             public void stateChanged(final CuratorFramework client, final ConnectionState newState) {
                 if (ConnectionState.LOST == newState) {
-                	LOGGER.warn(MPushUtil.getInetAddress() + ", lost connection");
+                	LoggerManage.log(LogType.ZK, "%s lost connection", MPushUtil.getInetAddress());
                 } else if (ConnectionState.RECONNECTED == newState) {
-                	LOGGER.warn(MPushUtil.getInetAddress() + ", reconnected");
+                	LoggerManage.log(LogType.ZK, "%s reconnected", MPushUtil.getInetAddress());
                 }
             }
         });
@@ -159,7 +156,7 @@ public class ZkRegisterManager implements ZkRegister {
 		try {
 			return new String(client.getData().forPath(key), Charset.forName("UTF-8"));
 		} catch (final Exception ex) {
-			LOGGER.error("getDirectly" + ToStringBuilder.reflectionToString(key, ToStringStyle.DEFAULT_STYLE), ex);
+			LoggerManage.log(LogType.ZK, ex, "getFromRemote:%s", key);
 			return null;
 		}
 	}
@@ -183,7 +180,7 @@ public class ZkRegisterManager implements ZkRegister {
 			});
 			return result;
 		} catch (final Exception ex) {
-			LOGGER.error("getChildrenKeys" + ToStringBuilder.reflectionToString(key, ToStringStyle.DEFAULT_STYLE), ex);
+			LoggerManage.log(LogType.ZK, ex, "getChildrenKeys:%s", key);
 			return Collections.emptyList();
 		}
 	}
@@ -199,7 +196,7 @@ public class ZkRegisterManager implements ZkRegister {
 		try {
 			return null != client.checkExists().forPath(key);
 		} catch (final Exception ex) {
-			LOGGER.error("isExisted" + ToStringBuilder.reflectionToString(key, ToStringStyle.DEFAULT_STYLE), ex);
+			LoggerManage.log(LogType.ZK, ex, "isExisted:%s", key);
 			return false;
 		}
 	}
@@ -219,7 +216,7 @@ public class ZkRegisterManager implements ZkRegister {
 				update(key, value);
 			}
 		} catch (final Exception ex) {
-			LOGGER.error("persist" + key + "," + value, ex);
+			LoggerManage.log(LogType.ZK, ex, "persist:%s,%s", key,value);
 		}
 	}
 
@@ -234,7 +231,7 @@ public class ZkRegisterManager implements ZkRegister {
 		try {
 			client.inTransaction().check().forPath(key).and().setData().forPath(key, value.getBytes(Charset.forName("UTF-8"))).and().commit();
 		} catch (final Exception ex) {
-			LOGGER.error("update" + key + "," + value, ex);
+			LoggerManage.log(LogType.ZK, ex, "update:%s,%s", key,value);
 		}
 	}
 
@@ -252,7 +249,7 @@ public class ZkRegisterManager implements ZkRegister {
 			}
 			client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(key, value.getBytes(Charset.forName("UTF-8")));
 		} catch (final Exception ex) {
-			LOGGER.error("persistEphemeral" + key + "," + value, ex);
+			LoggerManage.log(LogType.ZK, ex, "persistEphemeral:%s,%s", key,value);
 		}
 	}
 
@@ -266,7 +263,7 @@ public class ZkRegisterManager implements ZkRegister {
 		try {
 			client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key, value.getBytes());
 		} catch (final Exception ex) {
-			LOGGER.error("persistEphemeralSequential" + key, ex);
+			LoggerManage.log(LogType.ZK, ex, "persistEphemeralSequential:%s,%s", key,value);
 		}
 	}
 
@@ -280,7 +277,7 @@ public class ZkRegisterManager implements ZkRegister {
 		try {
 			client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key);
 		} catch (final Exception ex) {
-			LOGGER.error("persistEphemeralSequential" + key, ex);
+			LoggerManage.log(LogType.ZK, ex, "persistEphemeralSequential:%s", key);
 		}
 	}
 
@@ -294,7 +291,7 @@ public class ZkRegisterManager implements ZkRegister {
 		try {
 			client.delete().deletingChildrenIfNeeded().forPath(key);
 		} catch (final Exception ex) {
-			LOGGER.error("remove" + key, ex);
+			LoggerManage.log(LogType.ZK, ex, "remove:%s", key);
 		}
 	}
 	

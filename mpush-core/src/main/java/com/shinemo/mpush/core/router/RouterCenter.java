@@ -43,17 +43,17 @@ public final class RouterCenter {
             oldLocalRouter = localRouterManager.register(userId, localRouter);
             oldRemoteRouter = remoteRouterManager.register(userId, remoteRouter);
         } catch (Exception e) {
-            LOGGER.warn("register router ex, userId={}, connection={}", userId, connection, e);
+            LOGGER.error("register router ex, userId={}, connection={}", userId, connection, e);
         }
 
         if (oldLocalRouter != null) {
             EventBus.INSTANCE.post(new RouterChangeEvent(userId, oldLocalRouter));
-            LOGGER.warn("register router success, find old local router={}, userId={}", oldLocalRouter, userId);
+            LOGGER.info("register router success, find old local router={}, userId={}", oldLocalRouter, userId);
         }
 
         if (oldRemoteRouter != null) {
             EventBus.INSTANCE.post(new RouterChangeEvent(userId, oldRemoteRouter));
-            LOGGER.warn("register router success, find old remote router={}, userId={}", oldRemoteRouter, userId);
+            LOGGER.info("register router success, find old remote router={}, userId={}", oldRemoteRouter, userId);
         }
         return true;
     }

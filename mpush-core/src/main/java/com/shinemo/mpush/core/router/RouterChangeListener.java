@@ -6,40 +6,45 @@ import com.shinemo.mpush.api.connection.SessionContext;
 import com.shinemo.mpush.api.event.RouterChangeEvent;
 import com.shinemo.mpush.api.router.ClientLocation;
 import com.shinemo.mpush.api.router.Router;
-import com.shinemo.mpush.common.EventBus;
+import com.shinemo.mpush.common.AbstractEventContainer;
 import com.shinemo.mpush.common.message.KickUserMessage;
 import com.shinemo.mpush.common.router.RemoteRouter;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.redis.listener.MessageListener;
 import com.shinemo.mpush.tools.redis.manage.RedisManage;
+
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Created by ohun on 2016/1/4.
  */
-public final class RouterChangeListener implements MessageListener {
+public final class RouterChangeListener extends AbstractEventContainer implements MessageListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(RouterChangeListener.class);
     public static final String KICK_CHANNEL_ = "/mpush/kick/";
     private final String kick_channel = KICK_CHANNEL_ + MPushUtil.getLocalIp();
 
     public RouterChangeListener() {
-        EventBus.INSTANCE.register(this);
         RedisManage.subscribe(this, getKickChannel());
     }
 
     public String getKickChannel() {
         return kick_channel;
     }
+    
+    public String getKickChannel(String remoteIp){
+    	return KICK_CHANNEL_ + remoteIp;
+    }
 
     @Subscribe
     void onRouteChangeEvent(RouterChangeEvent event) {
         String userId = event.userId;
         Router<?> r = event.router;
-        if (r.getRouteType() == Router.RouterType.LOCAL) {
+        if (r.getRouteType().equals(Router.RouterType.LOCAL)) {
             kickLocal(userId, (LocalRouter) r);
         } else {
             kickRemote(userId, (RemoteRouter) r);
@@ -95,7 +100,7 @@ public final class RouterChangeListener implements MessageListener {
         msg.deviceId = location.getDeviceId();
         msg.targetServer = location.getHost();
         msg.userId = userId;
-        RedisManage.publish(getKickChannel(), msg);
+        RedisManage.publish(getKickChannel(msg.targetServer), msg);
     }
 
     /**

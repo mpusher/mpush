@@ -9,6 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.shinemo.mpush.log.LogType;
+import com.shinemo.mpush.log.LoggerManage;
+import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.redis.RedisGroup;
 import com.shinemo.mpush.tools.redis.RedisNode;
 import com.shinemo.mpush.tools.redis.RedisRegister;
@@ -25,6 +28,7 @@ public class JedisRegisterManager implements RedisRegister{
     @Override
     public void init(List<RedisGroup> group) {
         if (group == null || group.isEmpty()) {
+        	LoggerManage.log(LogType.REDIS, "init redis client error, redis server is none.");
             throw new RuntimeException("init redis client error, redis server is none.");
         }
         groups = group;
@@ -39,7 +43,7 @@ public class JedisRegisterManager implements RedisRegister{
 
     private void printGroupList() {
         for (RedisGroup app : groups) {
-            LOGGER.warn(ToStringBuilder.reflectionToString(app, ToStringStyle.DEFAULT_STYLE));
+        	LoggerManage.log(LogType.REDIS,Jsons.toJson(app));
         }
     }
 
