@@ -96,6 +96,7 @@ public final class RouterChangeListener extends AbstractEventContainer implement
         }
 
         //2.发送广播
+        //TODO 远程机器可能不存在，需要确认下redis 那个通道如果机器不存在的话，是否会存在消息积压的问题。
         KickRemoteMsg msg = new KickRemoteMsg();
         msg.deviceId = location.getDeviceId();
         msg.targetServer = location.getHost();

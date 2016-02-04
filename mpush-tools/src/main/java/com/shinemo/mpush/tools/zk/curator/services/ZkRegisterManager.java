@@ -25,7 +25,6 @@ import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.config.ConfigCenter;
-import com.shinemo.mpush.tools.thread.threadpool.ThreadPoolManager;
 import com.shinemo.mpush.tools.zk.ZkConfig;
 import com.shinemo.mpush.tools.zk.ZkRegister;
 import com.shinemo.mpush.tools.zk.listener.DataChangeListener;
@@ -62,6 +61,7 @@ public class ZkRegisterManager implements ZkRegister {
 		if (zkConfig.getSessionTimeout() > 0) {
 			builder.sessionTimeoutMs(zkConfig.getSessionTimeout());
 		}
+		
 		if (StringUtils.isNoneBlank(zkConfig.getDigest())) {
 			builder.authorization("digest", zkConfig.getDigest().getBytes(Charset.forName("UTF-8"))).aclProvider(new ACLProvider() {
 
@@ -100,7 +100,7 @@ public class ZkRegisterManager implements ZkRegister {
                 	LoggerManage.log(LogType.ZK, "%s reconnected", MPushUtil.getInetAddress());
                 }
             }
-        },ThreadPoolManager.zkExecutor);
+        });
     }
 
 	// 本地缓存
