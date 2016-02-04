@@ -16,6 +16,8 @@ public class ThreadNameSpace {
     
     public static final String REDIS = "mp-redis";
     
+    public static final String ZK = "mp-zk";
+    
     public static final String BIZ = "mp-biz";
 
     /**
