@@ -128,6 +128,11 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
 		return "NettyConnection [context=" + context + ", channel=" + channel + ", status=" + status + ", lastReadTime=" + lastReadTime + ", lastWriteTime=" + lastWriteTime + ", hbTimes=" + hbTimes
 				+ "]";
 	}
+
+	@Override
+	public Channel getChannel() {
+		return channel;
+	}
     
 
 }

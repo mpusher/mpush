@@ -7,6 +7,8 @@ public class LoggerManage {
 	
 	private static final Logger connectionLog = LoggerFactory.getLogger("connectionLog");
 	private static final Logger pushLog = LoggerFactory.getLogger("pushLog");
+	private static final Logger heartBeatLog = LoggerFactory.getLogger("heartBeatLog");
+	
 	
 	public static void log(LogType type,String format,Object... arguments){
 		String ret = String.format(format, arguments);
@@ -14,6 +16,8 @@ public class LoggerManage {
 			connectionLog.info(ret);
 		}else if(type.equals(LogType.PUSH)){
 			pushLog.info(ret);
+		}else if(type.equals(LogType.HEARTBEAT)){
+			heartBeatLog.info(ret);
 		}
 	}
 	
