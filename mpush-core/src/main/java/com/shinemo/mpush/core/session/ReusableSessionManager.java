@@ -1,5 +1,6 @@
 package com.shinemo.mpush.core.session;
 
+import com.shinemo.mpush.api.RedisKey;
 import com.shinemo.mpush.api.connection.SessionContext;
 import com.shinemo.mpush.tools.Strings;
 import com.shinemo.mpush.tools.config.ConfigCenter;
@@ -14,12 +15,14 @@ public final class ReusableSessionManager {
     private int expiredTime = ConfigCenter.holder.sessionExpiredTime();
 
     public boolean cacheSession(ReusableSession session) {
-        RedisManage.set(session.sessionId, ReusableSession.encode(session.context), expiredTime);
+    	String key = RedisKey.getSessionKey(session.sessionId);
+        RedisManage.set(key, ReusableSession.encode(session.context), expiredTime);
         return true;
     }
 
     public ReusableSession querySession(String sessionId) {
-        String value = RedisManage.get(sessionId, String.class);
+    	String key = RedisKey.getSessionKey(sessionId);
+        String value = RedisManage.get(key, String.class);
         if (Strings.isBlank(value)) return null;
         return ReusableSession.decode(value);
     }
