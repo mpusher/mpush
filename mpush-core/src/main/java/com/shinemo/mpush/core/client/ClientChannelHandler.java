@@ -75,7 +75,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                     client.startHeartBeat();
                     LOGGER.info("会话密钥：{}，message={}", sessionKey, message);
                     bindUser(securityNettyClient);
-                    saveToRedisForFastConnection(securityNettyClient.getDeviceId(), message.sessionId, message.expireTime);
+                    saveToRedisForFastConnection(securityNettyClient, message.sessionId, message.expireTime,sessionKey);
                 } else if (command == Command.FAST_CONNECT) {
                     String cipherStr = securityNettyClient.getCipher();
                     String[] cs = cipherStr.split(",");
@@ -153,11 +153,11 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
     }
     
     private void tryFastConnect(final SecurityNettyClient securityNettyClient) {
-    	handshake(securityNettyClient);
     	
     	Map<String, String> sessionTickets = getFastConnectionInfo(securityNettyClient.getDeviceId());
     	
         if (sessionTickets == null) {
+        	handshake(securityNettyClient);
             return;
         }
         String sessionId = (String) sessionTickets.get("sessionId");
@@ -173,9 +173,13 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                 return;
             }
         }
+        
+        String cipher = sessionTickets.get("cipherStr");
+        
         FastConnectMessage message = new FastConnectMessage(securityNettyClient.getConnection());
         message.deviceId = securityNettyClient.getDeviceId();
         message.sessionId = sessionId;
+        securityNettyClient.setCipher(cipher);
         message.send(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
@@ -192,11 +196,12 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
         message.send();
     }
 
-    private void saveToRedisForFastConnection(String deviceId,String sessionId,Long expireTime){
+    private void saveToRedisForFastConnection(SecurityNettyClient client,String sessionId,Long expireTime,byte[] sessionKey){
     	Map<String, String> map = Maps.newHashMap();
     	map.put("sessionId", sessionId);
     	map.put("expireTime", expireTime+"");
-    	String key = RedisKey.getDeviceIdKey(deviceId);
+    	map.put("cipherStr", new String(sessionKey)+","+new String(client.getIv()));
+    	String key = RedisKey.getDeviceIdKey(client.getDeviceId());
     	RedisManage.set(key, map,60*5); //5分钟
     }
     
