@@ -29,6 +29,9 @@ public interface Constants {
     
     int REDIS_POOL_SIZE = 3;
     int REDIS_THREAD_QUEUE_SIZE = 10000;
+    
+    int ZK_POOL_SIZE = 3;
+    int ZK_THREAD_QUEUE_SIZE = 10000;
 
     //zk
     int ZK_MAX_RETRY = 3;
