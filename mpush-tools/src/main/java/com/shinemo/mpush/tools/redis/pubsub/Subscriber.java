@@ -1,8 +1,10 @@
 package com.shinemo.mpush.tools.redis.pubsub;
 
+import com.shinemo.mpush.log.LogType;
+import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.tools.redis.listener.MessageListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.shinemo.mpush.tools.redis.listener.ListenerDispatcher;
 
@@ -10,61 +12,60 @@ import redis.clients.jedis.JedisPubSub;
 
 public class Subscriber extends JedisPubSub {
 
-    private static final Logger log = LoggerFactory.getLogger(Subscriber.class);
-
     private ListenerDispatcher dispatcher = ListenerDispatcher.INSTANCE;
-
+    
     @Override
     public void onMessage(String channel, String message) {
-        log.warn("onMessage channel:" + channel + "," + message);
+    	LoggerManage.log(LogType.REDIS, "onMessage:%s,%s", channel,message);
         dispatcher.onMessage(channel, message);
         super.onMessage(channel, message);
     }
 
     @Override
     public void onPMessage(String pattern, String channel, String message) {
-        log.warn("onPMessage:" + pattern + "," + channel + "," + message);
+    	LoggerManage.log(LogType.REDIS, "onPMessage:%s,%s,%s",pattern,channel,message);
         super.onPMessage(pattern, channel, message);
     }
 
     @Override
     public void onPSubscribe(String pattern, int subscribedChannels) {
-        log.warn("onPSubscribe:" + pattern + "," + subscribedChannels);
+    	LoggerManage.log(LogType.REDIS, "onPSubscribe:%s,%s",pattern,subscribedChannels);
         super.onPSubscribe(pattern, subscribedChannels);
     }
 
     @Override
     public void onPUnsubscribe(String pattern, int subscribedChannels) {
-        log.warn("onPUnsubscribe:" + pattern + "," + subscribedChannels);
+    	LoggerManage.log(LogType.REDIS, "onPUnsubscribe:%s,%s",pattern,subscribedChannels);
         super.onPUnsubscribe(pattern, subscribedChannels);
     }
 
     @Override
     public void onSubscribe(String channel, int subscribedChannels) {
-        log.warn("onSubscribe:" + channel + "," + subscribedChannels);
+    	LoggerManage.log(LogType.REDIS, "onSubscribe:%s,%s",channel,subscribedChannels);
         super.onSubscribe(channel, subscribedChannels);
     }
 
     @Override
     public void onUnsubscribe(String channel, int subscribedChannels) {
-        log.warn("onUnsubscribe:" + channel + "," + subscribedChannels);
+    	LoggerManage.log(LogType.REDIS, "onUnsubscribe:%s,%s",channel,subscribedChannels);
         super.onUnsubscribe(channel, subscribedChannels);
     }
 
 
     @Override
     public void unsubscribe() {
-        log.warn("unsubscribe:");
+    	LoggerManage.log(LogType.REDIS, "unsubscribe");
         super.unsubscribe();
     }
 
     @Override
     public void unsubscribe(String... channels) {
-        log.warn("unsubscribe:" + channels);
+    	LoggerManage.log(LogType.REDIS, "unsubscribe:%s",ToStringBuilder.reflectionToString(channels));
         super.unsubscribe(channels);
     }
 
     public void subscribe(MessageListener listener, String... channels) {
+    	LoggerManage.log(LogType.REDIS, "subscribe:%s",ToStringBuilder.reflectionToString(channels));
         for (String channel : channels) {
             dispatcher.subscribe(channel, listener);
         }

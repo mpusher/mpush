@@ -13,6 +13,7 @@ public class RemoteRouterManager implements RouterManager<RemoteRouter> {
 
     @Override
     public RemoteRouter register(String userId, RemoteRouter router) {
+    	LOGGER.info("register remote router success userId={}, router={}", userId, router);
         RemoteRouter old = RedisManage.get(userId, RemoteRouter.class);
         if (old != null) {
             RedisManage.del(userId);
@@ -24,7 +25,7 @@ public class RemoteRouterManager implements RouterManager<RemoteRouter> {
     @Override
     public boolean unRegister(String userId) {
         RedisManage.del(userId);
-        LOGGER.info("unRegister local router success userId={}", userId);
+        LOGGER.info("unRegister remote router success userId={}", userId);
         return true;
     }
 
