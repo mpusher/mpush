@@ -34,5 +34,9 @@
             <groupId>com.shinemo.mpush</groupId>
             <artifactId>mpush-cs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.shinemo.mpush</groupId>
+            <artifactId>mpush-log</artifactId>
+        </dependency>
     </dependencies>
 </project>
