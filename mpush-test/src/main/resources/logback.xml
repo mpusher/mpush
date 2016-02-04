@@ -24,7 +24,7 @@
 	
 
 	<root>
-		<level value="INFO" />
+		<level value="warn" />
 		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>
