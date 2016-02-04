@@ -13,6 +13,6 @@ public final class HeartBeatHandler implements MessageHandler {
     @Override
     public void handle(Packet packet, Connection connection) {
     	connection.send(packet);//ping -> pong
-    	LoggerManage.log(LogType.HEARTBEAT, "response client heartbeat:%s", connection.getChannel());
+    	LoggerManage.log(LogType.HEARTBEAT, "response client heartbeat:%s,%s", connection.getChannel(),connection.getSessionContext().deviceId);
     }
 }
