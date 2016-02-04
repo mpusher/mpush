@@ -82,7 +82,7 @@ public class ZkRegisterManager implements ZkRegister {
 			cacheData();
 			registerConnectionLostListener();
 		} catch (final Exception ex) {
-			LoggerManage.log(LogType.ZK,ex,"zk connection error:%s", Jsons.toJson(zkConfig));
+			LoggerManage.execption(LogType.ZK,ex,"zk connection error:%s", Jsons.toJson(zkConfig));
 		}
 
 	}
@@ -156,7 +156,7 @@ public class ZkRegisterManager implements ZkRegister {
 		try {
 			return new String(client.getData().forPath(key), Charset.forName("UTF-8"));
 		} catch (final Exception ex) {
-			LoggerManage.log(LogType.ZK, ex, "getFromRemote:%s", key);
+			LoggerManage.execption(LogType.ZK, ex, "getFromRemote:%s", key);
 			return null;
 		}
 	}
@@ -180,7 +180,7 @@ public class ZkRegisterManager implements ZkRegister {
 			});
 			return result;
 		} catch (final Exception ex) {
-			LoggerManage.log(LogType.ZK, ex, "getChildrenKeys:%s", key);
+			LoggerManage.execption(LogType.ZK, ex, "getChildrenKeys:%s", key);
 			return Collections.emptyList();
 		}
 	}
@@ -196,7 +196,7 @@ public class ZkRegisterManager implements ZkRegister {
 		try {
 			return null != client.checkExists().forPath(key);
 		} catch (final Exception ex) {
-			LoggerManage.log(LogType.ZK, ex, "isExisted:%s", key);
+			LoggerManage.execption(LogType.ZK, ex, "isExisted:%s", key);
 			return false;
 		}
 	}
@@ -216,7 +216,7 @@ public class ZkRegisterManager implements ZkRegister {
 				update(key, value);
 			}
 		} catch (final Exception ex) {
-			LoggerManage.log(LogType.ZK, ex, "persist:%s,%s", key,value);
+			LoggerManage.execption(LogType.ZK, ex, "persist:%s,%s", key,value);
 		}
 	}
 
@@ -231,7 +231,7 @@ public class ZkRegisterManager implements ZkRegister {
 		try {
 			client.inTransaction().check().forPath(key).and().setData().forPath(key, value.getBytes(Charset.forName("UTF-8"))).and().commit();
 		} catch (final Exception ex) {
-			LoggerManage.log(LogType.ZK, ex, "update:%s,%s", key,value);
+			LoggerManage.execption(LogType.ZK, ex, "update:%s,%s", key,value);
 		}
 	}
 
@@ -249,7 +249,7 @@ public class ZkRegisterManager implements ZkRegister {
 			}
 			client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(key, value.getBytes(Charset.forName("UTF-8")));
 		} catch (final Exception ex) {
-			LoggerManage.log(LogType.ZK, ex, "persistEphemeral:%s,%s", key,value);
+			LoggerManage.execption(LogType.ZK, ex, "persistEphemeral:%s,%s", key,value);
 		}
 	}
 
@@ -263,7 +263,7 @@ public class ZkRegisterManager implements ZkRegister {
 		try {
 			client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key, value.getBytes());
 		} catch (final Exception ex) {
-			LoggerManage.log(LogType.ZK, ex, "persistEphemeralSequential:%s,%s", key,value);
+			LoggerManage.execption(LogType.ZK, ex, "persistEphemeralSequential:%s,%s", key,value);
 		}
 	}
 
@@ -277,7 +277,7 @@ public class ZkRegisterManager implements ZkRegister {
 		try {
 			client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key);
 		} catch (final Exception ex) {
-			LoggerManage.log(LogType.ZK, ex, "persistEphemeralSequential:%s", key);
+			LoggerManage.execption(LogType.ZK, ex, "persistEphemeralSequential:%s", key);
 		}
 	}
 
@@ -291,7 +291,7 @@ public class ZkRegisterManager implements ZkRegister {
 		try {
 			client.delete().deletingChildrenIfNeeded().forPath(key);
 		} catch (final Exception ex) {
-			LoggerManage.log(LogType.ZK, ex, "remove:%s", key);
+			LoggerManage.execption(LogType.ZK, ex, "remove:%s", key);
 		}
 	}
 	
