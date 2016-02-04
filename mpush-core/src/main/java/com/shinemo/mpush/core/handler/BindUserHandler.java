@@ -12,14 +12,10 @@ import com.shinemo.mpush.core.router.RouterCenter;
 import com.shinemo.mpush.log.LogType;
 import com.shinemo.mpush.log.LoggerManage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Created by ohun on 2015/12/23.
  */
 public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
-    public static final Logger LOGGER = LoggerFactory.getLogger(BindUserHandler.class);
 
     @Override
     public BindUserMessage decode(Packet packet, Connection connection) {
@@ -30,7 +26,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
     public void handle(BindUserMessage message) {
         if (Strings.isNullOrEmpty(message.userId)) {
             ErrorMessage.from(message).setReason("invalid param").close();
-            LOGGER.error("bind user failure invalid param, session={}", message.getConnection().getSessionContext());
+            LoggerManage.log(LogType.CONNECTION, "bind user failure for invalid param, session=%s", message.getConnection().getSessionContext());
             return;
         }
         //1.绑定用户时先看下是否握手成功
@@ -45,11 +41,11 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 //3.注册失败再处理下，防止本地注册成功，远程注册失败的情况，只有都成功了才叫成功
                 RouterCenter.INSTANCE.unRegister(message.userId);
                 ErrorMessage.from(message).setReason("bind failed").close();
-                LOGGER.error("bind user failure, register router failure, userId={}, session={}", message.userId, context);
+                LoggerManage.log(LogType.CONNECTION, "bind user failure, userId=%s, session=%s", message.userId, context);
             }
         } else {
             ErrorMessage.from(message).setReason("not handshake").close();
-            LOGGER.error("bind user failure not handshake, userId={}, session={}", message.userId, context);
+            LoggerManage.log(LogType.CONNECTION, "bind user failure for not handshake, userId=%s, session=%s", message.userId, context);
         }
     }
 }

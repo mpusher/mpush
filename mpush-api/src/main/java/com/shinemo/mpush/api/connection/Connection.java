@@ -40,4 +40,7 @@ public interface Connection {
 	void resetHbTimes();
 
 	long getLastReadTime();
+	
+	Channel getChannel();
+	
 }

@@ -87,6 +87,29 @@
         <level value="info"/>
         <appender-ref ref="PUSH_APPENDER"/>
     </logger>
+    
+    <!-- heartbeat log -->
+	<appender name="HEARTBEAT_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!--日志文件名称 -->
+		<file>${log.home}/mpush-heartbeat.log</file>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>info</level>
+		</filter>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.home}/mpush-heartbeat.log.%d{yyyy-MM-dd}
+			</fileNamePattern>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<encoder charset="UTF-8">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+    <logger name="heartBeatLog" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="HEARTBEAT_APPENDER"/>
+    </logger>
 
 	<root>
 		<level value="${loglevel}" />

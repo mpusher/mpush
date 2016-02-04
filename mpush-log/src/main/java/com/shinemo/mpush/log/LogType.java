@@ -1,6 +1,6 @@
 package com.shinemo.mpush.log;
 
 public enum LogType {
-	CONNECTION,PUSH
+	CONNECTION,PUSH,HEARTBEAT
 
 }

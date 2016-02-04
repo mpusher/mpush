@@ -45,13 +45,14 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
                 || iv.length != CipherBox.INSTANCE.getAesKeyLength()
                 || clientKey.length != CipherBox.INSTANCE.getAesKeyLength()) {
             ErrorMessage.from(message).setReason("Param invalid").close();
+            LoggerManage.log(LogType.CONNECTION, "client handshake false:%s", message.getConnection());
             return;
         }
 
         //2.重复握手判断
         SessionContext context = message.getConnection().getSessionContext();
         if (message.deviceId.equals(context.deviceId)) {
-            ErrorMessage.from(message).setReason("Repeat handshake").close();
+            LoggerManage.log(LogType.CONNECTION, "client handshake false for repeat handshake:%s", message.getConnection().getSessionContext());
             return;
         }
 
