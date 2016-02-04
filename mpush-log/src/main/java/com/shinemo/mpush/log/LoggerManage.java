@@ -28,7 +28,7 @@ public class LoggerManage {
 	
 	
 	public static void log(LogType type,String format,Object... arguments){
-		warn(type, format, arguments);
+		info(type, format, arguments);
 	}
 	
 	public static void warn(LogType type,String format,Object... arguments){
