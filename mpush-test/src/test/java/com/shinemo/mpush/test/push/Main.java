@@ -18,7 +18,7 @@ public class Main {
 		for (int i = 0; i < 100; i++) {
 			PushContent content = new PushContent("msgId_" + (i % 2), "MPush", "this a first push." + i);
 
-			client.send(Jsons.toJson(content), Arrays.asList("43", "8"), new PushSender.Callback() {
+			client.send(Jsons.toJson(content), Arrays.asList("user-0", "8"), new PushSender.Callback() {
 				@Override
 				public void onSuccess(String userId) {
 					System.err.println("push onSuccess userId=" + userId);
