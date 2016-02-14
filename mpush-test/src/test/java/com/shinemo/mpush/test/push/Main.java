@@ -11,39 +11,37 @@ import java.util.concurrent.locks.LockSupport;
  */
 public class Main {
 
-    public static void main(String[] args) throws Exception {
-        GatewayClientMain client = new GatewayClientMain();
-        client.start();
-        Thread.sleep(1000);
-        for (int i = 0; i < 100; i++) {
-            PushContent content = new PushContent("msgId_" + (i % 2), "MPush", "this a first push." + i);
+	public static void main(String[] args) throws Exception {
+		GatewayClientMain client = new GatewayClientMain();
+		client.start();
+		Thread.sleep(1000);
+		for (int i = 0; i < 100; i++) {
+			PushContent content = new PushContent("msgId_" + (i % 2), "MPush", "this a first push." + i);
 
-            client.send(Jsons.toJson(content), Arrays.asList("43", "8"),
-                    new PushSender.Callback() {
-                        @Override
-                        public void onSuccess(String userId) {
-                            System.err.println("push onSuccess userId=" + userId);
-                        }
+			client.send(Jsons.toJson(content), Arrays.asList("43", "8"), new PushSender.Callback() {
+				@Override
+				public void onSuccess(String userId) {
+					System.err.println("push onSuccess userId=" + userId);
+				}
 
-                        @Override
-                        public void onFailure(String userId) {
-                            System.err.println("push onFailure userId=" + userId);
-                        }
+				@Override
+				public void onFailure(String userId) {
+					System.err.println("push onFailure userId=" + userId);
+				}
 
-                        @Override
-                        public void onOffline(String userId) {
-                            System.err.println("push onOffline userId=" + userId);
-                        }
+				@Override
+				public void onOffline(String userId) {
+					System.err.println("push onOffline userId=" + userId);
+				}
 
-                        @Override
-                        public void onTimeout(String userId) {
-                            System.err.println("push onTimeout userId=" + userId);
-                        }
-                    }
-            );
-            Thread.sleep(10000);
-        }
-        LockSupport.park();
-    }
+				@Override
+				public void onTimeout(String userId) {
+					System.err.println("push onTimeout userId=" + userId);
+				}
+			});
+			Thread.sleep(10000);
+		}
+		LockSupport.park();
+	}
 
 }
