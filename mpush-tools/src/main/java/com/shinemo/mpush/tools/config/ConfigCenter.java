@@ -89,6 +89,7 @@ public interface ConfigCenter extends Config {
     List<RedisGroup> redisGroups();
     
     @Key("force_write_redis_group_info")
+    @DefaultValue("true")
     boolean forceWriteRedisGroupInfo();
 
     @Key("scan_conn_task_cycle")
