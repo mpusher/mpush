@@ -14,4 +14,5 @@ echo "start start mpush..."
 
 java -jar $base_dir/target/mpush/mpush-cs.jar &
 
+
 echo "end start mpush..."
