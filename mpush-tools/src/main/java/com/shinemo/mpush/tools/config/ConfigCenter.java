@@ -32,7 +32,7 @@ public interface ConfigCenter extends Config {
     int minHeartbeat();
 
     @Key("max_heartbeat")
-    @DefaultValue("1800000")
+    @DefaultValue("180000") //180秒
     int maxHeartbeat();
 
     @Key("max_hb_timeout_times")
@@ -95,6 +95,7 @@ public interface ConfigCenter extends Config {
     @DefaultValue("59000")
     long scanConnTaskCycle();
 
+    @Key("jvm_log_path")
     @DefaultValue("/opt/shinemo/mpush/")
     String logPath();
     
