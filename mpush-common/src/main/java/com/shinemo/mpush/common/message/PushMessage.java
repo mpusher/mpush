@@ -2,7 +2,6 @@ package com.shinemo.mpush.common.message;
 
 import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.connection.Connection;
-import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 
 import static com.shinemo.mpush.api.protocol.Command.PUSH;

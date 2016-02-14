@@ -184,4 +184,10 @@ public class PushRequest implements PushSender.Callback, Runnable {
         sessionId = pushMessage.getSessionId();
         PushRequestBus.INSTANCE.put(sessionId, this);
     }
+
+	public long getSendTime() {
+		return sendTime;
+	}
+    
+    
 }

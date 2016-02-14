@@ -10,11 +10,13 @@ import com.shinemo.mpush.common.message.gateway.GatewayPushMessage;
 import com.shinemo.mpush.common.router.RemoteRouter;
 import com.shinemo.mpush.core.router.LocalRouter;
 import com.shinemo.mpush.core.router.RouterCenter;
+import com.shinemo.mpush.log.LogType;
+import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.tools.MPushUtil;
+
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import static com.shinemo.mpush.common.ErrorCode.*;
 
@@ -22,7 +24,6 @@ import static com.shinemo.mpush.common.ErrorCode.*;
  * Created by ohun on 2015/12/30.
  */
 public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMessage> {
-    public static final Logger LOGGER = LoggerFactory.getLogger(GatewayPushHandler.class);
 
     @Override
     public GatewayPushMessage decode(Packet packet, Connection connection) {
@@ -72,8 +73,8 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
         //2.如果链接失效，先删除本地失效的路由，再查下远程路由，看用户是否登陆到其他机器
         if (!connection.isConnected()) {
 
-            LOGGER.info("gateway push, router in local but disconnect, userId={}, connection={}", message.userId, connection);
-
+        	LoggerManage.info(LogType.PUSH, "gateway push, router in local but disconnect, userId=%s, connection=%s", message.userId, connection);
+        	
             //删除已经失效的本地路由
             RouterCenter.INSTANCE.getLocalRouterManager().unRegister(message.userId);
 
@@ -90,12 +91,13 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
                     //推送成功
                     OkMessage.from(message).setData(message.userId).send();
 
-                    LOGGER.info("gateway push message to client success userId={}, content={}", message.userId, message.content);
+                    LoggerManage.info(LogType.PUSH, "gateway push message to client success userId=%s, content=%s", message.userId, message.content);
+                    
                 } else {
                     //推送失败
                     ErrorMessage.from(message).setErrorCode(PUSH_CLIENT_FAILURE).send();
-
-                    LOGGER.error("gateway push message to client failure userId={}, content={}", message.userId, message.content);
+                    
+                    LoggerManage.info(LogType.PUSH, "gateway push message to client failure userId=%s, content=%s", message.userId, message.content);
                 }
             }
         });
@@ -118,7 +120,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
 
             ErrorMessage.from(message).setErrorCode(OFFLINE).send();
 
-            LOGGER.warn("gateway push, router not exists user offline userId={}, content={}", message.userId, message.content);
+            LoggerManage.info(LogType.PUSH, "gateway push, router not exists user offline userId=%s, content=%s", message.userId, message.content);
 
             return;
         }
@@ -130,15 +132,16 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
 
             //删除失效的远程缓存
             RouterCenter.INSTANCE.getRemoteRouterManager().unRegister(message.userId);
-
-            LOGGER.error("gateway push error remote is local, userId={}, router={}", message.userId, router);
+            
+            LoggerManage.info(LogType.PUSH, "gateway push error remote is local, userId=%s, router=%s", message.userId, router);
 
             return;
         }
 
         //3.否则说明用户已经跑到另外一台机器上了；路由信息发生更改，让PushClient重推
         ErrorMessage.from(message).setErrorCode(ROUTER_CHANGE).send();
+        
+        LoggerManage.info(LogType.PUSH, "gateway push, router in remote userId=%s, router=%s", message.userId, router);
 
-        LOGGER.info("gateway push, router in remote userId={}, router={}", message.userId, router);
     }
 }
