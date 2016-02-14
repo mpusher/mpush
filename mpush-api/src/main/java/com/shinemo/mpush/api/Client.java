@@ -27,6 +27,8 @@ public interface Client {
 
 	void startHeartBeat() throws Exception;
 	
+	void startHeartBeat(final int heartbeat) throws Exception;
+	
 	void stop();
 	
 	Connection getConnection();

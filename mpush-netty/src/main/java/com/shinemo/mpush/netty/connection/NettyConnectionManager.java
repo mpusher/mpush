@@ -88,7 +88,10 @@ public final class NettyConnectionManager  implements ConnectionManager {
         @Override
         public void run(Timeout timeout) throws Exception {
         	try{
-        		if (!connection.isConnected()) return;
+        		if (!connection.isConnected()){
+        			LoggerManage.info(LogType.HEARTBEAT, "connection is not connected:%s,%s", expiredTimes,connection.getChannel(),connection.getSessionContext().deviceId);
+        			return;
+        		}
                 if (connection.heartbeatTimeout()) {
                     if (++expiredTimes > ConfigCenter.holder.maxHBTimeoutTimes()) {
                         connection.close();
@@ -103,9 +106,8 @@ public final class NettyConnectionManager  implements ConnectionManager {
                 }
         	}catch(Throwable e){
         		LoggerManage.execption(LogType.DEFAULT, e, "HeartbeatCheckTask error");
-        	}finally{
-        		startTimeout();
         	}
+        	startTimeout();
         }
     }
 
