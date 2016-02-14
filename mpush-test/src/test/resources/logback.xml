@@ -15,7 +15,7 @@
 		<target>System.err</target>
 		<encoding>UTF-8</encoding>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">  
-            <level>WARN</level>  
+            <level>debug</level>  
         </filter>
 		<layout class="ch.qos.logback.classic.PatternLayout">
 			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35}  - %msg%n</pattern>
@@ -24,7 +24,7 @@
 	
 
 	<root>
-		<level value="warn" />
+		<level value="debug" />
 		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>
