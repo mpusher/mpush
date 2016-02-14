@@ -60,59 +60,6 @@ public class NettyClientFactory {
          }
     }
     
-    public Client create(String host,int port,final ChannelHandler handler){
-    	Client client = new NettyClient(host, port);
-    	return init(client, handler);
-    }
-    
-    @Deprecated
-    public Client createSecurityClient(String host,int port,final ChannelHandler handler,byte[] clientKey,byte[] iv,String clientVersion,
-    		                           String deviceId,String osName,String osVersion,String userId,String cipher){
-    	SecurityNettyClient client = new SecurityNettyClient(host, port);
-    	client.setClientKey(clientKey);
-    	client.setIv(iv);
-    	client.setClientVersion(clientVersion);
-    	client.setDeviceId(deviceId);
-    	client.setOsName(osName);
-    	client.setOsVersion(osVersion);
-    	client.setUserId(userId);
-    	client.setCipher(cipher);
-    	return init(client, handler);
-    }
-
-    public Client init(Client client, final ChannelHandler handler) {
-        final Bootstrap bootstrap = new Bootstrap();
-        bootstrap.group(NettySharedHolder.workerGroup)//
-        		.option(ChannelOption.TCP_NODELAY, true)//
-                .option(ChannelOption.SO_REUSEADDR, true)//
-                .option(ChannelOption.SO_KEEPALIVE, true)//
-                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)//
-                .channel(NioSocketChannel.class)
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 4000);
-        
-        bootstrap.handler(new ChannelInitializer<SocketChannel>() { // (4)
-            @Override
-            public void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addLast(new PacketDecoder());
-                ch.pipeline().addLast(PacketEncoder.INSTANCE);
-                ch.pipeline().addLast(handler);
-            }
-        });
-        
-        
-        ChannelFuture future = bootstrap.connect(new InetSocketAddress(client.getHost(), client.getPort()));
-        if (future.awaitUninterruptibly(4000) && future.isSuccess() && future.channel().isActive()) {
-            Channel channel = future.channel();
-            log.error("init channel:"+channel);
-            return client;
-        } else {
-            future.cancel(true);
-            future.channel().close();
-            log.warn("[remoting] failure to connect:" + client);
-            return null;
-        }
-    }
-
     public Client getCientByChannel(final Channel channel) {
         return channel2Client.get(channel);
     }
