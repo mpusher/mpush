@@ -1,6 +1,7 @@
 package com.shinemo.mpush.test.redis;
 
 import java.util.List;
+import java.util.concurrent.locks.LockSupport;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,14 +28,32 @@ public class PubSubTest {
     }
 	
 	@Test
-	public void pubSubTest(){
-		
+	public void subpubTest(){
 		RedisManage.subscribe(Subscriber.holder, "/hello/123");
-		
-		RedisManage.subscribe(Subscriber.holder, "/hello/124");
-		
+		RedisManage.subscribe(Subscriber.holder, "/hello/124");	
 		RedisManage.publish("/hello/123", "123");
 		RedisManage.publish("/hello/124", "124");
+	}
+	
+	@Test
+	public void pubsubTest(){
+		RedisManage.publish("/hello/123", "123");
+		RedisManage.publish("/hello/124", "124");
+		RedisManage.subscribe(Subscriber.holder, "/hello/123");
+		RedisManage.subscribe(Subscriber.holder, "/hello/124");	
+	}
+	
+	@Test
+	public void pubTest(){
+		RedisManage.publish("/hello/123", "123");
+		RedisManage.publish("/hello/124", "124");
+	}
+	
+	@Test
+	public void subTest(){
+		RedisManage.subscribe(Subscriber.holder, "/hello/123");
+		RedisManage.subscribe(Subscriber.holder, "/hello/124");	
+		LockSupport.park();
 	}
 	
 }

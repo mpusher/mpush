@@ -28,7 +28,7 @@ public abstract class NettyServer implements Server {
 
     public enum State {Created, Initialized, Starting, Started, Shutdown}
 
-    protected final AtomicReference<State> serverState = new AtomicReference(State.Created);
+	protected final AtomicReference<State> serverState = new AtomicReference<>(State.Created);
 
     private final int port;
     private EventLoopGroup bossGroup;
@@ -162,7 +162,8 @@ public abstract class NettyServer implements Server {
     }
 
 
-    private void createEpollServer(final Listener listener) {
+    @SuppressWarnings("unused")
+	private void createEpollServer(final Listener listener) {
         EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1, ThreadPoolManager.bossExecutor);
         EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(0, ThreadPoolManager.workExecutor);
         createServer(listener, bossGroup, workerGroup, EpollServerSocketChannel.class);

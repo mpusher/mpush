@@ -1,6 +1,5 @@
 package com.shinemo.mpush.core.server;
 
-import java.util.concurrent.TimeUnit;
 
 import com.shinemo.mpush.api.connection.ConnectionManager;
 import com.shinemo.mpush.api.protocol.Command;
@@ -8,9 +7,6 @@ import com.shinemo.mpush.common.MessageDispatcher;
 import com.shinemo.mpush.core.handler.*;
 import com.shinemo.mpush.netty.connection.NettyConnectionManager;
 import com.shinemo.mpush.netty.server.NettyServer;
-import com.shinemo.mpush.netty.server.ScanAllConnectionTimerTask;
-import com.shinemo.mpush.netty.util.NettySharedHolder;
-import com.shinemo.mpush.tools.config.ConfigCenter;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
@@ -26,7 +22,7 @@ public final class ConnectionServer extends NettyServer {
 
     public ConnectionServer(int port) {
         super(port);
-        NettySharedHolder.HASHED_WHEEL_TIMER.newTimeout(new ScanAllConnectionTimerTask(connectionManager), ConfigCenter.holder.scanConnTaskCycle() / 1000, TimeUnit.SECONDS);
+//        NettySharedHolder.HASHED_WHEEL_TIMER.newTimeout(new ScanAllConnectionTimerTask(connectionManager), ConfigCenter.holder.scanConnTaskCycle() / 1000, TimeUnit.SECONDS);
     }
 
     @Override
