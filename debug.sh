@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ENV=daily
+ENV=dev
 
 base_dir=`pwd`
 
