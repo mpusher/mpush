@@ -280,7 +280,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <deploy.env>daily</deploy.env>
+                <deploy.env>dev</deploy.env>
             </properties>
         </profile>
         <profile>
