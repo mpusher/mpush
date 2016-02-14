@@ -87,7 +87,8 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
 
     @Override
     public boolean heartbeatTimeout() {
-        return context.heartbeat > 0 && System.currentTimeMillis() - lastReadTime > context.heartbeat;
+    	long between = System.currentTimeMillis() - lastReadTime;
+        return context.heartbeat > 0 && between > context.heartbeat;
     }
 
     @Override

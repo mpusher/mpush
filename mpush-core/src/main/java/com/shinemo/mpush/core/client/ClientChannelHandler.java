@@ -72,7 +72,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                     HandshakeOkMessage message = new HandshakeOkMessage(packet, connection);
                     byte[] sessionKey = CipherBox.INSTANCE.mixKey(securityNettyClient.getClientKey(), message.serverKey);
                     connection.getSessionContext().changeCipher(new AesCipher(sessionKey, securityNettyClient.getIv()));
-                    client.startHeartBeat();
+                    client.startHeartBeat(message.heartbeat);
                     LOGGER.info("会话密钥：{}，message={}", sessionKey, message);
                     bindUser(securityNettyClient);
                     saveToRedisForFastConnection(securityNettyClient, message.sessionId, message.expireTime,sessionKey);
@@ -84,7 +84,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                     connection.getSessionContext().changeCipher(new AesCipher(key, iv));
 
                     FastConnectOkMessage message = new FastConnectOkMessage(packet, connection);
-                    client.startHeartBeat();
+                    client.startHeartBeat(message.heartbeat);
                     bindUser(securityNettyClient);
                     LOGGER.info("fast connect success, message=" + message);
                 } else if (command == Command.KICK) {

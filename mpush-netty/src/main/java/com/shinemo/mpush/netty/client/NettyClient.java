@@ -77,32 +77,7 @@ public  class NettyClient implements Client {
 
 	@Override
 	public void startHeartBeat() throws Exception {
-		NettySharedHolder.HASHED_WHEEL_TIMER.newTimeout(new TimerTask() {
-			@Override
-			public void run(Timeout timeout) throws Exception {
-				try {
-					ChannelFuture channelFuture = channel.writeAndFlush(Packet.getHBPacket());
-					channelFuture.addListener(new ChannelFutureListener() {
-
-						@Override
-						public void operationComplete(ChannelFuture future) throws Exception {
-							if (!future.isSuccess()) {
-								if (!channel.isActive()) {
-									log.warn("client send hb msg false:" + channel.remoteAddress().toString()  + ",channel is not active");
-								}
-								log.warn("client send msg hb false:" + channel.remoteAddress().toString());
-							} else {
-								log.warn("client send msg hb success:" + channel.remoteAddress().toString());
-							}
-						}
-					});
-				} finally {
-					if (channel.isActive()) {
-						NettySharedHolder.HASHED_WHEEL_TIMER.newTimeout(this, ConfigCenter.holder.scanConnTaskCycle()/1000, TimeUnit.SECONDS);
-					}
-				}
-			}
-		}, ConfigCenter.holder.scanConnTaskCycle()/1000, TimeUnit.SECONDS);
+		startHeartBeat((int)ConfigCenter.holder.scanConnTaskCycle()/1000);
 	}
 
 
@@ -139,6 +114,37 @@ public  class NettyClient implements Client {
 	@Override
 	public String toString() {
 		return "NettyClient [host=" + host + ", port=" + port + ", channel=" + channel + ", hbTimes=" + hbTimes + ", connection=" + connection + "]";
+	}
+
+	@Override
+	public void startHeartBeat(final int heartbeat) throws Exception {
+		NettySharedHolder.HASHED_WHEEL_TIMER.newTimeout(new TimerTask() {
+			@Override
+			public void run(Timeout timeout) throws Exception {
+				try {
+					ChannelFuture channelFuture = channel.writeAndFlush(Packet.getHBPacket());
+					channelFuture.addListener(new ChannelFutureListener() {
+
+						@Override
+						public void operationComplete(ChannelFuture future) throws Exception {
+							if (!future.isSuccess()) {
+								if (!channel.isActive()) {
+									log.warn("client send hb msg false:" + channel.remoteAddress().toString()  + ",channel is not active");
+								}
+								log.warn("client send msg hb false:" + channel.remoteAddress().toString());
+							} else {
+								log.warn("client send msg hb success:" + channel.remoteAddress().toString());
+							}
+						}
+					});
+				} finally {
+					if (channel.isActive()) {
+						NettySharedHolder.HASHED_WHEEL_TIMER.newTimeout(this, heartbeat, TimeUnit.MILLISECONDS);
+					}
+				}
+			}
+		}, heartbeat, TimeUnit.MILLISECONDS);
+		
 	}
 
 	
