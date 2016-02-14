@@ -38,6 +38,10 @@
             <groupId>com.shinemo.mpush</groupId>
             <artifactId>mpush-log</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.shinemo.mpush</groupId>
+            <artifactId>mpush-client</artifactId>
+        </dependency>
     </dependencies>
 
     <!-- 编译配置 -->

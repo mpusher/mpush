@@ -1,4 +1,4 @@
-package com.shinemo.mpush.test.push.zk.listener.impl;
+package com.shinemo.mpush.push.zk.listener.impl;
 
 import com.shinemo.mpush.common.app.impl.GatewayServerApplication;
 import com.shinemo.mpush.common.manage.ServerManage;

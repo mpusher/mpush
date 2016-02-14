@@ -49,9 +49,9 @@ public abstract class AbstractDataChangeListener<T extends Application> extends 
 	}
 	
 	public void initData() {
-		log.warn("start init "+ this.getClass().getSimpleName()+"server data");
+		log.warn(zkRegister.getClient().getNamespace()+" start init "+ this.getClass().getSimpleName()+" server data");
 		_initData();
-		log.warn("end init "+ this.getClass().getSimpleName()+"server data");
+		log.warn(zkRegister.getClient().getNamespace()+" end init "+ this.getClass().getSimpleName()+" server data");
 	}
 	
 	public abstract String getRegisterPath();

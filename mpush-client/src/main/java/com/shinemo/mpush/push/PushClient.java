@@ -1,17 +1,17 @@
-package com.shinemo.mpush.test.push;
+package com.shinemo.mpush.push;
 
 import java.util.Collection;
 
 import com.google.common.base.Strings;
-import com.shinemo.mpush.api.PushSender.Callback;
+import com.shinemo.mpush.api.PushSender;
 import com.shinemo.mpush.common.AbstractClient;
-import com.shinemo.mpush.test.push.zk.listener.impl.GatewayServerPathListener;
+import com.shinemo.mpush.push.zk.listener.impl.GatewayServerPathListener;
 
-public class GatewayClientMain extends AbstractClient {
+public class PushClient extends AbstractClient implements PushSender{
 
     private static final int defaultTimeout = 3000;
 
-    public GatewayClientMain() {
+    public PushClient() {
         registerListener(new GatewayServerPathListener());
     }
 

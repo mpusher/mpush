@@ -1,4 +1,4 @@
-package com.shinemo.mpush.test.push.client;
+package com.shinemo.mpush.push.client;
 
 
 
@@ -9,8 +9,8 @@ import com.shinemo.mpush.api.Client;
 import com.shinemo.mpush.common.message.ErrorMessage;
 import com.shinemo.mpush.netty.client.ChannelClientHandler;
 import com.shinemo.mpush.netty.connection.NettyConnection;
-import com.shinemo.mpush.test.push.PushRequest;
-import com.shinemo.mpush.test.push.PushRequestBus;
+import com.shinemo.mpush.push.PushRequest;
+import com.shinemo.mpush.push.PushRequestBus;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;

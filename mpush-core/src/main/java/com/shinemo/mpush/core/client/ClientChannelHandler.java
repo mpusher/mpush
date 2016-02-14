@@ -174,17 +174,19 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
             }
         }
         
-        String cipher = sessionTickets.get("cipherStr");
+        final String cipher = sessionTickets.get("cipherStr");
         
         FastConnectMessage message = new FastConnectMessage(securityNettyClient.getConnection());
         message.deviceId = securityNettyClient.getDeviceId();
         message.sessionId = sessionId;
-        securityNettyClient.setCipher(cipher);
-        message.send(new ChannelFutureListener() {
+        
+        message.sendRaw(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                if (!channelFuture.isSuccess()) {
-                    handshake(securityNettyClient);
+                if (channelFuture.isSuccess()) {
+                	securityNettyClient.setCipher(cipher);
+                }else{
+                	handshake(securityNettyClient);
                 }
             }
         });
