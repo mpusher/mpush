@@ -44,31 +44,5 @@
         </dependency>
     </dependencies>
 
-    <!-- 编译配置 -->
-    <build>
-        <plugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-shade-plugin</artifactId>
-              <version>2.4.3</version>
-              <executions>
-                <execution>
-                  <phase>package</phase>
-                  <goals>
-                    <goal>shade</goal>
-                  </goals>
-                  <configuration>
-                    <createSourcesJar>true</createSourcesJar>
-                    <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
-                    <artifactSet>
-                      <includes>
-                        <include>com.shinemo.mpush:mpush-test</include>
-                      </includes>
-                    </artifactSet>
-                  </configuration>
-                </execution>
-              </executions>
-            </plugin>
-        </plugins>
-    </build>
+
 </project>

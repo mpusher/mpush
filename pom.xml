@@ -270,6 +270,12 @@
     <profiles>
         <profile>
             <id>daily</id>
+            <properties>
+                <deploy.env>daily</deploy.env>
+            </properties>
+        </profile>
+        <profile>
+            <id>dev</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>

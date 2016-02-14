@@ -41,7 +41,7 @@
                     <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                     <artifactSet>
                       <includes>
-                        <include>com.shinemo.mpush:mpush-test</include>
+                        <include>com.shinemo.mpush:mpush-client</include>
                       </includes>
                     </artifactSet>
                   </configuration>
