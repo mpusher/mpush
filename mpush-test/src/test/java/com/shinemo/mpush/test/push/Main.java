@@ -10,7 +10,6 @@ import java.util.concurrent.locks.LockSupport;
  * Created by ohun on 2016/1/7.
  */
 public class Main {
-
 	public static void main(String[] args) throws Exception {
 		GatewayClientMain client = new GatewayClientMain();
 		client.start();
