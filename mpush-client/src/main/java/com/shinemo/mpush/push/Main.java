@@ -1,8 +1,6 @@
-package com.shinemo.mpush.test.push;
+package com.shinemo.mpush.push;
 
 import com.shinemo.mpush.api.PushSender;
-import com.shinemo.mpush.push.PushClient;
-import com.shinemo.mpush.push.PushContent;
 import com.shinemo.mpush.tools.Jsons;
 
 import java.util.Arrays;

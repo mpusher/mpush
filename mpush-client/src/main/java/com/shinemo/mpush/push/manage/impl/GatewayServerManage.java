@@ -1,4 +1,4 @@
-package com.shinemo.mpush.test.push.manage.impl;
+package com.shinemo.mpush.push.manage.impl;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +16,7 @@ import com.shinemo.mpush.common.app.impl.GatewayServerApplication;
 import com.shinemo.mpush.common.manage.ServerManage;
 import com.shinemo.mpush.netty.client.NettyClient;
 import com.shinemo.mpush.netty.client.NettyClientFactory;
-import com.shinemo.mpush.test.push.client.ClientChannelHandler;
+import com.shinemo.mpush.push.client.ClientChannelHandler;
 
 public class GatewayServerManage implements ServerManage<GatewayServerApplication>{
 

@@ -11,3 +11,4 @@
 *.war
 *.ear
 *.iml
+./target/*

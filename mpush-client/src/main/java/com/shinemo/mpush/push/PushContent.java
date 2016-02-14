@@ -1,4 +1,4 @@
-package com.shinemo.mpush.test.push;
+package com.shinemo.mpush.push;
 
 public class PushContent {
     public String msgId;

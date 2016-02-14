@@ -1,4 +1,4 @@
-package com.shinemo.mpush.test.push;
+package com.shinemo.mpush.push;
 
 import com.shinemo.mpush.api.PushSender;
 import com.shinemo.mpush.api.connection.Connection;
@@ -7,7 +7,7 @@ import com.shinemo.mpush.common.manage.ServerManage;
 import com.shinemo.mpush.common.message.gateway.GatewayPushMessage;
 import com.shinemo.mpush.common.router.ConnectionRouterManager;
 import com.shinemo.mpush.common.router.RemoteRouter;
-import com.shinemo.mpush.test.push.manage.impl.GatewayServerManage;
+import com.shinemo.mpush.push.manage.impl.GatewayServerManage;
 import com.shinemo.mpush.tools.spi.ServiceContainer;
 
 import io.netty.channel.ChannelFuture;
