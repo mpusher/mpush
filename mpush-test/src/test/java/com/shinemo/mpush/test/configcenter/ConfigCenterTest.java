@@ -1,4 +1,4 @@
-package com.shinemo.mpush.ps;
+package com.shinemo.mpush.test.configcenter;
 
 import org.junit.Test;
 
@@ -9,7 +9,7 @@ public class ConfigCenterTest {
 	@Test
 	public void test(){
 		
-		System.out.println(ConfigCenter.holder.zkIp());
+		System.out.println(ConfigCenter.holder.forceWriteRedisGroupInfo());
 		
 	}
 

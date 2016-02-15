@@ -42,7 +42,7 @@ public abstract class AbstractServer<T extends Application> {
 		try {
 			return ((Class<Application>) GenericsUtil.getSuperClassGenericType(this.getClass(), 0)).newInstance();
 		} catch (Exception e) {
-			log.warn("exception:",e);
+			log.error("exception:",e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -67,7 +67,8 @@ public abstract class AbstractServer<T extends Application> {
             zkRegister.registerPersist(ZKPath.REDIS_SERVER.getPath(), Jsons.toJson(groupList));
         }
         //强刷
-        if(ConfigCenter.holder.forceWriteRedisGroupInfo()){
+        boolean forceWriteRedisGroupInfo = ConfigCenter.holder.forceWriteRedisGroupInfo();
+        if(forceWriteRedisGroupInfo){
         	List<RedisGroup> groupList = ConfigCenter.holder.redisGroups();
             zkRegister.registerPersist(ZKPath.REDIS_SERVER.getPath(), Jsons.toJson(groupList));
         }
@@ -112,8 +113,7 @@ public abstract class AbstractServer<T extends Application> {
                 });
             }
         };
-        ThreadPoolManager.bizExecutor.execute(runnable);
-        
+        ThreadPoolManager.newThread(server.getClass().getSimpleName(), runnable).start();
 	}
 	
 	//step7  注册应用到zk
