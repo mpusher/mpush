@@ -28,4 +28,15 @@ public class PushClient extends AbstractClient implements PushSender{
         }
     }
 
+	@Override
+	public void send(String content, String userId, Callback callback) {
+		PushRequest
+        .build()
+        .setCallback(callback)
+        .setUserId(userId)
+        .setContent(content)
+        .setTimeout(defaultTimeout)
+        .send();
+	}
+
 }
