@@ -11,7 +11,6 @@ import com.shinemo.mpush.netty.client.HttpCallback;
 import com.shinemo.mpush.netty.client.NettyHttpClient;
 import com.shinemo.mpush.netty.client.RequestInfo;
 import com.shinemo.mpush.tools.MPushUtil;
-import com.shinemo.mpush.tools.config.ConfigCenter;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
 
