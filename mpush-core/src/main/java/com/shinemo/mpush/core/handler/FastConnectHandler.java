@@ -27,11 +27,6 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
     }
     
     @Override
-    public boolean checkCrypto(Packet packet) {
-    	return true;
-    }
-
-    @Override
     public void handle(FastConnectMessage message) {
         //从缓存中心查询session
         ReusableSession session = ReusableSessionManager.INSTANCE.querySession(message.sessionId);
