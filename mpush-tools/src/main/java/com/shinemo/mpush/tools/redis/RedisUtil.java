@@ -33,6 +33,28 @@ public class RedisUtil {
     public static void close(Jedis jedis) {
         jedis.close();
     }
+    
+    public static long incr(List<RedisNode> nodeList,String key,Integer time){
+    	long incrRet = -1;
+    	for (RedisNode node : nodeList) {
+            Jedis jedis = null;
+            try {
+                jedis = getClient(node);
+                long ret = jedis.incr(key);
+                if(ret == 1 && time!=null){
+                  jedis.expire(key, time);
+                }
+                incrRet = ret;
+            } catch (Exception e) {
+            	LoggerManage.execption(LogType.REDIS, e, "redis incr exception:%s,%s,%s,%s",key,time,node);
+            } finally {
+                // 返还到连接池
+                close(jedis);
+            }
+        }
+    	return incrRet;
+    	
+    }
 
     /********************* k v redis start ********************************/
     /**

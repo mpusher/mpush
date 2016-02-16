@@ -21,11 +21,11 @@ public class Main {
 		int index = (int) ((Math.random() % serverList.size()) * serverList.size());
 		ConnectionServerApplication server = serverList.get(index);
 		
-		for(int i = 0;i<3;i++){
+		for(int i = 0;i<10000;i++){
 			String clientVersion =  "1.0." + i;
 			String osName = "android";
 			String osVersion = "1.0.1";
-			String userId = "user-"+i;
+			String userId = "uh-"+i;
 			String deviceId = "test-device-id-"+i;
 			String cipher = "";
 			byte[] clientKey = CipherBox.INSTANCE.randomAESKey();
