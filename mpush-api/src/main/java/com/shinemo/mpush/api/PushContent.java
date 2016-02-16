@@ -1,7 +1,10 @@
 package com.shinemo.mpush.api;
 
-public final class PushContent {
-    public String msgId; //返回使用
+import java.io.Serializable;
+
+public final class PushContent implements Serializable{
+	private static final long serialVersionUID = -1805329333995385960L;
+	public String msgId; //返回使用
     public String title;
     public String content; //content
     public int msgType; //type
