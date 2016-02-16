@@ -22,6 +22,11 @@ public class RedisManage {
 	
 	private static final RedisRegister redisRegister = ServiceContainer.getInstance(RedisRegister.class);
 
+	public static long incr(String key,Integer time){
+		List<RedisNode> nodeList = redisRegister.hashSet(key);
+		return RedisUtil.incr(nodeList, key, time);
+	} 
+	
     /*********************
      * k v redis start
      ********************************/
