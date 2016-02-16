@@ -33,7 +33,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
         this.httpClient = new NettyHttpClient();
         this.dnsMapping = new DnsMapping();
     }
-
+    
     @Override
     public HttpRequestMessage decode(Packet packet, Connection connection) {
         return new HttpRequestMessage(packet, connection);

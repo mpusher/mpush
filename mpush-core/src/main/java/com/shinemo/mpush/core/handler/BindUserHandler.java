@@ -1,8 +1,10 @@
 package com.shinemo.mpush.core.handler;
 
 import com.google.common.base.Strings;
+import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.connection.SessionContext;
+import com.shinemo.mpush.api.exception.CryptoException;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.common.handler.BaseMessageHandler;
 import com.shinemo.mpush.common.message.BindUserMessage;
@@ -19,7 +21,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
 
     @Override
     public BindUserMessage decode(Packet packet, Connection connection) {
-        return new BindUserMessage(packet, connection);
+       return new BindUserMessage(packet, connection);
     }
 
     @Override
