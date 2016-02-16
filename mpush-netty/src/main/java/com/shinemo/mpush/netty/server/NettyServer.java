@@ -28,7 +28,7 @@ public abstract class NettyServer implements Server {
 
     public enum State {Created, Initialized, Starting, Started, Shutdown}
 
-	protected final AtomicReference<State> serverState = new AtomicReference<>(State.Created);
+    protected final AtomicReference<State> serverState = new AtomicReference<>(State.Created);
 
     private final int port;
     private EventLoopGroup bossGroup;
@@ -36,7 +36,7 @@ public abstract class NettyServer implements Server {
 
     public NettyServer(int port) {
         this.port = port;
-        
+
     }
 
     public void init() {
@@ -115,9 +115,9 @@ public abstract class NettyServer implements Server {
             b.childHandler(new ChannelInitializer<SocketChannel>() { // (4)
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
-                    ch.pipeline().addLast(new PacketDecoder());
-                    ch.pipeline().addLast(PacketEncoder.INSTANCE);
-                    ch.pipeline().addLast(getChannelHandler());
+                    ch.pipeline().addLast("decoder", new PacketDecoder());
+                    ch.pipeline().addLast("encoder", PacketEncoder.INSTANCE);
+                    ch.pipeline().addLast("handler", getChannelHandler());
                 }
             });
 
@@ -156,14 +156,14 @@ public abstract class NettyServer implements Server {
     }
 
     private void createNioServer(final Listener listener) {
-        NioEventLoopGroup bossGroup = new NioEventLoopGroup(1,ThreadPoolManager.bossExecutor);
+        NioEventLoopGroup bossGroup = new NioEventLoopGroup(1, ThreadPoolManager.bossExecutor);
         NioEventLoopGroup workerGroup = new NioEventLoopGroup(0, ThreadPoolManager.workExecutor);
         createServer(listener, bossGroup, workerGroup, NioServerSocketChannel.class);
     }
 
 
     @SuppressWarnings("unused")
-	private void createEpollServer(final Listener listener) {
+    private void createEpollServer(final Listener listener) {
         EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1, ThreadPoolManager.bossExecutor);
         EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(0, ThreadPoolManager.workExecutor);
         createServer(listener, bossGroup, workerGroup, EpollServerSocketChannel.class);

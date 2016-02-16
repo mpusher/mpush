@@ -7,6 +7,7 @@ import org.aeonbits.owner.Config.Sources;
 import org.aeonbits.owner.ConfigFactory;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 针对每个配置项，建议各个对象自己持有，不建议每次都通过ConfigCenter获取，有性能损耗
@@ -32,7 +33,8 @@ public interface ConfigCenter extends Config {
     int minHeartbeat();
 
     @Key("max_heartbeat")
-    @DefaultValue("180000") //180秒
+    @DefaultValue("180000")
+        //180秒
     int maxHeartbeat();
 
     @Key("max_hb_timeout_times")
@@ -87,7 +89,7 @@ public interface ConfigCenter extends Config {
     @Key("redis_group")
     @ConverterClass(RedisGroupConverter.class)
     List<RedisGroup> redisGroups();
-    
+
     @Key("force_write_redis_group_info")
     boolean forceWriteRedisGroupInfo();
 
@@ -98,6 +100,9 @@ public interface ConfigCenter extends Config {
     @Key("jvm_log_path")
     @DefaultValue("/opt/shinemo/mpush/")
     String logPath();
-    
-    
+
+    @Key("dns_mapping")
+    String dnsMapping();
+
+
 }

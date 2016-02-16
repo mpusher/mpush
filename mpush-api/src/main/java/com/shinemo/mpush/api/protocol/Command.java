@@ -15,7 +15,7 @@ public enum Command {
     RESUME(9),
     ERROR(10),
     OK(11),
-    API(12),
+    HTTP_PROXY(12),
     KICK(13),
     GATEWAY_KICK(14),
     PUSH(15),
