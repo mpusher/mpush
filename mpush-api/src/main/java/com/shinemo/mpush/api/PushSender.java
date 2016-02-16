@@ -7,6 +7,8 @@ import java.util.Collection;
  */
 public interface PushSender {
     void send(String content, Collection<String> userIds, Callback callback);
+    
+    void send(String content, String userId, Callback callback);
 
     interface Callback {
         void onSuccess(String userId);
