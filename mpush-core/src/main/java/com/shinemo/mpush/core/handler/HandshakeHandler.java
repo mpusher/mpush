@@ -1,12 +1,15 @@
 package com.shinemo.mpush.core.handler;
 
 import com.google.common.base.Strings;
+import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.connection.SessionContext;
 import com.shinemo.mpush.api.event.HandshakeEvent;
+import com.shinemo.mpush.api.exception.CryptoException;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.common.EventBus;
 import com.shinemo.mpush.common.handler.BaseMessageHandler;
+import com.shinemo.mpush.common.message.BindUserMessage;
 import com.shinemo.mpush.common.message.ErrorMessage;
 import com.shinemo.mpush.common.message.HandshakeMessage;
 import com.shinemo.mpush.common.message.HandshakeOkMessage;
@@ -29,7 +32,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
 
     @Override
     public HandshakeMessage decode(Packet packet, Connection connection) {
-        return new HandshakeMessage(packet, connection);
+    	return new HandshakeMessage(packet, connection);
     }
 
     @Override

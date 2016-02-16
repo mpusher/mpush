@@ -25,6 +25,11 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
     public FastConnectMessage decode(Packet packet, Connection connection) {
         return new FastConnectMessage(packet, connection);
     }
+    
+    @Override
+    public boolean checkCrypto(Packet packet) {
+    	return true;
+    }
 
     @Override
     public void handle(FastConnectMessage message) {

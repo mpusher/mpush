@@ -15,4 +15,5 @@ public final class HeartBeatHandler implements MessageHandler {
     	connection.send(packet);//ping -> pong
     	LoggerManage.log(LogType.HEARTBEAT, "response client heartbeat:%s,%s", connection.getChannel(),connection.getSessionContext().deviceId);
     }
+    
 }
