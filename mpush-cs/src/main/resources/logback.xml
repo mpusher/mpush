@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="false">
-
 	<!-- 日志 -->
 	<appender name="MPUSH_APPENDER"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${log.home}/mpush.log</file>
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>debug</level>
+		<filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+				<evaluator>
+						<expression>message.contains("org.apache.zookeeper.ClientCnxn")</expression>
+				</evaluator>
+				<OnMismatch>NEUTRAL</OnMismatch>
+				<OnMatch>DENY</OnMatch>
 		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -23,9 +26,6 @@
 	<appender name="MONITOR_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!--日志文件名称 -->
 		<file>${log.home}/mpush-monitor.log</file>
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>debug</level>
-		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<fileNamePattern>${log.home}/mpush-monitor.log.%d{yyyy-MM-dd}
@@ -46,9 +46,6 @@
 	<appender name="CONNECTION_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!--日志文件名称 -->
 		<file>${log.home}/mpush-connection.log</file>
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>debug</level>
-		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<fileNamePattern>${log.home}/mpush-connection.log.%d{yyyy-MM-dd}
@@ -69,9 +66,6 @@
 	<appender name="PUSH_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!--日志文件名称 -->
 		<file>${log.home}/mpush-push.log</file>
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>debug</level>
-		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<fileNamePattern>${log.home}/mpush-push.log.%d{yyyy-MM-dd}
@@ -92,9 +86,6 @@
 	<appender name="HEARTBEAT_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!--日志文件名称 -->
 		<file>${log.home}/mpush-heartbeat.log</file>
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>debug</level>
-		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<fileNamePattern>${log.home}/mpush-heartbeat.log.%d{yyyy-MM-dd}
@@ -115,9 +106,6 @@
 	<appender name="REDIS_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!--日志文件名称 -->
 		<file>${log.home}/mpush-redis.log</file>
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>debug</level>
-		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<fileNamePattern>${log.home}/mpush-redis.log.%d{yyyy-MM-dd}
@@ -138,9 +126,6 @@
 	<appender name="ZK_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!--日志文件名称 -->
 		<file>${log.home}/mpush-zk.log</file>
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>debug</level>
-		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<fileNamePattern>${log.home}/mpush-zk.log.%d{yyyy-MM-dd}
