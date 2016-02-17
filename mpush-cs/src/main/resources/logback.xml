@@ -24,7 +24,7 @@
 		<!--日志文件名称 -->
 		<file>${log.home}/mpush-monitor.log</file>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>info</level>
+			<level>debug</level>
 		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -38,7 +38,7 @@
 	</appender>
 
     <logger name="com.shinemo.mpush.monitor.service" additivity="false">
-        <level value="warn"/>
+        <level value="debug"/>
         <appender-ref ref="MONITOR_APPENDER"/>
     </logger>
 
@@ -47,7 +47,7 @@
 		<!--日志文件名称 -->
 		<file>${log.home}/mpush-connection.log</file>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>warn</level>
+			<level>debug</level>
 		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -61,7 +61,7 @@
 	</appender>
 
     <logger name="connectionLog" additivity="false">
-        <level value="warn"/>
+        <level value="debug"/>
         <appender-ref ref="CONNECTION_APPENDER"/>
     </logger>
 
@@ -70,7 +70,7 @@
 		<!--日志文件名称 -->
 		<file>${log.home}/mpush-push.log</file>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>warn</level>
+			<level>debug</level>
 		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -84,7 +84,7 @@
 	</appender>
 
     <logger name="pushLog" additivity="false">
-        <level value="warn"/>
+        <level value="debug"/>
         <appender-ref ref="PUSH_APPENDER"/>
     </logger>
 
@@ -93,7 +93,7 @@
 		<!--日志文件名称 -->
 		<file>${log.home}/mpush-heartbeat.log</file>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>warn</level>
+			<level>debug</level>
 		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -107,7 +107,7 @@
 	</appender>
 
     <logger name="heartBeatLog" additivity="false">
-        <level value="warn"/>
+        <level value="debug"/>
         <appender-ref ref="HEARTBEAT_APPENDER"/>
     </logger>
 
@@ -116,7 +116,7 @@
 		<!--日志文件名称 -->
 		<file>${log.home}/mpush-redis.log</file>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>warn</level>
+			<level>debug</level>
 		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -130,7 +130,7 @@
 	</appender>
 
     <logger name="redisLog" additivity="false">
-        <level value="warn"/>
+        <level value="debug"/>
         <appender-ref ref="REDIS_APPENDER"/>
     </logger>
 
@@ -139,7 +139,7 @@
 		<!--日志文件名称 -->
 		<file>${log.home}/mpush-zk.log</file>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>warn</level>
+			<level>debug</level>
 		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -153,7 +153,7 @@
 	</appender>
 
     <logger name="zkLog" additivity="false">
-        <level value="warn"/>
+        <level value="debug"/>
         <appender-ref ref="ZK_APPENDER"/>
     </logger>
 
