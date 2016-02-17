@@ -64,7 +64,7 @@ public class HttpResponseMessage extends ByteBufMessage {
                 "statusCode=" + statusCode +
                 ", reasonPhrase='" + reasonPhrase + '\'' +
                 ", headers=" + headers +
-                ", body=" + (body == null ? "" : new String(body, Constants.UTF_8)) +
+                ", body=" + (body == null ? "" : body.length) +
                 '}';
     }
 }
