@@ -1,16 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="false">
+
+
+	<appender name="MPUSH_ERROR_APPENDER"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.home}/mpush.error.log</file>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>error</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.home}/mpush.error.log.%d{yyyy-MM-dd}
+			</fileNamePattern>
+			<maxHistory>3</maxHistory>
+		</rollingPolicy>
+		<encoder charset="UTF-8">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="MPUSH_INFO_APPENDER"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.home}/mpush.info.log</file>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>info</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.home}/mpush.info.log.%d{yyyy-MM-dd}
+			</fileNamePattern>
+			<maxHistory>3</maxHistory>
+		</rollingPolicy>
+		<encoder charset="UTF-8">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
 	<!-- 日志 -->
 	<appender name="MPUSH_APPENDER"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${log.home}/mpush.log</file>
-		<filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-				<evaluator>
-						<expression>logger.getName().contains("Got ping response")</expression>
-				</evaluator>
-				<OnMismatch>ACCEPT</OnMismatch>
-				<OnMatch>DENY</OnMatch>
-		</filter>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<fileNamePattern>${log.home}/mpush.log.%d{yyyy-MM-dd}
@@ -82,6 +115,11 @@
         <appender-ref ref="PUSH_APPENDER"/>
     </logger>
 
+		<logger name="org.apache.zookeeper.ClientCnxn" additivity="false">
+				<level value="warn"/>
+				<appender-ref ref="MPUSH_ERROR_APPENDER"/>
+		</logger>
+
     <!-- heartbeat log -->
 	<appender name="HEARTBEAT_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!--日志文件名称 -->
@@ -145,5 +183,7 @@
 	<root>
 		<level value="${loglevel}" />
 		<appender-ref ref="MPUSH_APPENDER" />
+		<appender-ref ref="MPUSH_ERROR_APPENDER" />
+		<appender-ref ref="MPUSH_INFO_APPENDER" />
 	</root>
 </configuration>
