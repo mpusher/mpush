@@ -6,9 +6,9 @@
 		<file>${log.home}/mpush.log</file>
 		<filter class="ch.qos.logback.core.filter.EvaluatorFilter">
 				<evaluator>
-						<expression>message.contains("org.apache.zookeeper.ClientCnxn")</expression>
+						<expression>logger.getName().contains("Got ping response")</expression>
 				</evaluator>
-				<OnMismatch>NEUTRAL</OnMismatch>
+				<OnMismatch>ACCEPT</OnMismatch>
 				<OnMatch>DENY</OnMatch>
 		</filter>
 		<append>true</append>
