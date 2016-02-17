@@ -11,7 +11,9 @@ public class RequestInfo implements TimerTask {
     HttpCallback callback;
     HttpRequest request;
     String host;
-    int timeout = 5000;//5s
+    int timeout = 10000;//5s
+    long startTime = System.currentTimeMillis();
+    long endTime = System.currentTimeMillis();
 
     public RequestInfo(HttpRequest request, HttpCallback callback) {
         this.callback = callback;
@@ -37,13 +39,13 @@ public class RequestInfo implements TimerTask {
 
     @Override
     public void run(Timeout timeout) throws Exception {
-        if (!cancelled.get()) {
-            cancelled.set(true);
+        if (tryDone()) {
             callback.onTimeout();
         }
     }
 
-    public boolean cancel() {
+    public boolean tryDone() {
+        endTime = System.currentTimeMillis();
         return cancelled.compareAndSet(false, true);
     }
 
@@ -54,6 +56,7 @@ public class RequestInfo implements TimerTask {
                 ", request=" + request +
                 ", host='" + host + '\'' +
                 ", timeout=" + timeout +
+                ", costTime=" + (startTime - endTime) +
                 '}';
     }
 }
