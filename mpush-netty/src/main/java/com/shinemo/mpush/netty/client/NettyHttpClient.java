@@ -84,8 +84,9 @@ public class NettyHttpClient implements HttpClient {
                     if (future.isSuccess()) {
                         writeRequest(future.channel(), info);
                     } else {
-                        info.cancel();
+                        info.tryDone();
                         info.callback.onFailure(504, "Gateway Timeout");
+                        LOGGER.debug("request failure request=%s", info);
                     }
                 }
             });
@@ -128,8 +129,9 @@ public class NettyHttpClient implements HttpClient {
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (!future.isSuccess()) {
                     RequestInfo requestInfo = future.channel().attr(key).get();
-                    requestInfo.cancel();
+                    requestInfo.tryDone();
                     requestInfo.callback.onFailure(503, "Service Unavailable");
+                    LOGGER.debug("request failure request=%s", requestInfo);
                     tryRelease(future.channel());
                 }
             }
@@ -142,9 +144,9 @@ public class NettyHttpClient implements HttpClient {
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
             RequestInfo info = ctx.channel().attr(key).get();
-            LOGGER.error("http client caught an error, info=" + info, cause);
+            LOGGER.error("http client caught an error, info=%s", info, cause);
             try {
-                if (info.cancel()) {
+                if (info.tryDone()) {
                     info.callback.onException(cause);
                 }
             } finally {
@@ -157,7 +159,7 @@ public class NettyHttpClient implements HttpClient {
             RequestInfo info = ctx.channel().attr(key).get();
             if (info == null) return;
             try {
-                if (info.cancel()) {
+                if (info.tryDone()) {
                     HttpCallback callback = info.callback;
                     HttpRequest request = info.request;
                     HttpResponse response = (HttpResponse) msg;
@@ -173,6 +175,7 @@ public class NettyHttpClient implements HttpClient {
                         }
                     }
                     callback.onResponse(response);
+                    LOGGER.debug("request done request=%s", info);
                 }
             } finally {
                 tryRelease(ctx.channel());
