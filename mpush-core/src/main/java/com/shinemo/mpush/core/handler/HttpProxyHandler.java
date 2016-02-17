@@ -34,6 +34,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     public HttpProxyHandler() {
         this.httpClient = new NettyHttpClient();
         this.dnsMapping = new DnsMapping();
+        this.httpClient.start();
     }
 
     @Override
