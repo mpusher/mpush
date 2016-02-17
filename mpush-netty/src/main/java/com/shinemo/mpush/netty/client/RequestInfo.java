@@ -53,6 +53,7 @@ public class RequestInfo implements TimerTask {
     public String toString() {
         return "RequestInfo{" +
                 "cancelled=" + cancelled +
+                ", uri='" + request.uri() + '\'' +
                 ", host='" + host + '\'' +
                 ", timeout=" + timeout +
                 ", costTime=" + (endTime - startTime) +
