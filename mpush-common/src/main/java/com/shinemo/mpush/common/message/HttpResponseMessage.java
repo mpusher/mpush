@@ -1,15 +1,14 @@
 package com.shinemo.mpush.common.message;
 
 import com.shinemo.mpush.api.connection.Connection;
-import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.tools.Constants;
+import com.shinemo.mpush.tools.MPushUtil;
 import io.netty.buffer.ByteBuf;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.shinemo.mpush.common.message.HttpRequestMessage.headerFromString;
-import static com.shinemo.mpush.common.message.HttpRequestMessage.headerToString;
 
 /**
  * Created by ohun on 2016/2/15.
@@ -26,13 +25,17 @@ public class HttpResponseMessage extends ByteBufMessage {
 
     @Override
     public void decode(ByteBuf body) {
-        headers = headerFromString(decodeString(body));
+        statusCode = decodeInt(body);
+        reasonPhrase = decodeString(body);
+        headers = MPushUtil.headerFromString(decodeString(body));
         this.body = decodeBytes(body);
     }
 
     @Override
     public void encode(ByteBuf body) {
-        encodeString(body, headerToString(headers));
+        encodeInt(body, statusCode);
+        encodeString(body, reasonPhrase);
+        encodeString(body, MPushUtil.headerToString(headers));
         encodeBytes(body, this.body);
     }
 
@@ -53,5 +56,15 @@ public class HttpResponseMessage extends ByteBufMessage {
     public HttpResponseMessage addHeader(String name, String value) {
         this.headers.put(name, value);
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "HttpResponseMessage{" +
+                "statusCode=" + statusCode +
+                ", reasonPhrase='" + reasonPhrase + '\'' +
+                ", headers=" + headers +
+                ", body=" + (body == null ? "" : new String(body, Constants.UTF_8)) +
+                '}';
     }
 }

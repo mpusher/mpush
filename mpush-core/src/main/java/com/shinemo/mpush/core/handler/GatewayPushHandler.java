@@ -30,11 +30,6 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
         return new GatewayPushMessage(packet, connection);
     }
     
-    @Override
-    public boolean checkCrypto(Packet packet) {
-    	return true;
-    }
-
     /**
      * 处理PushClient发送过来的Push推送请求
      * <p>

@@ -11,9 +11,10 @@ import com.shinemo.mpush.netty.client.HttpCallback;
 import com.shinemo.mpush.netty.client.NettyHttpClient;
 import com.shinemo.mpush.netty.client.RequestInfo;
 import com.shinemo.mpush.tools.MPushUtil;
-import com.shinemo.mpush.tools.config.ConfigCenter;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -26,14 +27,16 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  * Created by ohun on 2016/2/15.
  */
 public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxyHandler.class);
     private final NettyHttpClient httpClient;
     private final DnsMapping dnsMapping;
 
     public HttpProxyHandler() {
         this.httpClient = new NettyHttpClient();
         this.dnsMapping = new DnsMapping();
+        this.httpClient.start();
     }
-    
+
     @Override
     public HttpRequestMessage decode(Packet packet, Connection connection) {
         return new HttpRequestMessage(packet, connection);
@@ -49,6 +52,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                     .setStatusCode(400)
                     .setReasonPhrase("Bad Request")
                     .sendRaw();
+            LOGGER.warn("request url is empty!");
         }
 
         uri = doDnsMapping(uri);
@@ -64,21 +68,22 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                     .setStatusCode(500)
                     .setReasonPhrase("Internal Server Error")
                     .sendRaw();
+            LOGGER.error("send request ex, message=" + message, e);
         }
     }
 
     private static class DefaultHttpCallback implements HttpCallback {
-        private final HttpRequestMessage message;
+        private final HttpRequestMessage request;
         private int redirectCount;
 
-        private DefaultHttpCallback(HttpRequestMessage message) {
-            this.message = message;
+        private DefaultHttpCallback(HttpRequestMessage request) {
+            this.request = request;
         }
 
         @Override
         public void onResponse(HttpResponse httpResponse) {
             HttpResponseMessage response = HttpResponseMessage
-                    .from(message)
+                    .from(request)
                     .setStatusCode(httpResponse.status().code())
                     .setReasonPhrase(httpResponse.status().reasonPhrase().toString());
             for (Map.Entry<CharSequence, CharSequence> entry : httpResponse.headers()) {
@@ -96,33 +101,37 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                 }
             }
             response.send();
+            LOGGER.debug("callback success request={}, response={}", request, response);
         }
 
         @Override
         public void onFailure(int statusCode, String reasonPhrase) {
             HttpResponseMessage
-                    .from(message)
+                    .from(request)
                     .setStatusCode(statusCode)
                     .setReasonPhrase(reasonPhrase)
                     .sendRaw();
+            LOGGER.warn("callback failure request={}, response={}", request, statusCode + ":" + reasonPhrase);
         }
 
         @Override
         public void onException(Throwable throwable) {
             HttpResponseMessage
-                    .from(message)
+                    .from(request)
                     .setStatusCode(500)
                     .setReasonPhrase("Internal Server Error")
                     .sendRaw();
+            LOGGER.error("callback exception request={}, response={}", request, 500, throwable);
         }
 
         @Override
         public void onTimeout() {
             HttpResponseMessage
-                    .from(message)
+                    .from(request)
                     .setStatusCode(408)
                     .setReasonPhrase("Request Timeout")
                     .sendRaw();
+            LOGGER.warn("callback timeout request={}, response={}", request, 408);
         }
 
         @Override

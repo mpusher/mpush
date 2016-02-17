@@ -46,4 +46,14 @@ public class RequestInfo implements TimerTask {
     public boolean cancel() {
         return cancelled.compareAndSet(false, true);
     }
+
+    @Override
+    public String toString() {
+        return "RequestInfo{" +
+                "cancelled=" + cancelled +
+                ", request=" + request +
+                ", host='" + host + '\'' +
+                ", timeout=" + timeout +
+                '}';
+    }
 }
