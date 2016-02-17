@@ -5,7 +5,10 @@ ENV=daily
 base_dir=`pwd`
 
 echo "start assembly lib..."
-mvn clean install -P $ENV
+
+rm -rf $base_dir/target
+
+mvn clean install  assembly:assembly -P $ENV
 
 echo "start tar mpush..."
 cd $base_dir/target
