@@ -88,7 +88,8 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                 } else if (command == Command.BIND) {
                     OkMessage okMessage = new OkMessage(packet, connection);
                     LOGGER.info("receive an success packet=" + okMessage);
-                    HttpRequestMessage message = new HttpRequestMessage("http://baidu.com", connection);
+                    HttpRequestMessage message = new HttpRequestMessage(connection);
+                    message.uri = "http://baidu.com";
                     message.send();
                 } else if (command == Command.PUSH) {
                     PushMessage message = new PushMessage(packet, connection);

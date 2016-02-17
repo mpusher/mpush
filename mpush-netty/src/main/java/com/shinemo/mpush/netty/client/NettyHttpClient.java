@@ -143,9 +143,9 @@ public class NettyHttpClient implements HttpClient {
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            LOGGER.error("http client caught an error,", cause);
+            RequestInfo info = ctx.channel().attr(key).get();
+            LOGGER.error("http client caught an error, info=" + info, cause);
             try {
-                RequestInfo info = ctx.channel().attr(key).get();
                 if (info.cancel()) {
                     info.callback.onException(cause);
                 }
