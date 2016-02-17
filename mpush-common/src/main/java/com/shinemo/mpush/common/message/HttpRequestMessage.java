@@ -3,9 +3,11 @@ package com.shinemo.mpush.common.message;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.tools.Constants;
 import com.shinemo.mpush.tools.MPushUtil;
 import io.netty.buffer.ByteBuf;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -42,7 +44,6 @@ public class HttpRequestMessage extends ByteBufMessage {
     }
 
 
-
     public String getMethod() {
         switch (method) {
             case 0:
@@ -55,5 +56,15 @@ public class HttpRequestMessage extends ByteBufMessage {
                 return "DELETE";
         }
         return "GET";
+    }
+
+    @Override
+    public String toString() {
+        return "HttpRequestMessage{" +
+                "method=" + method +
+                ", uri='" + uri + '\'' +
+                ", headers=" + headers +
+                ", body=" + (body == null ? "" : new String(body, Constants.UTF_8)) +
+                '}';
     }
 }

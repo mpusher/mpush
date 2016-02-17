@@ -2,9 +2,11 @@ package com.shinemo.mpush.common.message;
 
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.tools.Constants;
 import com.shinemo.mpush.tools.MPushUtil;
 import io.netty.buffer.ByteBuf;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,5 +56,15 @@ public class HttpResponseMessage extends ByteBufMessage {
     public HttpResponseMessage addHeader(String name, String value) {
         this.headers.put(name, value);
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "HttpResponseMessage{" +
+                "statusCode=" + statusCode +
+                ", reasonPhrase='" + reasonPhrase + '\'' +
+                ", headers=" + headers +
+                ", body=" + (body == null ? "" : new String(body, Constants.UTF_8)) +
+                '}';
     }
 }
