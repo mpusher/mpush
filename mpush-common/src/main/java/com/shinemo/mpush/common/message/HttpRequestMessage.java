@@ -64,7 +64,7 @@ public class HttpRequestMessage extends ByteBufMessage {
                 "method=" + method +
                 ", uri='" + uri + '\'' +
                 ", headers=" + headers +
-                ", body=" + (body == null ? "" : new String(body, Constants.UTF_8)) +
+                ", body=" + (body == null ? "" : body.length) +
                 '}';
     }
 }

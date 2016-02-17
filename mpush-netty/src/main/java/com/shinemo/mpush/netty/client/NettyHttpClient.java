@@ -131,7 +131,7 @@ public class NettyHttpClient implements HttpClient {
                     RequestInfo requestInfo = future.channel().attr(key).get();
                     requestInfo.tryDone();
                     requestInfo.callback.onFailure(503, "Service Unavailable");
-                    LOGGER.debug("request failure request=%s", requestInfo);
+                    LOGGER.debug("request failure request={}", requestInfo);
                     tryRelease(future.channel());
                 }
             }
@@ -144,7 +144,7 @@ public class NettyHttpClient implements HttpClient {
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
             RequestInfo info = ctx.channel().attr(key).get();
-            LOGGER.error("http client caught an error, info=%s", info, cause);
+            LOGGER.error("http client caught an error, info={}", info, cause);
             try {
                 if (info.tryDone()) {
                     info.callback.onException(cause);
@@ -175,7 +175,7 @@ public class NettyHttpClient implements HttpClient {
                         }
                     }
                     callback.onResponse(response);
-                    LOGGER.debug("request done request=%s", info);
+                    LOGGER.debug("request done request={}", info);
                 }
             } finally {
                 tryRelease(ctx.channel());
