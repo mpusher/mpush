@@ -1,7 +1,6 @@
 package com.shinemo.mpush.netty.client;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.tools.thread.NamedThreadFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -22,7 +21,6 @@ import java.net.URLDecoder;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.LockSupport;
 
 /**
  * Created by ohun on 2016/2/15.
@@ -102,7 +100,7 @@ public class NettyHttpClient implements HttpClient {
         Iterator<Channel> it = channels.iterator();
         while (it.hasNext()) {
             Channel channel = it.next();
-            channelPool.remove(host, channel);
+            it.remove();
             if (channel.isActive()) {
                 LOGGER.debug("tryAcquire channel success ,host=" + host);
                 return channel;
@@ -246,44 +244,5 @@ public class NettyHttpClient implements HttpClient {
             return nue;
         }
 
-    }
-
-
-    public static void main(String[] args) throws Exception {
-        NettyHttpClient client = new NettyHttpClient();
-        client.start();
-        for (int i = 0; i < 100; i++) {
-            LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(1));
-            HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "http://baidu.com/");
-            client.request(new RequestInfo(request, new HttpCallback() {
-                @Override
-                public void onResponse(HttpResponse response) {
-                    System.out.println("response=" + response);
-                    //System.out.println("content=" + ((FullHttpResponse) response).content().toString(Constants.UTF_8));
-                }
-
-                @Override
-                public void onFailure(int statusCode, String reasonPhrase) {
-                    System.out.println("reasonPhrase=" + reasonPhrase);
-                }
-
-                @Override
-                public void onException(Throwable throwable) {
-                    throwable.printStackTrace();
-                }
-
-                @Override
-                public void onTimeout() {
-                    System.out.println("onTimeout");
-                }
-
-                @Override
-                public boolean onRedirect(HttpResponse response) {
-                    return true;
-                }
-            }));
-        }
-        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(10));
-        client.stop();
     }
 }
