@@ -17,7 +17,7 @@ public class Main {
         client.start();
         Thread.sleep(1000);
         for (int i = 0; i < 100; i++) {
-        	PushContent content = PushContent.build(1).setContent("this a first push." + i).setTitle("MPush");
+        	PushContent content = PushContent.build(1,"this a first push." + i);
         	content.setMsgId("msgId_" + (i % 2));
 
             client.send(Jsons.toJson(content), Arrays.asList("huang1", "huang2", "huang"), new PushSender.Callback() {
