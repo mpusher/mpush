@@ -32,9 +32,9 @@ public interface ConfigCenter extends Config {
     @DefaultValue("10000")
     int minHeartbeat();
 
+    //180秒
     @Key("max_heartbeat")
     @DefaultValue("180000")
-        //180秒
     int maxHeartbeat();
 
     @Key("max_hb_timeout_times")
@@ -104,5 +104,13 @@ public interface ConfigCenter extends Config {
     @Key("dns_mapping")
     String dnsMapping();
 
+    @Key("max_http_client_conn_count_per_host")
+    @DefaultValue("5")
+    int maxHttpConnCountPerHost();
+
+    //10s
+    @Key("http_default_read_timeout")
+    @DefaultValue("10000")
+    int httpDefaultReadTimeout();
 
 }

@@ -11,4 +11,6 @@ public interface Constants {
 
     byte CRYPTO_FLAG = 0x01;
     byte COMPRESS_FLAG = 0x02;
+    String HTTP_HEAD_READ_TIMEOUT = "readTimeout";
+
 }
