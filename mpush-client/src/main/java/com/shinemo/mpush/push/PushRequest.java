@@ -16,22 +16,24 @@ import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Created by ohun on 2015/12/30.
  */
 public class PushRequest implements PushSender.Callback, Runnable {
-	
-	private static GatewayServerManage gatewayClientManage = (GatewayServerManage)ServiceContainer.getInstance(ServerManage.class, "gatewayServerManage");
-	
     private static final Logger LOGGER = LoggerFactory.getLogger(PushRequest.class);
+
+    private final static GatewayServerManage gatewayClientManage = (GatewayServerManage) ServiceContainer.getInstance(ServerManage.class, "gatewayServerManage");
+
     private PushSender.Callback callback;
     private String userId;
     private String content;
     private long timeout;
-    private int status = 0;
     private long timeout_;
     private int sessionId;
     private long sendTime;
+    private AtomicInteger status = new AtomicInteger(0);
 
     public PushRequest() {
     }
@@ -60,14 +62,6 @@ public class PushRequest implements PushSender.Callback, Runnable {
         return this;
     }
 
-    public void setSessionId(int sessionId) {
-        this.sessionId = sessionId;
-    }
-
-    public int getSessionId() {
-        return sessionId;
-    }
-
     @Override
     public void onSuccess(String userId) {
         submit(1);
@@ -89,20 +83,18 @@ public class PushRequest implements PushSender.Callback, Runnable {
     }
 
     private void submit(int status) {
-        if (this.status != 0) {//防止重复调用
-            return;
-        }
-        this.status = status;
-        if (callback != null) {
-            PushRequestBus.INSTANCE.getExecutor().execute(this);
-        } else {
-            LOGGER.warn("callback is null");
+        if (this.status.compareAndSet(0, status)) {//防止重复调用
+            if (callback != null) {
+                PushRequestBus.INSTANCE.getExecutor().execute(this);
+            } else {
+                LOGGER.warn("callback is null");
+            }
         }
     }
 
     @Override
     public void run() {
-        switch (status) {
+        switch (status.get()) {
             case 1:
                 callback.onSuccess(userId);
                 break;
@@ -145,11 +137,11 @@ public class PushRequest implements PushSender.Callback, Runnable {
     }
 
     public void redirect() {
-        this.status = 0;
-        this.timeout_ = timeout + System.currentTimeMillis();
         ConnectionRouterManager.INSTANCE.invalidateLocalCache(userId);
-        sendToConnServer();
         LOGGER.warn("user route has changed, userId={}, content={}", userId, content);
+        if (status.get() == 0) {
+            send();
+        }
     }
 
     private void sendToConnServer() {
@@ -185,9 +177,8 @@ public class PushRequest implements PushSender.Callback, Runnable {
         PushRequestBus.INSTANCE.put(sessionId, this);
     }
 
-	public long getSendTime() {
-		return sendTime;
-	}
-    
-    
+    public long getSendTime() {
+        return sendTime;
+    }
+
 }
