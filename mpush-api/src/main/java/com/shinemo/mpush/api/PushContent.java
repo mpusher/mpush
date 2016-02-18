@@ -26,8 +26,8 @@ public final class PushContent implements Serializable{
     	this.msgType = msgType;
 	}
 
-    public static PushContent build(int msgType,String content){
-    	PushContent pushContent = new PushContent(msgType);
+    public static PushContent build(PushType msgType,String content){
+    	PushContent pushContent = new PushContent(msgType.getValue());
     	pushContent.setContent(content);
     	return pushContent;
     }
@@ -50,6 +50,27 @@ public final class PushContent implements Serializable{
 
 	public void setContent(String content) {
 		this.content = content;
+	}
+	
+	public enum PushType{
+		NOTIFICATION("提醒",1),
+		MESSAGE("消息",2),
+		NOTIFICATIONANDMESSAGE("提醒+消息",3);
+
+		PushType(String desc, int value) {
+        	this.desc = desc;
+        	this.value = value;
+        }
+
+        private final String desc;
+        private final int value;
+        
+		public String getDesc() {
+			return desc;
+		}
+		public int getValue() {
+			return value;
+		}
 	}
 	
 }
