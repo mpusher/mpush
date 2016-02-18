@@ -2,6 +2,8 @@ package com.shinemo.mpush.netty.client;
 
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Primitives;
+import com.shinemo.mpush.api.Constants;
+import com.shinemo.mpush.tools.config.ConfigCenter;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -11,21 +13,21 @@ import io.netty.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RequestInfo implements TimerTask, HttpCallback {
-    private static final String HEAD_READ_TIMEOUT = "readTimeout";
+    private static final int TIMEOUT = ConfigCenter.holder.httpDefaultReadTimeout();
     final AtomicBoolean cancelled = new AtomicBoolean(false);
+    final long startTime = System.currentTimeMillis();
+    long endTime = startTime;
+    int readTimeout = TIMEOUT;
+    private String uri;
     private HttpCallback callback;
     FullHttpRequest request;
-    String uri;
     String host;
-    int readTimeout = 10000;
-    long startTime = System.currentTimeMillis();
-    long endTime = System.currentTimeMillis();
 
     public RequestInfo(FullHttpRequest request, HttpCallback callback) {
         this.callback = callback;
         this.request = request;
         this.uri = request.uri();
-        String timeout = request.headers().getAndRemoveAndConvert(HEAD_READ_TIMEOUT);
+        String timeout = request.headers().getAndRemoveAndConvert(Constants.HTTP_HEAD_READ_TIMEOUT);
         if (timeout != null) {
             Integer integer = Ints.tryParse(timeout);
             if (integer != null && integer > 0) readTimeout = integer;
