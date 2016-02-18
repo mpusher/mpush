@@ -1,5 +1,7 @@
 package com.shinemo.mpush.push;
 
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -9,7 +11,7 @@ import java.util.concurrent.*;
  */
 public class PushRequestBus implements Runnable {
     public static final PushRequestBus INSTANCE = new PushRequestBus();
-    private Map<Integer, PushRequest> requests = new ConcurrentHashMap<>();
+    private Map<Integer, PushRequest> requests = new ConcurrentHashMapV8<>(1024);
     private Executor executor = Executors.newFixedThreadPool(5);//test
     private ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();//test
 
