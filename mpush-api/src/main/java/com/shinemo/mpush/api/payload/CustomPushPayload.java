@@ -25,6 +25,9 @@ public class CustomPushPayload extends HashMap<String, String> implements Payloa
 		this.putAll(extras);
 	}
 	
+	public CustomPushPayload() {
+	}
+	
 	public static CustomPushPayload build(Map<String, String> extras){
 		return new CustomPushPayload(extras);
 	}
