@@ -1,6 +1,7 @@
 package com.shinemo.mpush.api.payload;
 
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -20,7 +21,13 @@ public class CustomPushPayload extends HashMap<String, String> implements Payloa
 
 	private static final long serialVersionUID = 6076731078625705602L;
 	
+	public CustomPushPayload(Map<String, String> extras) {
+		this.putAll(extras);
+	}
 	
+	public static CustomPushPayload build(Map<String, String> extras){
+		return new CustomPushPayload(extras);
+	}
 	
 }
 
