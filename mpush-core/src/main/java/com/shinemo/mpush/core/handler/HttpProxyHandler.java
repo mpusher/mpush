@@ -66,8 +66,8 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
         } catch (Exception e) {
             HttpResponseMessage
                     .from(message)
-                    .setStatusCode(500)
-                    .setReasonPhrase("Internal Server Error")
+                    .setStatusCode(502)
+                    .setReasonPhrase("Bad Gateway")
                     .sendRaw();
             LOGGER.error("send request ex, message=" + message, e);
         }
@@ -119,10 +119,10 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
         public void onException(Throwable throwable) {
             HttpResponseMessage
                     .from(request)
-                    .setStatusCode(500)
-                    .setReasonPhrase("Internal Server Error")
+                    .setStatusCode(502)
+                    .setReasonPhrase("Bad Gateway")
                     .sendRaw();
-            LOGGER.error("callback exception request={}, response={}", request, 500, throwable);
+            LOGGER.error("callback exception request={}, response={}", request, 502, throwable);
         }
 
         @Override
