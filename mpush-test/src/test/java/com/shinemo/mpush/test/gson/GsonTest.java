@@ -3,9 +3,11 @@ package com.shinemo.mpush.test.gson;
 import java.util.Map;
 
 import org.junit.Test;
+
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import com.shinemo.mpush.api.PushContent;
+import com.shinemo.mpush.api.PushContent.PushType;
 import com.shinemo.mpush.tools.Jsons;
 
 public class GsonTest {
@@ -16,7 +18,7 @@ public class GsonTest {
 		map.put("key1", 1121+"");
 		map.put("key2", "value2");
 		
-		PushContent content = PushContent.build(1,Jsons.toJson(map));
+		PushContent content = PushContent.build(PushType.MESSAGE,Jsons.toJson(map));
 		
 		
 		System.out.println(Jsons.toJson(content));
@@ -27,7 +29,7 @@ public class GsonTest {
 	public void test2(){
 		ValueMap map = new ValueMap("1122", "value2");
 		
-		PushContent content = PushContent.build(1,Jsons.toJson(map));
+		PushContent content = PushContent.build(PushType.MESSAGE,Jsons.toJson(map));
 		
 		
 		System.out.println(Jsons.toJson(content));

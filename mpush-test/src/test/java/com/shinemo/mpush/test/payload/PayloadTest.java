@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Maps;
 import com.shinemo.mpush.api.PushContent;
+import com.shinemo.mpush.api.PushContent.PushType;
 import com.shinemo.mpush.api.payload.CustomPushPayload;
 import com.shinemo.mpush.api.payload.NotificationPushPayload;
 import com.shinemo.mpush.api.payload.PayloadFactory;
@@ -24,7 +25,7 @@ public class PayloadTest {
 		CustomPushPayload customPayload = PayloadFactory.create(MessageType.CUSTOM);
 		customPayload.putAll(map);
 		
-		PushContent pushContent = PushContent.build(1, Jsons.toJson(customPayload));
+		PushContent pushContent = PushContent.build(PushType.MESSAGE, Jsons.toJson(customPayload));
 		
 		System.out.println(Jsons.toJson(pushContent));
 	}
@@ -34,7 +35,7 @@ public class PayloadTest {
 		NotificationPushPayload payload = PayloadFactory.create(MessageType.NOTIFICATION);
 		payload.setContent("content");
 		payload.setTitle("title");
-		PushContent pushContent = PushContent.build(2, Jsons.toJson(payload));
+		PushContent pushContent = PushContent.build(PushType.NOTIFICATION, Jsons.toJson(payload));
 		
 		System.out.println(Jsons.toJson(pushContent));
 	}

@@ -2,6 +2,7 @@ package com.shinemo.mpush.test.push;
 
 import com.shinemo.mpush.api.PushContent;
 import com.shinemo.mpush.api.PushSender;
+import com.shinemo.mpush.api.PushContent.PushType;
 import com.shinemo.mpush.push.PushClient;
 import com.shinemo.mpush.tools.Jsons;
 
@@ -17,7 +18,7 @@ public class Main {
         client.start();
         Thread.sleep(1000);
         for (int i = 0; i < 100; i++) {
-        	PushContent content = PushContent.build(1,"this a first push." + i);
+        	PushContent content = PushContent.build(PushType.MESSAGE,"this a first push." + i);
         	content.setMsgId("msgId_" + (i % 2));
 
             client.send(Jsons.toJson(content), Arrays.asList("huang1", "huang2", "huang"), new PushSender.Callback() {

@@ -1,5 +1,10 @@
 package com.shinemo.mpush.api.payload;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+
 
 /**
  * msgId、msgType 必填 
@@ -14,11 +19,14 @@ package com.shinemo.mpush.api.payload;
  *        
  *
  */
-public class NotificationPushPayload extends BasePayload<NotificationPushPayload> implements Payload{
+public class NotificationPushPayload implements Payload{
     
 	private static final long serialVersionUID = 4363667286689742483L;
 	private String title;
 	private String content;
+	
+	private Map<String,Serializable> extras;
+	
 	public String getTitle() {
 		return title;
 	}
@@ -34,6 +42,87 @@ public class NotificationPushPayload extends BasePayload<NotificationPushPayload
 		return this;
 	}
 	
+	/*****以下非必填**/
+    private Long nid; //主要用于聚合通知，非必填
+    private byte flags; //特性字段。 0x01:声音   0x02:震动 0x03:闪灯
+    private String largeIcon; // 大图标
+    private String ticker; //和title一样
+    private Integer number; //
+	public Long getNid() {
+		return nid;
+	}
+	public NotificationPushPayload  setNid(Long nid) {
+		this.nid = nid;
+		return this;
+	}
+	public Byte getFlags() {
+		return flags;
+	}
+	public NotificationPushPayload setFlags(Byte flags) {
+		this.flags = flags;
+		return this;
+	}
+	public String getLargeIcon() {
+		return largeIcon;
+	}
+	public NotificationPushPayload setLargeIcon(String largeIcon) {
+		this.largeIcon = largeIcon;
+		return this;
+	}
+	public String getTicker() {
+		return ticker;
+	}
+	public NotificationPushPayload setTicker(String ticker) {
+		this.ticker = ticker;
+		return this;
+	}
+	public Integer getNumber() {
+		return number;
+	}
+	public NotificationPushPayload setNumber(Integer number) {
+		this.number = number;
+		return this;
+	}
+    
+	public NotificationPushPayload setFlag(Flag flag) {
+        this.flags |= flag.getValue();
+        return this;
+    }
+
+    public boolean hasFlag(Flag flag) {
+        return (this.flags & flag.getValue()) != 0;
+    }
+    
+    public Map<String, Serializable> getExtras() {
+		return extras;
+	}
+    
+	public NotificationPushPayload setExtras(Map<String, Serializable> extras) {
+		this.extras = new HashMap<>(extras);
+		return this;
+	}
+
+	public enum Flag {
+        VOICE("声音",0x01),
+        SHOCK("震动",0x02),
+        LIGHT("闪灯",0x03);
+
+        Flag(String desc, int value) {
+        	this.desc = desc;
+        	this.value = value;
+        }
+
+        private final String desc;
+        private final Integer value;
+        
+		public String getDesc() {
+			return desc;
+		}
+		public byte getValue() {
+			return value.byteValue();
+		}
+
+    }
 	
 	
 }
