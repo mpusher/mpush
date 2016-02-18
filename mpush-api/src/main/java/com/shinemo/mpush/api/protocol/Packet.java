@@ -64,7 +64,7 @@ public final class Packet implements Serializable {
                 ", flags=" + flags +
                 ", sessionId=" + sessionId +
                 ", lrc=" + lrc +
-                ", body=" + Arrays.toString(body) +
+                ", body=" + (body == null ? 0 : body.length) +
                 '}';
     }
 
