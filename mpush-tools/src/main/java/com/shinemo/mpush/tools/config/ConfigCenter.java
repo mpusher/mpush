@@ -104,5 +104,9 @@ public interface ConfigCenter extends Config {
     @Key("dns_mapping")
     String dnsMapping();
 
+    @Key("max_http_client_conn_count_per_host")
+    @DefaultValue("5")
+    int maxHttpConnCountPerHost();
+
 
 }
