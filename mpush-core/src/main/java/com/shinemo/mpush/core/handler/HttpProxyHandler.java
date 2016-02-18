@@ -8,6 +8,7 @@ import com.shinemo.mpush.common.handler.BaseMessageHandler;
 import com.shinemo.mpush.common.message.HttpRequestMessage;
 import com.shinemo.mpush.common.message.HttpResponseMessage;
 import com.shinemo.mpush.netty.client.HttpCallback;
+import com.shinemo.mpush.netty.client.HttpClient;
 import com.shinemo.mpush.netty.client.NettyHttpClient;
 import com.shinemo.mpush.netty.client.RequestInfo;
 import com.shinemo.mpush.tools.MPushUtil;
@@ -28,12 +29,12 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  */
 public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxyHandler.class);
-    private final NettyHttpClient httpClient;
+    private final HttpClient httpClient;
     private final DnsMapping dnsMapping;
 
-    public HttpProxyHandler() {
-        this.httpClient = new NettyHttpClient();
+    public HttpProxyHandler(HttpClient httpClient) {
         this.dnsMapping = new DnsMapping();
+        this.httpClient = httpClient;
         this.httpClient.start();
     }
 

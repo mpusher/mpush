@@ -5,9 +5,10 @@ import com.shinemo.mpush.api.connection.ConnectionManager;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.common.MessageDispatcher;
 import com.shinemo.mpush.core.handler.*;
+import com.shinemo.mpush.netty.client.HttpClient;
+import com.shinemo.mpush.netty.client.NettyHttpClient;
 import com.shinemo.mpush.netty.connection.NettyConnectionManager;
 import com.shinemo.mpush.netty.server.NettyServer;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
@@ -19,26 +20,32 @@ public final class ConnectionServer extends NettyServer {
     private ServerChannelHandler channelHandler;
 
     private ConnectionManager connectionManager = new NettyConnectionManager();
+    private HttpClient httpClient = new NettyHttpClient();
 
     public ConnectionServer(int port) {
         super(port);
-//        NettySharedHolder.HASHED_WHEEL_TIMER.newTimeout(new ScanAllConnectionTimerTask(connectionManager), ConfigCenter.holder.scanConnTaskCycle() / 1000, TimeUnit.SECONDS);
     }
 
     @Override
     public void init() {
         super.init();
+        connectionManager.init();
         MessageDispatcher receiver = new MessageDispatcher();
         receiver.register(Command.HEARTBEAT, new HeartBeatHandler());
         receiver.register(Command.HANDSHAKE, new HandshakeHandler());
         receiver.register(Command.BIND, new BindUserHandler());
         receiver.register(Command.UNBIND, new UnbindUserHandler());
         receiver.register(Command.FAST_CONNECT, new FastConnectHandler());
-        receiver.register(Command.HTTP_PROXY, new HttpProxyHandler());
-        connectionManager.init();
+        receiver.register(Command.HTTP_PROXY, new HttpProxyHandler(httpClient));
         channelHandler = new ServerChannelHandler(true, connectionManager, receiver);
     }
 
+    @Override
+    public void stop(Listener listener) {
+        super.stop(listener);
+        httpClient.stop();
+        connectionManager.destroy();
+    }
 
     @Override
     protected void initOptions(ServerBootstrap b) {

@@ -1,7 +1,5 @@
 package com.shinemo.mpush.netty.client;
 
-import io.netty.handler.codec.http.HttpRequest;
-
 /**
  * Created by ohun on 2016/2/15.
  */

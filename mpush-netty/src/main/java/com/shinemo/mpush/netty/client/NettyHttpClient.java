@@ -1,8 +1,10 @@
 package com.shinemo.mpush.netty.client;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.thread.NamedThreadFactory;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -20,6 +22,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -30,16 +33,23 @@ public class NettyHttpClient implements HttpClient {
     private Bootstrap b;
     private EventLoopGroup workerGroup;
     private Timer timer;
-    private final AttributeKey<RequestInfo> key = AttributeKey.newInstance("requestInfo");
+    private final AttributeKey<RequestInfo> requestKey = AttributeKey.newInstance("requestInfo");
+    private final AttributeKey<String> hostKey = AttributeKey.newInstance("host");
     private final ArrayListMultimap<String, Channel> channelPool = ArrayListMultimap.create();
+    private final int maxConnPerHost = ConfigCenter.holder.maxHttpConnCountPerHost();
 
     @Override
     public void start() { // TODO: 2016/2/15 yxx 配置线程池
-        workerGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup(0, Executors.newCachedThreadPool());
         b = new Bootstrap();
         b.group(workerGroup);
         b.channel(NioSocketChannel.class);
         b.option(ChannelOption.SO_KEEPALIVE, true);
+        b.option(ChannelOption.TCP_NODELAY, true);
+        b.option(ChannelOption.SO_REUSEADDR, true);
+        b.option(ChannelOption.SO_KEEPALIVE, true);
+        b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 4000);
+        b.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         b.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
@@ -65,15 +75,12 @@ public class NettyHttpClient implements HttpClient {
 
     @Override
     public void request(final RequestInfo info) throws Exception {
-        HttpRequest request = info.request;
-        String url = request.uri();
-        URI uri = new URI(url);
-        String host = uri.getHost();
+        URI uri = new URI(info.request.uri());
+        String host = info.host = uri.getHost();
         int port = uri.getPort() == -1 ? 80 : uri.getPort();
-        info.host = host;
-        request.headers().set(HttpHeaderNames.HOST, host);
-        request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-        timer.newTimeout(info, info.timeout, TimeUnit.MILLISECONDS);
+        info.request.headers().set(HttpHeaderNames.HOST, host);
+        info.request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+        timer.newTimeout(info, info.readTimeout, TimeUnit.MILLISECONDS);
         Channel channel = tryAcquire(host);
         if (channel == null) {
             LOGGER.debug("create new channel, host={}", host);
@@ -85,8 +92,8 @@ public class NettyHttpClient implements HttpClient {
                         writeRequest(future.channel(), info);
                     } else {
                         info.tryDone();
-                        info.callback.onFailure(504, "Gateway Timeout");
-                        LOGGER.debug("request failure request=%s", info);
+                        info.onFailure(504, "Gateway Timeout");
+                        LOGGER.debug("request failure request={}", info);
                     }
                 }
             });
@@ -103,7 +110,8 @@ public class NettyHttpClient implements HttpClient {
             Channel channel = it.next();
             it.remove();
             if (channel.isActive()) {
-                LOGGER.debug("tryAcquire channel success ,host=" + host);
+                LOGGER.debug("tryAcquire channel success ,host={}", host);
+                channel.attr(hostKey).set(host);
                 return channel;
             }
         }
@@ -111,43 +119,44 @@ public class NettyHttpClient implements HttpClient {
     }
 
     private synchronized void tryRelease(Channel channel) {
-        String host = channel.attr(key).getAndRemove().host;
+        String host = channel.attr(hostKey).getAndRemove();
         List<Channel> channels = channelPool.get(host);
-        if (channels == null || channels.size() < 5) {
-            LOGGER.debug("tryRelease channel success ,host=" + host);
+        if (channels == null || channels.size() < maxConnPerHost) {
+            LOGGER.debug("tryRelease channel success, host={}", host);
             channelPool.put(host, channel);
         } else {
-            LOGGER.debug("tryRelease channel failure ,host=" + host);
+            LOGGER.debug("tryRelease channel over limit={}, host={}, channel closed.", maxConnPerHost, host);
             channel.close();
         }
     }
 
     private void writeRequest(Channel channel, RequestInfo info) {
-        channel.attr(key).set(info);
+        channel.attr(requestKey).set(info);
+        channel.attr(hostKey).set(info.host);
         channel.writeAndFlush(info.request).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (!future.isSuccess()) {
-                    RequestInfo requestInfo = future.channel().attr(key).get();
-                    requestInfo.tryDone();
-                    requestInfo.callback.onFailure(503, "Service Unavailable");
-                    LOGGER.debug("request failure request={}", requestInfo);
+                    RequestInfo info = future.channel().attr(requestKey).getAndRemove();
+                    info.tryDone();
+                    info.onFailure(503, "Service Unavailable");
+                    LOGGER.debug("request failure request={}", info);
                     tryRelease(future.channel());
                 }
             }
         });
     }
 
-
+    @ChannelHandler.Sharable
     private class HttpClientHandler extends ChannelHandlerAdapter {
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            RequestInfo info = ctx.channel().attr(key).get();
+            RequestInfo info = ctx.channel().attr(requestKey).getAndRemove();
             LOGGER.error("http client caught an error, info={}", info, cause);
             try {
                 if (info.tryDone()) {
-                    info.callback.onException(cause);
+                    info.onException(cause);
                 }
             } finally {
                 tryRelease(ctx.channel());
@@ -156,25 +165,23 @@ public class NettyHttpClient implements HttpClient {
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            RequestInfo info = ctx.channel().attr(key).get();
+            RequestInfo info = ctx.channel().attr(requestKey).getAndRemove();
             if (info == null) return;
             try {
                 if (info.tryDone()) {
-                    HttpCallback callback = info.callback;
-                    HttpRequest request = info.request;
                     HttpResponse response = (HttpResponse) msg;
                     if (isRedirect(response)) {
-                        if (callback.onRedirect(response)) {
-                            CharSequence location = getRedirectLocation(request, response);
+                        if (info.onRedirect(response)) {
+                            String location = getRedirectLocation(info.request, response);
                             if (location != null && location.length() > 0) {
                                 info.cancelled.set(false);
-                                info.request = copy(location.toString(), request);
+                                info.request = info.request.copy().setUri(location);
                                 request(info);
                                 return;
                             }
                         }
                     }
-                    callback.onResponse(response);
+                    info.onResponse(response);
                     LOGGER.debug("request done request={}", info);
                 }
             } finally {
@@ -227,7 +234,6 @@ public class NettyHttpClient implements HttpClient {
             return null;
         }
 
-
         private HttpRequest copy(String uri, HttpRequest request) {
             HttpRequest nue = request;
             if (request instanceof DefaultFullHttpRequest) {
@@ -246,6 +252,5 @@ public class NettyHttpClient implements HttpClient {
             }
             return nue;
         }
-
     }
 }

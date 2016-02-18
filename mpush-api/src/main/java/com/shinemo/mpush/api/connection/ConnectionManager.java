@@ -18,4 +18,6 @@ public interface ConnectionManager {
 	List<Connection> getConnections();
 
 	void init();
+
+    void destroy();
 }
