@@ -76,7 +76,7 @@ public class NettyHttpClient implements HttpClient {
         timer.newTimeout(info, info.timeout, TimeUnit.MILLISECONDS);
         Channel channel = tryAcquire(host);
         if (channel == null) {
-            LOGGER.debug("create new channel,host=" + host);
+            LOGGER.debug("create new channel, host={}", host);
             ChannelFuture f = b.connect(host, port);
             f.addListener(new ChannelFutureListener() {
                 @Override
