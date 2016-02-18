@@ -56,8 +56,10 @@ public abstract class ByteBufMessage extends BaseMessage {
     public void encodeBytes(ByteBuf body, byte[] field) {
         if (field == null || field.length == 0) {
             body.writeShort(0);
-        } else {
+        } else if (field.length < Short.MAX_VALUE) {
             body.writeShort(field.length).writeBytes(field);
+        } else {
+            body.writeShort(Short.MAX_VALUE).writeInt(field.length - Short.MAX_VALUE).writeBytes(field);
         }
     }
 
@@ -70,6 +72,9 @@ public abstract class ByteBufMessage extends BaseMessage {
     public byte[] decodeBytes(ByteBuf body) {
         int fieldLength = body.readShort();
         if (fieldLength == 0) return null;
+        if (fieldLength == Short.MAX_VALUE) {
+            fieldLength += body.readInt();
+        }
         byte[] bytes = new byte[fieldLength];
         body.readBytes(bytes);
         return bytes;
