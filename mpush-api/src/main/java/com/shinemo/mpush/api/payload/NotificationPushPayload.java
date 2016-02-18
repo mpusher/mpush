@@ -1,6 +1,5 @@
 package com.shinemo.mpush.api.payload;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +24,7 @@ public class NotificationPushPayload implements Payload{
 	private String title;
 	private String content;
 	
-	private Map<String,Serializable> extras;
+	private Map<String,String> extras;
 	
 	public String getTitle() {
 		return title;
@@ -93,11 +92,11 @@ public class NotificationPushPayload implements Payload{
         return (this.flags & flag.getValue()) != 0;
     }
     
-    public Map<String, Serializable> getExtras() {
+    public Map<String, String> getExtras() {
 		return extras;
 	}
     
-	public NotificationPushPayload setExtras(Map<String, Serializable> extras) {
+	public NotificationPushPayload setExtras(Map<String, String> extras) {
 		this.extras = new HashMap<>(extras);
 		return this;
 	}
