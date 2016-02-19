@@ -10,10 +10,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
-import io.netty.util.AttributeKey;
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.IllegalReferenceCountException;
-import io.netty.util.Timer;
+import io.netty.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,6 +183,7 @@ public class NettyHttpClient implements HttpClient {
                 }
             } finally {
                 tryRelease(ctx.channel());
+                ReferenceCountUtil.release(msg);
             }
         }
 

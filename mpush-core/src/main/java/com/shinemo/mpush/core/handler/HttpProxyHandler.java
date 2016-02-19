@@ -9,7 +9,6 @@ import com.shinemo.mpush.common.message.HttpRequestMessage;
 import com.shinemo.mpush.common.message.HttpResponseMessage;
 import com.shinemo.mpush.netty.client.HttpCallback;
 import com.shinemo.mpush.netty.client.HttpClient;
-import com.shinemo.mpush.netty.client.NettyHttpClient;
 import com.shinemo.mpush.netty.client.RequestInfo;
 import com.shinemo.mpush.tools.MPushUtil;
 import io.netty.buffer.ByteBuf;
