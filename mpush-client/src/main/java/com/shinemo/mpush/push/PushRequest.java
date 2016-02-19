@@ -169,12 +169,13 @@ public class PushRequest implements PushSender.Callback, Runnable {
             return;
         }
 
-        GatewayPushMessage pushMessage = new GatewayPushMessage(userId, content, gatewayConn);
+        final GatewayPushMessage pushMessage = new GatewayPushMessage(userId, content, gatewayConn);
         pushMessage.send(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (future.isSuccess()) {
                     sendTime = System.currentTimeMillis();
+                    LOGGER.warn("pushMessage packet:"+pushMessage.getPacket());
                 } else {
                     PushRequest.this.onFailure(userId);
                 }
