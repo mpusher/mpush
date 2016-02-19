@@ -43,7 +43,7 @@ public class NotificationPushPayload implements Payload{
 	
 	/*****以下非必填**/
     private Long nid; //主要用于聚合通知，非必填
-    private byte flags; //特性字段。 0x01:声音   0x02:震动 0x03:闪灯
+    private Byte flags; //特性字段。 0x01:声音   0x02:震动 0x03:闪灯
     private String largeIcon; // 大图标
     private String ticker; //和title一样
     private Integer number; //
@@ -84,7 +84,11 @@ public class NotificationPushPayload implements Payload{
 	}
     
 	public NotificationPushPayload setFlag(Flag flag) {
-        this.flags |= flag.getValue();
+		if(this.flags == null){
+			this.flags = flag.getValue();
+		}else{
+			this.flags = (byte) (this.flags.byteValue()|flag.getValue());
+		}
         return this;
     }
 

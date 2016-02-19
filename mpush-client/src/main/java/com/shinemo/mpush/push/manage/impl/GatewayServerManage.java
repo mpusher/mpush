@@ -38,7 +38,7 @@ public class GatewayServerManage implements ServerManage<GatewayServerApplicatio
 			application2Client.put(application, client);
 			ip2Client.put(application.getIp(), client);
 		}catch(Exception e){
-			
+			log.error("addOrUpdate:{},{}",fullPath,application,e);
 		}
 		printList();
 	}
