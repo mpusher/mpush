@@ -34,11 +34,7 @@ public abstract class ByteBufMessage extends BaseMessage {
     public abstract void encode(ByteBuf body);
 
     public void encodeString(ByteBuf body, String field) {
-        if (field == null) {
-            body.writeShort(0);
-        } else {
-            body.writeShort(field.length()).writeBytes(field.getBytes(Constants.UTF_8));
-        }
+        encodeBytes(body, field == null ? null : field.getBytes(Constants.UTF_8));
     }
 
     public void encodeByte(ByteBuf body, byte field) {
