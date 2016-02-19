@@ -4,6 +4,7 @@ import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.common.message.ByteBufMessage;
 import com.shinemo.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFutureListener;
 
 import static com.shinemo.mpush.api.protocol.Command.GATEWAY_PUSH;
 
@@ -34,6 +35,16 @@ public class GatewayPushMessage extends ByteBufMessage {
     public void encode(ByteBuf body) {
         encodeString(body, userId);
         encodeString(body, content);
+    }
+
+    @Override
+    public void send() {
+        super.sendRaw();
+    }
+
+    @Override
+    public void send(ChannelFutureListener listener) {
+        super.sendRaw(listener);
     }
 
     @Override
