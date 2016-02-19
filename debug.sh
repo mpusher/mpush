@@ -14,6 +14,6 @@ echo "start start mpush..."
 
 cd mpush/lib
 
-java -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=7998  -jar $base_dir/target/mpush/mpush-cs.jar &
+java -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=7998 -Dio.netty.leakDetectionLevel=advanced   -jar $base_dir/target/mpush/mpush-cs.jar &
 
 echo "end start mpush..."
