@@ -35,4 +35,12 @@ public class GatewayPushMessage extends ByteBufMessage {
         encodeString(body, userId);
         encodeString(body, content);
     }
+
+    @Override
+    public String toString() {
+        return "GatewayPushMessage{" +
+                "userId='" + userId + '\'' +
+                ", content='" + content + '\'' +
+                '}';
+    }
 }
