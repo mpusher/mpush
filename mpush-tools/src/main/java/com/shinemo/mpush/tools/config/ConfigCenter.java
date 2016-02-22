@@ -7,7 +7,6 @@ import org.aeonbits.owner.Config.Sources;
 import org.aeonbits.owner.ConfigFactory;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 针对每个配置项，建议各个对象自己持有，不建议每次都通过ConfigCenter获取，有性能损耗
@@ -112,5 +111,9 @@ public interface ConfigCenter extends Config {
     @Key("http_default_read_timeout")
     @DefaultValue("10000")
     int httpDefaultReadTimeout();
+    
+    @Key("online_and_offline_listener_ip")
+    @DefaultValue("127.0.0.1")
+    String onlineAndOfflineListenerIp();
 
 }

@@ -16,6 +16,7 @@ import com.shinemo.mpush.tools.Jsons;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.ScanResult;
 
 public class RedisUtil {
 	
@@ -46,7 +47,7 @@ public class RedisUtil {
                 }
                 incrRet = ret;
             } catch (Exception e) {
-            	LoggerManage.execption(LogType.REDIS, e, "redis incr exception:%s,%s,%s,%s",key,time,node);
+            	LoggerManage.execption(LogType.REDIS, e, "redis incr exception:{},{},{},{}",key,time,node);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -72,7 +73,7 @@ public class RedisUtil {
             jedis = getClient(node);
             value = jedis.get(key);
         } catch (Exception e) {
-        	LoggerManage.execption(LogType.REDIS, e, "redis get exception:%s,%s",key,node);
+        	LoggerManage.execption(LogType.REDIS, e, "redis get exception:{},{}",key,node);
         } finally {
             // 返还到连接池
             close(jedis);
@@ -115,7 +116,7 @@ public class RedisUtil {
                     jedis.expire(key, time);
                 }
             } catch (Exception e) {
-            	LoggerManage.execption(LogType.REDIS, e, "redis set exception:%s,%s,%s,%s",key,value,time,node);
+            	LoggerManage.execption(LogType.REDIS, e, "redis set exception:{},{},{},{}",key,value,time,node);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -131,7 +132,7 @@ public class RedisUtil {
                 jedis = getClient(node);
                 jedis.del(key);
             } catch (Exception e) {
-            	LoggerManage.execption(LogType.REDIS, e, "redis del exception:%s,%s",key,node);
+            	LoggerManage.execption(LogType.REDIS, e, "redis del exception:{},{}",key,node);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -152,7 +153,7 @@ public class RedisUtil {
                 jedis = getClient(node);
                 jedis.hset(namespace, key, value);
             } catch (Exception e) {
-            	LoggerManage.execption(LogType.REDIS, e, "redis hset exception:%s,%s,%s,%s",namespace,key,value,node);
+            	LoggerManage.execption(LogType.REDIS, e, "redis hset exception:{},{},{},{}",namespace,key,value,node);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -172,7 +173,7 @@ public class RedisUtil {
             jedis = getClient(node);
             value = jedis.hget(namespace, key);
         } catch (Exception e) {
-        	LoggerManage.execption(LogType.REDIS, e, "redis hget exception:%s,%s",namespace,key,node);
+        	LoggerManage.execption(LogType.REDIS, e, "redis hget exception:{},{}",namespace,key,node);
         } finally {
             // 返还到连接池
             close(jedis);
@@ -189,7 +190,7 @@ public class RedisUtil {
                 jedis = getClient(node);
                 jedis.hdel(namespace, key);
             } catch (Exception e) {
-            	LoggerManage.execption(LogType.REDIS, e, "redis hdel exception:%s,%s,%s",namespace,key,node);
+            	LoggerManage.execption(LogType.REDIS, e, "redis hdel exception:{},{},{}",namespace,key,node);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -204,7 +205,7 @@ public class RedisUtil {
             jedis = getClient(node);
             result = jedis.hgetAll(namespace);
         } catch (Exception e) {
-        	LoggerManage.execption(LogType.REDIS, e, "redis hgetAll exception:%s,%s",namespace,node);
+        	LoggerManage.execption(LogType.REDIS, e, "redis hgetAll exception:{},{}",namespace,node);
         } finally {
             // 返还到连接池
             close(jedis);
@@ -219,7 +220,7 @@ public class RedisUtil {
             jedis = getClient(node);
             result = jedis.hgetAll(namespace);
         } catch (Exception e) {
-        	LoggerManage.execption(LogType.REDIS, e, "redis hgetAll exception:%s,%s",namespace,node);
+        	LoggerManage.execption(LogType.REDIS, e, "redis hgetAll exception:{},{}",namespace,node);
         } finally {
             // 返还到连接池
             close(jedis);
@@ -254,7 +255,7 @@ public class RedisUtil {
             jedis = getClient(node);
             result = jedis.hkeys(key);
         } catch (Exception e) {
-        	LoggerManage.execption(LogType.REDIS, e, "redis hkeys exception:%s,%s",key,node);
+        	LoggerManage.execption(LogType.REDIS, e, "redis hkeys exception:{},{}",key,node);
         } finally {
             // 返还到连接池
             close(jedis);
@@ -280,7 +281,7 @@ public class RedisUtil {
             jedis = getClient(node);
             value = jedis.hmget(namespace, key);
         } catch (Exception e) {
-        	LoggerManage.execption(LogType.REDIS, e, "redis hmget exception:%s,%s,%s",namespace,key,node);
+        	LoggerManage.execption(LogType.REDIS, e, "redis hmget exception:{},{},{}",namespace,key,node);
         } finally {
             // 返还到连接池
             close(jedis);
@@ -320,7 +321,7 @@ public class RedisUtil {
                 }
 
             } catch (Exception e) {
-            	LoggerManage.execption(LogType.REDIS, e, "redis hmset exception:%s,%s,%s",namespace,time,node);
+            	LoggerManage.execption(LogType.REDIS, e, "redis hmset exception:{},{},{}",namespace,time,node);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -347,7 +348,7 @@ public class RedisUtil {
                 jedis = getClient(node);
                 jedis.lpush(key, value);
             } catch (Exception e) {
-            	LoggerManage.execption(LogType.REDIS, e, "redis lpush exception:%s,%s,%s",key,value,node);
+            	LoggerManage.execption(LogType.REDIS, e, "redis lpush exception:{},{},{}",key,value,node);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -373,7 +374,7 @@ public class RedisUtil {
                 jedis = getClient(node);
                 jedis.rpush(key, value);
             } catch (Exception e) {
-            	LoggerManage.execption(LogType.REDIS, e, "redis rpush exception:%s,%s,%s",key,value,node);
+            	LoggerManage.execption(LogType.REDIS, e, "redis rpush exception:{},{},{}",key,value,node);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -398,7 +399,7 @@ public class RedisUtil {
                 vaule = jedis.lpop(key);
                 retValue = vaule;
             } catch (Exception e) {
-            	LoggerManage.execption(LogType.REDIS, e, "redis lpop exception:%s,%s",key,node);
+            	LoggerManage.execption(LogType.REDIS, e, "redis lpop exception:{},{}",key,node);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -421,7 +422,7 @@ public class RedisUtil {
                 vaule = jedis.rpop(key);
                 retValue = vaule;
             } catch (Exception e) {
-            	LoggerManage.execption(LogType.REDIS, e, "redis rpop exception:%s,%s",key,node);
+            	LoggerManage.execption(LogType.REDIS, e, "redis rpop exception:{},{}",key,node);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -443,7 +444,7 @@ public class RedisUtil {
             jedis = getClient(node);
             value = jedis.lrange(key, start, end);
         } catch (Exception e) {
-        	LoggerManage.execption(LogType.REDIS, e, "redis lrange exception:%s,%s,%s,%s",key,start,end,node);
+        	LoggerManage.execption(LogType.REDIS, e, "redis lrange exception:{},{},{},{}",key,start,end,node);
         } finally {
             // 返还到连接池
             close(jedis);
@@ -470,7 +471,7 @@ public class RedisUtil {
             jedis = getClient(node);
             jedis.llen(key);
         } catch (Exception e) {
-        	LoggerManage.execption(LogType.REDIS, e, "redis llen exception:%s,%s",key,node);
+        	LoggerManage.execption(LogType.REDIS, e, "redis llen exception:{},{}",key,node);
         } finally {
             // 返还到连接池
             close(jedis);
@@ -492,7 +493,7 @@ public class RedisUtil {
             jedis = getClient(node);
             jedis.publish(channel, value);
         } catch (Exception e) {
-        	LoggerManage.execption(LogType.REDIS, e, "redis publish exception:%s,%s,%s",value,Jsons.toJson(node),Jsons.toJson(channel));
+        	LoggerManage.execption(LogType.REDIS, e, "redis publish exception:{},{},{}",value,Jsons.toJson(node),Jsons.toJson(channel));
         } finally {
             // 返还到连接池
             close(jedis);
@@ -518,7 +519,7 @@ public class RedisUtil {
             jedis = getClient(node);
             jedis.subscribe(pubsub, channel);
         } catch (Exception e) {
-        	LoggerManage.execption(LogType.REDIS, e, "redis subscribe exception:%s,%s",Jsons.toJson(node),Jsons.toJson(channel));
+        	LoggerManage.execption(LogType.REDIS, e, "redis subscribe exception:{},{}",Jsons.toJson(node),Jsons.toJson(channel));
         } finally {
             // 返还到连接池
             close(jedis);
@@ -527,6 +528,102 @@ public class RedisUtil {
     }
 
     /*********************
-     * pubsub redis end
+     * set redis start
      ********************************/
+    /**
+     * @param nodeList
+     * @param key
+     * @param value
+     * @param time     seconds
+     */
+    public static void sAdd(List<RedisNode> nodeList, String key, String value) {
+        for (RedisNode node : nodeList) {
+            Jedis jedis = null;
+            try {
+                jedis = getClient(node);
+                jedis.sadd(key, value);
+            } catch (Exception e) {
+            	LoggerManage.execption(LogType.REDIS, e, "redis sadd exception:{},{},{}",key,value,node);
+            } finally {
+                // 返还到连接池
+                close(jedis);
+            }
+        }
+    }
+    
+    /**
+     * @param node  返回个数
+     * @param key
+     * @param clazz
+     * @return
+     */
+	public static Long sCard(RedisNode node, String key) {
+
+        Long value = null;
+        Jedis jedis = null;
+        try {
+            jedis = getClient(node);
+            value = jedis.scard(key);
+        } catch (Exception e) {
+        	LoggerManage.execption(LogType.REDIS, e, "redis scard exception:{},{}",key,node);
+        } finally {
+            // 返还到连接池
+            close(jedis);
+        }
+        return value;
+    }
+	
+    public static void sRem(List<RedisNode> nodeList, String key,String value) {
+
+        for (RedisNode node : nodeList) {
+            Jedis jedis = null;
+            try {
+                jedis = getClient(node);
+                jedis.srem(key, value);
+            } catch (Exception e) {
+            	LoggerManage.execption(LogType.REDIS, e, "redis srem exception:{},{},{}",key,value,node);
+            } finally {
+                // 返还到连接池
+                close(jedis);
+            }
+        }
+
+    }
+    
+    /**
+     * 默认使用每页10个
+     *
+     * @param node
+     * @param key
+     * @param clazz
+     * @param fields
+     * @return
+     */
+    public static <T> List<T> sScan(RedisNode node, String key, Class<T> clazz, int start) {
+
+        List<String> value = null;
+        Jedis jedis = null;
+        try {
+            jedis = getClient(node);
+            ScanResult<String> sscanResult = jedis.sscan(key, start+"");
+            if(sscanResult!=null&&sscanResult.getResult()!=null){
+            	value = sscanResult.getResult();
+            }
+        } catch (Exception e) {
+        	LoggerManage.execption(LogType.REDIS, e, "redis hmget exception:{},{},{}",key,start,node);
+        } finally {
+            // 返还到连接池
+            close(jedis);
+        }
+        if (value != null) {
+            List<T> newValue = Lists.newArrayList();
+            for (String temp : value) {
+                newValue.add(Jsons.fromJson(temp, clazz));
+            }
+            return newValue;
+        }
+        return null;
+
+    }
+    
 }

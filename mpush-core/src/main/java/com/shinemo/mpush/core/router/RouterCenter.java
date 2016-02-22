@@ -5,9 +5,11 @@ import com.shinemo.mpush.api.event.RouterChangeEvent;
 import com.shinemo.mpush.api.router.Router;
 import com.shinemo.mpush.api.router.ClientLocation;
 import com.shinemo.mpush.common.EventBus;
+import com.shinemo.mpush.common.manage.user.UserManager;
 import com.shinemo.mpush.common.router.RemoteRouter;
 import com.shinemo.mpush.common.router.RemoteRouterManager;
 import com.shinemo.mpush.tools.MPushUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +23,8 @@ public final class RouterCenter {
     private final LocalRouterManager localRouterManager = new LocalRouterManager();
     private final RemoteRouterManager remoteRouterManager = new RemoteRouterManager();
     private final RouterChangeListener routerChangeListener = new RouterChangeListener();
+    private final UserManager userManager = new UserManager();
+    
 
     /**
      * 注册用户和链接
@@ -42,6 +46,8 @@ public final class RouterCenter {
         try {
             oldLocalRouter = localRouterManager.register(userId, localRouter);
             oldRemoteRouter = remoteRouterManager.register(userId, remoteRouter);
+            userManager.userOnline(userId);
+            
         } catch (Exception e) {
             LOGGER.error("register router ex, userId={}, connection={}", userId, connection, e);
         }
@@ -61,6 +67,7 @@ public final class RouterCenter {
     public boolean unRegister(String userId) {
         localRouterManager.unRegister(userId);
         remoteRouterManager.unRegister(userId);
+        userManager.userOffline(userId);
         return true;
     }
 
