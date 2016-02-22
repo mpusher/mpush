@@ -52,7 +52,10 @@ public  class NettyClient implements Client {
 		if (!StringUtils.isBlank(cause) && !"null".equals(cause.trim())) {
 			log.error("close channel:"+cause);
 		}
-		this.channel.close();
+		if(this.channel!=null){
+			this.channel.close();
+		}
+
 	}
 
 	@Override
@@ -98,7 +101,7 @@ public  class NettyClient implements Client {
 	
 	@Override
 	public void stop(){
-		
+		this.close("stop");
 	}
 
 	@Override
