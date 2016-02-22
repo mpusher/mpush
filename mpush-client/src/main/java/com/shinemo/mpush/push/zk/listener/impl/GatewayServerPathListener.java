@@ -1,8 +1,8 @@
 package com.shinemo.mpush.push.zk.listener.impl;
 
-import com.shinemo.mpush.common.app.impl.GatewayServerApplication;
 import com.shinemo.mpush.common.manage.ServerManage;
 import com.shinemo.mpush.common.zk.listener.AbstractDataChangeListener;
+import com.shinemo.mpush.conn.client.GatewayServerApplication;
 import com.shinemo.mpush.tools.spi.ServiceContainer;
 import com.shinemo.mpush.tools.zk.ZKPath;
 

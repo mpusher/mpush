@@ -18,6 +18,10 @@
             <artifactId>mpush-netty</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.shinemo.mpush</groupId>
+            <artifactId>mpush-client</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
         </dependency>

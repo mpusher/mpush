@@ -1,4 +1,4 @@
-package com.shinemo.mpush.core.client;
+package com.shinemo.mpush.conn.client;
 
 
 import java.util.Map;
