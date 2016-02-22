@@ -34,6 +34,7 @@ public class GatewayServerManage implements ServerManage<GatewayServerApplicatio
 		try{
 			Client client = new NettyClient(application.getIp(), application.getPort());
 			ClientChannelHandler handler = new ClientChannelHandler(client);
+			Thread.sleep(30);
 			NettyClientFactory.INSTANCE.create(handler);
 			application2Client.put(application, client);
 			ip2Client.put(application.getIp(), client);
