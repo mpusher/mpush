@@ -1,15 +1,12 @@
 package com.shinemo.mpush.core.handler;
 
 import com.google.common.base.Strings;
-import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.connection.SessionContext;
 import com.shinemo.mpush.api.event.HandshakeEvent;
-import com.shinemo.mpush.api.exception.CryptoException;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.common.EventBus;
 import com.shinemo.mpush.common.handler.BaseMessageHandler;
-import com.shinemo.mpush.common.message.BindUserMessage;
 import com.shinemo.mpush.common.message.ErrorMessage;
 import com.shinemo.mpush.common.message.HandshakeMessage;
 import com.shinemo.mpush.common.message.HandshakeOkMessage;
@@ -48,14 +45,14 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
                 || iv.length != CipherBox.INSTANCE.getAesKeyLength()
                 || clientKey.length != CipherBox.INSTANCE.getAesKeyLength()) {
             ErrorMessage.from(message).setReason("Param invalid").close();
-            LoggerManage.log(LogType.CONNECTION, "client handshake false:%s", message.getConnection());
+            LoggerManage.log(LogType.CONNECTION, "client handshake false:{}", message.getConnection());
             return;
         }
 
         //2.重复握手判断
         SessionContext context = message.getConnection().getSessionContext();
         if (message.deviceId.equals(context.deviceId)) {
-            LoggerManage.log(LogType.CONNECTION, "client handshake false for repeat handshake:%s", message.getConnection().getSessionContext());
+            LoggerManage.log(LogType.CONNECTION, "client handshake false for repeat handshake:{}", message.getConnection().getSessionContext());
             return;
         }
 
@@ -94,6 +91,6 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
 
         //10.触发握手成功事件
         EventBus.INSTANCE.post(new HandshakeEvent(message.getConnection(), heartbeat));
-        LoggerManage.log(LogType.CONNECTION, "client handshake success:%s", context);
+        LoggerManage.log(LogType.CONNECTION, "client handshake success:{}", context);
     }
 }

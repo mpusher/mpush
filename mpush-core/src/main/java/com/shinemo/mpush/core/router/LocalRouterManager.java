@@ -32,6 +32,8 @@ public final class LocalRouterManager extends AbstractEventContainer implements 
     public LocalRouter register(String userId, LocalRouter router) {
         LOGGER.info("register local router success userId={}, router={}", userId, router);
         connIdUserIds.put(router.getRouteValue().getId(), userId);
+        
+        //add online userId
         return routers.put(userId, router);
     }
 

@@ -228,4 +228,28 @@ public class RedisManage {
 
         RedisUtil.subscribe(set, pubsub, channels);
     }
+    
+    public static <T> void sAdd(String key, T value) {
+    	 String jsonValue = Jsons.toJson(value);
+    	 List<RedisNode> nodeList = redisRegister.hashSet(key);
+         RedisUtil.sAdd(nodeList, key, jsonValue);
+    }
+    
+    public static Long sCard(String key) {
+    	RedisNode node = redisRegister.randomGetRedisNode(key);
+        return RedisUtil.sCard(node, key);
+    }
+    
+    public static <T> void sRem(String key, T value) {
+   	    String jsonValue = Jsons.toJson(value);
+   	    List<RedisNode> nodeList = redisRegister.hashSet(key);
+        RedisUtil.sRem(nodeList, key, jsonValue);
+    }
+    
+    public static <T> List<T> sScan(String key,int start, Class<T> clazz) {
+    	RedisNode node = redisRegister.randomGetRedisNode(key);
+        return RedisUtil.sScan(node, key, clazz, start);
+    }
+    
+    
 }

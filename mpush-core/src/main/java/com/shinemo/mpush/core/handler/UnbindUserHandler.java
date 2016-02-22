@@ -26,7 +26,7 @@ public final class UnbindUserHandler extends BaseMessageHandler<BindUserMessage>
     public void handle(BindUserMessage message) {
         if (Strings.isNullOrEmpty(message.userId)) {
             ErrorMessage.from(message).setReason("invalid param").close();
-            LoggerManage.info(LogType.CONNECTION, "unbind user failure invalid param, session=%s", message.getConnection().getSessionContext());
+            LoggerManage.info(LogType.CONNECTION, "unbind user failure invalid param, session={}", message.getConnection().getSessionContext());
             return;
         }
         //1.绑定用户时先看下是否握手成功
@@ -36,14 +36,14 @@ public final class UnbindUserHandler extends BaseMessageHandler<BindUserMessage>
             boolean success = RouterCenter.INSTANCE.unRegister(message.userId);
             if (success) {
                 OkMessage.from(message).setData("unbind success").send();
-                LoggerManage.info(LogType.CONNECTION, "unbind user success, userId=%s, session=%s", message.userId, context);
+                LoggerManage.info(LogType.CONNECTION, "unbind user success, userId={}, session={}", message.userId, context);
             } else {
                 ErrorMessage.from(message).setReason("unbind failed").close();
-                LoggerManage.info(LogType.CONNECTION, "unbind user failure, register router failure, userId=%s, session=%s", message.userId, context);
+                LoggerManage.info(LogType.CONNECTION, "unbind user failure, register router failure, userId={}, session={}", message.userId, context);
             }
         } else {
             ErrorMessage.from(message).setReason("not handshake").close();
-            LoggerManage.info(LogType.CONNECTION, "unbind user failure not handshake, userId=%s, session=%s", message.userId, context);
+            LoggerManage.info(LogType.CONNECTION, "unbind user failure not handshake, userId={}, session={}", message.userId, context);
         }
     }
 }
