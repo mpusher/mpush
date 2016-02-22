@@ -20,7 +20,7 @@ public final class RouterCenter {
     public static final Logger LOGGER = LoggerFactory.getLogger(RouterCenter.class);
     public static final RouterCenter INSTANCE = new RouterCenter();
 
-    private final LocalRouterManager localRouterManager = new LocalRouterManager();
+    private final LocalRouterManager localRouterManager = new LocalRouterManager(this);
     private final RemoteRouterManager remoteRouterManager = new RemoteRouterManager();
     private final RouterChangeListener routerChangeListener = new RouterChangeListener();
     private final UserManager userManager = new UserManager();
@@ -89,5 +89,9 @@ public final class RouterCenter {
 
     public RouterChangeListener getRouterChangeListener() {
         return routerChangeListener;
+    }
+    
+    public UserManager getUserManager(){
+    	return userManager;
     }
 }

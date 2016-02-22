@@ -16,6 +16,7 @@ import com.shinemo.mpush.tools.Jsons;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
 
 public class RedisUtil {
@@ -605,12 +606,12 @@ public class RedisUtil {
         Jedis jedis = null;
         try {
             jedis = getClient(node);
-            ScanResult<String> sscanResult = jedis.sscan(key, start+"");
+            ScanResult<String> sscanResult = jedis.sscan(key, start+"",new ScanParams().count(10));
             if(sscanResult!=null&&sscanResult.getResult()!=null){
             	value = sscanResult.getResult();
             }
         } catch (Exception e) {
-        	LoggerManage.execption(LogType.REDIS, e, "redis hmget exception:{},{},{}",key,start,node);
+        	LoggerManage.execption(LogType.REDIS, e, "redis sscan exception:{},{},{}",key,start,node);
         } finally {
             // 返还到连接池
             close(jedis);
