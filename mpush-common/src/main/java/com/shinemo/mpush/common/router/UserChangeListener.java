@@ -10,7 +10,7 @@ import com.shinemo.mpush.tools.redis.manage.RedisManage;
 /**
  * Created by ohun on 2016/1/4.
  */
-public final class UserChangeListener extends AbstractEventContainer implements MessageListener {
+public class UserChangeListener extends AbstractEventContainer implements MessageListener {
     public static final String ONLINE_CHANNEL = "/mpush/online/";
     
     public static final String OFFLINE_CHANNEL = "/mpush/offline/";
@@ -19,6 +19,7 @@ public final class UserChangeListener extends AbstractEventContainer implements 
     public UserChangeListener() {
     	if(ConfigCenter.holder.onlineAndOfflineListenerIp().equals(MPushUtil.getLocalIp())){
     		ListenerDispatcher.INSTANCE.subscribe(getOnlineChannel(), this);
+    		ListenerDispatcher.INSTANCE.subscribe(getOfflineChannel(), this);
     	}
     }
 
@@ -40,15 +41,5 @@ public final class UserChangeListener extends AbstractEventContainer implements 
 
     @Override
     public void onMessage(String channel, String message) {
-//        if (getKickChannel().equals(channel)) {
-//            KickRemoteMsg msg = Jsons.fromJson(message, KickRemoteMsg.class);
-//            if (msg != null) {
-//                onReceiveKickRemoteMsg(msg);
-//            } else {
-//            	LoggerManage.info(LogType.CONNECTION, "receive an error kick message=%s", message);
-//            }
-//        } else {
-//        	LoggerManage.info(LogType.CONNECTION, "receive an error redis channel=%s",channel);
-//        }
     }
 }
