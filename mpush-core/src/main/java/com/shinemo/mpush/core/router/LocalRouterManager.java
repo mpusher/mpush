@@ -18,6 +18,12 @@ import java.util.Map;
 public final class LocalRouterManager extends AbstractEventContainer implements RouterManager<LocalRouter> {
     public static final Logger LOGGER = LoggerFactory.getLogger(LocalRouterManager.class);
 
+    private RouterCenter center;
+    
+    public LocalRouterManager(RouterCenter center) {
+    	this.center = center;
+	}
+    
     /**
      * 本地路由表
      */
@@ -66,7 +72,10 @@ public final class LocalRouterManager extends AbstractEventContainer implements 
         //1.清除反向关系
         String userId = connIdUserIds.remove(id);
         if (userId == null) return;
-
+        
+        //TODO 用户下线。可能会出现问题。用户会先上线，然后老的链接下线的。
+        center.getUserManager().userOffline(userId);
+        
         LocalRouter router = routers.get(userId);
         if (router == null) return;
 
