@@ -138,11 +138,15 @@ public abstract class NettyServer implements Server {
                     }
                 }
             });
-            serverState.set(State.Started);
-            /**
-             * 这里会一直等待，直到socket被关闭
-             */
-            f.channel().closeFuture().sync();
+            f.await();
+            if (f.isSuccess()) {
+            	serverState.set(State.Started);
+                /**
+                 * 这里会一直等待，直到socket被关闭
+                 */
+                f.channel().closeFuture().sync();
+            }
+
         } catch (Exception e) {
             LOGGER.error("server start exception", e);
             if (listener != null) listener.onFailure("start server ex=" + e.getMessage());
