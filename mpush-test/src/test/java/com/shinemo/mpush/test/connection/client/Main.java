@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.concurrent.locks.LockSupport;
 
 import com.shinemo.mpush.common.security.CipherBox;
-import com.shinemo.mpush.core.client.ClientChannelHandler;
+import com.shinemo.mpush.conn.client.ClientChannelHandler;
 import com.shinemo.mpush.cs.ConnectionServerApplication;
 import com.shinemo.mpush.netty.client.NettyClientFactory;
 import com.shinemo.mpush.netty.client.SecurityNettyClient;

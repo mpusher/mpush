@@ -1,7 +1,7 @@
 package com.shinemo.mpush.cs;
 
 import com.shinemo.mpush.common.app.Application;
-import com.shinemo.mpush.common.app.impl.GatewayServerApplication;
+import com.shinemo.mpush.conn.client.GatewayServerApplication;
 import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.zk.ZKPath;

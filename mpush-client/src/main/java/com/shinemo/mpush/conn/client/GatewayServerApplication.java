@@ -1,4 +1,4 @@
-package com.shinemo.mpush.common.app.impl;
+package com.shinemo.mpush.conn.client;
 
 import com.shinemo.mpush.common.app.Application;
 import com.shinemo.mpush.tools.MPushUtil;
