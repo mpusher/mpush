@@ -5,7 +5,6 @@ import com.shinemo.mpush.api.event.RouterChangeEvent;
 import com.shinemo.mpush.api.router.Router;
 import com.shinemo.mpush.api.router.ClientLocation;
 import com.shinemo.mpush.common.EventBus;
-import com.shinemo.mpush.common.manage.user.UserManager;
 import com.shinemo.mpush.common.router.RemoteRouter;
 import com.shinemo.mpush.common.router.RemoteRouterManager;
 import com.shinemo.mpush.tools.MPushUtil;
