@@ -29,7 +29,7 @@ public final class UserManager extends com.shinemo.mpush.common.manage.user.User
     	if(event.getUserId()==null){//链接超时
     		String userId = RouterCenter.INSTANCE.getLocalRouterManager().getUserIdByConnId(event.getConnection().getId());
     		if(StringUtils.isNotBlank(userId)){
-    			userOffline(event.getUserId());
+    			userOffline(userId);
     		}
     	}else{ //解绑用户
     		userOffline(event.getUserId());
