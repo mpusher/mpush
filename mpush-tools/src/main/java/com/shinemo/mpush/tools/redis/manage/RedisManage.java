@@ -210,6 +210,12 @@ public class RedisManage {
         RedisNode node = redisRegister.randomGetRedisNode(key);
         return RedisUtil.llen(node, key);
     }
+    
+    public static <T> void lrem(String key, T value) {
+   	    String jsonValue = Jsons.toJson(value);
+   	    List<RedisNode> nodeList = redisRegister.hashSet(key);
+        RedisUtil.lRem(nodeList, key, jsonValue);
+    }
 
     public static <T> void publish(String channel, T message) {
 

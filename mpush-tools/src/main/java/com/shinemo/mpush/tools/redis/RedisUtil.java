@@ -479,6 +479,29 @@ public class RedisUtil {
         }
         return len;
     }
+    
+    /**
+     * 移除表中所有与 value 相等的值
+     * @param nodeList
+     * @param key
+     * @param value
+     */
+    public static void lRem(List<RedisNode> nodeList, String key,String value) {
+
+        for (RedisNode node : nodeList) {
+            Jedis jedis = null;
+            try {
+                jedis = getClient(node);
+                jedis.lrem(key, 0, value);
+            } catch (Exception e) {
+            	LoggerManage.execption(LogType.REDIS, e, "redis lrem exception:{},{},{}",key,value,node);
+            } finally {
+                // 返还到连接池
+                close(jedis);
+            }
+        }
+
+    }
 
     /********************* list redis end ********************************/
 
