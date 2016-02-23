@@ -10,39 +10,45 @@ public class UserManager {
 	
 	public void userOnline(String userId) {
     	String onlineKey = RedisKey.getUserOnlineKey();
-    	RedisManage.sAdd(onlineKey, userId);
+    	RedisManage.rpush(onlineKey, userId);
     	String offlineKey = RedisKey.getUserOfflineKey();
-    	RedisManage.sRem(offlineKey, userId);
+    	RedisManage.lrem(offlineKey, userId);
     }
 
     public void userOffline(String userId) {
         String onlineKey = RedisKey.getUserOnlineKey();
-    	RedisManage.sRem(onlineKey, userId);
+    	RedisManage.lrem(onlineKey, userId);
     	String offlineKey = RedisKey.getUserOfflineKey();
-    	RedisManage.sAdd(offlineKey, userId);
+    	RedisManage.rpush(offlineKey, userId);
     }
     
     //在线用户
     public long onlineUserNum(){
     	String onlineKey = RedisKey.getUserOnlineKey();
-    	return RedisManage.sCard(onlineKey);
+    	return RedisManage.llen(onlineKey);
     }
     //离线用户
     public long offlineUserNum(){
     	String offlineKey = RedisKey.getUserOfflineKey();
-    	return RedisManage.sCard(offlineKey);
+    	return RedisManage.llen(offlineKey);
     }
     
     //在线用户列表
-    public List<String> onlineUserList(int start){
+    public List<String> onlineUserList(int start,int size){
+    	if(size<=10){
+    		size = 10;
+    	}
     	String onlineKey = RedisKey.getUserOnlineKey();
-    	return RedisManage.sScan(onlineKey, start, String.class);
+    	return RedisManage.lrange(onlineKey, start, size-1, String.class);
     }
     
     //离线用户
-    public List<String> offlineUserList(int start){
+    public List<String> offlineUserList(int start,int size){
+    	if(size<=10){
+    		size = 10;
+    	}
     	String offlineKey = RedisKey.getUserOfflineKey();
-    	return RedisManage.sScan(offlineKey, start, String.class);
+    	return RedisManage.lrange(offlineKey, start, size-1, String.class);
     }
 	
 }

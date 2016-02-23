@@ -9,6 +9,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.shinemo.mpush.api.RedisKey;
 import com.shinemo.mpush.tools.redis.RedisNode;
 import com.shinemo.mpush.tools.redis.RedisUtil;
 
@@ -18,14 +19,13 @@ public class RedisUtilTest {
 
 	
 	
-	RedisNode node = new RedisNode("127.0.0.1", 6379, "ShineMoIpo");
-	RedisNode node2 = new RedisNode("127.0.0.1", 6380, "ShineMoIpo");
+	RedisNode node = new RedisNode("127.0.0.1", 6379, "shinemoIpo");
 
-	List<RedisNode> nodeList = Lists.newArrayList(node, node2);
+	List<RedisNode> nodeList = Lists.newArrayList(node);
 
 	@Test
 	public void testAddAndGetAndDelete() {
-		Jedis jedis = RedisUtil.getClient(node2);
+		Jedis jedis = RedisUtil.getClient(node);
 		jedis.set("hi", "huang");
 
 		String ret = jedis.get("hi");
@@ -92,12 +92,12 @@ public class RedisUtilTest {
 		User nowUser = RedisUtil.get(node, "test", User.class);
 		System.out.println("node1:" + ToStringBuilder.reflectionToString(nowUser));
 
-		nowUser = RedisUtil.get(node2, "test", User.class);
+		nowUser = RedisUtil.get(node, "test", User.class);
 		System.out.println("node2:" + ToStringBuilder.reflectionToString(nowUser));
 
 		RedisUtil.del(nodeList, "test");
 
-		nowUser = RedisUtil.get(node2, "test", User.class);
+		nowUser = RedisUtil.get(node, "test", User.class);
 		if (nowUser == null) {
 			System.out.println("node2 nowUser is null");
 		} else {
@@ -119,7 +119,7 @@ public class RedisUtilTest {
 			e.printStackTrace();
 		}
 
-		nowUser = RedisUtil.get(node2, "test", User.class);
+		nowUser = RedisUtil.get(node, "test", User.class);
 		if (nowUser == null) {
 			System.out.println("node2 nowUser is null");
 		} else {
@@ -145,7 +145,7 @@ public class RedisUtilTest {
 		User nowUser = RedisUtil.hget(node, "hashhuang", "hi", User.class);
 		System.out.println("node1:"+ToStringBuilder.reflectionToString(nowUser));
 		
-		nowUser = RedisUtil.hget(node2, "hashhuang", "hi", User.class);
+		nowUser = RedisUtil.hget(node, "hashhuang", "hi", User.class);
 		System.out.println("node2:"+ToStringBuilder.reflectionToString(nowUser));
 		
 		Map<String, User> ret = RedisUtil.hgetAll(node, "hashhuang",User.class);
@@ -159,7 +159,7 @@ public class RedisUtilTest {
 		
 		RedisUtil.hdel(nodeList, "hashhuang", "hi");
 		
-		nowUser = RedisUtil.hget(node2, "hashhuang", "hi", User.class);
+		nowUser = RedisUtil.hget(node, "hashhuang", "hi", User.class);
 		if(nowUser==null){
 			System.out.println("node2 nowUser is null");
 		}else{
@@ -172,6 +172,20 @@ public class RedisUtilTest {
 		}else{
 			System.out.println("node:"+ToStringBuilder.reflectionToString(nowUser));
 		}
+		
+	}
+	
+	@Test
+	public void testSet(){
+		System.out.println(RedisUtil.sCard(node, RedisKey.getUserOnlineKey()));
+		
+		List<String> onlineUserIdList = RedisUtil.sScan(node, RedisKey.getUserOnlineKey(), String.class, 0);
+		System.out.println(onlineUserIdList.size());
+		
+	}
+	
+	@Test
+	public void testlist(){
 		
 	}
 
