@@ -1,5 +1,8 @@
 package com.shinemo.mpush.common.router;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.shinemo.mpush.common.AbstractEventContainer;
 import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.config.ConfigCenter;
@@ -11,6 +14,9 @@ import com.shinemo.mpush.tools.redis.manage.RedisManage;
  * Created by ohun on 2016/1/4.
  */
 public class UserChangeListener extends AbstractEventContainer implements MessageListener {
+	
+	private static final Logger log = LoggerFactory.getLogger(UserChangeListener.class);
+	
     public static final String ONLINE_CHANNEL = "/mpush/online/";
     
     public static final String OFFLINE_CHANNEL = "/mpush/offline/";
@@ -20,6 +26,8 @@ public class UserChangeListener extends AbstractEventContainer implements Messag
     	if(ConfigCenter.holder.onlineAndOfflineListenerIp().equals(MPushUtil.getLocalIp())){
     		ListenerDispatcher.INSTANCE.subscribe(getOnlineChannel(), this);
     		ListenerDispatcher.INSTANCE.subscribe(getOfflineChannel(), this);
+    	}else{
+    		log.error("UserChangeListener is not localhost,required:{},but:{}",ConfigCenter.holder.onlineAndOfflineListenerIp(),MPushUtil.getLocalIp());
     	}
     }
 
