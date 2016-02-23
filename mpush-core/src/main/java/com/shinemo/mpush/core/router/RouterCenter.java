@@ -20,7 +20,7 @@ public final class RouterCenter {
     public static final Logger LOGGER = LoggerFactory.getLogger(RouterCenter.class);
     public static final RouterCenter INSTANCE = new RouterCenter();
 
-    private final LocalRouterManager localRouterManager = new LocalRouterManager(this);
+    private final LocalRouterManager localRouterManager = new LocalRouterManager();
     private final RemoteRouterManager remoteRouterManager = new RemoteRouterManager();
     private final RouterChangeListener routerChangeListener = new RouterChangeListener();
     private final UserManager userManager = new UserManager();
@@ -46,7 +46,6 @@ public final class RouterCenter {
         try {
             oldLocalRouter = localRouterManager.register(userId, localRouter);
             oldRemoteRouter = remoteRouterManager.register(userId, remoteRouter);
-            userManager.userOnline(userId);
             
         } catch (Exception e) {
             LOGGER.error("register router ex, userId={}, connection={}", userId, connection, e);
@@ -67,7 +66,6 @@ public final class RouterCenter {
     public boolean unRegister(String userId) {
         localRouterManager.unRegister(userId);
         remoteRouterManager.unRegister(userId);
-        userManager.userOffline(userId);
         return true;
     }
 

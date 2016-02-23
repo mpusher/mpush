@@ -34,6 +34,7 @@ public class UserManager {
     	String onlineKey = RedisKey.getUserOnlineKey();
     	return RedisManage.zCard(onlineKey);
     }
+    
     //离线用户
     public long offlineUserNum(){
     	String offlineKey = RedisKey.getUserOfflineKey();
