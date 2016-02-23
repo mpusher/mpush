@@ -15,7 +15,7 @@ public abstract class DataChangeListener implements TreeCacheListener{
         if (path.isEmpty()) {
             return;
         }
-        LoggerManage.log(LogType.ZK, "DataChangeListener:%s,%s,namespace:%s", path,listenerPath(),client.getNamespace());
+        LoggerManage.log(LogType.ZK, "DataChangeListener:{},{},namespace:{}", path,listenerPath(),client.getNamespace());
         if(path.startsWith(listenerPath())){
             dataChanged(client, event, path);
         }
