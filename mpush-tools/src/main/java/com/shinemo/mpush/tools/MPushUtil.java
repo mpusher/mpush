@@ -60,6 +60,28 @@ public final class MPushUtil {
             return "127.0.0.1";
         }
     }
+    
+    public static String getExtranetAddress() throws Exception{
+    	 try {
+             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+             InetAddress address = null;
+             while (interfaces.hasMoreElements()) {
+                 NetworkInterface ni = interfaces.nextElement();
+                 Enumeration<InetAddress> addresses = ni.getInetAddresses();
+                 while (addresses.hasMoreElements()) {
+                     address = addresses.nextElement();
+                     if(!address.isSiteLocalAddress()){
+                    	 return address.getHostAddress();
+                     }
+                 }
+             }
+             LOGGER.warn("getExtranetAddress is null");
+             return null;
+         } catch (Throwable e) {
+             LOGGER.error("getExtranetAddress exception", e);
+             throw new Exception(e);
+         }
+    }
 
     public static String headerToString(Map<String, String> headers) {
         if (headers != null && headers.size() > 0) {
