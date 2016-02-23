@@ -1,4 +1,4 @@
-package com.shinemo.mpush.cs.manage.impl;
+package com.shinemo.mpush.push.manage.impl;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.shinemo.mpush.common.manage.ServerManage;
-import com.shinemo.mpush.cs.ConnectionServerApplication;
+import com.shinemo.mpush.conn.client.ConnectionServerApplication;
 
 public class ConnectionServerManage implements ServerManage<ConnectionServerApplication>{
 

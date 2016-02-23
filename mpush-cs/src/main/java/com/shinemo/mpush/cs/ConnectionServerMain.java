@@ -4,6 +4,7 @@ package com.shinemo.mpush.cs;
 
 import com.shinemo.mpush.api.Server;
 import com.shinemo.mpush.common.AbstractServer;
+import com.shinemo.mpush.conn.client.ConnectionServerApplication;
 import com.shinemo.mpush.conn.client.GatewayServerApplication;
 import com.shinemo.mpush.core.server.ConnectionServer;
 import com.shinemo.mpush.core.server.GatewayServer;

@@ -2,7 +2,7 @@ package com.shinemo.mpush;
 
 import org.junit.Test;
 
-import com.shinemo.mpush.cs.ConnectionServerApplication;
+import com.shinemo.mpush.conn.client.ConnectionServerApplication;
 import com.shinemo.mpush.tools.Jsons;
 
 public class ConnectionServerApplicationTest {
