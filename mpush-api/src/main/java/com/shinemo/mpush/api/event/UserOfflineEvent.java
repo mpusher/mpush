@@ -3,7 +3,7 @@ package com.shinemo.mpush.api.event;
 import com.shinemo.mpush.api.connection.Connection;
 
 /**
- * 链接超时，用户解绑的时候，才会触发该事件 
+ * 链接超时，用户解绑的时候,用户主动关闭链接，才会触发该事件 
  *
  */
 public final class UserOfflineEvent implements Event {
