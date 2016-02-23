@@ -4,6 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import com.shinemo.mpush.api.event.ConnectionCloseEvent;
 import com.shinemo.mpush.api.router.RouterManager;
 import com.shinemo.mpush.common.AbstractEventContainer;
+import com.shinemo.mpush.common.router.RemoteRouter;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 
@@ -73,8 +74,11 @@ public final class LocalRouterManager extends AbstractEventContainer implements 
         String userId = connIdUserIds.remove(id);
         if (userId == null) return;
         
-        //TODO 用户下线。可能会出现问题。用户会先上线，然后老的链接下线的。
-        center.getUserManager().userOffline(userId);
+        // 用户下线。可能会出现问题。用户会先上线，然后老的链接下线的。所以，如果远程不存在，则该用户肯定下线。
+        RemoteRouter remoteRouter = center.getRemoteRouterManager().lookup(userId);
+        if(remoteRouter==null){
+        	center.getUserManager().userOffline(userId);
+        }
         
         LocalRouter router = routers.get(userId);
         if (router == null) return;

@@ -188,5 +188,13 @@ public class RedisUtilTest {
 	public void testlist(){
 		RedisUtil.del(nodeList, RedisKey.getUserOfflineKey());
 	}
+	
+	@Test
+	public void testsortedset(){
+		RedisUtil.zAdd(nodeList, RedisKey.getUserOnlineKey(), "doctor1test");
+		
+		long len =RedisUtil.zCard(node, RedisKey.getUserOnlineKey());
+		System.out.println(len);
+	}
 
 }
