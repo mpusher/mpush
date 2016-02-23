@@ -257,5 +257,26 @@ public class RedisManage {
         return RedisUtil.sScan(node, key, clazz, start);
     }
     
+    public static <T> void zAdd(String key, T value) {
+   	 	String jsonValue = Jsons.toJson(value);
+   	 	List<RedisNode> nodeList = redisRegister.hashSet(key);
+        RedisUtil.zAdd(nodeList, key, jsonValue);
+   }
+   
+   public static Long zCard(String key) {
+   		RedisNode node = redisRegister.randomGetRedisNode(key);
+        return RedisUtil.zCard(node, key);
+   }
+   
+   public static <T> void zRem(String key, T value) {
+  	    String jsonValue = Jsons.toJson(value);
+  	    List<RedisNode> nodeList = redisRegister.hashSet(key);
+        RedisUtil.zRem(nodeList, key, jsonValue);
+   }
+    
+   public static <T> List<T> zrange(String key, int start, int end, Class<T> clazz) {
+       RedisNode node = redisRegister.randomGetRedisNode(key);
+       return RedisUtil.zrange(node, key, start, end, clazz);
+   }
     
 }

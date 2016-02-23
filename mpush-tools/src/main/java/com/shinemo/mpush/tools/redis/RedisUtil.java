@@ -650,4 +650,94 @@ public class RedisUtil {
 
     }
     
+    /*********************
+     * sorted set
+     ********************************/
+    /**
+     * @param nodeList
+     * @param key
+     * @param value
+     * @param time     seconds
+     */
+    public static void zAdd(List<RedisNode> nodeList, String key, String value) {
+        for (RedisNode node : nodeList) {
+            Jedis jedis = null;
+            try {
+                jedis = getClient(node);
+                jedis.zadd(key, 0, value);
+            } catch (Exception e) {
+            	LoggerManage.execption(LogType.REDIS, e, "redis zadd exception:{},{},{}",key,value,node);
+            } finally {
+                // 返还到连接池
+                close(jedis);
+            }
+        }
+    }
+    
+    /**
+     * @param node  返回个数
+     * @param key
+     * @param clazz
+     * @return
+     */
+	public static Long zCard(RedisNode node, String key) {
+
+        Long value = null;
+        Jedis jedis = null;
+        try {
+            jedis = getClient(node);
+            value = jedis.zcard(key);
+        } catch (Exception e) {
+        	LoggerManage.execption(LogType.REDIS, e, "redis zcard exception:{},{}",key,node);
+        } finally {
+            // 返还到连接池
+            close(jedis);
+        }
+        return value;
+    }
+	
+    public static void zRem(List<RedisNode> nodeList, String key,String value) {
+
+        for (RedisNode node : nodeList) {
+            Jedis jedis = null;
+            try {
+                jedis = getClient(node);
+                jedis.zrem(key, value);
+            } catch (Exception e) {
+            	LoggerManage.execption(LogType.REDIS, e, "redis srem exception:{},{},{}",key,value,node);
+            } finally {
+                // 返还到连接池
+                close(jedis);
+            }
+        }
+
+    }
+    
+    /**
+     * 从列表中获取指定返回的元素 start 和 end
+     * 偏移量都是基于0的下标，即list的第一个元素下标是0（list的表头），第二个元素下标是1，以此类推。
+     * 偏移量也可以是负数，表示偏移量是从list尾部开始计数。 例如， -1 表示列表的最后一个元素，-2 是倒数第二个，以此类推。
+     */
+    public static <T> List<T> zrange(RedisNode node, String key, int start, int end, Class<T> clazz) {
+        Set<String> value = null;
+        Jedis jedis = null;
+        try {
+            jedis = getClient(node);
+            value = jedis.zrange(key, start, end);
+        } catch (Exception e) {
+        	LoggerManage.execption(LogType.REDIS, e, "redis zrange exception:{},{},{},{}",key,start,end,node);
+        } finally {
+            // 返还到连接池
+            close(jedis);
+        }
+        if (value != null) {
+            List<T> newValue = Lists.newArrayList();
+            for (String temp : value) {
+                newValue.add(Jsons.fromJson(temp, clazz));
+            }
+            return newValue;
+        }
+        return null;
+    }
+    
 }
