@@ -186,7 +186,7 @@ public class RedisUtilTest {
 	
 	@Test
 	public void testlist(){
-		
+		RedisUtil.del(nodeList, RedisKey.getUserOfflineKey());
 	}
 
 }

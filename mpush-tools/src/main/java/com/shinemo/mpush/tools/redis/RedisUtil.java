@@ -470,7 +470,7 @@ public class RedisUtil {
         Jedis jedis = null;
         try {
             jedis = getClient(node);
-            jedis.llen(key);
+            len = jedis.llen(key);
         } catch (Exception e) {
         	LoggerManage.execption(LogType.REDIS, e, "redis llen exception:{},{}",key,node);
         } finally {
