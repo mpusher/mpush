@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.shinemo.mpush.common.AbstractClient;
-import com.shinemo.mpush.cs.ConnectionServerApplication;
+import com.shinemo.mpush.conn.client.ConnectionServerApplication;
 
 public class ConnectionClientMain extends AbstractClient {
 

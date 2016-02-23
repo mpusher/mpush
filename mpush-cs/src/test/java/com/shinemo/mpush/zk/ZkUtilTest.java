@@ -8,8 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.shinemo.mpush.conn.client.ConnectionServerApplication;
 import com.shinemo.mpush.core.server.ConnectionServer;
-import com.shinemo.mpush.cs.ConnectionServerApplication;
 import com.shinemo.mpush.tools.Constants;
 import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.Jsons;
