@@ -129,6 +129,7 @@ public abstract class AbstractServer<T extends Application> {
 	//step7  注册应用到zk
 	public void registerServerToZk(String path,String value){
         zkRegister.registerEphemeralSequential(path, value);
+        log.error("register server to zk:{},{}",path,value);
 	}
 	
 	public void start(){
