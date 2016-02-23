@@ -19,12 +19,6 @@ import java.util.Map;
 public final class LocalRouterManager extends AbstractEventContainer implements RouterManager<LocalRouter> {
     public static final Logger LOGGER = LoggerFactory.getLogger(LocalRouterManager.class);
 
-    private RouterCenter center;
-    
-    public LocalRouterManager(RouterCenter center) {
-    	this.center = center;
-	}
-    
     /**
      * 本地路由表
      */
@@ -60,6 +54,10 @@ public final class LocalRouterManager extends AbstractEventContainer implements 
         LOGGER.info("lookup local router userId={}, router={}", userId, router);
         return router;
     }
+    
+    public String getUserIdByConnId(String connId){
+    	return connIdUserIds.get(connId);
+    }
 
     /**
      * 监听链接关闭事件，清理失效的路由
@@ -74,20 +72,15 @@ public final class LocalRouterManager extends AbstractEventContainer implements 
         String userId = connIdUserIds.remove(id);
         if (userId == null) return;
         
-        // 用户下线。可能会出现问题。用户会先上线，然后老的链接下线的。所以，如果远程不存在，则该用户肯定下线。
-        RemoteRouter remoteRouter = center.getRemoteRouterManager().lookup(userId);
-        if(remoteRouter==null){
-        	center.getUserManager().userOffline(userId);
-        }
-        
         LocalRouter router = routers.get(userId);
         if (router == null) return;
-
+        
         //2.检测下，是否是同一个链接, 如果客户端重连，老的路由会被新的链接覆盖
         if (id.equals(router.getRouteValue().getId())) {
             //3.删除路由
             routers.remove(userId);
             LOGGER.info("clean disconnected local route, userId={}, route={}", userId, router);
+            
         }else{ //如果不相等，则log一下
         	LOGGER.info("clean disconnected local route, not clean:userId={}, route={}",userId,router);
         }

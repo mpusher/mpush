@@ -3,7 +3,9 @@ package com.shinemo.mpush.core.handler;
 import com.google.common.base.Strings;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.connection.SessionContext;
+import com.shinemo.mpush.api.event.UserOnlineEvent;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.common.EventBus;
 import com.shinemo.mpush.common.handler.BaseMessageHandler;
 import com.shinemo.mpush.common.message.BindUserMessage;
 import com.shinemo.mpush.common.message.ErrorMessage;
@@ -35,6 +37,9 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             //2.如果握手成功，就把用户链接信息注册到路由中心，本地和远程各一份
             boolean success = RouterCenter.INSTANCE.register(message.userId, message.getConnection());
             if (success) {
+            	
+            	EventBus.INSTANCE.post(new UserOnlineEvent( message.getConnection(),message.userId));
+            	
                 OkMessage.from(message).setData("bind success").send();
                 LoggerManage.log(LogType.CONNECTION, "bind user success, userId={}, session={}", message.userId, context);
             } else {
