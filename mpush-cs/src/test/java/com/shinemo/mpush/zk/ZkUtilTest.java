@@ -99,7 +99,7 @@ public class ZkUtilTest {
     }
 
     @Test
-    public void testRegisterIp() {
+    public void testRegisterIp() throws Exception {
         String localIp = MPushUtil.getInetAddress();
         ConnectionServerApplication app = new ConnectionServerApplication();
         zkUtil.registerPersist("/" + localIp, Jsons.toJson(app));

@@ -8,7 +8,7 @@ import com.shinemo.mpush.tools.Jsons;
 public class ConnectionServerApplicationTest {
 	
 	@Test
-	public void testJson(){
+	public void testJson() throws Exception{
 		
 		ConnectionServerApplication application = new ConnectionServerApplication();
 		

@@ -9,7 +9,7 @@ import com.shinemo.mpush.cs.ConnectionServerApplication;
 public class ConnectionClientMain extends AbstractClient {
 
 
-	private static final List<ConnectionServerApplication> applicationLists = Lists.newArrayList(new ConnectionServerApplication(20882,"","111.1.57.148"));
+	private static final List<ConnectionServerApplication> applicationLists = Lists.newArrayList(new ConnectionServerApplication(20882,"","111.1.57.148","111.1.57.148"));
 	
 	public List<ConnectionServerApplication> getApplicationList(){
 		return Lists.newArrayList(applicationLists);
