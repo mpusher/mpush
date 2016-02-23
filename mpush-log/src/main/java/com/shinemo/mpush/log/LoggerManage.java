@@ -68,7 +68,6 @@ public class LoggerManage {
 	 * @param arguments
 	 */
 	public static void log(LogType type,LogLevel level,Throwable ex,String format,Object... arguments){
-		String ret = String.format(format, arguments);
 		if(level == null){
 			level = LogLevel.WARN;
 		}
@@ -76,30 +75,30 @@ public class LoggerManage {
 		if(ex!=null){
 			if(log!=null){
 				if(level.equals(LogLevel.WARN)){
-					log.warn(ret,ex);
+					log.warn(format,ex);
 				}else if(level.equals(LogLevel.INFO)){
-					log.info(ret,ex);
+					log.info(format,ex);
 				}else if(level.equals(LogLevel.DEBUG)){
-					log.debug(ret,ex);
+					log.debug(format,ex);
 				}else if(level.equals(LogLevel.ERROR)){
-					log.error(ret,ex);
+					log.error(format,ex);
 				}
 			}else{
-				defaultLog.warn(ret,ex);
+				defaultLog.warn(format,ex);
 			}
 		}else{
 			if(log!=null){
 				if(level.equals(LogLevel.WARN)){
-					log.warn(ret);
+					log.warn(format);
 				}else if(level.equals(LogLevel.INFO)){
-					log.info(ret);
+					log.info(format);
 				}else if(level.equals(LogLevel.DEBUG)){
-					log.debug(ret);
+					log.debug(format);
 				}else if(level.equals(LogLevel.ERROR)){
-					log.error(ret);
+					log.error(format);
 				}
 			}else{
-				defaultLog.warn(ret);
+				defaultLog.warn(format);
 			}
 		}
 	}
