@@ -70,7 +70,7 @@ public final class MPushUtil {
                  Enumeration<InetAddress> addresses = ni.getInetAddresses();
                  while (addresses.hasMoreElements()) {
                      address = addresses.nextElement();
-                     if(!address.isSiteLocalAddress()){
+                     if(!address.isLoopbackAddress() && address.getHostAddress().indexOf(":") == -1 && !address.isSiteLocalAddress()){
                     	 return address.getHostAddress();
                      }
                  }
