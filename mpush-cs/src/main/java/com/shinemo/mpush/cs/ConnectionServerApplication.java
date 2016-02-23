@@ -10,8 +10,6 @@ public class ConnectionServerApplication extends Application{
 	
 	private transient GatewayServerApplication gatewayServerApplication;
 	
-	private String extranetIp;
-	
 	public ConnectionServerApplication() throws Exception {
 		this(ConfigCenter.holder.connectionServerPort(),ZKPath.CONNECTION_SERVER.getWatchPath(),MPushUtil.getLocalIp(),MPushUtil.getExtranetAddress());
 	}
@@ -31,12 +29,4 @@ public class ConnectionServerApplication extends Application{
 		this.gatewayServerApplication = gatewayServerApplication;
 	}
 
-	public String getExtranetIp() {
-		return extranetIp;
-	}
-
-	public void setExtranetIp(String extranetIp) {
-		this.extranetIp = extranetIp;
-	}
-	
 }

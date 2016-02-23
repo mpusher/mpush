@@ -12,6 +12,8 @@ public abstract class Application {
 	private int port;
 	
 	private transient String serverRegisterZkPath;
+	
+	private String extranetIp;
 
 	public int getPort() {
 		return port;
@@ -35,6 +37,14 @@ public abstract class Application {
 
 	public void setIp(String ip) {
 		this.ip = ip;
+	}
+
+	public String getExtranetIp() {
+		return extranetIp;
+	}
+
+	public void setExtranetIp(String extranetIp) {
+		this.extranetIp = extranetIp;
 	}
 	
 }
