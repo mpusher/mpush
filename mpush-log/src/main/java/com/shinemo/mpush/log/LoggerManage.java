@@ -75,30 +75,30 @@ public class LoggerManage {
 		if(ex!=null){
 			if(log!=null){
 				if(level.equals(LogLevel.WARN)){
-					log.warn(format,ex);
+					log.warn(format,arguments,ex);
 				}else if(level.equals(LogLevel.INFO)){
-					log.info(format,ex);
+					log.info(format,arguments,ex);
 				}else if(level.equals(LogLevel.DEBUG)){
-					log.debug(format,ex);
+					log.debug(format,arguments,ex);
 				}else if(level.equals(LogLevel.ERROR)){
-					log.error(format,ex);
+					log.error(format,arguments,ex);
 				}
 			}else{
-				defaultLog.warn(format,ex);
+				defaultLog.warn(format,arguments,ex);
 			}
 		}else{
 			if(log!=null){
 				if(level.equals(LogLevel.WARN)){
-					log.warn(format);
+					log.warn(format,arguments);
 				}else if(level.equals(LogLevel.INFO)){
-					log.info(format);
+					log.info(format,arguments);
 				}else if(level.equals(LogLevel.DEBUG)){
-					log.debug(format);
+					log.debug(format,arguments);
 				}else if(level.equals(LogLevel.ERROR)){
-					log.error(format);
+					log.error(format,arguments);
 				}
 			}else{
-				defaultLog.warn(format);
+				defaultLog.warn(format,arguments);
 			}
 		}
 	}

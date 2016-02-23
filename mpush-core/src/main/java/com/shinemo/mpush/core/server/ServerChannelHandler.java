@@ -50,13 +50,13 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         connectionManager.remove(ctx.channel());
-        LoggerManage.log(security, LogLevel.INFO, "client exceptionCaught channel=%s", ctx.channel());
+        LoggerManage.log(security, LogLevel.INFO, "client exceptionCaught channel={}", ctx.channel());
         LOGGER.error("caught an ex, channel={}", ctx.channel(), cause);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        LoggerManage.log(security, LogLevel.INFO, "client connect channel=%s", ctx.channel());
+        LoggerManage.log(security, LogLevel.INFO, "client connect channel={}", ctx.channel());
         Connection connection = new NettyConnection();
         connection.init(ctx.channel(), security);
         connectionManager.add(connection);
@@ -64,7 +64,7 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        LoggerManage.log(security, LogLevel.INFO, "client disconnect channel=%s", ctx.channel());
+        LoggerManage.log(security, LogLevel.INFO, "client disconnect channel={}", ctx.channel());
         Connection connection = connectionManager.get(ctx.channel());
         EventBus.INSTANCE.post(new UserOfflineEvent(connection));
         connectionManager.remove(ctx.channel());
