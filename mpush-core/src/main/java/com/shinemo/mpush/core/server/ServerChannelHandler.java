@@ -4,7 +4,9 @@ package com.shinemo.mpush.core.server;
 import com.shinemo.mpush.api.connection.ConnectionManager;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.api.connection.Connection;
+import com.shinemo.mpush.api.event.UserOfflineEvent;
 import com.shinemo.mpush.api.PacketReceiver;
+import com.shinemo.mpush.common.EventBus;
 import com.shinemo.mpush.log.LogLevel;
 import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.netty.connection.NettyConnection;
@@ -63,6 +65,8 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         LoggerManage.log(security, LogLevel.INFO, "client disconnect channel=%s", ctx.channel());
+        Connection connection = connectionManager.get(ctx.channel());
+        EventBus.INSTANCE.post(new UserOfflineEvent(connection));
         connectionManager.remove(ctx.channel());
     }
 }
