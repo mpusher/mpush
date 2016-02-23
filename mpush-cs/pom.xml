@@ -44,6 +44,7 @@
           </resource>
         </resources>
 
+        <plugins>
             <!-- 拷贝依赖的jar包到lib目录 -->
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
