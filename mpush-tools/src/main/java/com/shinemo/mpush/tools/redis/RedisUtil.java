@@ -512,7 +512,12 @@ public class RedisUtil {
 
     public static <T> void publish(RedisNode node, String channel, T message) {
         Jedis jedis = null;
-        String value = Jsons.toJson(message);
+        String value = null;
+        if(message instanceof String){
+        	value = (String) message;
+        }else{
+        	value = Jsons.toJson(message);
+        }
         try {
             jedis = getClient(node);
             jedis.publish(channel, value);
