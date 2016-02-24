@@ -10,6 +10,7 @@ import java.util.concurrent.*;
  * Created by ohun on 2015/12/30.
  */
 public class PushRequestBus implements Runnable {
+	
     public static final PushRequestBus INSTANCE = new PushRequestBus();
     private Map<Integer, PushRequest> requests = new ConcurrentHashMapV8<>(1024);
     private Executor executor = Executors.newFixedThreadPool(5);//test
