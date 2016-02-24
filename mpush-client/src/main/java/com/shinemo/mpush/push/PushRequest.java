@@ -111,7 +111,9 @@ public class PushRequest implements PushSender.Callback, Runnable {
     }
 
     public boolean isTimeout() {
-        return System.currentTimeMillis() > timeout_;
+    	long delt = System.currentTimeMillis() - timeout_;
+    	LOGGER.info("delt:{},content:{}",delt,content);
+        return delt > 0 ? true :false;
     }
 
     public void timeout() {
