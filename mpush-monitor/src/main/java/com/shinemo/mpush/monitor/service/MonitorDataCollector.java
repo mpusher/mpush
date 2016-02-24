@@ -48,7 +48,7 @@ public class MonitorDataCollector {
         currentPath = path;
     }
 
-    public static void start() {
+    public static void start(final boolean skipdump) {
         new Thread(new Runnable() {
 
             @Override
@@ -57,34 +57,37 @@ public class MonitorDataCollector {
                     MonitorData monitorData = MonitorDataCollector.collect();
                     log.error("monitor data:" + Jsons.toJson(monitorData));
 
-                    double load = JVMInfo.instance.load();
-                    if (load > firstJstack) {
-                        if (!dumpFirstJstack) {
-                            dumpFirstJstack = true;
-                            JVMUtil.dumpJstack(currentPath);
+                    if(!skipdump){
+                    	double load = JVMInfo.instance.load();
+                        if (load > firstJstack) {
+                            if (!dumpFirstJstack) {
+                                dumpFirstJstack = true;
+                                JVMUtil.dumpJstack(currentPath);
+                            }
                         }
-                    }
 
-                    if (load > secondJstack) {
-                        if (!dumpSecondJstack) {
-                            dumpSecondJstack = true;
-                            JVMUtil.dumpJmap(currentPath);
+                        if (load > secondJstack) {
+                            if (!dumpSecondJstack) {
+                                dumpSecondJstack = true;
+                                JVMUtil.dumpJmap(currentPath);
+                            }
                         }
-                    }
 
-                    if (load > thirdJstack) {
-                        if (!dumpThirdJstack) {
-                            dumpThirdJstack = true;
-                            JVMUtil.dumpJmap(currentPath);
+                        if (load > thirdJstack) {
+                            if (!dumpThirdJstack) {
+                                dumpThirdJstack = true;
+                                JVMUtil.dumpJmap(currentPath);
+                            }
                         }
-                    }
 
-                    if (load > firstJmap) {
-                        if (!dumpJmap) {
-                            dumpJmap = true;
-                            JVMUtil.dumpJmap(currentPath);
+                        if (load > firstJmap) {
+                            if (!dumpJmap) {
+                                dumpJmap = true;
+                                JVMUtil.dumpJmap(currentPath);
+                            }
                         }
                     }
+                    
 
                     try {//30s
                         Thread.sleep(30000L);
@@ -97,7 +100,7 @@ public class MonitorDataCollector {
     }
 
     public static void main(String[] args) {
-        MonitorDataCollector.start();
+        MonitorDataCollector.start(true);
     }
 
 }

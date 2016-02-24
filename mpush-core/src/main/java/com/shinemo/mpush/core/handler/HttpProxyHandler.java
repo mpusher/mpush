@@ -7,14 +7,17 @@ import com.shinemo.mpush.common.DnsMapping;
 import com.shinemo.mpush.common.handler.BaseMessageHandler;
 import com.shinemo.mpush.common.message.HttpRequestMessage;
 import com.shinemo.mpush.common.message.HttpResponseMessage;
+import com.shinemo.mpush.log.LogType;
+import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.netty.client.HttpCallback;
 import com.shinemo.mpush.netty.client.HttpClient;
 import com.shinemo.mpush.netty.client.RequestInfo;
 import com.shinemo.mpush.tools.MPushUtil;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
+
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -27,7 +30,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  * Created by ohun on 2016/2/15.
  */
 public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxyHandler.class);
+    private static final Logger LOGGER = LoggerManage.getLog(LogType.HTTP);
     private final HttpClient httpClient;
     private final DnsMapping dnsMapping;
 

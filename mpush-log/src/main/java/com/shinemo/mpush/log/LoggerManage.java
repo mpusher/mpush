@@ -13,6 +13,7 @@ public class LoggerManage {
 	private static final Logger heartBeatLog = LoggerFactory.getLogger("heartBeatLog");
 	private static final Logger redisLog = LoggerFactory.getLogger("redisLog");
 	private static final Logger zkLog = LoggerFactory.getLogger("zkLog");
+	private static final Logger httpLog = LoggerFactory.getLogger("httpLog");
 	
 	private static final Logger defaultLog = LoggerFactory.getLogger(LoggerManage.class);
 	
@@ -24,6 +25,7 @@ public class LoggerManage {
 		map.put(LogType.HEARTBEAT, heartBeatLog);
 		map.put(LogType.REDIS, redisLog);
 		map.put(LogType.ZK, zkLog);
+		map.put(LogType.HTTP, httpLog);
 	}
 	
 	
