@@ -160,6 +160,26 @@
         <appender-ref ref="REDIS_APPENDER"/>
     </logger>
 
+		<!-- redis log -->
+	<appender name="HTTP_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!--日志文件名称 -->
+		<file>${log.home}/mpush-http.log</file>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.home}/mpush-http.log.%d{yyyy-MM-dd}
+			</fileNamePattern>
+			<maxHistory>5</maxHistory>
+		</rollingPolicy>
+		<encoder charset="UTF-8">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+		<logger name="httpLog" additivity="false">
+				<level value="debug"/>
+				<appender-ref ref="HTTP_APPENDER"/>
+		</logger>
+
     <!-- zk log -->
 	<appender name="ZK_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!--日志文件名称 -->

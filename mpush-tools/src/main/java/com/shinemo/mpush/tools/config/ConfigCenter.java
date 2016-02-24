@@ -115,5 +115,9 @@ public interface ConfigCenter extends Config {
     @Key("online_and_offline_listener_ip")
     @DefaultValue("127.0.0.1")
     String onlineAndOfflineListenerIp();
+    
+    @Key("skip_dump")
+    @DefaultValue("true")
+    boolean skipDump();
 
 }
