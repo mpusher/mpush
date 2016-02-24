@@ -68,23 +68,29 @@ public class PushRequest implements PushSender.Callback, Runnable {
 
     @Override
     public void onSuccess(String userId) {
+    	putTime("success");
+    	LOGGER.info("success,sessionId:{},times:{},content:{}",sessionId,Jsons.toJson(times),content);
         submit(1);
     }
 
     @Override
     public void onFailure(String userId) {
+    	putTime("failure");
+    	LOGGER.info("failure,sessionId:{},times:{},content:{}",sessionId,Jsons.toJson(times),content);
         submit(2);
     }
 
     @Override
     public void onOffline(String userId) {
+    	putTime("offline");
+    	LOGGER.info("offline,sessionId:{},times:{},content:{}",sessionId,Jsons.toJson(times),content);
         submit(3);
     }
 
     @Override
     public void onTimeout(String userId) {
     	putTime("timeout");
-    	LOGGER.info("timeout,{},{},{}",sessionId,Jsons.toJson(times),content);
+    	LOGGER.info("timeout,sessionId:{},times:{},content:{}",sessionId,Jsons.toJson(times),content);
         submit(4);
     }
 
@@ -118,7 +124,6 @@ public class PushRequest implements PushSender.Callback, Runnable {
 
     public boolean isTimeout() {
     	long delt = System.currentTimeMillis() - timeout_;
-    	LOGGER.info("delt:{},{},content:{}",delt,timeout_,content);
         return delt > 0 ? true :false;
     }
 
@@ -170,16 +175,14 @@ public class PushRequest implements PushSender.Callback, Runnable {
             return;
         }
 
-        times.put("sendtoconnserver", System.currentTimeMillis());
+        putTime("sendtoconnserver");
         
         final GatewayPushMessage pushMessage = new GatewayPushMessage(userId, content, gatewayConn);
         pushMessage.sendRaw(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (future.isSuccess()) {
-                    sendTime = System.currentTimeMillis();
                     putTime("sendsuccess");
-                    LOGGER.info("push Message send success:{},{}",sendTime,content);
                 } else {
                     PushRequest.this.onFailure(userId);
                 }
