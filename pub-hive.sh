@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ENV=dev
+ENV=daily
 
 base_dir=`pwd`
 
@@ -15,5 +15,7 @@ echo "start scp mpush..."
 cd $base_dir/target
 
 scp -P 9092 ./mpush-jar-with-dependency.tar.gz hive1_host:~/mpush
+
+
 
 scp -P 9092 ./mpush-jar-with-dependency.tar.gz hive2_host:~/mpush
