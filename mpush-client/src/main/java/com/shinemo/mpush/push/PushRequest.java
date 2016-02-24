@@ -112,7 +112,7 @@ public class PushRequest implements PushSender.Callback, Runnable {
 
     public boolean isTimeout() {
     	long delt = System.currentTimeMillis() - timeout_;
-    	LOGGER.info("delt:{},content:{}",delt,content);
+    	LOGGER.info("delt:{},{},content:{}",delt,timeout_,content);
         return delt > 0 ? true :false;
     }
 
@@ -169,7 +169,7 @@ public class PushRequest implements PushSender.Callback, Runnable {
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (future.isSuccess()) {
                     sendTime = System.currentTimeMillis();
-                    LOGGER.warn("pushMessage packet:" + pushMessage.getPacket());
+                    LOGGER.info("push Message send success:{},{}",sendTime,content);
                 } else {
                     PushRequest.this.onFailure(userId);
                 }
