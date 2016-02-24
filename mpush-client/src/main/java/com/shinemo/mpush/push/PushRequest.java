@@ -1,5 +1,6 @@
 package com.shinemo.mpush.push;
 
+import com.google.common.collect.Maps;
 import com.shinemo.mpush.api.PushSender;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.router.ClientLocation;
@@ -8,6 +9,7 @@ import com.shinemo.mpush.common.message.gateway.GatewayPushMessage;
 import com.shinemo.mpush.common.router.ConnectionRouterManager;
 import com.shinemo.mpush.common.router.RemoteRouter;
 import com.shinemo.mpush.push.manage.impl.GatewayServerManage;
+import com.shinemo.mpush.tools.Jsons;
 import com.shinemo.mpush.tools.spi.ServiceContainer;
 
 import io.netty.channel.ChannelFuture;
@@ -16,6 +18,7 @@ import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -34,6 +37,7 @@ public class PushRequest implements PushSender.Callback, Runnable {
     private int sessionId;
     private long sendTime;
     private AtomicInteger status = new AtomicInteger(0);
+    private Map<String,Long> times = Maps.newHashMap();
 
     public PushRequest() {
     }
@@ -79,6 +83,8 @@ public class PushRequest implements PushSender.Callback, Runnable {
 
     @Override
     public void onTimeout(String userId) {
+    	putTime("timeout");
+    	LOGGER.info("timeout,{},{},{}",sessionId,Jsons.toJson(times),content);
         submit(4);
     }
 
@@ -135,6 +141,7 @@ public class PushRequest implements PushSender.Callback, Runnable {
 
     public void send() {
         this.timeout_ = timeout + System.currentTimeMillis();
+        putTime("startsend");
         sendToConnServer();
     }
 
@@ -163,12 +170,15 @@ public class PushRequest implements PushSender.Callback, Runnable {
             return;
         }
 
+        times.put("sendtoconnserver", System.currentTimeMillis());
+        
         final GatewayPushMessage pushMessage = new GatewayPushMessage(userId, content, gatewayConn);
         pushMessage.sendRaw(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (future.isSuccess()) {
                     sendTime = System.currentTimeMillis();
+                    putTime("sendsuccess");
                     LOGGER.info("push Message send success:{},{}",sendTime,content);
                 } else {
                     PushRequest.this.onFailure(userId);
@@ -177,6 +187,7 @@ public class PushRequest implements PushSender.Callback, Runnable {
         });
 
         sessionId = pushMessage.getSessionId();
+        putTime("putrequestbus");
         PushRequestBus.INSTANCE.put(sessionId, this);
     }
 
@@ -184,4 +195,12 @@ public class PushRequest implements PushSender.Callback, Runnable {
         return sendTime;
     }
 
+	public Map<String, Long> getTimes() {
+		return times;
+	}
+
+	public void putTime(String key) {
+		this.times.put(key, System.currentTimeMillis());
+	}
+    
 }
