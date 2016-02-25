@@ -1,9 +1,8 @@
 package com.shinemo.mpush.core.server;
 
-import com.shinemo.mpush.api.Server;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.common.MessageDispatcher;
-import com.shinemo.mpush.core.handler.*;
+import com.shinemo.mpush.core.handler.GatewayPushHandler;
 import com.shinemo.mpush.netty.connection.NettyConnectionManager;
 import com.shinemo.mpush.netty.server.NettyServer;
 import io.netty.channel.ChannelHandler;

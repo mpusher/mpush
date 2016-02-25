@@ -1,11 +1,9 @@
 package com.shinemo.mpush.netty.codec;
 
-import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.exception.DecodeException;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.tools.config.ConfigCenter;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -26,7 +24,7 @@ public final class PacketDecoder extends ByteToMessageDecoder {
 
     private void decodeHeartbeat(ByteBuf in, List<Object> out) {
         while (in.isReadable()) {
-            if (in.readByte() == Packet.HB_PACKET) {
+            if (in.readByte() == Packet.HB_PACKET_BYTE) {
                 out.add(new Packet(Command.HEARTBEAT));
             } else {
                 in.readerIndex(in.readerIndex() - 1);
@@ -37,7 +35,7 @@ public final class PacketDecoder extends ByteToMessageDecoder {
 
     private void decodeFrames(ByteBuf in, List<Object> out) throws Exception {
         try {
-            while (in.readableBytes() >= Constants.HEADER_LEN) {
+            while (in.readableBytes() >= Packet.HEADER_LEN) {
                 //1.记录当前读取位置位置.如果读取到非完整的frame,要恢复到该位置,便于下次读取
                 in.markReaderIndex();
                 out.add(decodeFrame(in));
@@ -51,7 +49,7 @@ public final class PacketDecoder extends ByteToMessageDecoder {
     private Packet decodeFrame(ByteBuf in) throws Exception {
         int bufferSize = in.readableBytes();
         int bodyLength = in.readInt();
-        if (bufferSize < (bodyLength + Constants.HEADER_LEN)) {
+        if (bufferSize < (bodyLength + Packet.HEADER_LEN)) {
             throw new DecodeException("invalid frame");
         }
         return readPacket(in, bodyLength);

@@ -12,8 +12,9 @@ import com.shinemo.mpush.log.LoggerManage;
 public final class HeartBeatHandler implements MessageHandler {
     @Override
     public void handle(Packet packet, Connection connection) {
-    	connection.send(packet);//ping -> pong
-    	LoggerManage.log(LogType.HEARTBEAT, "response client heartbeat:{},{}", connection.getChannel(),connection.getSessionContext().deviceId);
+        connection.send(packet);//ping -> pong
+        LoggerManage.log(LogType.HEARTBEAT, "response client heartbeat:{}, {}",
+                connection.getChannel(), connection.getSessionContext().deviceId);
     }
-    
+
 }
