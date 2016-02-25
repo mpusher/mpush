@@ -11,7 +11,6 @@ import com.shinemo.mpush.common.EventBus;
 import com.shinemo.mpush.log.LogType;
 import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.tools.config.ConfigCenter;
-
 import io.netty.channel.Channel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
@@ -19,6 +18,7 @@ import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -76,52 +76,47 @@ public final class NettyConnectionManager implements ConnectionManager {
 
     @Subscribe
     void onHandshakeOk(HandshakeEvent event) {
-        HeartbeatCheckTask task = new HeartbeatCheckTask(event.heartbeat, event.connection);
+        HeartbeatCheckTask task = new HeartbeatCheckTask(event.connection);
         task.startTimeout();
     }
 
     private class HeartbeatCheckTask implements TimerTask {
 
         private int expiredTimes = 0;
-        private final int heartbeat;
         private final Connection connection;
 
-        public HeartbeatCheckTask(int heartbeat, Connection connection) {
-            this.heartbeat = heartbeat;
+        public HeartbeatCheckTask(Connection connection) {
             this.connection = connection;
         }
 
         public void startTimeout() {
-            timer.newTimeout(this, heartbeat, TimeUnit.MILLISECONDS);
+            int timeout = connection.getSessionContext().heartbeat;
+            timer.newTimeout(this, timeout > 0 ? timeout : ConfigCenter.holder.minHeartbeat(), TimeUnit.MILLISECONDS);
         }
 
         @Override
         public void run(Timeout timeout) throws Exception {
-            try {
-                if (!connection.isConnected()) {
-                    LoggerManage.info(LogType.HEARTBEAT, "connection is not connected:{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
-                    return;
-                }
-                if (connection.heartbeatTimeout()) {
-                    if (++expiredTimes > ConfigCenter.holder.maxHBTimeoutTimes()) {
-                    	
-                    	EventBus.INSTANCE.post(new UserOfflineEvent(connection));
-                    	
-                        connection.close();
-                        LoggerManage.info(LogType.HEARTBEAT, "connection heartbeat timeout, connection has bean closed:{},{}", connection.getChannel(), connection.getSessionContext().deviceId);
-                        return;
-                    } else {
-                        LoggerManage.info(LogType.HEARTBEAT, "connection heartbeat timeout, expiredTimes:{},{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
-                    }
-                } else {
-                    expiredTimes = 0;
-                    LoggerManage.info(LogType.HEARTBEAT, "connection heartbeat reset, expiredTimes:{},{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
-                }
-            } catch (Throwable e) {
-                LoggerManage.execption(LogType.DEFAULT, e, "HeartbeatCheckTask error");
+            if (!connection.isConnected()) {
+                LoggerManage.info(LogType.HEARTBEAT, "connection is not connected:{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
+                return;
             }
+            if (connection.heartbeatTimeout()) {
+                if (++expiredTimes > ConfigCenter.holder.maxHBTimeoutTimes()) {
+
+                    EventBus.INSTANCE.post(new UserOfflineEvent(connection));
+
+                    connection.close();
+                    LoggerManage.info(LogType.HEARTBEAT, "connection heartbeat timeout, connection has bean closed:{},{}", connection.getChannel(), connection.getSessionContext().deviceId);
+                    return;
+                } else {
+                    LoggerManage.info(LogType.HEARTBEAT, "connection heartbeat timeout, expiredTimes:{},{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
+                }
+            } else {
+                expiredTimes = 0;
+                LoggerManage.info(LogType.HEARTBEAT, "connection heartbeat reset, expiredTimes:{},{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
+            }
+
             startTimeout();
         }
     }
-
 }
