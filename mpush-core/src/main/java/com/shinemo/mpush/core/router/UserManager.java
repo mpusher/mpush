@@ -13,35 +13,33 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ohun on 2015/12/23.
  */
-public final class UserManager extends com.shinemo.mpush.common.manage.user.UserManager{
+public final class UserManager extends com.shinemo.mpush.common.manage.user.UserManager {
     public static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
 
     public static final String ONLINE_CHANNEL = "/mpush/online/";
-    
+
     public static final String OFFLINE_CHANNEL = "/mpush/offline/";
-    
+
     public UserManager() {
-    	EventBus.INSTANCE.register(this);
-	}
-    
+        EventBus.INSTANCE.register(this);
+    }
+
     @Subscribe
     void handlerUserOnlineEvent(UserOnlineEvent event) {
-    	userOnline(event.getUserId());
-    	RedisManage.publish(ONLINE_CHANNEL, event.getUserId());
+        userOnline(event.getUserId());
+        RedisManage.publish(ONLINE_CHANNEL, event.getUserId());
     }
-    
+
     @Subscribe
     void handlerUserOfflineEvent(UserOfflineEvent event) {
-    	if(event.getUserId()==null){//链接超时
-    		String userId = RouterCenter.INSTANCE.getLocalRouterManager().getUserIdByConnId(event.getConnection().getId());
-    		if(StringUtils.isNotBlank(userId)){
-    			userOffline(userId);
-    			RedisManage.publish(OFFLINE_CHANNEL, event.getUserId());
-    		}
-    	}else{ //解绑用户
-    		userOffline(event.getUserId());
-    	}
-    	
+        if (event.getUserId() == null) {//链接超时
+            String userId = RouterCenter.INSTANCE.getLocalRouterManager().getUserIdByConnId(event.getConnection().getId());
+            if (StringUtils.isNotBlank(userId)) {
+                userOffline(userId);
+                RedisManage.publish(OFFLINE_CHANNEL, event.getUserId());
+            }
+        } else { //解绑用户
+            userOffline(event.getUserId());
+        }
     }
-    
 }
