@@ -102,9 +102,6 @@ public final class NettyConnectionManager implements ConnectionManager {
             }
             if (connection.heartbeatTimeout()) {
                 if (++expiredTimes > ConfigCenter.holder.maxHBTimeoutTimes()) {
-
-                    EventBus.INSTANCE.post(new UserOfflineEvent(connection));
-
                     connection.close();
                     LoggerManage.info(LogType.HEARTBEAT, "connection heartbeat timeout, connection has bean closed:{},{}", connection.getChannel(), connection.getSessionContext().deviceId);
                     return;

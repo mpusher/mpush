@@ -76,7 +76,6 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     public ChannelFuture close() {
         if (status == STATUS_DISCONNECTED) return null;
         this.status = STATUS_DISCONNECTED;
-        EventBus.INSTANCE.post(new ConnectionCloseEvent(this));
         return this.channel.close();
     }
 

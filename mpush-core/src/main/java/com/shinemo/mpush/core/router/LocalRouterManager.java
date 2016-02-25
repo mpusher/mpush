@@ -2,8 +2,10 @@ package com.shinemo.mpush.core.router;
 
 import com.google.common.eventbus.Subscribe;
 import com.shinemo.mpush.api.event.ConnectionCloseEvent;
+import com.shinemo.mpush.api.event.UserOfflineEvent;
 import com.shinemo.mpush.api.router.RouterManager;
 import com.shinemo.mpush.common.AbstractEventContainer;
+import com.shinemo.mpush.common.EventBus;
 import com.shinemo.mpush.common.router.RemoteRouter;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
@@ -33,7 +35,7 @@ public final class LocalRouterManager extends AbstractEventContainer implements 
     public LocalRouter register(String userId, LocalRouter router) {
         LOGGER.info("register local router success userId={}, router={}", userId, router);
         connIdUserIds.put(router.getRouteValue().getId(), userId);
-        
+
         //add online userId
         return routers.put(userId, router);
     }
@@ -54,9 +56,9 @@ public final class LocalRouterManager extends AbstractEventContainer implements 
         LOGGER.info("lookup local router userId={}, router={}", userId, router);
         return router;
     }
-    
-    public String getUserIdByConnId(String connId){
-    	return connIdUserIds.get(connId);
+
+    public String getUserIdByConnId(String connId) {
+        return connIdUserIds.get(connId);
     }
 
     /**
@@ -71,18 +73,18 @@ public final class LocalRouterManager extends AbstractEventContainer implements 
         //1.清除反向关系
         String userId = connIdUserIds.remove(id);
         if (userId == null) return;
-        
+        EventBus.INSTANCE.post(new UserOfflineEvent(event.connection, userId));
         LocalRouter router = routers.get(userId);
         if (router == null) return;
-        
+
         //2.检测下，是否是同一个链接, 如果客户端重连，老的路由会被新的链接覆盖
         if (id.equals(router.getRouteValue().getId())) {
             //3.删除路由
             routers.remove(userId);
             LOGGER.info("clean disconnected local route, userId={}, route={}", userId, router);
-            
-        }else{ //如果不相等，则log一下
-        	LOGGER.info("clean disconnected local route, not clean:userId={}, route={}",userId,router);
+
+        } else { //如果不相等，则log一下
+            LOGGER.info("clean disconnected local route, not clean:userId={}, route={}", userId, router);
         }
     }
 }
