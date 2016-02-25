@@ -12,6 +12,8 @@ public class RedisKey {
 	
 	private static final String USER_OFFLINE_KEY = "mp_u_ofl";
 	
+	private static final String CONN_NUM_ = "mp_cn_";
+	
 	public static final String getUserKey(String userId){
 		return USER_PREFIX+userId;
 	}
@@ -32,5 +34,10 @@ public class RedisKey {
 	public static final String getUserOfflineKey(){
 		return USER_OFFLINE_KEY;
 	}
+	
+	public static final String getConnNum(String extranetAddress){
+		return CONN_NUM_+extranetAddress;
+	}
+	
 
 }
