@@ -11,6 +11,8 @@ import com.shinemo.mpush.common.handler.BaseMessageHandler;
 import com.shinemo.mpush.common.message.BindUserMessage;
 import com.shinemo.mpush.common.message.ErrorMessage;
 import com.shinemo.mpush.common.message.OkMessage;
+import com.shinemo.mpush.common.router.RemoteRouter;
+import com.shinemo.mpush.common.router.RemoteRouterManager;
 import com.shinemo.mpush.core.router.RouterCenter;
 import com.shinemo.mpush.log.LogType;
 import com.shinemo.mpush.log.LoggerManage;
@@ -32,19 +34,28 @@ public final class UnbindUserHandler extends BaseMessageHandler<BindUserMessage>
             LoggerManage.info(LogType.CONNECTION, "unbind user failure invalid param, session={}", message.getConnection().getSessionContext());
             return;
         }
-        //1.绑定用户时先看下是否握手成功
+        //1.解绑用户时先看下是否握手成功
         SessionContext context = message.getConnection().getSessionContext();
         if (context.handshakeOk()) {
-            //2.如果握手成功，就把用户链接信息注册到路由中心，本地和远程各一份
-            boolean success = RouterCenter.INSTANCE.unRegister(message.userId);
+            //2.先删除远程路由, 必须是同一个设备才允许解绑
+            RemoteRouterManager remoteRouterManager = RouterCenter.INSTANCE.getRemoteRouterManager();
+            RemoteRouter remoteRouter = remoteRouterManager.lookup(message.userId);
+            if (remoteRouter != null) {
+                String deviceId = remoteRouter.getRouteValue().getDeviceId();
+                if (context.deviceId.equals(deviceId)) {//判断是否是同一个设备
+                    remoteRouterManager.unRegister(message.userId);
+                }
+            }
+            //3.删除本地路由信息
+            boolean success = RouterCenter.INSTANCE.getLocalRouterManager().unRegister(message.userId);
             if (success) {
-            	
-            	EventBus.INSTANCE.post(new UserOfflineEvent( message.getConnection(),message.userId));
-            	
+
+                EventBus.INSTANCE.post(new UserOfflineEvent(message.getConnection(), message.userId));
+
                 OkMessage.from(message).setData("unbind success").send();
                 LoggerManage.info(LogType.CONNECTION, "unbind user success, userId={}, session={}", message.userId, context);
             } else {
-                ErrorMessage.from(message).setReason("unbind failed").close();
+                ErrorMessage.from(message).setReason("unbind failed").send();
                 LoggerManage.info(LogType.CONNECTION, "unbind user failure, register router failure, userId={}, session={}", message.userId, context);
             }
         } else {
