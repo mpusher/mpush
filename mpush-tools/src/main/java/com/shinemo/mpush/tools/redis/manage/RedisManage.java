@@ -27,6 +27,11 @@ public class RedisManage {
 		return RedisUtil.incr(nodeList, key, time);
 	} 
 	
+	public static long incrBy(String key,long delt){
+		List<RedisNode> nodeList = redisRegister.hashSet(key);
+		return RedisUtil.incrBy(nodeList, key, delt);
+	} 
+	
     /*********************
      * k v redis start
      ********************************/

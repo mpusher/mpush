@@ -57,6 +57,25 @@ public class RedisUtil {
     	return incrRet;
     	
     }
+    
+    public static long incrBy(List<RedisNode> nodeList,String key,long delt){
+    	long incrRet = -1;
+    	for (RedisNode node : nodeList) {
+            Jedis jedis = null;
+            try {
+                jedis = getClient(node);
+                long ret = jedis.incrBy(key, delt);
+                incrRet = ret;
+            } catch (Exception e) {
+            	LoggerManage.execption(LogType.REDIS, e, "redis incr exception:{},{},{},{}",key,delt,node);
+            } finally {
+                // 返还到连接池
+                close(jedis);
+            }
+        }
+    	return incrRet;
+    	
+    }
 
     /********************* k v redis start ********************************/
     /**
