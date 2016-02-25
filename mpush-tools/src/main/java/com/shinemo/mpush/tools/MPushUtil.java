@@ -61,7 +61,7 @@ public final class MPushUtil {
         }
     }
     
-    public static String getExtranetAddress() throws Exception{
+    public static String getExtranetAddress() {
     	 try {
              Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
              InetAddress address = null;
@@ -76,11 +76,10 @@ public final class MPushUtil {
                  }
              }
              LOGGER.warn("getExtranetAddress is null");
-             return null;
          } catch (Throwable e) {
              LOGGER.error("getExtranetAddress exception", e);
-             throw new Exception(e);
          }
+    	 return getInetAddress();
     }
 
     public static String headerToString(Map<String, String> headers) {
