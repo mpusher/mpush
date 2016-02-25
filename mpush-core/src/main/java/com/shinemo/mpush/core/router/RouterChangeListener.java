@@ -67,7 +67,7 @@ public final class RouterChangeListener extends AbstractEventContainer implement
         message.send(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
-                future.channel().close();
+                //future.channel().close();
                 if (future.isSuccess()) {
                 	LoggerManage.info(LogType.CONNECTION, "kick local connection success, userId={}, router={}", userId, router);
                 } else {
