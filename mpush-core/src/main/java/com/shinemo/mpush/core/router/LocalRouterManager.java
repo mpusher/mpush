@@ -1,6 +1,7 @@
 package com.shinemo.mpush.core.router;
 
 import com.google.common.eventbus.Subscribe;
+import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.event.ConnectionCloseEvent;
 import com.shinemo.mpush.api.event.UserOfflineEvent;
 import com.shinemo.mpush.api.router.RouterManager;
@@ -68,6 +69,8 @@ public final class LocalRouterManager extends AbstractEventContainer implements 
      */
     @Subscribe
     void onConnectionCloseEvent(ConnectionCloseEvent event) {
+    	Connection connection = event.connection;
+    	if(connection == null) return;
         String id = event.connection.getId();
 
         //1.清除反向关系

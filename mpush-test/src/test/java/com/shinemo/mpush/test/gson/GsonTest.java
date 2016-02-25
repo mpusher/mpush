@@ -5,7 +5,6 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
-import com.google.gson.JsonObject;
 import com.shinemo.mpush.api.PushContent;
 import com.shinemo.mpush.api.PushContent.PushType;
 import com.shinemo.mpush.tools.Jsons;
