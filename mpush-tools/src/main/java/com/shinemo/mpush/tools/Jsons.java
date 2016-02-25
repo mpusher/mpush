@@ -100,10 +100,8 @@ public final class Jsons {
     }
 
     public static void main(String[] args) {
-        String test = "test";
-        String ret = Jsons.toJson(test);
-        String ret2 = Jsons.fromJson(ret, String.class);
-        System.out.println(ret);
-        System.out.println(ret2);
+    	String tet = "7";
+    	Long l = Jsons.fromJson(tet, Long.class);
+    	System.out.println(l);
     }
 }
