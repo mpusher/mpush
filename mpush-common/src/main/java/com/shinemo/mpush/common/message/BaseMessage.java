@@ -1,6 +1,5 @@
 package com.shinemo.mpush.common.message;
 
-import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.Message;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.connection.SessionContext;
@@ -30,7 +29,7 @@ public abstract class BaseMessage implements Message {
         if (packet.body != null && packet.body.length > 0) {
             //1.解密
             byte[] tmp = packet.body;
-            if (packet.hasFlag(Constants.CRYPTO_FLAG)) {
+            if (packet.hasFlag(Packet.FLAG_CRYPTO)) {
                 SessionContext info = connection.getSessionContext();
                 if (info.cipher != null) {
                     tmp = info.cipher.decrypt(tmp);
@@ -38,7 +37,7 @@ public abstract class BaseMessage implements Message {
             }
 
             //2.解压
-            if (packet.hasFlag(Constants.COMPRESS_FLAG)) {
+            if (packet.hasFlag(Packet.FLAG_COMPRESS)) {
                 byte[] result = IOUtils.uncompress(tmp);
                 if (result.length > 0) {
                     tmp = result;
@@ -60,7 +59,7 @@ public abstract class BaseMessage implements Message {
                 byte[] result = IOUtils.compress(tmp);
                 if (result.length > 0) {
                     tmp = result;
-                    packet.setFlag(Constants.COMPRESS_FLAG);
+                    packet.setFlag(Packet.FLAG_COMPRESS);
                 }
             }
 
@@ -70,7 +69,7 @@ public abstract class BaseMessage implements Message {
                 byte[] result = context.cipher.encrypt(tmp);
                 if (result.length > 0) {
                     tmp = result;
-                    packet.setFlag(Constants.CRYPTO_FLAG);
+                    packet.setFlag(Packet.FLAG_CRYPTO);
                 }
             }
             packet.body = tmp;
