@@ -32,8 +32,8 @@ public class ConnectionServerMain extends AbstractServer<ConnectionServerApplica
 	@Override
 	public void start() {
 		super.start();
-		startServer(gatewayServer);
-		registerServerToZk(gatewayServerApplication.getServerRegisterZkPath(), Jsons.toJson(gatewayServerApplication));
+		startServer(gatewayServer,gatewayServerApplication.getServerRegisterZkPath(),Jsons.toJson(gatewayServerApplication));
+//		registerServerToZk(gatewayServerApplication.getServerRegisterZkPath(), Jsons.toJson(gatewayServerApplication));
 	}
 	
 

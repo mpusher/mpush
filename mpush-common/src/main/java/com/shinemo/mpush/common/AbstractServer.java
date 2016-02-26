@@ -94,7 +94,7 @@ public abstract class AbstractServer<T extends Application> {
 	}
 	
 	//step6 启动 netty server
-	public void startServer(final Server server){
+	public void startServer(final Server server,final String path, final String value){
 		Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -103,7 +103,7 @@ public abstract class AbstractServer<T extends Application> {
                     @Override
                     public void onSuccess() {
                         log.error("mpush app start "+server.getClass().getSimpleName()+" server success....");
-                        registerServerToZk(application.getServerRegisterZkPath(),Jsons.toJson(application));
+                        registerServerToZk(path,value);
                     }
 
                     @Override
@@ -139,7 +139,7 @@ public abstract class AbstractServer<T extends Application> {
 		registerListeners();
 		initListenerData();
 		initServer();
-		startServer(server);
+		startServer(server,application.getServerRegisterZkPath(),Jsons.toJson(application));
 //		registerServerToZk(application.getServerRegisterZkPath(),Jsons.toJson(application));
 	}
 	
