@@ -103,6 +103,7 @@ public abstract class AbstractServer<T extends Application> {
                     @Override
                     public void onSuccess() {
                         log.error("mpush app start "+server.getClass().getSimpleName()+" server success....");
+                        registerServerToZk(application.getServerRegisterZkPath(),Jsons.toJson(application));
                     }
 
                     @Override
@@ -114,15 +115,15 @@ public abstract class AbstractServer<T extends Application> {
             }
         };
         ThreadPoolManager.newThread(server.getClass().getSimpleName(), runnable).start();
-        //TODO sleep for server start
-        while(!server.isRunning()){
-        	log.error("server is not started,wait for {} start",server.getClass().getSimpleName());
-        	try {
-    			Thread.sleep(100);
-    		} catch (InterruptedException e) {
-    		}
-        }
-        log.error("server started {}",server.getClass().getSimpleName());
+//        //TODO sleep for server start
+//        while(!server.isRunning()){
+//        	log.error("server is not started,wait for {} start",server.getClass().getSimpleName());
+//        	try {
+//    			Thread.sleep(100);
+//    		} catch (InterruptedException e) {
+//    		}
+//        }
+//        log.error("server started {}",server.getClass().getSimpleName());
         
 	}
 	
@@ -139,7 +140,7 @@ public abstract class AbstractServer<T extends Application> {
 		initListenerData();
 		initServer();
 		startServer(server);
-		registerServerToZk(application.getServerRegisterZkPath(),Jsons.toJson(application));
+//		registerServerToZk(application.getServerRegisterZkPath(),Jsons.toJson(application));
 	}
 	
 	public void startClient(){

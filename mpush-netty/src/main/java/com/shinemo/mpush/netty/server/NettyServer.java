@@ -138,7 +138,7 @@ public abstract class NettyServer implements Server {
                     }
                 }
             });
-            f.await();
+//            f.await();
             if (f.isSuccess()) {
             	serverState.set(State.Started);
                 /**
