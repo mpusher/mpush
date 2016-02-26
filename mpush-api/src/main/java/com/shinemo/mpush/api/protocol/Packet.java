@@ -1,6 +1,5 @@
 package com.shinemo.mpush.api.protocol;
 
-import com.shinemo.mpush.api.Constants;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
