@@ -48,8 +48,6 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
 
             FastConnectOkMessage
                     .from(message)
-                    .setServerHost(MPushUtil.getLocalIp())
-                    .setServerTime(System.currentTimeMillis())
                     .setHeartbeat(heartbeat)
                     .send();
             LoggerManage.info(LogType.CONNECTION, "fast connect success, session={}", session.context);
