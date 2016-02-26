@@ -13,7 +13,7 @@ public final class Packet {
     public static final byte FLAG_CRYPTO = 0x01;
     public static final byte FLAG_COMPRESS = 0x02;
 
-    public static final byte HB_PACKET_BYTE = 0;
+    public static final byte HB_PACKET_BYTE = -33;
     public static final byte[] HB_PACKET_BYTES = new byte[]{HB_PACKET_BYTE};
 
     public byte cmd; //命令
