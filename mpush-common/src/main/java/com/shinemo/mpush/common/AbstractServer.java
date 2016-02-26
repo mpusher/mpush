@@ -2,6 +2,7 @@ package com.shinemo.mpush.common;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,6 +94,10 @@ public abstract class AbstractServer<T extends Application> {
 		server = getServer();
 	}
 	
+	public void startServer(final Server server){
+		this.startServer(server, null, null);
+	}
+	
 	//step6 启动 netty server
 	public void startServer(final Server server,final String path, final String value){
 		Runnable runnable = new Runnable() {
@@ -103,7 +108,9 @@ public abstract class AbstractServer<T extends Application> {
                     @Override
                     public void onSuccess() {
                         log.error("mpush app start "+server.getClass().getSimpleName()+" server success....");
-                        registerServerToZk(path,value);
+                        if(StringUtils.isNoneBlank(path)&&StringUtils.isNoneBlank(value)){
+                        	registerServerToZk(path,value);
+                        }
                     }
 
                     @Override

@@ -119,5 +119,9 @@ public interface ConfigCenter extends Config {
     @Key("skip_dump")
     @DefaultValue("true")
     boolean skipDump();
+    
+    @Key("admin_port")
+    @DefaultValue("4001")
+    int adminPort();
 
 }
