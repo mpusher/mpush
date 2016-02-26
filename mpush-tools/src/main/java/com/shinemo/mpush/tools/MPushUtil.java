@@ -10,6 +10,7 @@ import java.net.NetworkInterface;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Created by ohun on 2015/12/25.
@@ -18,7 +19,17 @@ public final class MPushUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(MPushUtil.class);
 
     private static String LOCAL_IP;
+    
+    private static final Pattern LOCAL_IP_PATTERN = Pattern.compile("127(\\.\\d{1,3}){3}$");
 
+    public static boolean isLocalHost(String host) {
+        return host == null 
+        			|| host.length() == 0
+                    || host.equalsIgnoreCase("localhost")
+                    || host.equals("0.0.0.0")
+                    || (LOCAL_IP_PATTERN.matcher(host).matches());
+    }
+    
     public static String getLocalIp() {
         if (LOCAL_IP == null) {
             LOCAL_IP = getInetAddress();

@@ -13,6 +13,7 @@ public class Main {
 	public static void main(String[] args) {
 		final ConnectionServerMain connectionServerMain = new ConnectionServerMain();
 		connectionServerMain.start();
+		
 		//开启监控
 		MonitorDataCollector.start(ConfigCenter.holder.skipDump());
 		
