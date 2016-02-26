@@ -69,8 +69,6 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
         HandshakeOkMessage
                 .from(message)
                 .setServerKey(serverKey)
-                .setServerHost(MPushUtil.getLocalIp())
-                .setServerTime(System.currentTimeMillis())
                 .setHeartbeat(heartbeat)
                 .setSessionId(session.sessionId)
                 .setExpireTime(session.expireTime)
