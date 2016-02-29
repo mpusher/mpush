@@ -14,7 +14,18 @@ echo "start scp mpush..."
 
 cd $base_dir/target
 
+
+
+##远程备份
+
+
 scp -P 9092 ./mpush-jar-with-dependency.tar.gz hive1_host:~/mpush
+
+## 杀进程
+
+##启进程
+
+
 
 
 
