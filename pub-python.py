@@ -19,6 +19,10 @@ HOSTS = [
 
 BASEPATH = '/root/mpush'
 
+STARTPROCESS = 'java -jar mpush-cs.jar'
+
+GITLABPATH = '/data/localgit/mpush/mpush/target/mpush-jar-with-dependency.tar.gz'
+
 
 class SSH():
     def __init__(self):
@@ -36,7 +40,7 @@ class SSH():
         stdin, stdout, stderr = self.client.exec_command(cmd)
         if isprint:
             for std in stdout.readlines():
-                print `std`,
+                print std,
         return stdin, stdout, stderr
 
 
@@ -44,6 +48,17 @@ class SSH():
         if self.client:
             self.client.close()
 
+def getPid(ssh):
+    pids = []
+    stdin, stdout, stderr = ssh.exe('ps aux|grep "java -jar mpush-cs.jar" |grep -v "grep"')
+    for std in stdout.readlines():
+        x = std.split(' ')
+        if len(x) < 10:
+            continue
+        if x.index(STARTPROCESS) < 0 :
+            continue
+        pid = filter(lambda ch: ch!='', std.split(' '))[1]
+        pids.append(pid)
 
 def showText(s, typ):
     if typ == 'RED':
@@ -66,11 +81,12 @@ def yellowText(s):
     return "\033[1;33m%s\033[0m" % s
 
 
+
 def main():
     for item in HOSTS:
         ssh = SSH().connect(item['HOST'],item['PORT'],username=item['USER'])
 
-        ##backup
+        ##1 backup
         base = BASEPATH+'/mpush-jar-with-dependency.tar.gz'
         to = BASEPATH+'/back/mpush-jar-with-dependency.tar.gz.'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         ssh.exe('cp %s %s '%(base,to))
@@ -80,11 +96,24 @@ def main():
         #ssh.exe('telent 127.0.0.1 4001')
         #ssh.exe('')
 
-        ## kill process
-        ssh.exe('ps aux|grep mpush-cs.jar')
+        ##2 kill process
+        pids = getPid(ssh)
+        if len(pids) > 1:
+            print redText('mpush-cs server has more than one process.pls kill process by you self')
+        elif len(pids) == 0:
+            print yellowText('there is no mpush-cs process to kill')
+        elif len(pids) == 1:
+            ssh.exe('kill -9 %s'%(pids[0]))
 
-        ## start process
-        # ssh.exe('')
+        ##3 scp
+        scp -P item['PORT'] GITLABPATH item['HOST']:BASEPATH+'/mpush'
+
+
+        ##4  tar package
+        ssh.exe('tar -xzvf '+BASEPATH+'/mpush/mpush-jar-with-dependency.tar.gz')
+
+        ##5 start process
+        ssh.exe('java -jar ' +BASEPATH +'/mpush/mpush-cs.jar &')
 
         ssh.close()
 
