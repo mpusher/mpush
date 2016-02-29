@@ -1,4 +1,3 @@
-#! /usr/bin/python
 # coding=utf8
 
 import paramiko
@@ -31,12 +30,12 @@ HOSTS = [
     {
         'HOST':'hive1_host',
         'PORT':9092,
-        'USER':'shinemo'
+        'USER':'root'
     },
     {
         'HOST':'hive2_host',
         'PORT':9092,
-        'USER':'shinemo'
+        'USER':'root'
     }
 ]
 
