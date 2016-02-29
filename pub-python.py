@@ -80,7 +80,9 @@ def greenText(s):
 def yellowText(s):
     return "\033[1;33m%s\033[0m" % s
 
-
+def runShell(c):
+    print c
+    os.system(c)
 
 def main():
     for item in HOSTS:
@@ -106,8 +108,7 @@ def main():
             ssh.exe('kill -9 %s'%(pids[0]))
 
         ##3 scp
-        scp -P item['PORT'] GITLABPATH item['HOST']:BASEPATH+'/mpush'
-
+        runShell('scp -P %s %s %s:%s'%(item['PORT'],GITLABPATH,item['HOST'],BASEPATH+'/mpush')
 
         ##4  tar package
         ssh.exe('tar -xzvf '+BASEPATH+'/mpush/mpush-jar-with-dependency.tar.gz')
