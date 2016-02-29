@@ -86,7 +86,7 @@ def main():
         ssh = SSH().connect(item['HOST'],item['PORT'],username=item['USER'])
 
         ##0 assembly
-        runShell('mvn clean install  assembly:assembly -P %s'%DEV)
+        runShell('mvn clean install  assembly:assembly -P %s'%ENV)
         print showText('assembly success','greenText')
 
         ##1 backup
