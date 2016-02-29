@@ -2,6 +2,7 @@
 
 import paramiko
 import datetime
+import telnetlib
 
 HOSTS = [
     {
@@ -15,6 +16,10 @@ HOSTS = [
         'USER':'root'
     }
 ]
+
+BASEPATH = '/root/mpush'
+
+
 
 class SSH():
     def __init__(self):
@@ -41,7 +46,6 @@ class SSH():
             self.client.close()
 
 
-
 def showText(s, typ):
     if typ == 'RED':
         return redText(s)
@@ -66,10 +70,23 @@ def yellowText(s):
 def main():
     for item in HOSTS:
         ssh = SSH().connect(item['HOST'],item['PORT'],username=item['USER'])
-        ##back
-        base = '/root/mpush/mpush-jar-with-dependency.tar.gz'
-        to = '/root/mpush/back/mpush-jar-with-dependency.tar.gz.'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+
+        ##backup
+        base = BASEPATH+'/mpush-jar-with-dependency.tar.gz'
+        to = BASEPATH+'/back/mpush-jar-with-dependency.tar.gz.'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         ssh.exe('cp %s %s '%(base,to))
+        print greenText('backup mpush ok')
+
+        ##telnet remove zk  info
+        #ssh.exe('telent 127.0.0.1 4001')
+        #ssh.exe('')
+
+        ## kill process
+        ssh.exe('ps aux|grep mpush-cs.jar')
+
+        ## start process
+        # ssh.exe('')
+
         ssh.close()
 
 
