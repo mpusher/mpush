@@ -35,7 +35,7 @@ class SSH():
     def connect(self,host,port=22,username='root',password=None):
         self.client = paramiko.SSHClient()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        self.client.connect(host, port, username=username, password=password, timeout=30)
+        self.client.connect(host, port, username=username, password=password, timeout=120)
         return self
 
     def exe(self,cmd,isprint=True):
