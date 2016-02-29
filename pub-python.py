@@ -2,6 +2,19 @@
 
 import paramiko
 
+HOSTS = [
+    {
+        'HOST':'hive1_host',
+        'PORT':9092,
+        'USER':'root'
+    },
+    {
+        'HOST':'hive2_host',
+        'PORT':9092,
+        'USER':'root'
+    }
+]
+
 class SSH():
     def __init__(self):
         self.client = None
@@ -26,18 +39,27 @@ class SSH():
         if self.client:
             self.client.close()
 
-HOSTS = [
-    {
-        'HOST':'hive1_host',
-        'PORT':9092,
-        'USER':'root'
-    },
-    {
-        'HOST':'hive2_host',
-        'PORT':9092,
-        'USER':'root'
-    }
-]
+
+
+def showText(s, typ):
+    if typ == 'RED':
+        return redText(s)
+    elif typ == 'GREEN':
+        return greenText(s)
+    elif typ == 'YELLOW':
+        return yellowText(s)
+    else:
+        return s
+
+def redText(s):
+    return "\033[1;31m%s\033[0m" % s
+
+def greenText(s):
+    return "\033[1;32m%s\033[0m" % s
+
+
+def yellowText(s):
+    return "\033[1;33m%s\033[0m" % s
 
 
 def main():
