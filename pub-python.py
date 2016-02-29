@@ -82,12 +82,13 @@ def runShell(c):
     os.system(c)
 
 def main():
+
+    ##0 assembly
+    runShell('mvn clean install  assembly:assembly -P %s'%ENV)
+    print showText('assembly success','greenText')
+
     for item in HOSTS:
         ssh = SSH().connect(item['HOST'],item['PORT'],username=item['USER'])
-
-        ##0 assembly
-        runShell('mvn clean install  assembly:assembly -P %s'%ENV)
-        print showText('assembly success','greenText')
 
         ##1 backup
         base = BASEPATH+'/mpush-jar-with-dependency.tar.gz'
