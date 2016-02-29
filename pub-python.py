@@ -82,6 +82,9 @@ def main():
     for item in HOSTS:
         ssh = SSH().connect(item['HOST'],item['PORT'],username=item['USER'])
 
+        ##0 assembly
+
+
         ##1 backup
         base = BASEPATH+'/mpush-jar-with-dependency.tar.gz'
         to = BASEPATH+'/back/mpush-jar-with-dependency.tar.gz.'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')
@@ -105,7 +108,7 @@ def main():
         runShell('scp -P %s %s %s:%s'%(item['PORT'],GITLABPATH,item['HOST'],'/root/mpush/mpush'))
 
         ##4  tar package
-        ssh.exe('cd /root/mpush/mpush & tar -xzvf ./mpush-jar-with-dependency.tar.gz')
+        ssh.exe('cd /root/mpush/mpush && tar -xzvf ./mpush-jar-with-dependency.tar.gz')
 
         ##5 start process
         ssh.exe('java -jar /root/mpush/mpush/mpush-cs.jar &')
