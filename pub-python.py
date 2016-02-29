@@ -1,6 +1,7 @@
 # coding=utf8
 
 import paramiko
+import datetime
 
 HOSTS = [
     {
@@ -65,7 +66,10 @@ def yellowText(s):
 def main():
     for item in HOSTS:
         ssh = SSH().connect(item['HOST'],item['PORT'],username=item['USER'])
-        ssh.exe('ls -l')
+        ##back
+        base = '/root/mpush/mpush-jar-with-dependency.tar.gz'
+        to = '/root/mpush/back/mpush-jar-with-dependency.tar.gz.'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        ssh.exe('cp %s %s '%(base,to))
         ssh.close()
 
 
