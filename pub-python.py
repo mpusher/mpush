@@ -111,10 +111,10 @@ def main():
         runShell('scp -P %s %s %s:%s'%(item['PORT'],GITLABPATH,item['HOST'],BASEPATH+'/mpush')
 
         ##4  tar package
-        ssh.exe('tar -xzvf '+BASEPATH+'/mpush/mpush-jar-with-dependency.tar.gz')
+        ssh.exe('tar -xzvf %s/mpush/mpush-jar-with-dependency.tar.gz'%(BASEPATH))
 
         ##5 start process
-        ssh.exe('java -jar ' +BASEPATH +'/mpush/mpush-cs.jar &')
+        ssh.exe('java -jar %s/mpush/mpush-cs.jar %'%(BASEPATH))
 
         ssh.close()
 
