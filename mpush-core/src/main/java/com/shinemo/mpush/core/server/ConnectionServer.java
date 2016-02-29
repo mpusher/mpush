@@ -1,6 +1,7 @@
 package com.shinemo.mpush.core.server;
 
 
+import com.shinemo.mpush.api.RedisKey;
 import com.shinemo.mpush.api.connection.ConnectionManager;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.common.MessageDispatcher;
@@ -9,6 +10,9 @@ import com.shinemo.mpush.netty.client.HttpClient;
 import com.shinemo.mpush.netty.client.NettyHttpClient;
 import com.shinemo.mpush.netty.connection.NettyConnectionManager;
 import com.shinemo.mpush.netty.server.NettyServer;
+import com.shinemo.mpush.tools.MPushUtil;
+import com.shinemo.mpush.tools.redis.manage.RedisManage;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
@@ -30,6 +34,8 @@ public final class ConnectionServer extends NettyServer {
     public void init() {
         super.init();
         connectionManager.init();
+        //重置在线数
+        RedisManage.set(RedisKey.getConnNum(MPushUtil.getExtranetAddress()), 0);
         MessageDispatcher receiver = new MessageDispatcher();
         receiver.register(Command.HEARTBEAT, new HeartBeatHandler());
         receiver.register(Command.HANDSHAKE, new HandshakeHandler());
