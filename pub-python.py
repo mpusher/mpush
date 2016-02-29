@@ -25,7 +25,7 @@ STARTPROCESS = 'java -jar mpush-cs.jar'
 
 GITLABPATH = '/data/localgit/mpush/mpush/target/mpush-jar-with-dependency.tar.gz'
 
-ENV=daily
+ENV= 'daily'
 
 
 class SSH():
