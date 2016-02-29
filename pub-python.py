@@ -108,11 +108,11 @@ def main():
             print showText('there is no mpush-cs process to kill','YELLOW')
 
         ##3 scp
-        runShell('scp -P %s %s %s:%s'%(item['PORT'],GITLABPATH,item['HOST'],'/root/mpush'),False)
+        runShell('scp -P %s %s %s:%s'%(item['PORT'],GITLABPATH,item['HOST'],'/root/mpush'))
         print showText('scp success','greenText')
 
         ##4  tar package
-        ssh.exe('cd /root/mpush/ && tar -xzvf ./mpush-jar-with-dependency.tar.gz')
+        ssh.exe('cd /root/mpush/ && tar -xzvf ./mpush-jar-with-dependency.tar.gz',False)
         print showText('tar success','greenText')
 
         ##5 start process
