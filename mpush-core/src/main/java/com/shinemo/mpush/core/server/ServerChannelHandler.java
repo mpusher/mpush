@@ -5,7 +5,6 @@ import com.shinemo.mpush.api.connection.ConnectionManager;
 import com.shinemo.mpush.api.event.ConnectionCloseEvent;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.api.connection.Connection;
-import com.shinemo.mpush.api.event.UserOfflineEvent;
 import com.shinemo.mpush.api.PacketReceiver;
 import com.shinemo.mpush.common.EventBus;
 import com.shinemo.mpush.log.LogLevel;
