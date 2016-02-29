@@ -20,7 +20,6 @@ HOSTS = [
 BASEPATH = '/root/mpush'
 
 
-
 class SSH():
     def __init__(self):
         self.client = None
@@ -37,7 +36,7 @@ class SSH():
         stdin, stdout, stderr = self.client.exec_command(cmd)
         if isprint:
             for std in stdout.readlines():
-                print std,
+                print `std`,
         return stdin, stdout, stderr
 
 
