@@ -3,6 +3,8 @@
 import paramiko
 import datetime
 import telnetlib
+import os
+import sys
 
 HOSTS = [
     {
@@ -37,6 +39,7 @@ class SSH():
     def exe(self,cmd,isprint=True):
         if not cmd:
             return
+        print greenText(cmd)
         stdin, stdout, stderr = self.client.exec_command(cmd)
         if isprint:
             for std in stdout.readlines():
@@ -49,17 +52,8 @@ class SSH():
             self.client.close()
 
 def getPid(ssh):
-    pids = []
-    stdin, stdout, stderr = ssh.exe('ps aux|grep "java -jar mpush-cs.jar" |grep -v "grep"')
-    for std in stdout.readlines():
-        x = std.split(' ')
-        if len(x) < 10:
-            continue
-        if x.index(STARTPROCESS) < 0 :
-            continue
-        pid = filter(lambda ch: ch!='', std.split(' '))[1]
-        pids.append(pid)
-
+    stdin, stdout, stderr = ssh.exe(''' ps aux|grep "java -jar mpush-cs.jar" |grep -v "grep"|awk '{print $2}' ''',False)
+    return stdout.read().strip()
 def showText(s, typ):
     if typ == 'RED':
         return redText(s)
@@ -99,19 +93,19 @@ def main():
         #ssh.exe('')
 
         ##2 kill process
-        pids = getPid(ssh)
-        if len(pids) > 1:
-            print redText('mpush-cs server has more than one process.pls kill process by you self')
-        elif len(pids) == 0:
+        pid = getPid(ssh)
+        print '=============',pid
+
+        if pid :
+            ssh.exe('kill -9 %s'%pid)
+        else:
             print yellowText('there is no mpush-cs process to kill')
-        elif len(pids) == 1:
-            ssh.exe('kill -9 %s'%(pids[0]))
 
         ##3 scp
-        runShell('scp -P %s %s %s:%s'%(item['PORT'],GITLABPATH,item['HOST'],BASEPATH+'/mpush')
+        runShell('scp -P %s %s %s:%s'%(item['PORT'],GITLABPATH,item['HOST'],'/root/mpush/mpush'))
 
         ##4  tar package
-        ssh.exe('tar -xzvf /root/mpush/mpush/mpush-jar-with-dependency.tar.gz')
+        ssh.exe('cd /root/mpush/mpush & tar -xzvf ./mpush-jar-with-dependency.tar.gz')
 
         ##5 start process
         ssh.exe('java -jar /root/mpush/mpush/mpush-cs.jar &')
