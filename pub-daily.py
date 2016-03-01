@@ -187,13 +187,16 @@ def main():
         print showText('backup mpush ok','greenText')
 
         ## remove zk info
-        telnet = ssh.telnet('telnet 127.0.0.1 4001',False)
-        telnet.send(' ',False)
-        telnet.send('rcs') ## 删除zk
-        telnet.send('quit') ## 关闭连接
-        pid = getPid('telnet',ssh)
-        if pid :
-            ssh.exe('kill -9 %s'%pid)
+        try:
+            telnet = ssh.telnet('telnet 127.0.0.1 4001')
+            telnet.send(' ',False)
+            telnet.send('rcs') ## 删除zk
+            telnet.send('quit') ## 关闭连接
+            pid = getPid('telnet',ssh)
+            if pid :
+                ssh.exe('kill -9 %s'%pid)
+        except:
+            print showText('telnet exception','redText')
 
 
         print showText('start kill process','greenText')
