@@ -32,31 +32,81 @@ JAVA_PATH = '/opt/shinemo/jdk1.7.0_40/bin/java'
 ENV= 'daily'
 
 
-class SSH():
+class SSH(object):
     def __init__(self):
         self.client = None
+        self.chan = None
+        self.shell = None
 
-    def connect(self,host,port=22,username='root',password=None):
-        self.client = paramiko.SSHClient()
-        self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        self.client.connect(host, port, username=username, password=password, timeout=120)
+    def __enter__(self):
         return self
 
-    def exe(self,cmd,isprint=True):
-        if not cmd:
-            return
-        print greenText(cmd)
-        stdin, stdout, stderr = self.client.exec_command(cmd)
-        if isprint:
-            for std in stdout.readlines():
-                print std,
-        print stderr.read()
-        return stdin, stdout, stderr
+    def __exit__(self, typ, value, trace):
+        self.close()
 
+    def connect(self, host, port=22, username='root', password=None):
+        self.client = paramiko.SSHClient()
+        self.client.load_system_host_keys()
+        self.client.connect(host, port, username=username, password=password, timeout=10)
+        return self
 
     def close(self):
         if self.client:
             self.client.close()
+
+    def exec_command(self, cmd, isprint=True):
+        """执行命令，每次执行都是新的session"""
+        if not cmd:
+            return
+        print_cmd(cmd)
+
+        stdin, stdout, stderr = self.client.exec_command(cmd)
+        out = stdout.read()
+        if isprint:
+            print_out(out)
+
+        err = stderr.read()
+        if err:
+            print_out(err)
+        return out, err
+
+    def _invoke_shell(self):
+        """创建一个shell"""
+        self.shell = self.client.invoke_shell(width=200)
+        is_recv = False
+        while True:
+            if self.shell.recv_ready():
+                print_out_stream(self.shell.recv(1024))
+                is_recv = True
+            else:
+                if is_recv:
+                    return
+                else:
+                    time.sleep(0.1)
+
+    def shell_exec(self, cmd):
+        """在shell中执行命令,使用的是同一个session"""
+        if not cmd:
+            return
+
+        if not self.shell:
+            self._invoke_shell()
+
+        self.shell.send(cmd + "\n")
+
+        out = ''
+        is_recv = False
+        while True:
+            if self.shell.recv_ready():
+                tmp = self.shell.recv(1024)
+                out += tmp
+                print_out_stream(tmp)
+                is_recv = True
+            else:
+                if is_recv:
+                    return out
+                else:
+                    time.sleep(0.1)
 
 def getPid(ssh):
     stdin, stdout, stderr = ssh.exe(' ps aux|grep %s |grep -v "grep"|awk \'{print $2}\' '%PROCESS_KEY_WORD,False)
@@ -114,16 +164,16 @@ def main():
         ##3 backup
         base = BASEPATH+'/'+MPUSH_TAR_NAME
         to = BASEPATH+'/back/'+MPUSH_TAR_NAME+'.'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-        ssh.exe('mv %s %s '%(base,to))
+        ssh.shell_exec('mv %s %s '%(base,to))
         print showText('backup mpush ok','greenText')
 
         ## remove zk info
-        
+
 
         ##4 kill process
         pid = getPid(ssh)
         if pid :
-            ssh.exe('kill -9 %s'%pid)
+            ssh.shell_exec('kill -9 %s'%pid)
         else:
             print showText('there is no process to kill','YELLOW')
 
@@ -132,11 +182,11 @@ def main():
         print showText('scp success','greenText')
 
         ##6  tar package
-        ssh.exe('cd %s && rm -rf mpush/ && tar -xzvf ./%s'%(BASEPATH,MPUSH_TAR_NAME),False)
+        ssh.shell_exec('cd %s && rm -rf mpush/ && tar -xzvf ./%s'%(BASEPATH,MPUSH_TAR_NAME),False)
         print showText('tar success','greenText')
 
         ##7 start process
-        ssh.exe('nohup %s -jar %s/mpush/%s >> %s/mpush/nohup.out 2>&1 &'%(JAVA_PATH,BASEPATH,PROCESS_KEY_WORD,BASEPATH))
+        ssh.shell_exec('nohup %s -jar %s/mpush/%s >> %s/mpush/nohup.out 2>&1 &'%(JAVA_PATH,BASEPATH,PROCESS_KEY_WORD,BASEPATH))
         print showText('start process success','greenText')
 
 
