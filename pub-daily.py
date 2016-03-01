@@ -32,6 +32,39 @@ JAVA_PATH = '/opt/shinemo/jdk1.7.0_40/bin/java'
 
 ENV= 'daily'
 
+class Telnet(object):
+    def __init__(self, chan):
+        self.chan = chan
+
+    def send(self, cmd):
+        self.chan.send(cmd+'\n')
+        print_cmd(cmd)
+        out = ''
+        is_recv = False
+        is_recv_err = False
+        while True:
+            # 结束
+            if self.chan.recv_stderr_ready():
+                tmp = self.chan.recv_stderr(1024)
+                print_out_stream(tmp)
+                out += tmp
+                is_recv_err = True
+            else:
+                if is_recv_err:
+                    return out
+                else:
+                    time.sleep(0.1)
+
+            if self.chan.recv_ready():
+                tmp = self.chan.recv(1024)
+                print_out_stream(tmp)
+                out += tmp
+                is_recv = True
+            else:
+                if is_recv:
+                    return out
+                else:
+                    time.sleep(0.1)
 
 class SSH():
     def __init__(self):
@@ -53,6 +86,24 @@ class SSH():
                 print std,
         print stderr.read()
         return stdin, stdout, stderr
+
+    def telnet(self, cmd):
+        chan = self.client.get_transport().open_session(timeout=10)
+        chan.exec_command(cmd)
+
+        t = Telnet(chan)
+
+        is_recv = False
+
+        while True:
+            if chan.recv_ready():
+                print_out_stream(chan.recv(1024))
+                is_recv = True
+            else:
+                if is_recv:
+                    return t
+                else:
+                    time.sleep(0.1)
 
 
     def close(self):
@@ -119,7 +170,10 @@ def main():
         print showText('backup mpush ok','greenText')
 
         ## remove zk info
-
+        telnet = ssh.telnet('telnet 127.0.0.1 4001')
+        telnet.send(' ')
+        telnet.send('rcs') ## 删除zk
+        telnet.send('quit') ## 关闭连接
 
         ##4 kill process  先kill执行。等待15秒后，如果进程还是没有杀掉，则执行kill -9
         pid = getPid(ssh)
