@@ -87,7 +87,17 @@ def main():
     runShell('mvn clean install  assembly:assembly -P %s'%ENV)
     print showText('assembly success','greenText')
 
+    confirmPub = raw_input("确认发布Y/N：")
+
+    if confirmPub != 'Y'
+       return;
+
     for item in HOSTS:
+
+        pubHost = raw_input("发布%sY/N："%item['HOST'])
+        if pubHost != 'Y'
+        return;
+
         ssh = SSH().connect(item['HOST'],item['PORT'],username=item['USER'])
 
         ##1 backup
