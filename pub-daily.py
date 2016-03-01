@@ -42,11 +42,11 @@ class SSH():
         self.client.connect(host, port, username=username, password=password, timeout=120)
         return self
 
-    def exe(self,cmd,isprint=True,get_pty=True):
+    def exe(self,cmd,isprint=True):
         if not cmd:
             return
         print greenText(cmd)
-        stdin, stdout, stderr = self.client.exec_command(cmd,get_pty=get_pty)
+        stdin, stdout, stderr = self.client.exec_command(cmd)
         if isprint:
             for std in stdout.readlines():
                 print std,
