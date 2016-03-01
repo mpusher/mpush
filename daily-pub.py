@@ -111,7 +111,7 @@ class SSH(object):
                     time.sleep(0.1)
 
 def getPid(ssh):
-    stdin, stdout, stderr = ssh.shell_exec(' ps aux|grep %s |grep -v "grep"|awk \'{print $2}\' '%PROCESS_KEY_WORD,False)
+    stdin, stdout, stderr = ssh.shell_exec(' ps aux|grep %s |grep -v "grep"|awk \'{print $2}\' '%PROCESS_KEY_WORD)
     return stdout.read().strip()
 def showText(s, typ):
     if typ == 'RED':
@@ -198,7 +198,7 @@ def main():
         print showText('scp success','greenText')
 
         ##6  tar package
-        ssh.shell_exec('cd %s && rm -rf mpush/ && tar -xzvf ./%s'%(BASEPATH,MPUSH_TAR_NAME),False)
+        ssh.shell_exec('cd %s && rm -rf mpush/ && tar -xzvf ./%s'%(BASEPATH,MPUSH_TAR_NAME))
         print showText('tar success','greenText')
 
         ##7 start process
