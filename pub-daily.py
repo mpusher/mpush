@@ -188,7 +188,7 @@ def main():
 
         ## remove zk info
         try:
-            telnet = ssh.telnet('telnet 127.0.0.1 4001')
+            telnet = ssh.telnet('telnet 127.0.0.1 4001',False)
             telnet.send(' ',False)
             telnet.send('rcs') ## 删除zk
             telnet.send('quit') ## 关闭连接
