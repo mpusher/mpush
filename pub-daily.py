@@ -5,6 +5,7 @@ import datetime
 import telnetlib
 import os
 import sys
+import time
 
 HOSTS = [
     {
@@ -118,14 +119,19 @@ def main():
         print showText('backup mpush ok','greenText')
 
         ## remove zk info
-        
 
-        ##4 kill process
+
+        ##4 kill process  先kill执行。等待5秒后，如果进程还是没有杀掉，则执行kill -9
         pid = getPid(ssh)
         if pid :
-            ssh.exe('kill -9 %s'%pid)
+            ssh.exe('kill %s'%pid)
+            time.sleep(5)
         else:
             print showText('there is no process to kill','YELLOW')
+        pid = getPid(ssh)
+        if pid:
+            ssh.exe('kill -9 %s'%pid)
+
 
         ##5 scp
         runShell('scp -P %s %s %s:%s'%(item['PORT'],GITLABPATH,item['HOST'],BASEPATH))
