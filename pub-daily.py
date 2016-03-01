@@ -108,8 +108,8 @@ def main():
         ssh = SSH().connect(item['HOST'],item['PORT'],username=item['USER'])
 
         ##2 backup
-        base = BASEPATH+MPUSH_TAR_NAME
-        to = BASEPATH+MPUSH_TAR_NAME+'.'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        base = BASEPATH+'/'+MPUSH_TAR_NAME
+        to = BASEPATH+'/'+MPUSH_TAR_NAME+'.'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         ssh.exe('mv %s %s '%(base,to))
         print showText('backup mpush ok','greenText')
 
