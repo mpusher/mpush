@@ -111,7 +111,7 @@ class SSH(object):
                     time.sleep(0.1)
 
 def getPid(ssh):
-    stdin, stdout, stderr = ssh.exe(' ps aux|grep %s |grep -v "grep"|awk \'{print $2}\' '%PROCESS_KEY_WORD,False)
+    stdin, stdout, stderr = ssh.shell_exec(' ps aux|grep %s |grep -v "grep"|awk \'{print $2}\' '%PROCESS_KEY_WORD,False)
     return stdout.read().strip()
 def showText(s, typ):
     if typ == 'RED':
