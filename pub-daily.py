@@ -36,7 +36,7 @@ class Telnet(object):
     def __init__(self, chan):
         self.chan = chan
 
-    def send(self, cmd):
+    def send(self, cmd,isprint=True):
         self.chan.send(cmd+'\n')
         print_cmd(cmd)
         out = ''
@@ -46,7 +46,8 @@ class Telnet(object):
             # 结束
             if self.chan.recv_stderr_ready():
                 tmp = self.chan.recv_stderr(1024)
-                print_out_stream(tmp)
+                if isprint:
+                    print_out_stream(tmp)
                 out += tmp
                 is_recv_err = True
             else:
@@ -57,7 +58,8 @@ class Telnet(object):
 
             if self.chan.recv_ready():
                 tmp = self.chan.recv(1024)
-                print_out_stream(tmp)
+                if isprint:
+                    print_out_stream(tmp)
                 out += tmp
                 is_recv = True
             else:
@@ -185,9 +187,13 @@ def main():
 
         ## remove zk info
         telnet = ssh.telnet('telnet 127.0.0.1 4001')
-        telnet.send(' ')
+        telnet.send(' ',False)
         telnet.send('rcs') ## 删除zk
         telnet.send('quit') ## 关闭连接
+
+
+        time.sleep(30)
+        print showText('start kill process','greenText')
 
         ##4 kill process  先kill执行。等待15秒后，如果进程还是没有杀掉，则执行kill -9
         pid = getPid(ssh)
