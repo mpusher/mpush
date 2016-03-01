@@ -89,14 +89,14 @@ def main():
 
     confirmPub = raw_input("确认发布Y/N：")
 
-    if confirmPub != 'Y'
-       return;
+    if confirmPub != 'Y':
+       return
 
     for item in HOSTS:
 
         pubHost = raw_input("发布%sY/N："%item['HOST'])
-        if pubHost != 'Y'
-        return;
+        if pubHost != 'Y':
+           return
 
         ssh = SSH().connect(item['HOST'],item['PORT'],username=item['USER'])
 
