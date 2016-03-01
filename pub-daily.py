@@ -89,7 +89,7 @@ class SSH():
         print stderr.read()
         return stdin, stdout, stderr
 
-    def telnet(self, cmd):
+    def telnet(self, cmd,isprint=True):
         chan = self.client.get_transport().open_session(timeout=10)
         chan.exec_command(cmd)
 
@@ -99,7 +99,8 @@ class SSH():
 
         while True:
             if chan.recv_ready():
-                print_out_stream(chan.recv(1024))
+                if isprint:
+                    print_out_stream(chan.recv(1024))
                 is_recv = True
             else:
                 if is_recv:
@@ -112,8 +113,8 @@ class SSH():
         if self.client:
             self.client.close()
 
-def getPid(ssh):
-    stdin, stdout, stderr = ssh.exe(' ps aux|grep %s |grep -v "grep"|awk \'{print $2}\' '%PROCESS_KEY_WORD,False)
+def getPid(keyword,ssh):
+    stdin, stdout, stderr = ssh.exe(' ps aux|grep %s |grep -v "grep"|awk \'{print $2}\' '%keyword,False)
     return stdout.read().strip()
 def showText(s, typ):
     if typ == 'RED':
@@ -186,23 +187,25 @@ def main():
         print showText('backup mpush ok','greenText')
 
         ## remove zk info
-        telnet = ssh.telnet('telnet 127.0.0.1 4001')
+        telnet = ssh.telnet('telnet 127.0.0.1 4001',False)
         telnet.send(' ',False)
         telnet.send('rcs') ## 删除zk
         telnet.send('quit') ## 关闭连接
+        pid = getPid('telnet',ssh)
+        if pid :
+            ssh.exe('kill -9 %s'%pid)
 
 
-        time.sleep(30)
         print showText('start kill process','greenText')
 
         ##4 kill process  先kill执行。等待15秒后，如果进程还是没有杀掉，则执行kill -9
-        pid = getPid(ssh)
+        pid = getPid(PROCESS_KEY_WORD,ssh)
         if pid :
             ssh.exe('kill %s'%pid)
             time.sleep(15)
         else:
             print showText('there is no process to kill','YELLOW')
-        pid = getPid(ssh)
+        pid = getPid(PROCESS_KEY_WORD,ssh)
         if pid:
             ssh.exe('kill -9 %s'%pid)
 
