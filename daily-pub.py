@@ -5,6 +5,7 @@ import datetime
 import telnetlib
 import os
 import sys
+import time
 
 HOSTS = [
     {
