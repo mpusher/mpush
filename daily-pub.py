@@ -47,7 +47,8 @@ class SSH(object):
 
     def connect(self, host, port=22, username='root', password=None):
         self.client = paramiko.SSHClient()
-        self.client.load_system_host_keys()
+        ##self.client.load_system_host_keys()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.client.connect(host, port, username=username, password=password, timeout=10)
         return self
 
@@ -160,7 +161,7 @@ def main():
         if pubHost != 'y':
            return
 
-        ssh = SSH().connect(item['HOST'],item['PORT'],username=item['USER'])
+        ssh = SSH().connect(item['HOST'],item['PORT'],item['USER'])
 
         ##3 backup
         base = BASEPATH+'/'+MPUSH_TAR_NAME
