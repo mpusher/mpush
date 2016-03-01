@@ -125,11 +125,11 @@ def main():
         print showText('scp success','greenText')
 
         ##5  tar package
-        ssh.exe('cd %s && tar -xzvf ./%s'%(BASEPATH,MPUSH_TAR_NAME),False)
+        ssh.exe('cd %s && rm -rf mpush/ && tar -xzvf ./%s'%(BASEPATH,MPUSH_TAR_NAME),False)
         print showText('tar success','greenText')
 
         ##6 start process
-        ssh.exe('nohup %s -jar %s/mpush/mpush-cs.jar >> %s/mpush/nohup.out 2>&1 &'%(JAVA_PATH,BASEPATH,BASEPATH))
+        ssh.exe('nohup %s -jar %s/mpush/%s >> %s/mpush/nohup.out 2>&1 &'%(JAVA_PATH,BASEPATH,PROCESS_KEY_WORD,BASEPATH))
         print showText('start process success','greenText')
 
 
