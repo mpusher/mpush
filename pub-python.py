@@ -87,6 +87,9 @@ def main():
     runShell('mvn clean install  assembly:assembly -P %s'%ENV)
     print showText('assembly success','greenText')
 
+    ##包创建时间
+    runShell('stat -c "%y" %s'%GITLABPATH)
+
     confirmPub = raw_input("确认发布(Y/N)：")
 
     if confirmPub != 'Y':
