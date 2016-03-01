@@ -188,10 +188,10 @@ def main():
 
         ## remove zk info
         try:
-            telnet = ssh.telnet('telnet 127.0.0.1 4001',False)
+            telnet = ssh.telnet('telnet 127.0.0.1 4001')
             telnet.send(' ',False)
-            telnet.send('rcs') ## 删除zk
-            telnet.send('quit') ## 关闭连接
+            telnet.send('rcs',False) ## 删除zk
+            telnet.send('quit',False) ## 关闭连接
             pid = getPid('telnet',ssh)
             if pid :
                 ssh.exe('kill -9 %s'%pid)
