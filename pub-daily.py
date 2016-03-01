@@ -87,48 +87,52 @@ def runShell(c):
 
 def main():
 
-    ##0 assembly
+    ##0 git pull
+    runShell('git pull origin master')
+    print showText('git pull master success','greenText')
+
+    ##1 assembly
     runShell('mvn clean install  assembly:assembly -P %s'%ENV)
     print showText('assembly success','greenText')
 
-    ##1 包创建时间
+    ##2 包创建时间
     runShell('stat -c "%%y" %s'%GITLABPATH)
 
     confirmPub = raw_input("确认发布(Y/N)：")
 
-    if confirmPub != 'Y':
+    if confirmPub != 'Y' or confirmPub != 'y':
        return
 
     for item in HOSTS:
 
         pubHost = raw_input("发布 %s (Y/N)："%item['HOST'])
-        if pubHost != 'Y':
+        if pubHost != 'Y' or pubHost != 'y':
            return
 
         ssh = SSH().connect(item['HOST'],item['PORT'],username=item['USER'])
 
-        ##2 backup
+        ##3 backup
         base = BASEPATH+'/'+MPUSH_TAR_NAME
         to = BASEPATH+'/back/'+MPUSH_TAR_NAME+'.'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         ssh.exe('mv %s %s '%(base,to))
         print showText('backup mpush ok','greenText')
 
-        ##3 kill process
+        ##4 kill process
         pid = getPid(ssh)
         if pid :
             ssh.exe('kill -9 %s'%pid)
         else:
             print showText('there is no process to kill','YELLOW')
 
-        ##4 scp
+        ##5 scp
         runShell('scp -P %s %s %s:%s'%(item['PORT'],GITLABPATH,item['HOST'],BASEPATH))
         print showText('scp success','greenText')
 
-        ##5  tar package
+        ##6  tar package
         ssh.exe('cd %s && rm -rf mpush/ && tar -xzvf ./%s'%(BASEPATH,MPUSH_TAR_NAME),False)
         print showText('tar success','greenText')
 
-        ##6 start process
+        ##7 start process
         ssh.exe('nohup %s -jar %s/mpush/%s >> %s/mpush/nohup.out 2>&1 &'%(JAVA_PATH,BASEPATH,PROCESS_KEY_WORD,BASEPATH))
         print showText('start process success','greenText')
 
