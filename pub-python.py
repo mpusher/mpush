@@ -117,7 +117,7 @@ def main():
         print showText('tar success','greenText')
 
         ##5 start process
-        ssh.exe('/opt/shinemo/jdk1.7.0_40/bin/java -jar /root/mpush/mpush/mpush-cs.jar &')
+        ssh.exe('nohup /opt/shinemo/jdk1.7.0_40/bin/java -jar /root/mpush/mpush/mpush-cs.jar >> /root/mpush/mpush/nohup.out 2>&1 &')
         print showText('start process success','greenText')
 
         ssh.close()
