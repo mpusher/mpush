@@ -88,7 +88,7 @@ def main():
     print showText('assembly success','greenText')
 
     ##包创建时间
-    runShell(''' stat -c "%y" /data/localgit/mpush/mpush/target/mpush-jar-with-dependency.tar.gz ''')
+    runShell("stat -c '%y' %s"%GITLABPATH)
 
     confirmPub = raw_input("确认发布(Y/N)：")
 
