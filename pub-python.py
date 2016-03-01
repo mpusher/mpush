@@ -87,14 +87,14 @@ def main():
     runShell('mvn clean install  assembly:assembly -P %s'%ENV)
     print showText('assembly success','greenText')
 
-    confirmPub = raw_input("确认发布Y/N：")
+    confirmPub = raw_input("确认发布(Y/N)：")
 
     if confirmPub != 'Y':
        return
 
     for item in HOSTS:
 
-        pubHost = raw_input("发布%sY/N："%item['HOST'])
+        pubHost = raw_input("发布 %s (Y/N)："%item['HOST'])
         if pubHost != 'Y':
            return
 
