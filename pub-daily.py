@@ -98,15 +98,15 @@ def main():
     ##2 包创建时间
     runShell('stat -c "%%y" %s'%GITLABPATH)
 
-    confirmPub = raw_input("确认发布(Y/N)：")
+    confirmPub = raw_input("确认发布(y/n)：")
 
-    if confirmPub != 'Y' or confirmPub != 'y':
+    if confirmPub != 'y':
        return
 
     for item in HOSTS:
 
-        pubHost = raw_input("发布 %s (Y/N)："%item['HOST'])
-        if pubHost != 'Y' or pubHost != 'y':
+        pubHost = raw_input("发布 %s (y/n)："%item['HOST'])
+        if pubHost != 'y':
            return
 
         ssh = SSH().connect(item['HOST'],item['PORT'],username=item['USER'])
