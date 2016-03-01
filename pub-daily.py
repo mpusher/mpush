@@ -133,6 +133,20 @@ def greenText(s):
 def yellowText(s):
     return "\033[1;33m%s\033[0m" % s
 
+def print_cmd(s):
+    """打印执行的命令"""
+    print yellowText(s)
+
+
+def print_out(s):
+    """打印执行命令的结果"""
+    print greenText(s)
+
+
+def print_out_stream(s):
+    """打印执行命令的结果"""
+    sys.stdout.write(greenText(s))
+
 def runShell(c):
     print c
     os.system(c)
