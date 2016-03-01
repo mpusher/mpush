@@ -109,7 +109,7 @@ def main():
 
         ##2 backup
         base = BASEPATH+'/'+MPUSH_TAR_NAME
-        to = BASEPATH+'/'+MPUSH_TAR_NAME+'.'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        to = BASEPATH+'/back/'+MPUSH_TAR_NAME+'.'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         ssh.exe('mv %s %s '%(base,to))
         print showText('backup mpush ok','greenText')
 
@@ -121,7 +121,7 @@ def main():
             print showText('there is no process to kill','YELLOW')
 
         ##4 scp
-        runShell('scp -P %s %s %s:%s'%(item['PORT'],GITLABPATH,item['HOST'],'/root/mpush'))
+        runShell('scp -P %s %s %s:%s'%(item['PORT'],GITLABPATH,item['HOST'],BASEPATH))
         print showText('scp success','greenText')
 
         ##5  tar package
