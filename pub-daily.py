@@ -121,11 +121,11 @@ def main():
         ## remove zk info
 
 
-        ##4 kill process  先kill执行。等待5秒后，如果进程还是没有杀掉，则执行kill -9
+        ##4 kill process  先kill执行。等待15秒后，如果进程还是没有杀掉，则执行kill -9
         pid = getPid(ssh)
         if pid :
             ssh.exe('kill %s'%pid)
-            time.sleep(5)
+            time.sleep(15)
         else:
             print showText('there is no process to kill','YELLOW')
         pid = getPid(ssh)
