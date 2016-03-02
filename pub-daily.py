@@ -150,6 +150,14 @@ def print_out_stream(s):
     """打印执行命令的结果"""
     sys.stdout.write(greenText(s))
 
+def sleep(checkCount):
+    while(checkCount>1):
+        checkCount = checkCount - 1
+        sys.stdout.write(greenText('  .  '))
+        sys.stdout.flush()
+        time.sleep(1)
+    print greenText('  .  ')
+
 def runShell(c):
     print c
     os.system(c)
@@ -202,7 +210,7 @@ def main():
         pid = getPid(PROCESS_KEY_WORD,ssh)
         if pid :
             ssh.exe('kill %s'%pid)
-            time.sleep(15)
+            sleep(15)
         else:
             print showText('there is no process to kill','YELLOW')
         pid = getPid(PROCESS_KEY_WORD,ssh)
