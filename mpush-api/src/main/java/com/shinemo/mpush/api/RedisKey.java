@@ -8,9 +8,7 @@ public class RedisKey {
 	
 	private static final String FAST_CONNECTION_DEVICE_PREFIX = "mp_f_c_d_";
 	
-	private static final String USER_ONLINE_KEY = "mp_u_ol";
-	
-	private static final String USER_OFFLINE_KEY = "mp_u_ofl";
+	private static final String USER_ONLINE_KEY = "mp_u_ol_";
 	
 	private static final String CONN_NUM_ = "mp_cn_";
 	
@@ -27,12 +25,8 @@ public class RedisKey {
 		return FAST_CONNECTION_DEVICE_PREFIX+deviceId;
 	}
 	
-	public static final String getUserOnlineKey(){
-		return USER_ONLINE_KEY;
-	}
-	
-	public static final String getUserOfflineKey(){
-		return USER_OFFLINE_KEY;
+	public static final String getUserOnlineKey(String extranetAddress){
+		return USER_ONLINE_KEY+extranetAddress;
 	}
 	
 	public static final String getConnNum(String extranetAddress){
