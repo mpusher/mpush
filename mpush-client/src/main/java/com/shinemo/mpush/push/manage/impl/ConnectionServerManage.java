@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
@@ -21,7 +22,12 @@ public class ConnectionServerManage implements ServerManage<ConnectionServerAppl
 	
 	@Override
 	public void addOrUpdate(String fullPath,ConnectionServerApplication application){
-		holder.put(fullPath, application);
+		if(StringUtils.isNotBlank(fullPath)&&application!=null){
+			holder.put(fullPath, application);
+		}else{
+			log.error("fullPath is null or application is null"+fullPath==null?"fullpath is null":fullPath+","+application==null?"application is null":"application is not null");
+		}
+
 		printList();
 	}
 	
