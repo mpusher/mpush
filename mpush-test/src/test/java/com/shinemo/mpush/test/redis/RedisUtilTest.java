@@ -177,24 +177,24 @@ public class RedisUtilTest {
 	
 	@Test
 	public void testSet(){
-		System.out.println(RedisUtil.sCard(node, RedisKey.getUserOnlineKey()));
+//		System.out.println(RedisUtil.sCard(node, RedisKey.getUserOnlineKey()));
 		
-		List<String> onlineUserIdList = RedisUtil.sScan(node, RedisKey.getUserOnlineKey(), String.class, 0);
-		System.out.println(onlineUserIdList.size());
+//		List<String> onlineUserIdList = RedisUtil.sScan(node, RedisKey.getUserOnlineKey(), String.class, 0);
+//		System.out.println(onlineUserIdList.size());
 		
 	}
 	
 	@Test
 	public void testlist(){
-		RedisUtil.del(nodeList, RedisKey.getUserOfflineKey());
+//		RedisUtil.del(nodeList, RedisKey.getUserOfflineKey());
 	}
 	
 	@Test
 	public void testsortedset(){
-		RedisUtil.zAdd(nodeList, RedisKey.getUserOnlineKey(), "doctor1test");
+//		RedisUtil.zAdd(nodeList, RedisKey.getUserOnlineKey(), "doctor1test");
 		
-		long len =RedisUtil.zCard(node, RedisKey.getUserOnlineKey());
-		System.out.println(len);
+//		long len =RedisUtil.zCard(node, RedisKey.getUserOnlineKey());
+//		System.out.println(len);
 	}
 
 }

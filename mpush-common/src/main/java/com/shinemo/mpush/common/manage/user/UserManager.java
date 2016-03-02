@@ -14,7 +14,7 @@ public class UserManager {
 	
     private static final String EXTRANET_ADDRESS = MPushUtil.getExtranetAddress();
     
-    private static final String ONLINE_KEY = RedisKey.getConnNum(EXTRANET_ADDRESS); 
+    private static final String ONLINE_KEY = RedisKey.getUserOnlineKey(EXTRANET_ADDRESS); 
 	
 	private static final Logger log = LoggerFactory.getLogger(UserManager.class);
 	
