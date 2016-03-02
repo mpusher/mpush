@@ -1,11 +1,9 @@
 package com.shinemo.mpush.core.router;
 
 import com.google.common.eventbus.Subscribe;
-import com.shinemo.mpush.api.RedisKey;
 import com.shinemo.mpush.api.event.UserOfflineEvent;
 import com.shinemo.mpush.api.event.UserOnlineEvent;
 import com.shinemo.mpush.common.EventBus;
-import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.redis.manage.RedisManage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,19 +18,15 @@ public final class UserManager extends com.shinemo.mpush.common.manage.user.User
 
     public static final String OFFLINE_CHANNEL = "/mpush/offline/";
     
-    private static final String EXTRANET_ADDRESS = MPushUtil.getExtranetAddress();
-    
-    private static final String ONLINE_KEY = RedisKey.getConnNum(EXTRANET_ADDRESS); 
-
     public UserManager() {
         EventBus.INSTANCE.register(this);
+        init();
     }
 
     @Subscribe
     void handlerUserOnlineEvent(UserOnlineEvent event) {
         userOnline(event.getUserId());
         RedisManage.publish(ONLINE_CHANNEL, event.getUserId());
-        RedisManage.incrBy(ONLINE_KEY, 1);
     }
 
     @Subscribe
@@ -52,6 +46,5 @@ public final class UserManager extends com.shinemo.mpush.common.manage.user.User
     	}
     	userOffline(event.getUserId());
         RedisManage.publish(OFFLINE_CHANNEL, event.getUserId());
-        RedisManage.incrBy(ONLINE_KEY, -1);
     }
 }
