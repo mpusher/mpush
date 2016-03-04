@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public abstract class NettyServer implements Server {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NettyServer.class);
+    private static final Logger log = LoggerFactory.getLogger(NettyServer.class);
 
     public enum State {Created, Initialized, Starting, Started, Shutdown}
 
@@ -36,7 +36,6 @@ public abstract class NettyServer implements Server {
 
     public NettyServer(int port) {
         this.port = port;
-
     }
 
     public void init() {
@@ -57,7 +56,7 @@ public abstract class NettyServer implements Server {
         }
         if (workerGroup != null) workerGroup.shutdownGracefully().syncUninterruptibly();
         if (bossGroup != null) bossGroup.shutdownGracefully().syncUninterruptibly();
-        LOGGER.warn("netty server stop now");
+        log.error("netty server stop now");
     }
 
     @Override
@@ -130,15 +129,14 @@ public abstract class NettyServer implements Server {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (future.isSuccess()) {
-                        LOGGER.info("server start success on:" + port);
+                    	log.error("server start success on:" + port);
                         if (listener != null) listener.onSuccess();
                     } else {
-                        LOGGER.error("server start failure on:" + port);
+                        log.error("server start failure on:" + port);
                         if (listener != null) listener.onFailure("start server failure");
                     }
                 }
             });
-//            f.await();
             if (f.isSuccess()) {
             	serverState.set(State.Started);
                 /**
@@ -148,7 +146,7 @@ public abstract class NettyServer implements Server {
             }
 
         } catch (Exception e) {
-            LOGGER.error("server start exception", e);
+            log.error("server start exception", e);
             if (listener != null) listener.onFailure("start server ex=" + e.getMessage());
             throw new RuntimeException("server start exception, port=" + port, e);
         } finally {
