@@ -6,7 +6,6 @@ import com.google.common.eventbus.Subscribe;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.connection.ConnectionManager;
 import com.shinemo.mpush.api.event.HandshakeEvent;
-import com.shinemo.mpush.api.event.UserOfflineEvent;
 import com.shinemo.mpush.common.EventBus;
 import com.shinemo.mpush.log.LogType;
 import com.shinemo.mpush.log.LoggerManage;
@@ -17,8 +16,6 @@ import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
