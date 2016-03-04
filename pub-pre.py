@@ -6,18 +6,6 @@ import telnetlib
 import os
 import sys
 
-HOSTS = [
-    {
-        'HOST':'hive1_host',
-        'PORT':9092,
-        'USER':'root'
-    },
-    {
-        'HOST':'hive2_host',
-        'PORT':9092,
-        'USER':'root'
-    }
-]
 
 BASEPATH = '/root/mpush'
 
@@ -25,7 +13,7 @@ STARTPROCESS = 'java -jar mpush-cs.jar'
 
 GITLABPATH = '/data/localgit/mpush/mpush/target/mpush-jar-with-dependency.tar.gz'
 
-ENV= 'daily'
+ENV= 'pre'
 
 
 class SSH():
@@ -95,46 +83,17 @@ def main():
     if confirmPub != 'Y':
        return
 
-    for item in HOSTS:
+    ##4 cp
+    runShell('cp %s %s'%(GITLABPATH,BASEPATH))
+    print showText('cp success','greenText')
 
-        pubHost = raw_input("发布 %s (Y/N)："%item['HOST'])
-        if pubHost != 'Y':
-           return
+    ##5  tar package
+    runShell('cd /root/mpush/ && tar -xzvf ./mpush-jar-with-dependency.tar.gz')
+    print showText('tar success','greenText')
 
-        ssh = SSH().connect(item['HOST'],item['PORT'],username=item['USER'])
-
-        ##2 backup
-        base = BASEPATH+'/mpush-jar-with-dependency.tar.gz'
-        to = BASEPATH+'/back/mpush-jar-with-dependency.tar.gz.'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-        ssh.exe('mv %s %s '%(base,to))
-        print showText('backup mpush ok','greenText')
-
-        ##telnet remove zk  info
-        #ssh.exe('telent 127.0.0.1 4001')
-        #ssh.exe('')
-
-        ##3 kill process
-        pid = getPid(ssh)
-
-        if pid :
-            ssh.exe('kill -9 %s'%pid)
-        else:
-            print showText('there is no mpush-cs process to kill','YELLOW')
-
-        ##4 scp
-        runShell('scp -P %s %s %s:%s'%(item['PORT'],GITLABPATH,item['HOST'],'/root/mpush'))
-        print showText('scp success','greenText')
-
-        ##5  tar package
-        ssh.exe('cd /root/mpush/ && tar -xzvf ./mpush-jar-with-dependency.tar.gz',False)
-        print showText('tar success','greenText')
-
-        ##6 start process
-        ssh.exe('nohup /opt/shinemo/jdk1.7.0_40/bin/java -jar /root/mpush/mpush/mpush-cs.jar >> /root/mpush/mpush/nohup.out 2>&1 &')
-        print showText('start process success','greenText')
-
-
-        ssh.close()
+    ##6 start process
+    runShell('nohup /opt/shinemo/jdk1.7.0_40/bin/java -jar /root/mpush/mpush/mpush-cs.jar >> /root/mpush/mpush/nohup.out 2>&1 &')
+    print showText('start process success','greenText')
 
 
 if __name__ == "__main__":
