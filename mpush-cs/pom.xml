@@ -1,16 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>mpush</artifactId>
-        <groupId>com.shinemo.mpush</groupId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
+     <parent>
+         <artifactId>mpush</artifactId>
+         <groupId>com.shinemo.mpush</groupId>
+         <version>0.0.0.2</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <version>${mpush-cs-version}</version>
     <artifactId>mpush-cs</artifactId>
-    <packaging>jar</packaging>
-
     <name>mpush-cs</name>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
