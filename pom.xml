@@ -13,7 +13,7 @@
     <groupId>com.shinemo.mpush</groupId>
     <artifactId>mpush</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.0.0.2</version>
     <modules>
         <module>mpush-api</module>
         <module>mpush-core</module>
@@ -105,54 +105,54 @@
             <!-- 子项目依赖 -->
             <!-- ======================================== -->
             <dependency>
-                <groupId>com.shinemo.mpush</groupId>
+                <groupId>${pom.groupId}</groupId>
                 <artifactId>mpush-api</artifactId>
-                <version>${mpush-api-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.shinemo.mpush</groupId>
+                <groupId>${pom.groupId}</groupId>
                 <artifactId>mpush-tools</artifactId>
-                <version>${mpush-tools-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.shinemo.mpush</groupId>
+                <groupId>${pom.groupId}</groupId>
                 <artifactId>mpush-common</artifactId>
-                <version>${mpush-common-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.shinemo.mpush</groupId>
+                <groupId>${pom.groupId}</groupId>
                 <artifactId>mpush-netty</artifactId>
-                <version>${mpush-netty-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.shinemo.mpush</groupId>
+                <groupId>${pom.groupId}</groupId>
                 <artifactId>mpush-core</artifactId>
-                <version>${mpush-core-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.shinemo.mpush</groupId>
+                <groupId>${pom.groupId}</groupId>
                 <artifactId>mpush-client</artifactId>
-                <version>${mpush-client-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.shinemo.mpush</groupId>
+                <groupId>${pom.groupId}</groupId>
                 <artifactId>mpush-monitor</artifactId>
-                <version>${mpush-monitor-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.shinemo.mpush</groupId>
+                <groupId>${pom.groupId}</groupId>
                 <artifactId>mpush-log</artifactId>
-                <version>${mpush-log-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.shinemo.mpush</groupId>
+                <groupId>${pom.groupId}</groupId>
                 <artifactId>mpush-test</artifactId>
-                <version>${mpush-test-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.shinemo.mpush</groupId>
+                <groupId>${pom.groupId}</groupId>
                 <artifactId>mpush-cs</artifactId>
-                <version>${mpush-cs-version}</version>
+                <version>${project.version}</version>
             </dependency>
             <!-- ================================================= -->
             <!-- 日志 -->

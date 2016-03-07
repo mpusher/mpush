@@ -5,12 +5,13 @@
     <parent>
         <artifactId>mpush</artifactId>
         <groupId>com.shinemo.mpush</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.0.0.2</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mpush-api</artifactId>
-    <version>${mpush-api-version}</version>
+    <name>mpush-api</name>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -19,5 +20,5 @@
             <artifactId>netty-transport</artifactId>
         </dependency>
     </dependencies>
-    
+
 </project>
