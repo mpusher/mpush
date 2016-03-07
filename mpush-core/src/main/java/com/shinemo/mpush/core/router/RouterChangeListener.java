@@ -123,7 +123,7 @@ public final class RouterChangeListener extends AbstractEventContainer implement
         LocalRouterManager routerManager = RouterCenter.INSTANCE.getLocalRouterManager();
         LocalRouter router = routerManager.lookup(userId);
         if (router != null) {
-        	LoggerManage.info(LogType.CONNECTION, "receive kick remote msg, msg=%s", msg);
+        	LoggerManage.info(LogType.CONNECTION, "receive kick remote msg, msg={}", msg);
             //2.1删除本地路由信息
             routerManager.unRegister(userId);
             //2.2发送踢人消息到客户端
