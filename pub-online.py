@@ -227,7 +227,7 @@ def main():
         print showText('tar success','greenText')
 
         ##7 start process
-        ssh.exe('nohup %s -jar %s/mpush/%s >> %s/mpush/nohup.out 2>&1 &'%(JAVA_PATH,BASEPATH,PROCESS_KEY_WORD,BASEPATH))
+        ssh.exe('nohup %s -Dio.netty.leakDetectionLevel=advanced -jar %s/mpush/%s >> %s/mpush/nohup.out 2>&1 &'%(JAVA_PATH,BASEPATH,PROCESS_KEY_WORD,BASEPATH))
         print showText('start process success','greenText')
 
 

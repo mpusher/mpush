@@ -92,7 +92,7 @@ def main():
     print showText('tar success','greenText')
 
     ##6 start process
-    runShell('nohup /opt/shinemo/jdk1.7.0_40/bin/java -jar /root/mpush/mpush/mpush-cs.jar >> /root/mpush/mpush/nohup.out 2>&1 &')
+    runShell('nohup /opt/shinemo/jdk1.7.0_40/bin/java -Dio.netty.leakDetectionLevel=advanced -jar /root/mpush/mpush/mpush-cs.jar >> /root/mpush/mpush/nohup.out 2>&1 &')
     print showText('start process success','greenText')
 
 
