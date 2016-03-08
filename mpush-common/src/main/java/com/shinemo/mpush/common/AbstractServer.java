@@ -122,15 +122,6 @@ public abstract class AbstractServer<T extends Application> {
             }
         };
         ThreadPoolManager.newThread(server.getClass().getSimpleName(), runnable).start();
-//        //TODO sleep for server start
-//        while(!server.isRunning()){
-//        	log.error("server is not started,wait for {} start",server.getClass().getSimpleName());
-//        	try {
-//    			Thread.sleep(100);
-//    		} catch (InterruptedException e) {
-//    		}
-//        }
-//        log.error("server started {}",server.getClass().getSimpleName());
         
 	}
 	
