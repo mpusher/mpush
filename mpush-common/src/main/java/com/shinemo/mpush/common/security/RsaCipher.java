@@ -1,6 +1,7 @@
 package com.shinemo.mpush.common.security;
 
 import com.shinemo.mpush.api.connection.Cipher;
+import com.shinemo.mpush.common.Profiler;
 import com.shinemo.mpush.tools.crypto.RSAUtils;
 
 import java.security.interfaces.RSAPrivateKey;
@@ -21,12 +22,23 @@ public final class RsaCipher implements Cipher {
 
     @Override
     public byte[] decrypt(byte[] data) {
-        return RSAUtils.decryptByPrivateKey(data, privateKey);
+    	try{
+    		Profiler.enter("start decrypt");
+    		return RSAUtils.decryptByPrivateKey(data, privateKey);
+    	}finally{
+    		Profiler.release();
+    	}
+        
     }
 
     @Override
     public byte[] encrypt(byte[] data) {
-        return RSAUtils.encryptByPublicKey(data, publicKey);
+    	try{
+    		Profiler.enter("start encrypt");
+    		return RSAUtils.encryptByPublicKey(data, publicKey);
+    	}finally{
+    		Profiler.release();
+    	}
     }
 
 	@Override
