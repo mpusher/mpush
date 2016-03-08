@@ -7,6 +7,7 @@ import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.PacketReceiver;
 import com.shinemo.mpush.common.EventBus;
+import com.shinemo.mpush.common.Profiler;
 import com.shinemo.mpush.log.LogLevel;
 import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.netty.connection.NettyConnection;
@@ -41,10 +42,21 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        Connection connection = connectionManager.get(ctx.channel());
-        LOGGER.debug("channelRead channel={}, packet={}", ctx.channel(), msg);
-        connection.updateLastReadTime();
-        receiver.onReceive((Packet) msg, connection);
+    	try{
+    		 Profiler.start("end channel read:");
+    		 Connection connection = connectionManager.get(ctx.channel());
+	         LOGGER.debug("channelRead channel={}, packet={}", ctx.channel(), msg);
+	         connection.updateLastReadTime();
+	         receiver.onReceive((Packet) msg, connection);
+    	}finally{
+    		Profiler.release();
+    		long duration = Profiler.getDuration();
+    		if(duration>100){
+    			LOGGER.error("end channel read:"+Profiler.dump());
+    		}
+    		Profiler.reset();
+    	}
+       
     }
 
     @Override

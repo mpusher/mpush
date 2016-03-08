@@ -5,6 +5,7 @@ import com.shinemo.mpush.api.Message;
 import com.shinemo.mpush.api.MessageHandler;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.common.Profiler;
 
 /**
  * Created by ohun on 2015/12/22.
@@ -17,7 +18,12 @@ public abstract class BaseMessageHandler<T extends Message> implements MessageHa
     public void handle(Packet packet, Connection connection) {
         T t = decode(packet, connection);
         if (t != null) {
-            handle(t);
+        	try{
+        		Profiler.enter("start handle");
+        		handle(t);
+        	}finally{
+        		Profiler.release();
+        	}
         }
     }
 }
