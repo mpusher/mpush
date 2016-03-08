@@ -78,7 +78,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
 		SCN("scn"){
 			@Override
 			public String handler(String request) {
-				Long value = RedisManage.get(RedisKey.getUserOnlineKey(MPushUtil.getExtranetAddress()), Long.class);
+				Long value = RedisManage.zCard(RedisKey.getUserOnlineKey(MPushUtil.getExtranetAddress()));
 				if(value == null){
 					value = 0L;
 				}
