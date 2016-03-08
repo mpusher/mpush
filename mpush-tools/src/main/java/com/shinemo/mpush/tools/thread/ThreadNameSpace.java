@@ -12,6 +12,8 @@ public class ThreadNameSpace {
      */
     public static final String NETTY_WORKER = "mp-worker";
     
+    public static final String NETTY_HTTP = "mp-http";
+    
     public static final String EVENT_BUS = "mp-event-bus";
     
     public static final String REDIS = "mp-redis";

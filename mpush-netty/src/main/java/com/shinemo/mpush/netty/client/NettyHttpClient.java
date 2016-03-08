@@ -3,6 +3,8 @@ package com.shinemo.mpush.netty.client;
 import com.google.common.collect.ArrayListMultimap;
 import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.thread.NamedThreadFactory;
+import com.shinemo.mpush.tools.thread.threadpool.ThreadPoolManager;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -11,6 +13,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +22,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,7 +39,7 @@ public class NettyHttpClient implements HttpClient {
 
     @Override
     public void start() { // TODO: 2016/2/15 yxx 配置线程池
-        workerGroup = new NioEventLoopGroup(0, Executors.newCachedThreadPool());
+        workerGroup = new NioEventLoopGroup(0, ThreadPoolManager.httpExecutor);
         b = new Bootstrap();
         b.group(workerGroup);
         b.channel(NioSocketChannel.class);

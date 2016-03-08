@@ -18,6 +18,8 @@ public class ThreadPoolContext {
 	
 	public static ThreadPoolContext WORK_THREAD_POOL = CachedThreadPoolContext.create(ThreadNameSpace.NETTY_WORKER, Constants.MIN_WORK_POOL_SIZE, Constants.MAX_WORK_POOL_SIZE, 60*5,Constants.WORK_THREAD_QUEUE_SIZE);
 	
+	public static ThreadPoolContext HTTP_THREAD_POOL = FixedThreadPoolContext.create(ThreadNameSpace.NETTY_HTTP, Constants.BIZ_POOL_SIZE);
+	
 	public static ThreadPoolContext BIZ_THREAD_POOL = FixedThreadPoolContext.create(ThreadNameSpace.BIZ, Constants.BIZ_POOL_SIZE);
 	
 	public static ThreadPoolContext EVENT_BUS_THREAD_POOL = FixedThreadPoolContext.create(ThreadNameSpace.EVENT_BUS, Constants.EVENT_BUS_POOL_SIZE);
