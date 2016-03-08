@@ -5,6 +5,7 @@ import com.shinemo.mpush.api.PacketReceiver;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.common.message.ErrorMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +32,11 @@ public final class MessageDispatcher implements PacketReceiver {
                 handler.handle(packet, connection);
             }
         } catch (Throwable throwable) {
-            LOGGER.error("dispatch packet ex, packet={},conn={},body={}", packet, connection, packet.body);
-            connection.close();
+            LOGGER.error("dispatch packet ex, packet={}, conn={}", packet, connection, throwable);
+            ErrorMessage
+                    .from(packet, connection)
+                    .setErrorCode(ErrorCode.DISPATCH_ERROR)
+                    .close();
         }
     }
 }

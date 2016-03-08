@@ -44,6 +44,11 @@ public final class ErrorMessage extends ByteBufMessage {
                 , src.packet.sessionId), src.connection);
     }
 
+    public static ErrorMessage from(Packet src, Connection connection) {
+        return new ErrorMessage(src.cmd, new Packet(ERROR, src.sessionId), connection);
+    }
+
+
     public ErrorMessage setReason(String reason) {
         this.reason = reason;
         return this;
