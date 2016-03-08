@@ -21,7 +21,7 @@ public class ThreadPoolManager {
 	public static Executor eventBusExecutor = fixedThreadPool.getExecutor(ThreadPoolContext.EVENT_BUS_THREAD_POOL);
 	public static Executor redisExecutor = fixedThreadPool.getExecutor(ThreadPoolContext.REDIS_THREAD_POOL);
 	
-	public static Executor httpExecutor = cachedThreadPool.getExecutor(ThreadPoolContext.HTTP_THREAD_POOL);
+	public static Executor httpExecutor = fixedThreadPool.getExecutor(ThreadPoolContext.HTTP_THREAD_POOL);
 	
 	static{
 		poolCache.put(ThreadPoolContext.BOSS_THREAD_POOL.getName(), bossExecutor);
