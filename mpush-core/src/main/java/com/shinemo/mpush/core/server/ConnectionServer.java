@@ -35,7 +35,7 @@ public final class ConnectionServer extends NettyServer {
         super.init();
         connectionManager.init();
         //重置在线数
-        RedisManage.set(RedisKey.getConnNum(MPushUtil.getExtranetAddress()), 0);
+//        RedisManage.set(RedisKey.getConnNum(MPushUtil.getExtranetAddress()), 0);
         //删除已经存在的数据
         RedisManage.del(RedisKey.getUserOnlineKey(MPushUtil.getExtranetAddress()));
         

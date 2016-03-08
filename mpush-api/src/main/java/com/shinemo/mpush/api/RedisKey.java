@@ -29,9 +29,9 @@ public final class RedisKey {
         return USER_ONLINE_KEY + extranetAddress;
     }
 
-    public static final String getConnNum(String extranetAddress) {
-        return CONN_NUM_ + extranetAddress;
-    }
+//    public static final String getConnNum(String extranetAddress) {
+//        return CONN_NUM_ + extranetAddress;
+//    }
 
 
 }
