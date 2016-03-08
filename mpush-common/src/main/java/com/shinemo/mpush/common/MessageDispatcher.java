@@ -31,7 +31,7 @@ public final class MessageDispatcher implements PacketReceiver {
                 handler.handle(packet, connection);
             }
         } catch (Throwable throwable) {
-            LOGGER.error("dispatch packet ex, packet={},conn={}", packet, connection, throwable);
+            LOGGER.error("dispatch packet ex, packet={},conn={},body={}", packet, connection, packet.body);
             connection.close();
         }
     }
