@@ -26,10 +26,9 @@ public final class IOUtils {
         }
     }
 
-
     public static byte[] compress(byte[] data) {
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        DeflaterOutputStream zipOut = new DeflaterOutputStream(byteStream);
+        ByteArrayOutputStream out = new ByteArrayOutputStream(data.length / 4);
+        DeflaterOutputStream zipOut = new DeflaterOutputStream(out);
         try {
             zipOut.write(data);
             zipOut.finish();
@@ -40,23 +39,23 @@ public final class IOUtils {
         } finally {
             close(zipOut);
         }
-        return byteStream.toByteArray();
+        return out.toByteArray();
     }
 
     public static byte[] uncompress(byte[] data) {
-        InflaterInputStream in = new InflaterInputStream(new ByteArrayInputStream(data));
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] buffer = new byte[data.length * 2];
+        InflaterInputStream zipIn = new InflaterInputStream(new ByteArrayInputStream(data));
+        ByteArrayOutputStream out = new ByteArrayOutputStream(data.length * 4);
+        byte[] buffer = new byte[1024];
         int length;
         try {
-            while ((length = in.read(buffer)) != -1) {
+            while ((length = zipIn.read(buffer)) != -1) {
                 out.write(buffer, 0, length);
             }
         } catch (IOException e) {
             LOGGER.error("uncompress ex", e);
             return Constants.EMPTY_BYTES;
         } finally {
-            close(in);
+            close(zipIn);
         }
         return out.toByteArray();
     }

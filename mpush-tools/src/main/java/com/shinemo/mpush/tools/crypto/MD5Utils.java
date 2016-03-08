@@ -14,13 +14,13 @@ import java.security.MessageDigest;
 /**
  * Created by ohun on 2015/12/25.
  */
-public class MD5Utils {
+public final class MD5Utils {
     public static String encrypt(File file) {
         InputStream in = null;
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
             in = new FileInputStream(file);
-            byte[] buffer = new byte[10240];//10k
+            byte[] buffer = new byte[1024];//10k
             int readLen;
             while ((readLen = in.read(buffer)) != -1) {
                 digest.update(buffer, 0, readLen);
@@ -55,7 +55,7 @@ public class MD5Utils {
     }
 
     private static String toHex(byte[] bytes) {
-        StringBuffer buffer = new StringBuffer(bytes.length * 2);
+        StringBuilder buffer = new StringBuilder(bytes.length * 2);
 
         for (int i = 0; i < bytes.length; ++i) {
             buffer.append(Character.forDigit((bytes[i] & 240) >> 4, 16));
