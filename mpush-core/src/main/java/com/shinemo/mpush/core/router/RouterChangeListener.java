@@ -1,6 +1,7 @@
 package com.shinemo.mpush.core.router;
 
 import com.google.common.eventbus.Subscribe;
+import com.shinemo.mpush.api.RedisKey;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.connection.SessionContext;
 import com.shinemo.mpush.api.event.RouterChangeEvent;
@@ -128,6 +129,7 @@ public final class RouterChangeListener extends AbstractEventContainer implement
             routerManager.unRegister(userId);
             //2.2发送踢人消息到客户端
             kickLocal(userId, router);
+            remStatUser(userId);
         } else {
         	LoggerManage.info(LogType.CONNECTION, "no local router find, kick failure, msg={}", msg);
         }
@@ -145,5 +147,9 @@ public final class RouterChangeListener extends AbstractEventContainer implement
         } else {
         	LoggerManage.info(LogType.CONNECTION, "receive an error redis channel={}",channel);
         }
+    }
+    
+    private void remStatUser(String userId){
+    	RedisManage.zRem(RedisKey.getUserOnlineKey(MPushUtil.getExtranetIp()), userId);
     }
 }

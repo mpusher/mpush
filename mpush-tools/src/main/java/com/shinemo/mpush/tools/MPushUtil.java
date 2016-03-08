@@ -21,6 +21,8 @@ public final class MPushUtil {
     private static String LOCAL_IP;
     
     private static final Pattern LOCAL_IP_PATTERN = Pattern.compile("127(\\.\\d{1,3}){3}$");
+    
+    private static String EXTRANET_IP;
 
     public static boolean isLocalHost(String host) {
         return host == null 
@@ -70,6 +72,13 @@ public final class MPushUtil {
             LOGGER.error("getInetAddress exception", e);
             return "127.0.0.1";
         }
+    }
+    
+    public static String getExtranetIp(){
+    	if(EXTRANET_IP == null){
+    		EXTRANET_IP = getExtranetAddress();
+    	}
+    	return EXTRANET_IP;
     }
     
     public static String getExtranetAddress() {
