@@ -25,7 +25,7 @@ public final class AESUtils {
      * <p>
      * 生成密钥
      * </p>
-     * 
+     *
      * @param seed 密钥种子
      * @return
      * @throws Exception
@@ -36,7 +36,7 @@ public final class AESUtils {
         keyGenerator.init(secureRandom);
         return keyGenerator.generateKey();
     }
-    
+
     public static byte[] encrypt(byte[] data, byte[] encryptKey, byte[] iv) {
         IvParameterSpec zeroIv = new IvParameterSpec(iv);
         SecretKeySpec key = new SecretKeySpec(encryptKey, KEY_ALGORITHM);
@@ -49,8 +49,6 @@ public final class AESUtils {
             throw new RuntimeException("AES encrypt ex", e);
         }
     }
-    
-    
 
     public static byte[] decrypt(byte[] data, byte[] decryptKey, byte[] iv) {
         IvParameterSpec zeroIv = new IvParameterSpec(iv);
