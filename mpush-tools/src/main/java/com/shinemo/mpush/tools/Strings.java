@@ -3,7 +3,7 @@ package com.shinemo.mpush.tools;
 /**
  * Created by ohun on 2015/12/23.
  */
-public class Strings {
+public final class Strings {
     public static final String EMPTY = "";
 
     public static boolean isBlank(CharSequence text) {
