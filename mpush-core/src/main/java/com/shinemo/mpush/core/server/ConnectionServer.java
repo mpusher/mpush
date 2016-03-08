@@ -36,6 +36,9 @@ public final class ConnectionServer extends NettyServer {
         connectionManager.init();
         //重置在线数
         RedisManage.set(RedisKey.getConnNum(MPushUtil.getExtranetAddress()), 0);
+        //删除已经存在的数据
+        RedisManage.del(RedisKey.getUserOnlineKey(MPushUtil.getExtranetAddress()));
+        
         MessageDispatcher receiver = new MessageDispatcher();
         receiver.register(Command.HEARTBEAT, new HeartBeatHandler());
         receiver.register(Command.HANDSHAKE, new HandshakeHandler());
