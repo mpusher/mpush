@@ -24,7 +24,7 @@ public interface ConfigCenter extends Config {
     int maxPacketSize();
 
     @Key("compress_limit")
-    @DefaultValue("10240")
+    @DefaultValue("1024")
     int compressLimit();
 
     @Key("min_heartbeat")

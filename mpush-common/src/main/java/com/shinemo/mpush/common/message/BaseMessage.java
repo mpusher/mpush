@@ -21,41 +21,37 @@ public abstract class BaseMessage implements Message {
     protected final Connection connection;
 
     public BaseMessage(Packet packet, Connection connection) {
-    	Profiler.enter("start decode message");
-    	try{
-            this.packet = packet;
-            this.connection = connection;
-            this.decodeBody();
-    	}finally{
-    		Profiler.release();
-    	}
+        this.packet = packet;
+        this.connection = connection;
+        Profiler.enter("start decode message");
+        try {
+            decodeBody();
+        } finally {
+            Profiler.release();
+        }
     }
 
     protected void decodeBody() {
-    	
         if (packet.body != null && packet.body.length > 0) {
             //1.解密
             byte[] tmp = packet.body;
             if (packet.hasFlag(Packet.FLAG_CRYPTO)) {
-                SessionContext info = connection.getSessionContext();
-                if (info.cipher != null) {
-                	tmp = info.cipher.decrypt(tmp);
+                if (connection.getSessionContext().cipher != null) {
+                    tmp = connection.getSessionContext().cipher.decrypt(tmp);
                 }
             }
             //2.解压
             if (packet.hasFlag(Packet.FLAG_COMPRESS)) {
-                byte[] result = IOUtils.uncompress(tmp);
-                if (result.length > 0) {
-                    tmp = result;
-                }
+                tmp = IOUtils.uncompress(tmp);
             }
+
             if (tmp.length == 0) {
                 throw new RuntimeException("message decode ex");
             }
+
             packet.body = tmp;
             decode(packet.body);
         }
-        
     }
 
     protected void encodeBody() {

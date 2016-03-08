@@ -25,7 +25,7 @@ import java.security.spec.X509EncodedKeySpec;
  * 由于非对称加密速度极其缓慢，一般文件不使用它来加密而是使用对称加密，<br/>
  * 非对称加密算法可以用来对对称加密的密钥加密，这样保证密钥的安全也就保证了数据的安全
  */
-public class RSAUtils {
+public final class RSAUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(RSAUtils.class);
 
     /**
@@ -237,7 +237,7 @@ public class RSAUtils {
             return doFinal(cipher, data, key_len);
         } catch (Exception e) {
             LOGGER.error("decryptByPrivateKey ex", e);
-            throw new RuntimeException("RSA encrypt ex", e);
+            throw new RuntimeException("RSA decrypt ex", e);
         }
     }
 
@@ -253,9 +253,9 @@ public class RSAUtils {
      * @throws IllegalBlockSizeException
      */
     private static byte[] doFinal(Cipher cipher, byte[] data, int key_len) throws BadPaddingException, IllegalBlockSizeException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
         int inputLen = data.length, offSet = 0;
         byte[] tmp;
+        ByteArrayOutputStream out = new ByteArrayOutputStream(getTmpArrayLength(inputLen));
         while (inputLen > 0) {
             tmp = cipher.doFinal(data, offSet, Math.min(key_len, inputLen));
             out.write(tmp, 0, tmp.length);
@@ -263,6 +263,12 @@ public class RSAUtils {
             inputLen -= key_len;
         }
         return out.toByteArray();
+    }
+
+    private static int getTmpArrayLength(int L) {
+        int S = MAX_DECRYPT_BLOCK;
+        while (S < L) S <<= 1;
+        return S;
     }
 
     /**
