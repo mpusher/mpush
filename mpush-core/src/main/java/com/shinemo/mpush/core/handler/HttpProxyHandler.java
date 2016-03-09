@@ -168,8 +168,12 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
         Profiler.enter("start get remoteAddress");
         InetSocketAddress remoteAddress = (InetSocketAddress) message.getConnection().getChannel().remoteAddress();
         Profiler.release();
+        Profiler.enter("start set x-forwarded-for");
         request.headers().add("x-forwarded-for", remoteAddress.getHostName() + "," + MPushUtil.getLocalIp());
+        Profiler.release();
+        Profiler.enter("start set x-forwarded-port");
         request.headers().add("x-forwarded-port", Integer.toString(remoteAddress.getPort()));
+        Profiler.release();
     }
 
     private void setBody(FullHttpRequest request, HttpRequestMessage message) {
