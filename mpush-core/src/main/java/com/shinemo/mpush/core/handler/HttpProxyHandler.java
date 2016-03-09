@@ -66,7 +66,10 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
             FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.valueOf(method), uri);
             setHeaders(request, message);
             setBody(request, message);
+            
+            Profiler.enter("start http proxy request");
             httpClient.request(new RequestInfo(request, new DefaultHttpCallback(message)));
+            Profiler.release();
         } catch (Exception e) {
             HttpResponseMessage
                     .from(message)
