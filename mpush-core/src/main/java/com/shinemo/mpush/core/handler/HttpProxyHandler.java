@@ -165,10 +165,9 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
         }
         InetSocketAddress remoteAddress = (InetSocketAddress) message.getConnection().getChannel().remoteAddress();
         Profiler.enter("start set x-forwarded-for");
-//        String remoteHostName = remoteAddress.getHostName();
-//        LOGGER.error("http request remoteHostName:"+remoteHostName);
-//        request.headers().add("x-forwarded-for", remoteHostName);
-        request.headers().add("x-forwarded-for", remoteAddress.getAddress().getHostAddress() + "," + MPushUtil.getLocalIp());
+        String remoteIp = remoteAddress.getAddress().getHostAddress();
+        request.headers().add("x-forwarded-for", remoteIp);
+//        request.headers().add("x-forwarded-for", remoteIp + "," + MPushUtil.getLocalIp());
         Profiler.release();
         request.headers().add("x-forwarded-port", Integer.toString(remoteAddress.getPort()));
     }

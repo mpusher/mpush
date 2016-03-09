@@ -51,7 +51,7 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
     	}finally{
     		Profiler.release();
     		long duration = Profiler.getDuration();
-    		if(duration>100){
+    		if(duration>80){
     			LOGGER.error("end channel read:"+duration+","+Profiler.dump());
     		}
     		Profiler.reset();
