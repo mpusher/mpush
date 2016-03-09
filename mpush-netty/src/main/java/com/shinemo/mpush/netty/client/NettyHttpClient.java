@@ -29,16 +29,18 @@ import java.util.concurrent.TimeUnit;
  */
 public class NettyHttpClient implements HttpClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyHttpClient.class);
-    private Bootstrap b;
-    private EventLoopGroup workerGroup;
-    private Timer timer;
+
+    private final int maxConnPerHost = ConfigCenter.holder.maxHttpConnCountPerHost();
     private final AttributeKey<RequestInfo> requestKey = AttributeKey.newInstance("requestInfo");
     private final AttributeKey<String> hostKey = AttributeKey.newInstance("host");
     private final ArrayListMultimap<String, Channel> channelPool = ArrayListMultimap.create();
-    private final int maxConnPerHost = ConfigCenter.holder.maxHttpConnCountPerHost();
+
+    private Bootstrap b;
+    private EventLoopGroup workerGroup;
+    private Timer timer;
 
     @Override
-    public void start() { // TODO: 2016/2/15 yxx 配置线程池
+    public void start() {
         workerGroup = new NioEventLoopGroup(0, ThreadPoolManager.httpExecutor);
         b = new Bootstrap();
         b.group(workerGroup);
@@ -46,14 +48,13 @@ public class NettyHttpClient implements HttpClient {
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.TCP_NODELAY, true);
         b.option(ChannelOption.SO_REUSEADDR, true);
-        b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 4000);
         b.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         b.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
                 ch.pipeline().addLast("decoder", new HttpResponseDecoder());
-                ch.pipeline().addLast("aggregator", new HttpObjectAggregator(1024 * 1024 * 20));
+                ch.pipeline().addLast("aggregator", new HttpObjectAggregator(1024 * 1024 * 5));//5M
                 ch.pipeline().addLast("encoder", new HttpRequestEncoder());
                 ch.pipeline().addLast("handler", new HttpClientHandler());
             }
@@ -128,7 +129,7 @@ public class NettyHttpClient implements HttpClient {
             LOGGER.debug("tryRelease channel success, host={}", host);
             channelPool.put(host, channel);
         } else {
-            LOGGER.debug("tryRelease channel over limit={}, host={}, channel closed.", maxConnPerHost, host);
+            LOGGER.debug("tryRelease channel pool size over limit={}, host={}, channel closed.", maxConnPerHost, host);
             channel.close();
         }
     }
