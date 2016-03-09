@@ -82,12 +82,14 @@ public class NettyHttpClient implements HttpClient {
         timer.newTimeout(info, info.readTimeout, TimeUnit.MILLISECONDS);
         Channel channel = tryAcquire(host);
         if (channel == null) {
+        	final long startConnectChannel = System.currentTimeMillis();
             LOGGER.debug("create new channel, host={}", host);
             ChannelFuture f = b.connect(host, port);
             f.addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
-                    if (future.isSuccess()) {
+                    LOGGER.debug("create new channel cost:"+(System.currentTimeMillis()-startConnectChannel));
+                	if (future.isSuccess()) {
                         writeRequest(future.channel(), info);
                     } else {
                         info.tryDone();
