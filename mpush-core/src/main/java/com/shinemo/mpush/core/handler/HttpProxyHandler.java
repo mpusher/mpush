@@ -156,6 +156,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
 
 
     private void setHeaders(FullHttpRequest request, HttpRequestMessage message) {
+    	Profiler.enter("start headers fill");
         Map<String, String> headers = message.headers;
         if (headers != null) {
             HttpHeaders httpHeaders = request.headers();
@@ -163,7 +164,10 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                 httpHeaders.add(entry.getKey(), entry.getValue());
             }
         }
+        Profiler.release();
+        Profiler.enter("start get remoteAddress");
         InetSocketAddress remoteAddress = (InetSocketAddress) message.getConnection().getChannel().remoteAddress();
+        Profiler.release();
         request.headers().add("x-forwarded-for", remoteAddress.getHostName() + "," + MPushUtil.getLocalIp());
         request.headers().add("x-forwarded-port", Integer.toString(remoteAddress.getPort()));
     }
