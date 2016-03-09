@@ -5,7 +5,7 @@ import com.shinemo.mpush.api.Message;
 import com.shinemo.mpush.api.MessageHandler;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Packet;
-import com.shinemo.mpush.common.Profiler;
+import com.shinemo.mpush.tools.Profiler;
 
 /**
  * Created by ohun on 2015/12/22.

@@ -7,10 +7,10 @@ import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.PacketReceiver;
 import com.shinemo.mpush.common.EventBus;
-import com.shinemo.mpush.common.Profiler;
 import com.shinemo.mpush.log.LogType;
 import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.netty.connection.NettyConnection;
+import com.shinemo.mpush.tools.Profiler;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;

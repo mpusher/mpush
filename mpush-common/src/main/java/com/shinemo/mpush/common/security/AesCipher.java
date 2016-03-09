@@ -1,7 +1,7 @@
 package com.shinemo.mpush.common.security;
 
 import com.shinemo.mpush.api.connection.Cipher;
-import com.shinemo.mpush.common.Profiler;
+import com.shinemo.mpush.tools.Profiler;
 import com.shinemo.mpush.tools.crypto.AESUtils;
 
 

@@ -54,6 +54,7 @@ public final class MPushUtil {
      */
     public static String getInetAddress() {
         try {
+        	com.shinemo.mpush.tools.Profiler.enter("start get inet addresss");
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             InetAddress address = null;
             while (interfaces.hasMoreElements()) {
@@ -71,6 +72,8 @@ public final class MPushUtil {
         } catch (Throwable e) {
             LOGGER.error("getInetAddress exception", e);
             return "127.0.0.1";
+        }finally{
+        	com.shinemo.mpush.tools.Profiler.release();
         }
     }
     
