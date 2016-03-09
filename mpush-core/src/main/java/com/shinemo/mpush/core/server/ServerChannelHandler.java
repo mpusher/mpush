@@ -68,7 +68,7 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        LoggerManage.log(security, LogLevel.INFO, "client connect channel={}", ctx.channel());
+        LoggerManage.log(false, LogLevel.INFO, "client connect channel={}", ctx.channel());
         Connection connection = new NettyConnection();
         connection.init(ctx.channel(), security);
         connectionManager.add(connection);
@@ -76,7 +76,7 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        LoggerManage.log(security, LogLevel.INFO, "client disconnect channel={}", ctx.channel());
+        LoggerManage.log(false, LogLevel.INFO, "client disconnect channel={}", ctx.channel());
         Connection connection = connectionManager.get(ctx.channel());
         EventBus.INSTANCE.post(new ConnectionCloseEvent(connection));
         connectionManager.remove(ctx.channel());

@@ -26,9 +26,10 @@ public final class MessageDispatcher implements PacketReceiver {
 
     @Override
     public void onReceive(Packet packet, Connection connection) {
+    	MessageHandler handler = handlers.get(packet.cmd);
         try {
-            MessageHandler handler = handlers.get(packet.cmd);
             if (handler != null) {
+            	Profiler.enter("start handle:"+handler.getClass().getSimpleName());
                 handler.handle(packet, connection);
             }
         } catch (Throwable throwable) {
@@ -37,6 +38,10 @@ public final class MessageDispatcher implements PacketReceiver {
                     .from(packet, connection)
                     .setErrorCode(ErrorCode.DISPATCH_ERROR)
                     .close();
+        }finally{
+        	if(handler!=null){
+        		Profiler.release();
+        	}
         }
     }
 }
