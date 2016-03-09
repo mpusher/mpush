@@ -29,19 +29,19 @@ public final class RouterChangeListener extends AbstractEventContainer implement
     private final String kick_channel = KICK_CHANNEL_ + MPushUtil.getLocalIp();
 
     public RouterChangeListener() {
-    	ListenerDispatcher.INSTANCE.subscribe(getKickChannel(), this);
+        ListenerDispatcher.INSTANCE.subscribe(getKickChannel(), this);
     }
 
     public String getKickChannel() {
         return kick_channel;
     }
-    
-    public String getKickChannel(String remoteIp){
-    	return KICK_CHANNEL_ + remoteIp;
+
+    public String getKickChannel(String remoteIp) {
+        return KICK_CHANNEL_ + remoteIp;
     }
 
     @Subscribe
-    void onRouteChangeEvent(RouterChangeEvent event) {
+    void onRouteChange(RouterChangeEvent event) {
         String userId = event.userId;
         Router<?> r = event.router;
         if (r.getRouteType().equals(Router.RouterType.LOCAL)) {
@@ -49,8 +49,6 @@ public final class RouterChangeListener extends AbstractEventContainer implement
         } else {
             kickRemote(userId, (RemoteRouter) r);
         }
-
-        // TODO: 2016/1/10 publish remoter change event to redis
     }
 
     /**
@@ -68,11 +66,10 @@ public final class RouterChangeListener extends AbstractEventContainer implement
         message.send(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
-                //future.channel().close();
                 if (future.isSuccess()) {
-                	LoggerManage.info(LogType.CONNECTION, "kick local connection success, userId={}, router={}", userId, router);
+                    LoggerManage.info(LogType.CONNECTION, "kick local connection success, userId={}, router={}", userId, router);
                 } else {
-                	LoggerManage.info(LogType.CONNECTION, "kick local connection failure, userId={}, router={}", userId, router);
+                    LoggerManage.info(LogType.CONNECTION, "kick local connection failure, userId={}, router={}", userId, router);
                 }
             }
         });
@@ -91,7 +88,7 @@ public final class RouterChangeListener extends AbstractEventContainer implement
         ClientLocation location = router.getRouteValue();
         //1.如果目标机器是当前机器，就不要再发送广播了，直接忽略
         if (location.getHost().equals(MPushUtil.getLocalIp())) {
-        	LoggerManage.info(LogType.CONNECTION, "kick remote user but router in local, userId={}", userId);
+            LoggerManage.info(LogType.CONNECTION, "kick remote user but router in local, userId={}", userId);
             return;
         }
 
@@ -115,7 +112,7 @@ public final class RouterChangeListener extends AbstractEventContainer implement
     public void onReceiveKickRemoteMsg(KickRemoteMsg msg) {
         //1.如果当前机器不是目标机器，直接忽略
         if (!msg.targetServer.equals(MPushUtil.getLocalIp())) {
-        	LoggerManage.info(LogType.CONNECTION, "receive kick remote msg, target server error, localIp={}, msg={}", MPushUtil.getLocalIp(), msg);
+            LoggerManage.info(LogType.CONNECTION, "receive kick remote msg, target server error, localIp={}, msg={}", MPushUtil.getLocalIp(), msg);
             return;
         }
 
@@ -124,14 +121,14 @@ public final class RouterChangeListener extends AbstractEventContainer implement
         LocalRouterManager routerManager = RouterCenter.INSTANCE.getLocalRouterManager();
         LocalRouter router = routerManager.lookup(userId);
         if (router != null) {
-        	LoggerManage.info(LogType.CONNECTION, "receive kick remote msg, msg={}", msg);
+            LoggerManage.info(LogType.CONNECTION, "receive kick remote msg, msg={}", msg);
             //2.1删除本地路由信息
             routerManager.unRegister(userId);
             //2.2发送踢人消息到客户端
             kickLocal(userId, router);
             remStatUser(userId);
         } else {
-        	LoggerManage.info(LogType.CONNECTION, "no local router find, kick failure, msg={}", msg);
+            LoggerManage.info(LogType.CONNECTION, "no local router find, kick failure, msg={}", msg);
         }
     }
 
@@ -142,14 +139,14 @@ public final class RouterChangeListener extends AbstractEventContainer implement
             if (msg != null) {
                 onReceiveKickRemoteMsg(msg);
             } else {
-            	LoggerManage.info(LogType.CONNECTION, "receive an error kick message={}", message);
+                LoggerManage.info(LogType.CONNECTION, "receive an error kick message={}", message);
             }
         } else {
-        	LoggerManage.info(LogType.CONNECTION, "receive an error redis channel={}",channel);
+            LoggerManage.info(LogType.CONNECTION, "receive an error redis channel={}", channel);
         }
     }
-    
-    private void remStatUser(String userId){
-    	RedisManage.zRem(RedisKey.getUserOnlineKey(MPushUtil.getExtranetIp()), userId);
+
+    private void remStatUser(String userId) {
+        RedisManage.zRem(RedisKey.getUserOnlineKey(MPushUtil.getExtranetIp()), userId);
     }
 }

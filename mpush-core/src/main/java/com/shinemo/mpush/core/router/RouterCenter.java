@@ -22,8 +22,8 @@ public final class RouterCenter {
     private final LocalRouterManager localRouterManager = new LocalRouterManager();
     private final RemoteRouterManager remoteRouterManager = new RemoteRouterManager();
     private final RouterChangeListener routerChangeListener = new RouterChangeListener();
-    private final UserManager userManager = new UserManager();
-    
+    private final UserOnlineOfflineListener userOnlineOfflineListener = new UserOnlineOfflineListener();
+
 
     /**
      * 注册用户和链接
@@ -45,7 +45,7 @@ public final class RouterCenter {
         try {
             oldLocalRouter = localRouterManager.register(userId, localRouter);
             oldRemoteRouter = remoteRouterManager.register(userId, remoteRouter);
-            
+
         } catch (Exception e) {
             LOGGER.error("register router ex, userId={}, connection={}", userId, connection, e);
         }
@@ -82,13 +82,5 @@ public final class RouterCenter {
 
     public RemoteRouterManager getRemoteRouterManager() {
         return remoteRouterManager;
-    }
-
-    public RouterChangeListener getRouterChangeListener() {
-        return routerChangeListener;
-    }
-    
-    public UserManager getUserManager(){
-    	return userManager;
     }
 }
