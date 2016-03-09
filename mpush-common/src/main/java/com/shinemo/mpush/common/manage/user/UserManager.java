@@ -10,40 +10,40 @@ import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.redis.manage.RedisManage;
 
 //查询使用
-public class UserManager {
-	
-    private static final String EXTRANET_ADDRESS = MPushUtil.getExtranetAddress();
-    
-    private static final String ONLINE_KEY = RedisKey.getUserOnlineKey(EXTRANET_ADDRESS); 
-	
-	private static final Logger log = LoggerFactory.getLogger(UserManager.class);
-	
-	public void init(){
-		RedisManage.del(ONLINE_KEY);
-		log.info("init redis key:{}"+ONLINE_KEY);
-	}
-	
-	public void userOnline(String userId) {
-    	RedisManage.zAdd(ONLINE_KEY, userId);
-    	log.info("user online {}",userId);
+public final class UserManager {
+    private static final Logger log = LoggerFactory.getLogger(UserManager.class);
+    public static final UserManager INSTANCE = new UserManager();
+
+    private final String ONLINE_KEY = RedisKey.getUserOnlineKey(MPushUtil.getExtranetAddress());
+
+    public UserManager() {
+        clearUserOnlineData();
     }
 
-    public void userOffline(String userId) {
-    	RedisManage.zRem(ONLINE_KEY, userId);
-    	log.info("user offline {}",userId);
+    public void clearUserOnlineData() {
+        RedisManage.del(ONLINE_KEY);
     }
-    
+
+    public void recordUserOnline(String userId) {
+        RedisManage.zAdd(ONLINE_KEY, userId);
+        log.info("user online {}", userId);
+    }
+
+    public void recordUserOffline(String userId) {
+        RedisManage.zRem(ONLINE_KEY, userId);
+        log.info("user offline {}", userId);
+    }
+
     //在线用户
-    public long onlineUserNum(){
-    	return RedisManage.zCard(ONLINE_KEY);
+    public long getOnlineUserNum() {
+        return RedisManage.zCard(ONLINE_KEY);
     }
-    
+
     //在线用户列表
-    public List<String> onlineUserList(int start,int size){
-    	if(size<10){
-    		size = 10;
-    	}
-    	return RedisManage.zrange(ONLINE_KEY, start, size-1, String.class);
+    public List<String> getOnlineUserList(int start, int size) {
+        if (size < 10) {
+            size = 10;
+        }
+        return RedisManage.zrange(ONLINE_KEY, start, size - 1, String.class);
     }
-    
 }
