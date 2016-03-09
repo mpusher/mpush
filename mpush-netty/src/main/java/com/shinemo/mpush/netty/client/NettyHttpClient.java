@@ -111,7 +111,7 @@ public class NettyHttpClient implements HttpClient {
             Channel channel = it.next();
             it.remove();
             if (channel.isActive()) {
-                LOGGER.debug("tryAcquire channel success ,host={}", host);
+                LOGGER.debug("tryAcquire channel success, host={}", host);
                 channel.attr(hostKey).set(host);
                 return channel;
             } else {//链接由于意外情况不可用了，keepAlive_timeout
