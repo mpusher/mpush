@@ -64,8 +64,12 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
 
             uri = doDnsMapping(uri);
             FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.valueOf(method), uri);
+            Profiler.enter("start set full http headers");
             setHeaders(request, message);
+            Profiler.release();
+            Profiler.enter("start set full http body");
             setBody(request, message);
+            Profiler.release();
             
             Profiler.enter("start http proxy request");
             httpClient.request(new RequestInfo(request, new DefaultHttpCallback(message)));
