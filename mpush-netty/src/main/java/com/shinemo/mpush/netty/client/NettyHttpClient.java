@@ -76,7 +76,7 @@ public class NettyHttpClient implements HttpClient {
     public void request(final RequestInfo info) throws Exception {
         URI uri = new URI(info.request.uri());
         String host = info.host = uri.getHost();
-        int port = uri.getPort() == -1 ? 80 : uri.getPort();
+        int port = uri.getPort() == -1 ? 81 : uri.getPort();
         info.request.headers().set(HttpHeaderNames.HOST, host);
         info.request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
         timer.newTimeout(info, info.readTimeout, TimeUnit.MILLISECONDS);
