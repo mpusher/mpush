@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Map;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
@@ -167,7 +168,6 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
         Profiler.enter("start set x-forwarded-for");
         String remoteIp = remoteAddress.getAddress().getHostAddress();
         request.headers().add("x-forwarded-for", remoteIp);
-//        request.headers().add("x-forwarded-for", remoteIp + "," + MPushUtil.getLocalIp());
         Profiler.release();
         request.headers().add("x-forwarded-port", Integer.toString(remoteAddress.getPort()));
     }
@@ -191,6 +191,6 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
         String host = uri.getHost();
         String localHost = dnsMapping.translate(host);
         if (localHost == null) return url;
-        return url.replace(host, localHost);
+        return url.replaceFirst(host, localHost);
     }
 }
