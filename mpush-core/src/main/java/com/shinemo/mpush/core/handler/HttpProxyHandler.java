@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.common.DnsMapping;
+import com.shinemo.mpush.common.Profiler;
 import com.shinemo.mpush.common.handler.BaseMessageHandler;
 import com.shinemo.mpush.common.message.HttpRequestMessage;
 import com.shinemo.mpush.common.message.HttpResponseMessage;
@@ -64,6 +65,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
         setBody(request, message);
 
         try {
+        	Profiler.enter("start http proxy handler");
             httpClient.request(new RequestInfo(request, new DefaultHttpCallback(message)));
         } catch (Exception e) {
             HttpResponseMessage
@@ -72,6 +74,8 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                     .setReasonPhrase("Bad Gateway")
                     .sendRaw();
             LOGGER.error("send request ex, message=" + message, e);
+        }finally{
+        	Profiler.release();
         }
     }
 
