@@ -27,6 +27,9 @@ public final class IOUtils {
     }
 
     public static byte[] compress(byte[] data) {
+    	
+    	Profiler.enter("start compress");
+    	
         ByteArrayOutputStream out = new ByteArrayOutputStream(data.length / 4);
         DeflaterOutputStream zipOut = new DeflaterOutputStream(out);
         try {
@@ -38,11 +41,13 @@ public final class IOUtils {
             return Constants.EMPTY_BYTES;
         } finally {
             close(zipOut);
+            Profiler.release();
         }
         return out.toByteArray();
     }
 
     public static byte[] uncompress(byte[] data) {
+    	Profiler.enter("start uncompress");
         InflaterInputStream zipIn = new InflaterInputStream(new ByteArrayInputStream(data));
         ByteArrayOutputStream out = new ByteArrayOutputStream(data.length * 4);
         byte[] buffer = new byte[1024];
@@ -56,6 +61,7 @@ public final class IOUtils {
             return Constants.EMPTY_BYTES;
         } finally {
             close(zipIn);
+            Profiler.release();
         }
         return out.toByteArray();
     }
