@@ -1,6 +1,7 @@
 package com.shinemo.mpush.common.security;
 
 import com.shinemo.mpush.api.connection.Cipher;
+import com.shinemo.mpush.common.Profiler;
 import com.shinemo.mpush.tools.crypto.AESUtils;
 
 
@@ -18,12 +19,22 @@ public final class AesCipher implements Cipher {
 
     @Override
     public byte[] decrypt(byte[] data) {
-        return AESUtils.decrypt(data, key, iv);
+    	try{
+    		Profiler.enter("start aes decrypt");
+    		return AESUtils.decrypt(data, key, iv);
+    	}finally{
+    		Profiler.release();
+    	}
     }
 
     @Override
     public byte[] encrypt(byte[] data) {
-        return AESUtils.encrypt(data, key, iv);
+    	try{
+    		Profiler.enter("start encrypt");
+    		return AESUtils.encrypt(data, key, iv);
+    	}finally{
+    		Profiler.release();
+    	}
     }
 
     @Override

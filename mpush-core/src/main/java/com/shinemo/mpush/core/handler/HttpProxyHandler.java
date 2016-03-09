@@ -48,24 +48,24 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
 
     @Override
     public void handle(HttpRequestMessage message) {
-        String method = message.getMethod();
-        String uri = message.uri;
-        if (Strings.isNullOrEmpty(uri)) {
-            HttpResponseMessage
-                    .from(message)
-                    .setStatusCode(400)
-                    .setReasonPhrase("Bad Request")
-                    .sendRaw();
-            LOGGER.warn("request url is empty!");
-        }
-
-        uri = doDnsMapping(uri);
-        FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.valueOf(method), uri);
-        setHeaders(request, message);
-        setBody(request, message);
 
         try {
         	Profiler.enter("start http proxy handler");
+            String method = message.getMethod();
+            String uri = message.uri;
+            if (Strings.isNullOrEmpty(uri)) {
+                HttpResponseMessage
+                        .from(message)
+                        .setStatusCode(400)
+                        .setReasonPhrase("Bad Request")
+                        .sendRaw();
+                LOGGER.warn("request url is empty!");
+            }
+
+            uri = doDnsMapping(uri);
+            FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.valueOf(method), uri);
+            setHeaders(request, message);
+            setBody(request, message);
             httpClient.request(new RequestInfo(request, new DefaultHttpCallback(message)));
         } catch (Exception e) {
             HttpResponseMessage
