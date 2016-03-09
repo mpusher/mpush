@@ -25,13 +25,13 @@ public final class UserOnlineOfflineListener {
 
     @Subscribe
     void onUserOnline(UserOnlineEvent event) {
-        UserManager.INSTANCE.userOnline(event.getUserId());
+        UserManager.INSTANCE.recordUserOnline(event.getUserId());
         RedisManage.publish(ONLINE_CHANNEL, event.getUserId());
     }
 
     @Subscribe
     void onUserOffline(UserOfflineEvent event) {
-        UserManager.INSTANCE.userOffline(event.getUserId());
+        UserManager.INSTANCE.recordUserOffline(event.getUserId());
         RedisManage.publish(OFFLINE_CHANNEL, event.getUserId());
     }
 }
