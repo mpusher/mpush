@@ -46,7 +46,7 @@ public class IOUtilsTest {
         for (int i = 0; i < 100; i++) {
             IOUtils.compress(s);
         }
-        System.out.println((System.currentTimeMillis()-t1));
+        System.out.println((System.currentTimeMillis()-t1)/100);
         System.out.println("src:" + s.length);
         byte[] out = IOUtils.compress(s);
         System.out.println("compress:" + out.length);
