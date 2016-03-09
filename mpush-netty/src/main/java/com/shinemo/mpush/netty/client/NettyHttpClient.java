@@ -114,6 +114,8 @@ public class NettyHttpClient implements HttpClient {
                 LOGGER.debug("tryAcquire channel success ,host={}", host);
                 channel.attr(hostKey).set(host);
                 return channel;
+            }else{
+            	LOGGER.error("tryAcquire channel false channel is not active,host={}",host);
             }
         }
         return null;
