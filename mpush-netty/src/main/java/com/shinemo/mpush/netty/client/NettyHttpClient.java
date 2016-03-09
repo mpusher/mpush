@@ -82,14 +82,14 @@ public class NettyHttpClient implements HttpClient {
         timer.newTimeout(info, info.readTimeout, TimeUnit.MILLISECONDS);
         Channel channel = tryAcquire(host);
         if (channel == null) {
-        	final long startConnectChannel = System.currentTimeMillis();
+            final long startConnectChannel = System.currentTimeMillis();
             LOGGER.debug("create new channel, host={}", host);
             ChannelFuture f = b.connect(host, port);
             f.addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
-                    LOGGER.debug("create new channel cost:"+(System.currentTimeMillis()-startConnectChannel));
-                	if (future.isSuccess()) {
+                    LOGGER.debug("create new channel cost:" + (System.currentTimeMillis() - startConnectChannel));
+                    if (future.isSuccess()) {
                         writeRequest(future.channel(), info);
                     } else {
                         info.tryDone();
@@ -154,22 +154,21 @@ public class NettyHttpClient implements HttpClient {
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
             RequestInfo info = ctx.channel().attr(requestKey).getAndRemove();
-            LOGGER.error("http client caught an error, info={}", info, cause);
             try {
-                if (info.tryDone()) {
+                if (info != null && info.tryDone()) {
                     info.onException(cause);
                 }
             } finally {
                 tryRelease(ctx.channel());
             }
+            LOGGER.error("http client caught an error, info={}", info, cause);
         }
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
             RequestInfo info = ctx.channel().attr(requestKey).getAndRemove();
-            if (info == null) return;
             try {
-                if (info.tryDone()) {
+                if (info != null && info.tryDone()) {
                     HttpResponse response = (HttpResponse) msg;
                     if (isRedirect(response)) {
                         if (info.onRedirect(response)) {
