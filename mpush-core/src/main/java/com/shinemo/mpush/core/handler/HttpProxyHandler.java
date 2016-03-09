@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.common.DnsMapping;
-import com.shinemo.mpush.common.Profiler;
 import com.shinemo.mpush.common.handler.BaseMessageHandler;
 import com.shinemo.mpush.common.message.HttpRequestMessage;
 import com.shinemo.mpush.common.message.HttpResponseMessage;
@@ -14,6 +13,7 @@ import com.shinemo.mpush.netty.client.HttpCallback;
 import com.shinemo.mpush.netty.client.HttpClient;
 import com.shinemo.mpush.netty.client.RequestInfo;
 import com.shinemo.mpush.tools.MPushUtil;
+import com.shinemo.mpush.tools.Profiler;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
