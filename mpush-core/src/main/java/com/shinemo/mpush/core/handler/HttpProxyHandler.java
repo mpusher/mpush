@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
@@ -44,7 +45,6 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
 
     @Override
     public void handle(HttpRequestMessage message) {
-
         try {
             Profiler.enter("start http proxy handler");
             String method = message.getMethod();
@@ -101,13 +101,12 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
             }
 
             if (httpResponse instanceof FullHttpResponse) {
-                ByteBuf body = ((FullHttpResponse) httpResponse).content();
-                if (body != null && body.readableBytes() > 0) {
-                    byte[] buffer = new byte[body.readableBytes()];
-                    body.readBytes(buffer);
-                    response.body = buffer;
-                    response.addHeader(HttpHeaderNames.CONTENT_LENGTH.toString(),
-                            Integer.toString(response.body.length));
+                ByteBuf content = ((FullHttpResponse) httpResponse).content();
+                if (content != null && content.readableBytes() > 0) {
+                    byte[] body = new byte[content.readableBytes()];
+                    content.readBytes(body);
+                    response.body = body;
+                    response.addHeader(CONTENT_LENGTH.toString(), Integer.toString(response.body.length));
                 }
             }
             response.send();
@@ -171,8 +170,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
         byte[] body = message.body;
         if (body != null && body.length > 0) {
             request.content().writeBytes(body);
-            request.headers().add(HttpHeaderNames.CONTENT_LENGTH,
-                    Integer.toString(body.length));
+            request.headers().add(CONTENT_LENGTH, Integer.toString(body.length));
         }
     }
 
