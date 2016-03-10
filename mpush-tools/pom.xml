@@ -50,6 +50,10 @@
             <groupId>org.aeonbits.owner</groupId>
             <artifactId>owner</artifactId>
         </dependency>
+        <dependency>
+        	<groupId>commons-net</groupId>
+        	<artifactId>commons-net</artifactId>
+        </dependency>
     </dependencies>
 
     <!-- 编译配置 -->

@@ -2,6 +2,7 @@ package com.shinemo.mpush.cs;
 
 
 
+import com.shinemo.mpush.api.RedisKey;
 import com.shinemo.mpush.api.Server;
 import com.shinemo.mpush.common.AbstractServer;
 import com.shinemo.mpush.conn.client.ConnectionServerApplication;
@@ -10,7 +11,10 @@ import com.shinemo.mpush.core.server.AdminServer;
 import com.shinemo.mpush.core.server.ConnectionServer;
 import com.shinemo.mpush.core.server.GatewayServer;
 import com.shinemo.mpush.tools.Jsons;
+import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.config.ConfigCenter;
+import com.shinemo.mpush.tools.dns.manage.DnsMappingManage;
+import com.shinemo.mpush.tools.redis.manage.RedisManage;
 
 public class ConnectionServerMain extends AbstractServer<ConnectionServerApplication>{
 	
@@ -40,6 +44,10 @@ public class ConnectionServerMain extends AbstractServer<ConnectionServerApplica
 		startServer(gatewayServer,gatewayServerApplication.getServerRegisterZkPath(),Jsons.toJson(gatewayServerApplication));
 //		registerServerToZk(gatewayServerApplication.getServerRegisterZkPath(), Jsons.toJson(gatewayServerApplication));
 		startServer(adminServer);
+		
+		RedisManage.del(RedisKey.getUserOnlineKey(MPushUtil.getExtranetIp()));
+		DnsMappingManage.holder.init();
+		
 	}
 	
 

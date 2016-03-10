@@ -3,7 +3,6 @@ package com.shinemo.mpush.core.handler;
 import com.google.common.base.Strings;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Packet;
-import com.shinemo.mpush.common.DnsMapping;
 import com.shinemo.mpush.common.handler.BaseMessageHandler;
 import com.shinemo.mpush.common.message.HttpRequestMessage;
 import com.shinemo.mpush.common.message.HttpResponseMessage;
@@ -12,8 +11,9 @@ import com.shinemo.mpush.log.LoggerManage;
 import com.shinemo.mpush.netty.client.HttpCallback;
 import com.shinemo.mpush.netty.client.HttpClient;
 import com.shinemo.mpush.netty.client.RequestInfo;
-import com.shinemo.mpush.tools.MPushUtil;
 import com.shinemo.mpush.tools.Profiler;
+import com.shinemo.mpush.tools.dns.DnsMapping;
+import com.shinemo.mpush.tools.dns.manage.DnsMappingManage;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Map;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
@@ -34,10 +33,8 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     private static final Logger LOGGER = LoggerManage.getLog(LogType.HTTP);
     private final HttpClient httpClient;
-    private final DnsMapping dnsMapping;
 
     public HttpProxyHandler(HttpClient httpClient) {
-        this.dnsMapping = new DnsMapping();
         this.httpClient = httpClient;
         this.httpClient.start();
     }
@@ -189,8 +186,8 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
         }
         if (uri == null) return url;
         String host = uri.getHost();
-        String localHost = dnsMapping.translate(host);
-        if (localHost == null) return url;
-        return url.replaceFirst(host, localHost);
+        DnsMapping mapping = DnsMappingManage.holder.translate(host);
+        if (mapping == null) return url;
+        return url.replaceFirst(host, mapping.toString());
     }
 }

@@ -1,12 +1,15 @@
 package com.shinemo.mpush.tools.config;
 
 
+import com.shinemo.mpush.tools.dns.DnsMapping;
 import com.shinemo.mpush.tools.redis.RedisGroup;
+
 import org.aeonbits.owner.Config;
 import org.aeonbits.owner.Config.Sources;
 import org.aeonbits.owner.ConfigFactory;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 针对每个配置项，建议各个对象自己持有，不建议每次都通过ConfigCenter获取，有性能损耗
@@ -101,7 +104,8 @@ public interface ConfigCenter extends Config {
     String logPath();
 
     @Key("dns_mapping")
-    String dnsMapping();
+    @ConverterClass(DnsMappingConverter.class)
+    Map<String, List<DnsMapping>> dnsMapping();
 
     @Key("max_http_client_conn_count_per_host")
     @DefaultValue("5")
