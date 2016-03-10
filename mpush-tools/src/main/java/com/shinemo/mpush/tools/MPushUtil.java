@@ -1,10 +1,12 @@
 package com.shinemo.mpush.tools;
 
+import org.apache.commons.net.telnet.TelnetClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.shinemo.mpush.tools.config.ConfigCenter;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
@@ -139,5 +141,23 @@ public final class MPushUtil {
             headers.put(name, value);
         }
         return headers;
+    }
+    
+    public static boolean telnet(String ip,int port){
+    	TelnetClient client = new TelnetClient();
+    	try{
+    		client.connect(ip, port);
+    		return true;
+    	}catch(Exception e){
+    		return false;
+    	}finally{
+    		try {
+    			if(client.isConnected()){
+    				client.disconnect();
+    			}
+			} catch (IOException e) {
+				LOGGER.error("disconnect error",e);
+			}
+    	}
     }
 }
