@@ -91,6 +91,8 @@ public class DnsMappingManage {
 				}
 				available.put(key, nowValue);
 			}
+			
+			DnsMappingManage.holder.update(available);
 
 		}
 
