@@ -17,85 +17,83 @@ import com.shinemo.mpush.tools.config.ConfigCenter;
 import com.shinemo.mpush.tools.dns.DnsMapping;
 
 public class DnsMappingManage {
-	
-	private static final Logger LOG = LoggerFactory.getLogger(DnsMappingManage.class);
 
-	private DnsMappingManage() {
-	}
+    private static final Logger LOG = LoggerFactory.getLogger(DnsMappingManage.class);
 
-	public static DnsMappingManage holder = new DnsMappingManage();
+    private DnsMappingManage() {
+    }
 
-	private Map<String, List<DnsMapping>> all = Maps.newConcurrentMap();
-	private Map<String, List<DnsMapping>> available = Maps.newConcurrentMap();
+    public static final DnsMappingManage holder = new DnsMappingManage();
 
-	private Worker worker = new Worker();
+    private Map<String, List<DnsMapping>> all = Maps.newConcurrentMap();
+    private Map<String, List<DnsMapping>> available = Maps.newConcurrentMap();
 
-	private ScheduledExecutorService pool = Executors.newSingleThreadScheduledExecutor();
+    private Worker worker = new Worker();
 
-	public void init() {
-		LOG.error("start init dnsmapping");
-		all.putAll(ConfigCenter.holder.dnsMapping());
-		available.putAll(ConfigCenter.holder.dnsMapping());
-		pool.scheduleAtFixedRate(worker, 1, 20, TimeUnit.SECONDS); //20秒 定时扫描dns
-		LOG.error("end init dnsmapping");
-	}
+    private ScheduledExecutorService pool = Executors.newSingleThreadScheduledExecutor();
 
-	public void update(Map<String, List<DnsMapping>> nowAvailable) {
-		available = nowAvailable;
-	}
+    public void init() {
+        LOG.error("start init dnsmapping");
+        all.putAll(ConfigCenter.holder.dnsMapping());
+        available.putAll(ConfigCenter.holder.dnsMapping());
+        pool.scheduleAtFixedRate(worker, 1, 20, TimeUnit.SECONDS); //20秒 定时扫描dns
+        LOG.error("end init dnsmapping");
+    }
 
-	public Map<String, List<DnsMapping>> getAll() {
-		return all;
-	}
+    public void update(Map<String, List<DnsMapping>> nowAvailable) {
+        available = nowAvailable;
+    }
 
-	public DnsMapping translate(String origin) {
-		if (available.isEmpty())
-			return null;
-		List<DnsMapping> list = available.get(origin);
-		if (list == null || list.isEmpty())
-			return null;
-		int L = list.size();
-		if (L == 1)
-			return list.get(0);
-		return list.get((int) (Math.random() * L % L));
-	}
+    public Map<String, List<DnsMapping>> getAll() {
+        return all;
+    }
 
-	public void shutdown() {
-		pool.shutdown();
-	}
+    public DnsMapping translate(String origin) {
+        if (available.isEmpty())
+            return null;
+        List<DnsMapping> list = available.get(origin);
+        if (list == null || list.isEmpty())
+            return null;
+        int L = list.size();
+        if (L == 1)
+            return list.get(0);
+        return list.get((int) (Math.random() * L % L));
+    }
 
-	public static class Worker implements Runnable {
-		
-		private static final Logger log = LoggerFactory.getLogger(Worker.class);
-		
-		@Override
-		public void run() {
+    public void shutdown() {
+        pool.shutdown();
+    }
 
-			log.debug("start dns mapping telnet");
-			
-			Map<String, List<DnsMapping>> all = DnsMappingManage.holder.getAll();
+    public static class Worker implements Runnable {
 
-			Map<String, List<DnsMapping>> available = Maps.newConcurrentMap();
+        private static final Logger log = LoggerFactory.getLogger(Worker.class);
 
-			for (Map.Entry<String, List<DnsMapping>> entry : all.entrySet()) {
-				String key = entry.getKey();
-				List<DnsMapping> value = entry.getValue();
-				List<DnsMapping> nowValue = Lists.newArrayList();
-				for(DnsMapping temp:value){
-					boolean canTelnet = MPushUtil.telnet(temp.getIp(), temp.getPort());
-					if(canTelnet){
-						nowValue.add(temp);
-					}else{
-						log.error("dns can not reachable:"+Jsons.toJson(temp));
-					}
-				}
-				available.put(key, nowValue);
-			}
-			
-			DnsMappingManage.holder.update(available);
+        @Override
+        public void run() {
 
-		}
+            log.debug("start dns mapping telnet");
 
-	}
+            Map<String, List<DnsMapping>> all = DnsMappingManage.holder.getAll();
 
+            Map<String, List<DnsMapping>> available = Maps.newConcurrentMap();
+
+            for (Map.Entry<String, List<DnsMapping>> entry : all.entrySet()) {
+                String key = entry.getKey();
+                List<DnsMapping> value = entry.getValue();
+                List<DnsMapping> nowValue = Lists.newArrayList();
+                for (DnsMapping temp : value) {
+                    boolean canTelnet = MPushUtil.telnet(temp.getIp(), temp.getPort());
+                    if (canTelnet) {
+                        nowValue.add(temp);
+                    } else {
+                        log.error("dns can not reachable:" + Jsons.toJson(temp));
+                    }
+                }
+                available.put(key, nowValue);
+            }
+
+            DnsMappingManage.holder.update(available);
+
+        }
+    }
 }
