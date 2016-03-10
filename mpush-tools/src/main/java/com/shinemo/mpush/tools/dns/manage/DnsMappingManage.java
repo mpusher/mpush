@@ -33,11 +33,11 @@ public class DnsMappingManage {
     private ScheduledExecutorService pool = Executors.newSingleThreadScheduledExecutor();
 
     public void init() {
-        LOG.error("start init dnsmapping");
+        LOG.error("start init dnsMapping");
         all.putAll(ConfigCenter.holder.dnsMapping());
         available.putAll(ConfigCenter.holder.dnsMapping());
         pool.scheduleAtFixedRate(worker, 1, 20, TimeUnit.SECONDS); //20秒 定时扫描dns
-        LOG.error("end init dnsmapping");
+        LOG.error("end init dnsMapping");
     }
 
     public void update(Map<String, List<DnsMapping>> nowAvailable) {
