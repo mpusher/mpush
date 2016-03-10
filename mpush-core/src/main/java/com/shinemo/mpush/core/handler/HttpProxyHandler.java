@@ -14,10 +14,8 @@ import com.shinemo.mpush.netty.client.RequestInfo;
 import com.shinemo.mpush.tools.Profiler;
 import com.shinemo.mpush.tools.dns.DnsMapping;
 import com.shinemo.mpush.tools.dns.manage.DnsMappingManage;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
-
 import org.slf4j.Logger;
 
 import java.net.InetSocketAddress;
@@ -48,7 +46,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     public void handle(HttpRequestMessage message) {
 
         try {
-        	Profiler.enter("start http proxy handler");
+            Profiler.enter("start http proxy handler");
             String method = message.getMethod();
             String uri = message.uri;
             if (Strings.isNullOrEmpty(uri)) {
@@ -68,7 +66,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
             Profiler.enter("start set full http body");
             setBody(request, message);
             Profiler.release();
-            
+
             Profiler.enter("start http proxy request");
             httpClient.request(new RequestInfo(request, new DefaultHttpCallback(message)));
             Profiler.release();
@@ -79,8 +77,8 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                     .setReasonPhrase("Bad Gateway")
                     .sendRaw();
             LOGGER.error("send request ex, message=" + message, e);
-        }finally{
-        	Profiler.release();
+        } finally {
+            Profiler.release();
         }
     }
 

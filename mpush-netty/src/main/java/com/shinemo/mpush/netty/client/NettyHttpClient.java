@@ -31,7 +31,7 @@ public class NettyHttpClient implements HttpClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyHttpClient.class);
 
     private final int maxConnPerHost = ConfigCenter.holder.maxHttpConnCountPerHost();
-    private final AttributeKey<RequestInfo> requestKey = AttributeKey.newInstance("requestInfo");
+    private final AttributeKey<RequestInfo> requestKey = AttributeKey.newInstance("request");
     private final AttributeKey<String> hostKey = AttributeKey.newInstance("host");
     private final ArrayListMultimap<String, Channel> channelPool = ArrayListMultimap.create();
 
