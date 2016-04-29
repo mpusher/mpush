@@ -4,16 +4,32 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.shinemo</groupId>
-        <artifactId>parent</artifactId>
-        <version>1.0.0</version>
-    </parent>
-
     <groupId>com.shinemo.mpush</groupId>
     <artifactId>mpush</artifactId>
     <packaging>pom</packaging>
     <version>0.0.0.2</version>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <tag>master</tag>
+        <url>git@github.com:mpusher/mpush.git</url>
+        <connection>scm:git@github.com:mpusher/mpush.git</connection>
+        <developerConnection>scm:ggit@github.com:mpusher/mpush.git</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <name>ohun</name>
+            <email>ohun@live.cm</email>
+            <organization>mpusher</organization>
+        </developer>
+    </developers>
+
     <modules>
         <module>mpush-api</module>
         <module>mpush-core</module>

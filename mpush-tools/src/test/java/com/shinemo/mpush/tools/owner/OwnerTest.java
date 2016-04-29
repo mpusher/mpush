@@ -55,7 +55,7 @@ public class OwnerTest {
 		
 		System.out.println(ConfigCenter.holder.publicKey());
 		
-		System.out.println(ConfigCenter.holder.rasKeyLength());
+		System.out.println(ConfigCenter.holder.rsaKeyLength());
 		
 		System.out.println(ConfigCenter.holder.redisIp());
 		

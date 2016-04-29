@@ -43,7 +43,10 @@ public class ConnectionServerMain extends AbstractServer<ConnectionServerApplica
         startServer(adminServer);
 
         UserManager.INSTANCE.clearUserOnlineData();
-        DnsMappingManage.holder.init();
+
+        if (ConfigCenter.holder.httpProxyEnable()) {
+            DnsMappingManage.holder.init();
+        }
     }
 
 
