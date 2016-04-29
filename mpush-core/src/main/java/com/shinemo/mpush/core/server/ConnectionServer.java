@@ -9,6 +9,7 @@ import com.shinemo.mpush.netty.client.HttpClient;
 import com.shinemo.mpush.netty.client.NettyHttpClient;
 import com.shinemo.mpush.netty.connection.NettyConnectionManager;
 import com.shinemo.mpush.netty.server.NettyServer;
+import com.shinemo.mpush.tools.config.ConfigCenter;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
@@ -20,7 +21,7 @@ public final class ConnectionServer extends NettyServer {
     private ServerChannelHandler channelHandler;
 
     private ConnectionManager connectionManager = new NettyConnectionManager();
-    private HttpClient httpClient = new NettyHttpClient();
+    private HttpClient httpClient;
 
     public ConnectionServer(int port) {
         super(port);
@@ -36,14 +37,18 @@ public final class ConnectionServer extends NettyServer {
         receiver.register(Command.BIND, new BindUserHandler());
         receiver.register(Command.UNBIND, new UnbindUserHandler());
         receiver.register(Command.FAST_CONNECT, new FastConnectHandler());
-        receiver.register(Command.HTTP_PROXY, new HttpProxyHandler(httpClient));
+
+        if (ConfigCenter.holder.httpProxyEnable()) {
+            httpClient = new NettyHttpClient();
+            receiver.register(Command.HTTP_PROXY, new HttpProxyHandler(httpClient));
+        }
         channelHandler = new ServerChannelHandler(true, connectionManager, receiver);
     }
 
     @Override
     public void stop(Listener listener) {
         super.stop(listener);
-        httpClient.stop();
+        if (httpClient != null) httpClient.stop();
         connectionManager.destroy();
     }
 
