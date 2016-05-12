@@ -1,10 +1,9 @@
 package com.shinemo.mpush.tools;
 
+import com.shinemo.mpush.tools.config.ConfigCenter;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.shinemo.mpush.tools.config.ConfigCenter;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -21,19 +20,19 @@ public final class MPushUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(MPushUtil.class);
 
     private static String LOCAL_IP;
-    
+
     private static final Pattern LOCAL_IP_PATTERN = Pattern.compile("127(\\.\\d{1,3}){3}$");
-    
+
     private static String EXTRANET_IP;
 
     public static boolean isLocalHost(String host) {
-        return host == null 
-        			|| host.length() == 0
-                    || host.equalsIgnoreCase("localhost")
-                    || host.equals("0.0.0.0")
-                    || (LOCAL_IP_PATTERN.matcher(host).matches());
+        return host == null
+                || host.length() == 0
+                || host.equalsIgnoreCase("localhost")
+                || host.equals("0.0.0.0")
+                || (LOCAL_IP_PATTERN.matcher(host).matches());
     }
-    
+
     public static String getLocalIp() {
         if (LOCAL_IP == null) {
             LOCAL_IP = getInetAddress();
@@ -43,7 +42,7 @@ public final class MPushUtil {
 
     public static int getHeartbeat(int min, int max) {
         return Math.max(
-        		ConfigCenter.holder.minHeartbeat(),
+                ConfigCenter.holder.minHeartbeat(),
                 Math.min(max, ConfigCenter.holder.maxHeartbeat())
         );
     }
@@ -56,7 +55,7 @@ public final class MPushUtil {
      */
     public static String getInetAddress() {
         try {
-        	com.shinemo.mpush.tools.Profiler.enter("start get inet addresss");
+            com.shinemo.mpush.tools.Profiler.enter("start get inet addresss");
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             InetAddress address = null;
             while (interfaces.hasMoreElements()) {
@@ -74,37 +73,50 @@ public final class MPushUtil {
         } catch (Throwable e) {
             LOGGER.error("getInetAddress exception", e);
             return "127.0.0.1";
-        }finally{
-        	com.shinemo.mpush.tools.Profiler.release();
+        } finally {
+            com.shinemo.mpush.tools.Profiler.release();
         }
     }
-    
-    public static String getExtranetIp(){
-    	if(EXTRANET_IP == null){
-    		EXTRANET_IP = getExtranetAddress();
-    	}
-    	return EXTRANET_IP;
+
+    public static String getExtranetIp() {
+        if (EXTRANET_IP == null) {
+            EXTRANET_IP = getExtranetAddress();
+        }
+        return EXTRANET_IP;
     }
-    
+
     public static String getExtranetAddress() {
-    	 try {
-             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-             InetAddress address = null;
-             while (interfaces.hasMoreElements()) {
-                 NetworkInterface ni = interfaces.nextElement();
-                 Enumeration<InetAddress> addresses = ni.getInetAddresses();
-                 while (addresses.hasMoreElements()) {
-                     address = addresses.nextElement();
-                     if(!address.isLoopbackAddress() && address.getHostAddress().indexOf(":") == -1 && !address.isSiteLocalAddress()){
-                    	 return address.getHostAddress();
-                     }
-                 }
-             }
-             LOGGER.warn("getExtranetAddress is null");
-         } catch (Throwable e) {
-             LOGGER.error("getExtranetAddress exception", e);
-         }
-    	 return getInetAddress();
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            InetAddress address = null;
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface ni = interfaces.nextElement();
+                Enumeration<InetAddress> addresses = ni.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    address = addresses.nextElement();
+                    if (!address.isLoopbackAddress() && address.getHostAddress().indexOf(":") == -1 && !address.isSiteLocalAddress()) {
+                        return address.getHostAddress();
+                    }
+                }
+            }
+            LOGGER.warn("getExtranetAddress is null");
+        } catch (Throwable e) {
+            LOGGER.error("getExtranetAddress exception", e);
+        }
+
+
+        String localIp = getInetAddress();
+        String remoteIp = null;
+        Map<String, String> mapping = ConfigCenter.holder.remoteIpMapping();
+        if (mapping != null) {
+            remoteIp = mapping.get(localIp);
+        }
+
+        if (remoteIp == null) {
+            remoteIp = localIp;
+        }
+
+        return remoteIp;
     }
 
     public static String headerToString(Map<String, String> headers) {
@@ -142,22 +154,22 @@ public final class MPushUtil {
         }
         return headers;
     }
-    
-    public static boolean telnet(String ip,int port){
-    	TelnetClient client = new TelnetClient();
-    	try{
-    		client.connect(ip, port);
-    		return true;
-    	}catch(Exception e){
-    		return false;
-    	}finally{
-    		try {
-    			if(client.isConnected()){
-    				client.disconnect();
-    			}
-			} catch (IOException e) {
-				LOGGER.error("disconnect error",e);
-			}
-    	}
+
+    public static boolean telnet(String ip, int port) {
+        TelnetClient client = new TelnetClient();
+        try {
+            client.connect(ip, port);
+            return true;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            try {
+                if (client.isConnected()) {
+                    client.disconnect();
+                }
+            } catch (IOException e) {
+                LOGGER.error("disconnect error", e);
+            }
+        }
     }
 }

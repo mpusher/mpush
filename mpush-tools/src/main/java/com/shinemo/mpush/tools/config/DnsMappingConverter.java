@@ -1,24 +1,23 @@
 package com.shinemo.mpush.tools.config;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import org.aeonbits.owner.Converter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import com.shinemo.mpush.tools.dns.DnsMapping;
+import org.aeonbits.owner.Converter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class DnsMappingConverter  implements Converter<Map<String, List<DnsMapping>>>{
 
-private static final Logger log = LoggerFactory.getLogger(DnsMappingConverter.class);
+	private static final Logger log = LoggerFactory.getLogger(DnsMappingConverter.class);
 	
 	@Override
 	public Map<String, List<DnsMapping>> convert(Method method, String input) {
