@@ -229,5 +229,13 @@ public interface ConfigCenter extends Config {
     @DefaultValue("true")
     boolean skipDump();
 
+    /**
+     * 本机IP到外网Ip的映射 格式localIp:remoteIp,localIp:remoteIp
+     *
+     * @return
+     */
+    @Key("remote_ip_mapping")
+    @ConverterClass(MapConverter.class)
+    Map<String, String> remoteIpMapping();
 
 }
