@@ -2,25 +2,34 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-     <parent>
-         <artifactId>mpush</artifactId>
-         <groupId>com.shinemo.mpush</groupId>
-         <version>0.0.0.2</version>
-         <relativePath>../pom.xml</relativePath>
-     </parent>
-    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>mpush</artifactId>
+        <groupId>com.mpush</groupId>
+        <version>1.0</version>
+    </parent>
 
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>${mpush.groupId}</groupId>
     <artifactId>mpush-client</artifactId>
+    <version>${mpush-client-version}</version>
     <name>mpush-client</name>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
-            <groupId>com.shinemo.mpush</groupId>
+            <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.shinemo.mpush</groupId>
+            <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-netty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${mpush.groupId}</groupId>
+            <artifactId>mpush-zk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mpush</groupId>
+            <artifactId>mpush-common</artifactId>
         </dependency>
     </dependencies>
 
@@ -28,26 +37,26 @@
     <build>
         <plugins>
             <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-shade-plugin</artifactId>
-              <version>2.4.3</version>
-              <executions>
-                <execution>
-                  <phase>package</phase>
-                  <goals>
-                    <goal>shade</goal>
-                  </goals>
-                  <configuration>
-                    <createSourcesJar>true</createSourcesJar>
-                    <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
-                    <artifactSet>
-                      <includes>
-                        <include>com.shinemo.mpush:mpush-client</include>
-                      </includes>
-                    </artifactSet>
-                  </configuration>
-                </execution>
-              </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createSourcesJar>true</createSourcesJar>
+                            <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.shinemo.mpush:mpush-client</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

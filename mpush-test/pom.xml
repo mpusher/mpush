@@ -1,53 +1,52 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-     <parent>
-         <artifactId>mpush</artifactId>
-         <groupId>com.shinemo.mpush</groupId>
-         <version>0.0.0.2</version>
-         <relativePath>../pom.xml</relativePath>
-     </parent>
+    <parent>
+        <artifactId>mpush</artifactId>
+        <groupId>com.mpush</groupId>
+        <version>1.0</version>
+    </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>${mpush.groupId}</groupId>
     <artifactId>mpush-test</artifactId>
+    <version>${mpush-test-version}</version>
     <packaging>jar</packaging>
     <name>mpush-test</name>
 
-
     <dependencies>
         <dependency>
-            <groupId>com.shinemo.mpush</groupId>
+            <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.shinemo.mpush</groupId>
+            <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-netty</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.shinemo.mpush</groupId>
+            <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-tools</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.shinemo.mpush</groupId>
+            <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.shinemo.mpush</groupId>
-            <artifactId>mpush-cs</artifactId>
+            <groupId>${mpush.groupId}</groupId>
+            <artifactId>mpush-boot</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.shinemo.mpush</groupId>
+            <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-log</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.shinemo.mpush</groupId>
+            <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-client</artifactId>
         </dependency>
 
         <dependency>
-          <groupId>args4j</groupId>
-          <artifactId>args4j</artifactId>
+            <groupId>args4j</groupId>
+            <artifactId>args4j</artifactId>
         </dependency>
-
     </dependencies>
 
 

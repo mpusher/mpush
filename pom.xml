@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.shinemo.mpush</groupId>
+    <groupId>com.mpush</groupId>
     <artifactId>mpush</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.0.2</version>
+    <version>1.0</version>
 
     <licenses>
         <license>
@@ -37,24 +37,31 @@
         <module>mpush-netty</module>
         <module>mpush-common</module>
         <module>mpush-client</module>
-        <module>mpush-cs</module>
+        <module>mpush-boot</module>
         <module>mpush-test</module>
         <module>mpush-monitor</module>
         <module>mpush-log</module>
+        <module>mpush-zk</module>
     </modules>
 
     <properties>
-        <java.version>1.7</java.version>
-        <mpush-api-version>0.0.0.1</mpush-api-version>
-        <mpush-tools-version>0.0.0.1</mpush-tools-version>
-        <mpush-common-version>0.0.0.1</mpush-common-version>
-        <mpush-netty-version>0.0.0.1</mpush-netty-version>
-        <mpush-core-version>0.0.0.1</mpush-core-version>
-        <mpush-client-version>0.0.0.1</mpush-client-version>
-        <mpush-monitor-version>0.0.0.1</mpush-monitor-version>
-        <mpush-log-version>0.0.0.1</mpush-log-version>
-        <mpush-cs-version>0.0.0.1</mpush-cs-version>
-        <mpush-test-version>0.0.0.1</mpush-test-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.encoding>UTF-8</java.encoding>
+        <java.version>1.8</java.version>
+        <mpush.groupId>com.mpush</mpush.groupId>
+        <mpush-version>0.0.0.3</mpush-version>
+        <mpush-api-version>${mpush-version}</mpush-api-version>
+        <mpush-tools-version>${mpush-version}</mpush-tools-version>
+        <mpush-common-version>${mpush-version}</mpush-common-version>
+        <mpush-netty-version>${mpush-version}</mpush-netty-version>
+        <mpush-core-version>${mpush-version}</mpush-core-version>
+        <mpush-client-version>${mpush-version}</mpush-client-version>
+        <mpush-monitor-version>${mpush-version}</mpush-monitor-version>
+        <mpush-log-version>${mpush-version}</mpush-log-version>
+        <mpush-cs-version>${mpush-version}</mpush-cs-version>
+        <mpush-test-version>${mpush-version}</mpush-test-version>
+        <mpush-zk-version>${mpush-version}</mpush-zk-version>
         <netty.version>5.0.0.Alpha2</netty.version>
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
     </properties>
@@ -105,10 +112,10 @@
                 <artifactId>curator-recipes</artifactId>
                 <version>2.9.1</version>
                 <exclusions>
-                  <exclusion>
-                    <artifactId>netty</artifactId>
-                    <groupId>io.netty</groupId>
-                  </exclusion>
+                    <exclusion>
+                        <artifactId>netty</artifactId>
+                        <groupId>io.netty</groupId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -121,54 +128,59 @@
             <!-- 子项目依赖 -->
             <!-- ======================================== -->
             <dependency>
-                <groupId>${pom.groupId}</groupId>
+                <groupId>${mpush.groupId}</groupId>
                 <artifactId>mpush-api</artifactId>
-                <version>${project.version}</version>
+                <version>${mpush-api-version}</version>
             </dependency>
             <dependency>
-                <groupId>${pom.groupId}</groupId>
+                <groupId>${mpush.groupId}</groupId>
                 <artifactId>mpush-tools</artifactId>
-                <version>${project.version}</version>
+                <version>${mpush-tools-version}</version>
             </dependency>
             <dependency>
-                <groupId>${pom.groupId}</groupId>
+                <groupId>${mpush.groupId}</groupId>
                 <artifactId>mpush-common</artifactId>
-                <version>${project.version}</version>
+                <version>${mpush-common-version}</version>
             </dependency>
             <dependency>
-                <groupId>${pom.groupId}</groupId>
+                <groupId>${mpush.groupId}</groupId>
                 <artifactId>mpush-netty</artifactId>
-                <version>${project.version}</version>
+                <version>${mpush-netty-version}</version>
             </dependency>
             <dependency>
-                <groupId>${pom.groupId}</groupId>
+                <groupId>${mpush.groupId}</groupId>
                 <artifactId>mpush-core</artifactId>
-                <version>${project.version}</version>
+                <version>${mpush-core-version}</version>
             </dependency>
             <dependency>
-                <groupId>${pom.groupId}</groupId>
+                <groupId>${mpush.groupId}</groupId>
                 <artifactId>mpush-client</artifactId>
-                <version>${project.version}</version>
+                <version>${mpush-client-version}</version>
             </dependency>
             <dependency>
-                <groupId>${pom.groupId}</groupId>
+                <groupId>${mpush.groupId}</groupId>
                 <artifactId>mpush-monitor</artifactId>
-                <version>${project.version}</version>
+                <version>${mpush-monitor-version}</version>
             </dependency>
             <dependency>
-                <groupId>${pom.groupId}</groupId>
+                <groupId>${mpush.groupId}</groupId>
                 <artifactId>mpush-log</artifactId>
-                <version>${project.version}</version>
+                <version>${mpush-log-version}</version>
             </dependency>
             <dependency>
-                <groupId>${pom.groupId}</groupId>
+                <groupId>${mpush.groupId}</groupId>
                 <artifactId>mpush-test</artifactId>
-                <version>${project.version}</version>
+                <version>${mpush-test-version}</version>
             </dependency>
             <dependency>
-                <groupId>${pom.groupId}</groupId>
-                <artifactId>mpush-cs</artifactId>
-                <version>${project.version}</version>
+                <groupId>${mpush.groupId}</groupId>
+                <artifactId>mpush-boot</artifactId>
+                <version>${mpush-cs-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${mpush.groupId}</groupId>
+                <artifactId>mpush-zk</artifactId>
+                <version>${mpush-zk-version}</version>
             </dependency>
             <!-- ================================================= -->
             <!-- 日志 -->
@@ -230,21 +242,21 @@
             </dependency>
 
             <dependency>
-            	<groupId>org.codehaus.janino</groupId>
-            	<artifactId>janino</artifactId>
-            	<version>2.7.8</version>
+                <groupId>org.codehaus.janino</groupId>
+                <artifactId>janino</artifactId>
+                <version>2.7.8</version>
             </dependency>
 
             <dependency>
-            	<groupId>args4j</groupId>
-            	<artifactId>args4j</artifactId>
-            	<version>2.33</version>
+                <groupId>args4j</groupId>
+                <artifactId>args4j</artifactId>
+                <version>2.33</version>
             </dependency>
 
             <dependency>
-            	<groupId>commons-net</groupId>
-            	<artifactId>commons-net</artifactId>
-            	<version>3.4</version>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>3.4</version>
             </dependency>
 
         </dependencies>
@@ -265,52 +277,28 @@
     <!-- 编译配置 -->
     <build>
         <!-- 指定编译时的Resource目录 -->
-
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                    <encoding>UTF-8</encoding>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${java.encoding}</encoding>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
+                <configuration>
+                    <encoding>${java.encoding}</encoding>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.4.2</version>
                 <configuration>
-                    <skipTests>true</skipTests>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <finalName>mpush</finalName>
-                    <descriptors>
-                        <descriptor>assembly.xml</descriptor>
-                    </descriptors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-
         </plugins>
     </build>
 

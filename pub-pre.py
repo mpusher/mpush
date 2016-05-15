@@ -9,9 +9,9 @@ import sys
 
 BASEPATH = '/root/mpush'
 
-STARTPROCESS = 'java -jar mpush-cs.jar'
+STARTPROCESS = 'java -jar boot.jar'
 
-GITLABPATH = '/data/localgit/mpush/mpush/target/mpush-jar-with-dependency.tar.gz'
+GITLABPATH = '/data/localgit/mpush/mpush-boot/target/mpush-release.tar.gz'
 
 ENV= 'pre'
 
@@ -72,7 +72,8 @@ def runShell(c):
 def main():
 
     ##0 assembly
-    runShell('mvn clean install  assembly:assembly -P %s'%ENV)
+    runShell('mvn clean')
+    runShell('mvn package -P %s'%ENV)
     print showText('assembly success','greenText')
 
     ##1 包创建时间

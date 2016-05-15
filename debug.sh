@@ -1,22 +1,18 @@
 #!/bin/sh
 
 ENV=dev
-
 base_dir=`pwd`
 
-echo "start assembly lib..."
-
-rm -rf $base_dir/target
-
-mvn clean install  assembly:assembly -P $ENV
+echo "start package project..."
+mvn clean
+mvn package -P $ENV
 
 echo "start tar mpush..."
-cd $base_dir/target
-tar -xzvf ./mpush-jar-with-dependency.tar.gz
+cd $base_dir/mpush-boot/target
+tar -xzvf ./mpush-release.tar.gz
+
 echo "start start mpush..."
-
-cd mpush/lib
-
-java -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=7998 -Dio.netty.leakDetectionLevel=advanced   -jar $base_dir/target/mpush/mpush-cs.jar &
+cd mpush
+java -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=7998 -Dio.netty.leakDetectionLevel=advanced   -jar boot.jar &
 
 echo "end start mpush..."
