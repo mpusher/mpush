@@ -1,0 +1,9 @@
+package com.mpush.common;
+
+public abstract class AbstractEventContainer {
+
+	public AbstractEventContainer() {
+		EventBus.INSTANCE.register(this);
+	}
+	
+}

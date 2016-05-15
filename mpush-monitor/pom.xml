@@ -2,34 +2,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
      <parent>
          <artifactId>mpush</artifactId>
-         <groupId>com.shinemo.mpush</groupId>
-         <version>0.0.0.2</version>
-         <relativePath>../pom.xml</relativePath>
+         <groupId>com.mpush</groupId>
+         <version>1.0</version>
      </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>${mpush.groupId}</groupId>
     <artifactId>mpush-monitor</artifactId>
+    <version>${mpush-monitor-version}</version>
     <packaging>jar</packaging>
     <name>mpush-monitor</name>
 
-
-
     <dependencies>
       <dependency>
-          <groupId>com.google.code.gson</groupId>
-          <artifactId>gson</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>com.google.guava</groupId>
-          <artifactId>guava</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>com.shinemo.mpush</groupId>
+          <groupId>${mpush.groupId}</groupId>
           <artifactId>mpush-tools</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.commons</groupId>
-          <artifactId>commons-lang3</artifactId>
       </dependency>
     </dependencies>
 </project>

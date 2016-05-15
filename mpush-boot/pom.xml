@@ -1,0 +1,93 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>mpush</artifactId>
+        <groupId>com.mpush</groupId>
+        <version>1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>${mpush.groupId}</groupId>
+    <artifactId>mpush-boot</artifactId>
+    <version>${mpush-cs-version}</version>
+    <name>mpush-boot</name>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>${mpush.groupId}</groupId>
+            <artifactId>mpush-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${mpush.groupId}</groupId>
+            <artifactId>mpush-monitor</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${mpush.groupId}</groupId>
+            <artifactId>mpush-zk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>boot</finalName>
+        <filters>
+            <filter>../conf-${deploy.env}.properties</filter>
+        </filters>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <!--生成的jar中，不要包含pom.xml和pom.properties这两个文件-->
+                        <addMavenDescriptor>false</addMavenDescriptor>
+
+                        <manifest>
+                            <!--是否要把第三方jar放到manifest的classpath中-->
+                            <addClasspath>true</addClasspath>
+                            <!--生成的manifest中classpath的前缀，因为要把第三方jar放到lib目录下，所以classpath的前缀是lib/-->
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <!--应用的main class-->
+                            <mainClass>com.mpush.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <finalName>mpush</finalName>
+                    <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

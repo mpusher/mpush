@@ -1,0 +1,93 @@
+package com.mpush.core.router;
+
+import com.google.common.eventbus.Subscribe;
+import com.mpush.api.connection.Connection;
+import com.mpush.api.event.ConnectionCloseEvent;
+import com.mpush.api.event.UserOfflineEvent;
+import com.mpush.api.router.RouterManager;
+import com.mpush.common.AbstractEventContainer;
+import com.mpush.common.EventBus;
+import com.mpush.common.router.RemoteRouter;
+
+import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+
+/**
+ * Created by ohun on 2015/12/23.
+ */
+public final class LocalRouterManager extends AbstractEventContainer implements RouterManager<LocalRouter> {
+    public static final Logger LOGGER = LoggerFactory.getLogger(LocalRouterManager.class);
+
+    /**
+     * 本地路由表
+     */
+    private final Map<String, LocalRouter> routers = new ConcurrentHashMapV8<>();
+
+    /**
+     * 反向关系表
+     */
+    private final Map<String, String> connIdUserIds = new ConcurrentHashMapV8<>();
+
+    @Override
+    public LocalRouter register(String userId, LocalRouter router) {
+        LOGGER.info("register local router success userId={}, router={}", userId, router);
+        connIdUserIds.put(router.getRouteValue().getId(), userId);
+
+        //add online userId
+        return routers.put(userId, router);
+    }
+
+    @Override
+    public boolean unRegister(String userId) {
+        LocalRouter router = routers.remove(userId);
+        if (router != null) {
+            connIdUserIds.remove(router.getRouteValue().getId());
+        }
+        LOGGER.info("unRegister local router success userId={}, router={}", userId, router);
+        return true;
+    }
+
+    @Override
+    public LocalRouter lookup(String userId) {
+        LocalRouter router = routers.get(userId);
+        LOGGER.info("lookup local router userId={}, router={}", userId, router);
+        return router;
+    }
+
+    public String getUserIdByConnId(String connId) {
+        return connIdUserIds.get(connId);
+    }
+
+    /**
+     * 监听链接关闭事件，清理失效的路由
+     *
+     * @param event
+     */
+    @Subscribe
+    void onConnectionCloseEvent(ConnectionCloseEvent event) {
+    	Connection connection = event.connection;
+    	if(connection == null) return;
+        String id = event.connection.getId();
+
+        //1.清除反向关系
+        String userId = connIdUserIds.remove(id);
+        if (userId == null) return;
+        EventBus.INSTANCE.post(new UserOfflineEvent(event.connection, userId));
+        LocalRouter router = routers.get(userId);
+        if (router == null) return;
+
+        //2.检测下，是否是同一个链接, 如果客户端重连，老的路由会被新的链接覆盖
+        if (id.equals(router.getRouteValue().getId())) {
+            //3.删除路由
+            routers.remove(userId);
+            LOGGER.info("clean disconnected local route, userId={}, route={}", userId, router);
+
+        } else { //如果不相等，则log一下
+            LOGGER.info("clean disconnected local route, not clean:userId={}, route={}", userId, router);
+        }
+    }
+}

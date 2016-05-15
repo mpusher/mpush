@@ -22,11 +22,11 @@ HOSTS = [
 
 BASEPATH = '/root/mpush'
 
-MPUSH_TAR_NAME = 'mpush-jar-with-dependency.tar.gz'
+MPUSH_TAR_NAME = 'mpush-release.tar.gz'
 
-PROCESS_KEY_WORD = 'mpush-cs.jar'
+PROCESS_KEY_WORD = 'boot.jar'
 
-GITLABPATH = '/data/localgit/mpush/mpush/target/'+MPUSH_TAR_NAME
+GITLABPATH = '/data/localgit/mpush/mpush-boot/target/'+MPUSH_TAR_NAME
 
 JAVA_PATH = '/opt/shinemo/jdk1.7.0_40/bin/java'
 
@@ -158,8 +158,9 @@ def main():
     print showText('git pull master success','greenText')
 
     ##1 assembly
-    runShell('mvn clean install  assembly:assembly -P %s'%ENV)
-    print showText('assembly success','greenText')
+    runShell('mvn clean)
+    runShell('mvn package -P %s'%ENV)
+    print showText('package success','greenText')
 
     ##2 包创建时间
     runShell('stat -c "%%y" %s'%GITLABPATH)

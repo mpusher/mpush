@@ -1,1 +1,0 @@
-redisRegister=com.shinemo.mpush.tools.redis.jedis.services.JedisRegisterManager
