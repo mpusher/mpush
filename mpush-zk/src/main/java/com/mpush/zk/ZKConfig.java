@@ -1,8 +1,14 @@
 package com.mpush.zk;
 
-import com.mpush.tools.Constants;
+import com.mpush.tools.config.ConfigCenter;
 
 public class ZKConfig {
+    public static final int ZK_MAX_RETRY = 3;
+    public static final int ZK_MIN_TIME = 5000;
+    public static final int ZK_MAX_TIME = 5000;
+    public static final int ZK_SESSION_TIMEOUT = 5000;
+    public static final int ZK_CONNECTION_TIMEOUT = 5000;
+    public static final String ZK_DEFAULT_CACHE_PATH = "/";
 
     private String hosts;
 
@@ -10,17 +16,17 @@ public class ZKConfig {
 
     private String namespace;
 
-    private int maxRetry = Constants.ZK_MAX_RETRY;
+    private int maxRetry = ZK_MAX_RETRY;
 
-    private int minTime = Constants.ZK_MIN_TIME;
+    private int minTime = ZK_MIN_TIME;
 
-    private int maxTime = Constants.ZK_MAX_TIME;
+    private int maxTime = ZK_MAX_TIME;
 
-    private int sessionTimeout = Constants.ZK_SESSION_TIMEOUT;
+    private int sessionTimeout = ZK_SESSION_TIMEOUT;
 
-    private int connectionTimeout = Constants.ZK_CONNECTION_TIMEOUT;
+    private int connectionTimeout = ZK_CONNECTION_TIMEOUT;
 
-    private String localCachePath = Constants.ZK_DEFAULT_CACHE_PATH;
+    private String localCachePath = ZK_DEFAULT_CACHE_PATH;
 
     public ZKConfig(String hosts) {
         this.hosts = hosts;
@@ -109,5 +115,20 @@ public class ZKConfig {
     public ZKConfig setLocalCachePath(String localCachePath) {
         this.localCachePath = localCachePath;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "ZKConfig{" +
+                "hosts='" + hosts + '\'' +
+                ", digest='" + digest + '\'' +
+                ", namespace='" + namespace + '\'' +
+                ", maxRetry=" + maxRetry +
+                ", minTime=" + minTime +
+                ", maxTime=" + maxTime +
+                ", sessionTimeout=" + sessionTimeout +
+                ", connectionTimeout=" + connectionTimeout +
+                ", localCachePath='" + localCachePath + '\'' +
+                '}';
     }
 }

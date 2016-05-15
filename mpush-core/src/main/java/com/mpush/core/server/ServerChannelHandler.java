@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Created by ohun on 2015/12/19.
+ *
+ * @author ohun@live.cn
  */
 @ChannelHandler.Sharable
 public final class ServerChannelHandler extends ChannelHandlerAdapter {

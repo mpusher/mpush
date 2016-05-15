@@ -1,7 +1,5 @@
 package com.mpush.tools.crypto;
 
-import java.security.SecureRandom;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,9 +8,12 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.security.SecureRandom;
 
 /**
  * Created by ohun on 2015/12/25.
+ *
+ * @author ohun@live.cn
  */
 public final class AESUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(AESUtils.class);

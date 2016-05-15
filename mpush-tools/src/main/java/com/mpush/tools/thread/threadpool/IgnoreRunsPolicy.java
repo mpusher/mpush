@@ -16,7 +16,7 @@ public class IgnoreRunsPolicy implements RejectedExecutionHandler{
 
 	private volatile boolean dump = false;
 	
-	private static final String preFixPath = ConfigCenter.holder.logPath();
+	private static final String preFixPath = ConfigCenter.I.logPath();
 	
 	private final ThreadPoolContext context;
 	

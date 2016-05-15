@@ -23,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ohun on 2015/12/22.
+ *
+ * @author ohun@live.cn
  */
 public final class NettyConnectionManager implements ConnectionManager {
     //可能会有20w的链接数
@@ -34,7 +36,7 @@ public final class NettyConnectionManager implements ConnectionManager {
     public void init() {
         //每秒钟走一步，一个心跳周期内走一圈
         long tickDuration = 1000;//1s
-        int ticksPerWheel = (int) (ConfigCenter.holder.maxHeartbeat() / tickDuration);
+        int ticksPerWheel = (int) (ConfigCenter.I.maxHeartbeat() / tickDuration);
         this.timer = new HashedWheelTimer(tickDuration, TimeUnit.MILLISECONDS, ticksPerWheel);
         EventBus.INSTANCE.register(this);
     }
@@ -88,7 +90,7 @@ public final class NettyConnectionManager implements ConnectionManager {
 
         public void startTimeout() {
             int timeout = connection.getSessionContext().heartbeat;
-            timer.newTimeout(this, timeout > 0 ? timeout : ConfigCenter.holder.minHeartbeat(), TimeUnit.MILLISECONDS);
+            timer.newTimeout(this, timeout > 0 ? timeout : ConfigCenter.I.minHeartbeat(), TimeUnit.MILLISECONDS);
         }
 
         @Override
@@ -98,7 +100,7 @@ public final class NettyConnectionManager implements ConnectionManager {
                 return;
             }
             if (connection.heartbeatTimeout()) {
-                if (++expiredTimes > ConfigCenter.holder.maxHBTimeoutTimes()) {
+                if (++expiredTimes > ConfigCenter.I.maxHBTimeoutTimes()) {
                     connection.close();
                     LoggerManage.info(LogType.HEARTBEAT, "connection heartbeat timeout, connection has bean closed:{},{}", connection.getChannel(), connection.getSessionContext().deviceId);
                     return;

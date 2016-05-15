@@ -19,7 +19,7 @@ import java.util.Map;
 })
 public interface ConfigCenter extends Config {
 
-    ConfigCenter holder = ConfigFactory.create(ConfigCenter.class);
+    ConfigCenter I = ConfigFactory.create(ConfigCenter.class);
 
     /**
      * 最大包长度

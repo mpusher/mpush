@@ -4,10 +4,10 @@ import com.google.common.collect.Maps;
 import com.mpush.api.PushSender;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.router.ClientLocation;
-import com.mpush.tools.Jsons;
 import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.common.router.ConnectionRouterManager;
 import com.mpush.common.router.RemoteRouter;
+import com.mpush.tools.Jsons;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
@@ -18,6 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by ohun on 2015/12/30.
+ *
+ * @author ohun@live.cn
  */
 public class PushRequest implements PushSender.Callback, Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PushRequest.class);

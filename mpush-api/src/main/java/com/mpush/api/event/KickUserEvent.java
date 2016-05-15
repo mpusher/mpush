@@ -2,6 +2,8 @@ package com.mpush.api.event;
 
 /**
  * Created by ohun on 2015/12/29.
+ *
+ * @author ohun@live.cn
  */
 public final class KickUserEvent implements Event {
     public final String userId;

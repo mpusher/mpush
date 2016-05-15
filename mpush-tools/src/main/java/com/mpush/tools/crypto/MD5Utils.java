@@ -13,6 +13,8 @@ import java.security.MessageDigest;
 
 /**
  * Created by ohun on 2015/12/25.
+ *
+ * @author ohun@live.cn
  */
 public final class MD5Utils {
     public static String encrypt(File file) {

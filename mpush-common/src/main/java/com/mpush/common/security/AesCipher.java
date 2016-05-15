@@ -7,6 +7,8 @@ import com.mpush.tools.crypto.AESUtils;
 
 /**
  * Created by ohun on 2015/12/28.
+ *
+ * @author ohun@live.cn
  */
 public final class AesCipher implements Cipher {
     public final byte[] key;
@@ -19,22 +21,22 @@ public final class AesCipher implements Cipher {
 
     @Override
     public byte[] decrypt(byte[] data) {
-    	try{
-    		Profiler.enter("start aes decrypt");
-    		return AESUtils.decrypt(data, key, iv);
-    	}finally{
-    		Profiler.release();
-    	}
+        try {
+            Profiler.enter("start aes decrypt");
+            return AESUtils.decrypt(data, key, iv);
+        } finally {
+            Profiler.release();
+        }
     }
 
     @Override
     public byte[] encrypt(byte[] data) {
-    	try{
-    		Profiler.enter("start encrypt");
-    		return AESUtils.encrypt(data, key, iv);
-    	}finally{
-    		Profiler.release();
-    	}
+        try {
+            Profiler.enter("start encrypt");
+            return AESUtils.encrypt(data, key, iv);
+        } finally {
+            Profiler.release();
+        }
     }
 
     @Override

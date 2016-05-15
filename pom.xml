@@ -32,12 +32,12 @@
 
     <modules>
         <module>mpush-api</module>
+        <module>mpush-boot</module>
         <module>mpush-core</module>
         <module>mpush-tools</module>
         <module>mpush-netty</module>
         <module>mpush-common</module>
         <module>mpush-client</module>
-        <module>mpush-boot</module>
         <module>mpush-test</module>
         <module>mpush-monitor</module>
         <module>mpush-log</module>
@@ -48,9 +48,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.encoding>UTF-8</java.encoding>
-        <java.version>1.8</java.version>
+        <java.version>1.7</java.version>
         <mpush.groupId>com.mpush</mpush.groupId>
-        <mpush-version>0.0.0.3</mpush-version>
+        <mpush-version>0.0.1</mpush-version>
         <mpush-api-version>${mpush-version}</mpush-api-version>
         <mpush-tools-version>${mpush-version}</mpush-tools-version>
         <mpush-common-version>${mpush-version}</mpush-common-version>
@@ -59,7 +59,7 @@
         <mpush-client-version>${mpush-version}</mpush-client-version>
         <mpush-monitor-version>${mpush-version}</mpush-monitor-version>
         <mpush-log-version>${mpush-version}</mpush-log-version>
-        <mpush-cs-version>${mpush-version}</mpush-cs-version>
+        <mpush-boot-version>${mpush-version}</mpush-boot-version>
         <mpush-test-version>${mpush-version}</mpush-test-version>
         <mpush-zk-version>${mpush-version}</mpush-zk-version>
         <netty.version>5.0.0.Alpha2</netty.version>
@@ -175,7 +175,7 @@
             <dependency>
                 <groupId>${mpush.groupId}</groupId>
                 <artifactId>mpush-boot</artifactId>
-                <version>${mpush-cs-version}</version>
+                <version>${mpush-boot-version}</version>
             </dependency>
             <dependency>
                 <groupId>${mpush.groupId}</groupId>

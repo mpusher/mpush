@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 
 /**
  * Created by ohun on 2015/12/25.
+ *
+ * @author ohun@live.cn
  */
 public final class MPushUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(MPushUtil.class);
@@ -42,8 +44,8 @@ public final class MPushUtil {
 
     public static int getHeartbeat(int min, int max) {
         return Math.max(
-                ConfigCenter.holder.minHeartbeat(),
-                Math.min(max, ConfigCenter.holder.maxHeartbeat())
+                ConfigCenter.I.minHeartbeat(),
+                Math.min(max, ConfigCenter.I.maxHeartbeat())
         );
     }
 
@@ -107,7 +109,7 @@ public final class MPushUtil {
 
         String localIp = getInetAddress();
         String remoteIp = null;
-        Map<String, String> mapping = ConfigCenter.holder.remoteIpMapping();
+        Map<String, String> mapping = ConfigCenter.I.remoteIpMapping();
         if (mapping != null) {
             remoteIp = mapping.get(localIp);
         }

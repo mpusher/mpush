@@ -1,22 +1,23 @@
 package com.mpush.core.handler;
 
-import com.mpush.core.session.ReusableSession;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.ErrorMessage;
 import com.mpush.common.message.FastConnectMessage;
 import com.mpush.common.message.FastConnectOkMessage;
+import com.mpush.core.session.ReusableSession;
 import com.mpush.core.session.ReusableSessionManager;
 import com.mpush.log.LogType;
 import com.mpush.log.LoggerManage;
 import com.mpush.tools.MPushUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Created by ohun on 2015/12/25.
+ *
+ * @author ohun@live.cn
  */
 public final class FastConnectHandler extends BaseMessageHandler<FastConnectMessage> {
     public static final Logger LOGGER = LoggerFactory.getLogger(FastConnectHandler.class);
@@ -25,7 +26,7 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
     public FastConnectMessage decode(Packet packet, Connection connection) {
         return new FastConnectMessage(packet, connection);
     }
-    
+
     @Override
     public void handle(FastConnectMessage message) {
         //从缓存中心查询session

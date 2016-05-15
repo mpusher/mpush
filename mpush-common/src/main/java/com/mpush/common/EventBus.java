@@ -6,7 +6,6 @@ import com.google.common.eventbus.SubscriberExceptionContext;
 import com.google.common.eventbus.SubscriberExceptionHandler;
 import com.mpush.api.event.Event;
 import com.mpush.tools.thread.threadpool.ThreadPoolManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +13,8 @@ import java.util.concurrent.Executor;
 
 /**
  * Created by ohun on 2015/12/29.
+ *
+ * @author ohun@live.cn
  */
 public class EventBus {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventBus.class);

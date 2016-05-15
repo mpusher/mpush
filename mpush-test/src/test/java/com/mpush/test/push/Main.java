@@ -1,8 +1,8 @@
 package com.mpush.test.push;
 
 import com.mpush.api.PushContent;
-import com.mpush.api.PushSender;
 import com.mpush.api.PushContent.PushType;
+import com.mpush.api.PushSender;
 import com.mpush.push.PushClient;
 import com.mpush.tools.Jsons;
 
@@ -11,6 +11,8 @@ import java.util.concurrent.locks.LockSupport;
 
 /**
  * Created by ohun on 2016/1/7.
+ *
+ * @author ohun@live.cn
  */
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -18,8 +20,8 @@ public class Main {
         client.start();
         Thread.sleep(1000);
         for (int i = 0; i < 100; i++) {
-        	PushContent content = PushContent.build(PushType.MESSAGE,"this a first push." + i);
-        	content.setMsgId("msgId_" + (i % 2));
+            PushContent content = PushContent.build(PushType.MESSAGE, "this a first push." + i);
+            content.setMsgId("msgId_" + (i % 2));
 
             client.send(Jsons.toJson(content), Arrays.asList("huang1", "huang2", "huang"), new PushSender.Callback() {
                 @Override

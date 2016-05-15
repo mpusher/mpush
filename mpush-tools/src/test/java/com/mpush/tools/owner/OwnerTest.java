@@ -32,39 +32,39 @@ public class OwnerTest {
 	@Test
 	public void test2(){
 		
-		System.out.println(ConfigCenter.holder.zkIp());
+		System.out.println(ConfigCenter.I.zkIp());
 		
-		System.out.println("aesKeyLength:"+ConfigCenter.holder.aesKeyLength());
+		System.out.println("aesKeyLength:"+ConfigCenter.I.aesKeyLength());
 		
-		System.out.println("compressLimit:"+ConfigCenter.holder.compressLimit());
+		System.out.println("compressLimit:"+ConfigCenter.I.compressLimit());
 		
-		System.out.println("connectionServerPort:"+ConfigCenter.holder.connectionServerPort());
+		System.out.println("connectionServerPort:"+ConfigCenter.I.connectionServerPort());
 		
-		System.out.println("gatewayServerPort:"+ConfigCenter.holder.gatewayServerPort());
+		System.out.println("gatewayServerPort:"+ConfigCenter.I.gatewayServerPort());
 		
-		System.out.println("maxHBTimeoutTimes:"+ConfigCenter.holder.maxHBTimeoutTimes());
+		System.out.println("maxHBTimeoutTimes:"+ConfigCenter.I.maxHBTimeoutTimes());
 		
-		System.out.println(ConfigCenter.holder.maxHeartbeat());
+		System.out.println(ConfigCenter.I.maxHeartbeat());
 		
-		System.out.println(ConfigCenter.holder.maxPacketSize());
+		System.out.println(ConfigCenter.I.maxPacketSize());
 		
-		System.out.println(ConfigCenter.holder.minHeartbeat());
+		System.out.println(ConfigCenter.I.minHeartbeat());
 		
-		System.out.println(ConfigCenter.holder.privateKey());
+		System.out.println(ConfigCenter.I.privateKey());
 		
-		System.out.println(ConfigCenter.holder.publicKey());
+		System.out.println(ConfigCenter.I.publicKey());
 		
-		System.out.println(ConfigCenter.holder.rsaKeyLength());
+		System.out.println(ConfigCenter.I.rsaKeyLength());
 		
-		System.out.println(ConfigCenter.holder.redisIp());
+		System.out.println(ConfigCenter.I.redisIp());
 		
-		System.out.println(ConfigCenter.holder.sessionExpiredTime());
+		System.out.println(ConfigCenter.I.sessionExpiredTime());
 		
-		System.out.println(ConfigCenter.holder.zkDigest());
+		System.out.println(ConfigCenter.I.zkDigest());
 		
 
 		
-		System.out.println(ConfigCenter.holder.zkNamespace());
+		System.out.println(ConfigCenter.I.zkNamespace());
 	}
 
 }

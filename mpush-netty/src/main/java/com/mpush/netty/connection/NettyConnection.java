@@ -4,16 +4,16 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.protocol.Packet;
 import com.mpush.common.security.CipherBox;
-
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Created by ohun on 2015/12/22.
+ *
+ * @author ohun@live.cn
  */
 public final class NettyConnection implements Connection, ChannelFutureListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyConnection.class);
@@ -22,8 +22,8 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     private Channel channel;
     private volatile int status = STATUS_NEW;
     private long lastReadTime;
-	private long lastWriteTime;
-    
+    private long lastWriteTime;
+
     private int hbTimes = 0;
 
     @Override
@@ -67,7 +67,7 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
             }
         } else {
             return this.close();
-            
+
         }
     }
 
@@ -85,7 +85,7 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
 
     @Override
     public boolean heartbeatTimeout() {
-    	long between = System.currentTimeMillis() - lastReadTime;
+        long between = System.currentTimeMillis() - lastReadTime;
         return context.heartbeat > 0 && between > context.heartbeat;
     }
 
@@ -93,10 +93,10 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     public void updateLastReadTime() {
         lastReadTime = System.currentTimeMillis();
     }
-    
+
     @Override
-    public long getLastReadTime(){
-    	return lastReadTime;
+    public long getLastReadTime() {
+        return lastReadTime;
     }
 
     @Override
@@ -107,11 +107,11 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
             LOGGER.error("send msg error");
         }
     }
-    
-    public void updateLastWriteTime(){
-    	lastWriteTime = System.currentTimeMillis();
+
+    public void updateLastWriteTime() {
+        lastWriteTime = System.currentTimeMillis();
     }
-    
+
     @Override
     public int inceaseAndGetHbTimes() {
         return ++hbTimes;
@@ -122,16 +122,16 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
         hbTimes = 0;
     }
 
-	@Override
-	public String toString() {
-		return "NettyConnection [context=" + context + ", channel=" + channel + ", status=" + status + ", lastReadTime=" + lastReadTime + ", lastWriteTime=" + lastWriteTime + ", hbTimes=" + hbTimes
-				+ "]";
-	}
+    @Override
+    public String toString() {
+        return "NettyConnection [context=" + context + ", channel=" + channel + ", status=" + status + ", lastReadTime=" + lastReadTime + ", lastWriteTime=" + lastWriteTime + ", hbTimes=" + hbTimes
+                + "]";
+    }
 
-	@Override
-	public Channel getChannel() {
-		return channel;
-	}
-    
+    @Override
+    public Channel getChannel() {
+        return channel;
+    }
+
 
 }

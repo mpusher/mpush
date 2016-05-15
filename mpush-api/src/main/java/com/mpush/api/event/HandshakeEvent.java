@@ -4,6 +4,8 @@ import com.mpush.api.connection.Connection;
 
 /**
  * Created by ohun on 2015/12/29.
+ *
+ * @author ohun@live.cn
  */
 public final class HandshakeEvent implements Event {
     public final Connection connection;

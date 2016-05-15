@@ -5,6 +5,8 @@ import com.mpush.common.security.AesCipher;
 
 /**
  * Created by ohun on 2015/12/25.
+ *
+ * @author ohun@live.cn
  */
 public final class ReusableSession {
     public String sessionId;

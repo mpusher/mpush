@@ -26,11 +26,13 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ohun on 2016/2/15.
+ *
+ * @author ohun@live.cn
  */
 public class NettyHttpClient implements HttpClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyHttpClient.class);
 
-    private final int maxConnPerHost = ConfigCenter.holder.maxHttpConnCountPerHost();
+    private final int maxConnPerHost = ConfigCenter.I.maxHttpConnCountPerHost();
     private final AttributeKey<RequestInfo> requestKey = AttributeKey.newInstance("request");
     private final AttributeKey<String> hostKey = AttributeKey.newInstance("host");
     private final ArrayListMultimap<String, Channel> channelPool = ArrayListMultimap.create();

@@ -8,6 +8,8 @@ import static com.mpush.api.protocol.Command.KICK;
 
 /**
  * Created by ohun on 2015/12/29.
+ *
+ * @author ohun@live.cn
  */
 public class KickUserMessage extends ByteBufMessage {
     public String deviceId;

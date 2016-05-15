@@ -1,10 +1,9 @@
 package com.mpush.zk;
 
 import com.google.common.collect.Lists;
-import com.mpush.tools.Constants;
-import com.mpush.tools.redis.RedisGroup;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.MPushUtil;
+import com.mpush.tools.redis.RedisGroup;
 import com.mpush.tools.redis.RedisNode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -19,7 +18,6 @@ public class ZkUtilTest {
 
     @Before
     public void setUp() throws Exception {
-        zkUtil = new ZKClient();
     }
 
     @Test
@@ -58,7 +56,7 @@ public class ZkUtilTest {
 
         String path = "/" + zkUtil.getZKConfig().getNamespace();
 
-        String prefix = Constants.ZK_REGISTER_PREFIX_NAME;
+        String prefix = "machine";
 
         List<String> hosts = zkUtil.getChildrenKeys(path);
 
@@ -109,7 +107,7 @@ public class ZkUtilTest {
     @Test
     public void testAddKickOff() {
         String localIp = MPushUtil.getInetAddress();
-        String kick = Constants.ZK_KICK;
+        String kick = "kickoff";
         String ip = "10.1.10.65";
         zkUtil.registerEphemeral("/" + localIp + "/" + kick, ip);
 

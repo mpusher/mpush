@@ -16,6 +16,8 @@ import java.util.Map;
 
 /**
  * Created by ohun on 2015/12/22.
+ *
+ * @author ohun@live.cn
  */
 public final class MessageDispatcher implements PacketReceiver {
     public static final Logger LOGGER = LoggerFactory.getLogger(MessageDispatcher.class);

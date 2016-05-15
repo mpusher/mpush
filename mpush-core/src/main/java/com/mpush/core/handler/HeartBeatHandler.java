@@ -8,6 +8,8 @@ import com.mpush.log.LoggerManage;
 
 /**
  * Created by ohun on 2015/12/22.
+ *
+ * @author ohun@live.cn
  */
 public final class HeartBeatHandler implements MessageHandler {
 

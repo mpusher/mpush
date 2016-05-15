@@ -9,6 +9,8 @@ import com.mpush.tools.Profiler;
 
 /**
  * Created by ohun on 2015/12/22.
+ *
+ * @author ohun@live.cn
  */
 public abstract class BaseMessageHandler<T extends Message> implements MessageHandler {
     public abstract T decode(Packet packet, Connection connection);
@@ -18,12 +20,12 @@ public abstract class BaseMessageHandler<T extends Message> implements MessageHa
     public void handle(Packet packet, Connection connection) {
         T t = decode(packet, connection);
         if (t != null) {
-        	try{
-        		Profiler.enter("start handle");
-        		handle(t);
-        	}finally{
-        		Profiler.release();
-        	}
+            try {
+                Profiler.enter("start handle");
+                handle(t);
+            } finally {
+                Profiler.release();
+            }
         }
     }
 }

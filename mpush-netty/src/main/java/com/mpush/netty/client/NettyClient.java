@@ -80,7 +80,7 @@ public  class NettyClient implements Client {
 
 	@Override
 	public void startHeartBeat() throws Exception {
-		startHeartBeat((int)ConfigCenter.holder.scanConnTaskCycle()/1000);
+		startHeartBeat((int)ConfigCenter.I.scanConnTaskCycle()/1000);
 	}
 
 

@@ -1,8 +1,8 @@
 package com.mpush.common.message.gateway;
 
 import com.mpush.api.connection.Connection;
-import com.mpush.common.message.ByteBufMessage;
 import com.mpush.api.protocol.Packet;
+import com.mpush.common.message.ByteBufMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 
@@ -10,6 +10,8 @@ import static com.mpush.api.protocol.Command.GATEWAY_PUSH;
 
 /**
  * Created by ohun on 2015/12/30.
+ *
+ * @author ohun@live.cn
  */
 public class GatewayPushMessage extends ByteBufMessage {
     public String userId;
