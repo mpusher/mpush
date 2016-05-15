@@ -10,7 +10,7 @@ import java.util.Collection;
 
 public class PushClient extends AbstractClient implements PushSender {
     private static final int DEFAULT_TIMEOUT = 3000;
-    private GatewayZKListener listener = new GatewayZKListener();
+    private final GatewayZKListener listener = new GatewayZKListener();
 
     public PushClient() {
         registerListener(listener);
