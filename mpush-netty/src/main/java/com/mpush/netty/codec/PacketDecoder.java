@@ -13,6 +13,8 @@ import java.util.List;
 /**
  * Created by ohun on 2015/12/19.
  * length(4)+cmd(1)+cc(2)+flags(1)+sessionId(4)+lrc(1)+body(n)
+ *
+ * @author ohun@live.cn
  */
 public final class PacketDecoder extends ByteToMessageDecoder {
 
@@ -63,7 +65,7 @@ public final class PacketDecoder extends ByteToMessageDecoder {
         byte lrc = in.readByte();
         byte[] body = null;
         if (bodyLength > 0) {
-            if (bodyLength > ConfigCenter.holder.maxPacketSize()) {
+            if (bodyLength > ConfigCenter.I.maxPacketSize()) {
                 throw new RuntimeException("ERROR PACKET_SIZE：" + bodyLength);
             }
             body = new byte[bodyLength];

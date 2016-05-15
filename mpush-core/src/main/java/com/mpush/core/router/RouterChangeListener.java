@@ -17,12 +17,13 @@ import com.mpush.tools.MPushUtil;
 import com.mpush.tools.redis.listener.ListenerDispatcher;
 import com.mpush.tools.redis.listener.MessageListener;
 import com.mpush.tools.redis.manage.RedisManage;
-
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
 /**
  * Created by ohun on 2016/1/4.
+ *
+ * @author ohun@live.cn
  */
 public final class RouterChangeListener extends AbstractEventContainer implements MessageListener {
     public static final String KICK_CHANNEL_ = "/mpush/kick/";

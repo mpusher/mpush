@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Created by ohun on 2015/12/24.
+ *
+ * @author ohun@live.cn
  */
 public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage> {
     public static final Logger LOGGER = LoggerFactory.getLogger(HandshakeHandler.class);

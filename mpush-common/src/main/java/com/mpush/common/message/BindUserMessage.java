@@ -7,6 +7,8 @@ import io.netty.buffer.ByteBuf;
 
 /**
  * Created by ohun on 2015/12/28.
+ *
+ * @author ohun@live.cn
  */
 public final class BindUserMessage extends ByteBufMessage {
     public String userId;

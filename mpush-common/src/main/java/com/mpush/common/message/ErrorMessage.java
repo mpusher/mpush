@@ -10,6 +10,8 @@ import static com.mpush.api.protocol.Command.ERROR;
 
 /**
  * Created by ohun on 2015/12/28.
+ *
+ * @author ohun@live.cn
  */
 public final class ErrorMessage extends ByteBufMessage {
     public byte cmd;

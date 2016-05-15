@@ -14,13 +14,13 @@ public class ConfigCenterTest {
 	@Test
 	public void test(){
 		
-		System.out.println(ConfigCenter.holder.forceWriteRedisGroupInfo());
+		System.out.println(ConfigCenter.I.forceWriteRedisGroupInfo());
 		
 	}
 	
 	@Test
 	public void testDnsMapping(){
-		Map<String, List<DnsMapping>> ret = ConfigCenter.holder.dnsMapping();
+		Map<String, List<DnsMapping>> ret = ConfigCenter.I.dnsMapping();
 		
 		System.out.println(Jsons.toJson(ret));
 		

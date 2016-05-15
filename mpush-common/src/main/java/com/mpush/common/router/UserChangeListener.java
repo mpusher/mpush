@@ -12,6 +12,8 @@ import com.mpush.tools.redis.manage.RedisManage;
 
 /**
  * Created by ohun on 2016/1/4.
+ *
+ * @author ohun@live.cn
  */
 public class UserChangeListener extends AbstractEventContainer implements MessageListener {
 	
@@ -23,11 +25,11 @@ public class UserChangeListener extends AbstractEventContainer implements Messag
 
     //只需要一台机器注册online、offline 消息通道
     public UserChangeListener() {
-    	if(ConfigCenter.holder.onlineAndOfflineListenerIp().equals(MPushUtil.getLocalIp())){
+    	if(ConfigCenter.I.onlineAndOfflineListenerIp().equals(MPushUtil.getLocalIp())){
     		ListenerDispatcher.INSTANCE.subscribe(getOnlineChannel(), this);
     		ListenerDispatcher.INSTANCE.subscribe(getOfflineChannel(), this);
     	}else{
-    		log.error("UserChangeListener is not localhost,required:{},but:{}",ConfigCenter.holder.onlineAndOfflineListenerIp(),MPushUtil.getLocalIp());
+    		log.error("UserChangeListener is not localhost,required:{},but:{}",ConfigCenter.I.onlineAndOfflineListenerIp(),MPushUtil.getLocalIp());
     	}
     }
 

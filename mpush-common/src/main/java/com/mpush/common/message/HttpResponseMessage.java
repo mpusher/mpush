@@ -10,6 +10,8 @@ import java.util.Map;
 
 /**
  * Created by ohun on 2016/2/15.
+ *
+ * @author ohun@live.cn
  */
 public class HttpResponseMessage extends ByteBufMessage {
     public int statusCode;

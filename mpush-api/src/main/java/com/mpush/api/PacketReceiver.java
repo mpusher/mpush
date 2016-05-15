@@ -5,6 +5,8 @@ import com.mpush.api.connection.Connection;
 
 /**
  * Created by ohun on 2015/12/22.
+ *
+ * @author ohun@live.cn
  */
 public interface PacketReceiver {
     void onReceive(Packet packet, Connection connection);

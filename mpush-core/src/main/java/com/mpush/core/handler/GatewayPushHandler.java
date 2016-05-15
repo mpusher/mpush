@@ -13,16 +13,15 @@ import com.mpush.core.router.RouterCenter;
 import com.mpush.log.LogType;
 import com.mpush.log.LoggerManage;
 import com.mpush.tools.MPushUtil;
-
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
-import static com.mpush.common.ErrorCode.OFFLINE;
-import static com.mpush.common.ErrorCode.PUSH_CLIENT_FAILURE;
-import static com.mpush.common.ErrorCode.ROUTER_CHANGE;
+import static com.mpush.common.ErrorCode.*;
 
 /**
  * Created by ohun on 2015/12/30.
+ *
+ * @author ohun@live.cn
  */
 public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMessage> {
 
@@ -30,7 +29,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
     public GatewayPushMessage decode(Packet packet, Connection connection) {
         return new GatewayPushMessage(packet, connection);
     }
-    
+
     /**
      * 处理PushClient发送过来的Push推送请求
      * <p>
@@ -74,8 +73,8 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
         //2.如果链接失效，先删除本地失效的路由，再查下远程路由，看用户是否登陆到其他机器
         if (!connection.isConnected()) {
 
-        	LoggerManage.info(LogType.PUSH, "gateway push, router in local but disconnect, userId={}, connection={}", message.userId, connection);
-        	
+            LoggerManage.info(LogType.PUSH, "gateway push, router in local but disconnect, userId={}, connection={}", message.userId, connection);
+
             //删除已经失效的本地路由
             RouterCenter.INSTANCE.getLocalRouterManager().unRegister(message.userId);
 
@@ -93,11 +92,11 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
                     OkMessage.from(message).setData(message.userId).send();
 
                     LoggerManage.info(LogType.PUSH, "gateway push message to client success userId={}, content={}", message.userId, message.content);
-                    
+
                 } else {
                     //推送失败
                     ErrorMessage.from(message).setErrorCode(PUSH_CLIENT_FAILURE).send();
-                    
+
                     LoggerManage.info(LogType.PUSH, "gateway push message to client failure userId={}, content={}", message.userId, message.content);
                 }
             }
@@ -133,7 +132,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
 
             //删除失效的远程缓存
             RouterCenter.INSTANCE.getRemoteRouterManager().unRegister(message.userId);
-            
+
             LoggerManage.info(LogType.PUSH, "gateway push error remote is local, userId={}, router={}", message.userId, router);
 
             return;
@@ -141,7 +140,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
 
         //3.否则说明用户已经跑到另外一台机器上了；路由信息发生更改，让PushClient重推
         ErrorMessage.from(message).setErrorCode(ROUTER_CHANGE).send();
-        
+
         LoggerManage.info(LogType.PUSH, "gateway push, router in remote userId={}, router={}", message.userId, router);
 
     }

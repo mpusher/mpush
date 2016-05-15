@@ -9,10 +9,12 @@ import com.mpush.tools.redis.manage.RedisManage;
 
 /**
  * Created by ohun on 2015/12/25.
+ *
+ * @author ohun@live.cn
  */
 public final class ReusableSessionManager {
     public static final ReusableSessionManager INSTANCE = new ReusableSessionManager();
-    private int expiredTime = ConfigCenter.holder.sessionExpiredTime();
+    private int expiredTime = ConfigCenter.I.sessionExpiredTime();
 
     public boolean cacheSession(ReusableSession session) {
     	String key = RedisKey.getSessionKey(session.sessionId);

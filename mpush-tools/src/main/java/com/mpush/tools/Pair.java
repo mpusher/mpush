@@ -2,6 +2,8 @@ package com.mpush.tools;
 
 /**
  * Created by ohun on 2015/12/24.
+ *
+ * @author ohun@live.cn
  */
 public final class Pair<K, V> {
     public final K key;

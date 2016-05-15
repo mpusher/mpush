@@ -34,8 +34,8 @@ public class DnsMappingManage {
 
     public void init() {
         LOG.error("start init dnsMapping");
-        all.putAll(ConfigCenter.holder.dnsMapping());
-        available.putAll(ConfigCenter.holder.dnsMapping());
+        all.putAll(ConfigCenter.I.dnsMapping());
+        available.putAll(ConfigCenter.I.dnsMapping());
         pool.scheduleAtFixedRate(worker, 1, 20, TimeUnit.SECONDS); //20秒 定时扫描dns
         LOG.error("end init dnsMapping");
     }

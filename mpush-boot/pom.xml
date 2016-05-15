@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>${mpush.groupId}</groupId>
     <artifactId>mpush-boot</artifactId>
-    <version>${mpush-cs-version}</version>
+    <version>${mpush-boot-version}</version>
     <name>mpush-boot</name>
     <packaging>jar</packaging>
 
@@ -34,7 +34,7 @@
     <build>
         <finalName>boot</finalName>
         <filters>
-            <filter>../conf-${deploy.env}.properties</filter>
+            <filter>../conf/conf-${deploy.env}.properties</filter>
         </filters>
         <resources>
             <resource>
@@ -89,5 +89,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

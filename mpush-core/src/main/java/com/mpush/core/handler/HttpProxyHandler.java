@@ -28,6 +28,8 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
  * Created by ohun on 2016/2/15.
+ *
+ * @author ohun@live.cn
  */
 public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     private static final Logger LOGGER = LoggerManage.getLog(LogType.HTTP);

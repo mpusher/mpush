@@ -1,5 +1,7 @@
 package com.mpush.boot;
 
+import com.mpush.tools.ConsoleLog;
+
 /**
  * Created by yxx on 2016/5/14.
  *
@@ -12,6 +14,7 @@ public abstract class BootJob {
 
     public void next() {
         if (next != null) {
+            ConsoleLog.i("run next boot [" + next.getClass().getSimpleName() + "]");
             next.run();
         }
     }

@@ -1,5 +1,7 @@
 package com.mpush.boot;
 
+import com.mpush.tools.ConsoleLog;
+
 /**
  * Created by yxx on 2016/5/15.
  *
@@ -20,6 +22,7 @@ public class BootChain {
         return new BootJob() {
             @Override
             public void run() {
+                ConsoleLog.i("begin run boot chain...");
                 next();
             }
         };

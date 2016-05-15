@@ -6,6 +6,8 @@ import io.netty.buffer.ByteBuf;
 
 /**
  * Created by ohun on 2015/12/27.
+ *
+ * @author ohun@live.cn
  */
 public final class HandshakeOkMessage extends ByteBufMessage {
     public byte[] serverKey;

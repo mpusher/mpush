@@ -6,6 +6,8 @@ import org.junit.Test;
 
 /**
  * Created by ohun on 2015/12/24.
+ *
+ * @author ohun@live.cn
  */
 public class NettyServerTest {
     @Test
@@ -14,13 +16,11 @@ public class NettyServerTest {
         server.init();
         server.start(new Server.Listener() {
             @Override
-            public void onSuccess() {
-
+            public void onSuccess(int port) {
             }
 
             @Override
-            public void onFailure(String message) {
-
+            public void onFailure(Throwable cause) {
             }
         });
     }

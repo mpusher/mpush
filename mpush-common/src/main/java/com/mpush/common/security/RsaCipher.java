@@ -9,6 +9,8 @@ import java.security.interfaces.RSAPublicKey;
 
 /**
  * Created by ohun on 2015/12/28.
+ *
+ * @author ohun@live.cn
  */
 public final class RsaCipher implements Cipher {
     private final RSAPrivateKey privateKey;

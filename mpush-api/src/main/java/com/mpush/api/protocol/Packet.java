@@ -6,6 +6,8 @@ import io.netty.buffer.Unpooled;
 /**
  * Created by ohun on 2015/12/19.
  * length(4)+cmd(1)+cc(2)+flags(1)+sessionId(4)+lrc(1)+body(n)
+ *
+ * @author ohun@live.cn
  */
 public final class Packet {
     public static final int HEADER_LEN = 13;

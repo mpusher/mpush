@@ -5,6 +5,8 @@ import io.netty.handler.codec.http.HttpResponse;
 
 /**
  * Created by ohun on 2016/2/15.
+ *
+ * @author ohun@live.cn
  */
 public interface HttpCallback {
 

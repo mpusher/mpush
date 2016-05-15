@@ -4,7 +4,6 @@ import com.mpush.api.Server;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
 import com.mpush.tools.thread.threadpool.ThreadPoolManager;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -13,7 +12,6 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,18 +19,20 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by ohun on 2015/12/22.
+ *
+ * @author ohun@live.cn
  */
 public abstract class NettyServer implements Server {
 
-    private static final Logger log = LoggerFactory.getLogger(NettyServer.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public enum State {Created, Initialized, Starting, Started, Shutdown}
 
     protected final AtomicReference<State> serverState = new AtomicReference<>(State.Created);
 
-    private final int port;
-    private EventLoopGroup bossGroup;
-    private EventLoopGroup workerGroup;
+    protected final int port;
+    protected EventLoopGroup bossGroup;
+    protected EventLoopGroup workerGroup;
 
     public NettyServer(int port) {
         this.port = port;
@@ -52,11 +52,16 @@ public abstract class NettyServer implements Server {
     @Override
     public void stop(Listener listener) {
         if (!serverState.compareAndSet(State.Started, State.Shutdown)) {
-            throw new IllegalStateException("The server is already shutdown.");
+            IllegalStateException e = new IllegalStateException("server was already shutdown.");
+            if (listener != null) listener.onFailure(e);
+            throw e;
         }
         if (workerGroup != null) workerGroup.shutdownGracefully().syncUninterruptibly();
         if (bossGroup != null) bossGroup.shutdownGracefully().syncUninterruptibly();
-        log.error("netty server stop now");
+        logger.error("netty server stop now");
+        if (listener != null) {
+            listener.onSuccess(port);
+        }
     }
 
     @Override
@@ -82,12 +87,10 @@ public abstract class NettyServer implements Server {
         this.workerGroup = work;
 
         try {
-
             /**
              * ServerBootstrap 是一个启动NIO服务的辅助启动类
              * 你可以在这个服务中直接使用Channel
              */
-
             ServerBootstrap b = new ServerBootstrap();
 
             /**
@@ -114,9 +117,7 @@ public abstract class NettyServer implements Server {
             b.childHandler(new ChannelInitializer<SocketChannel>() { // (4)
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
-                    ch.pipeline().addLast("decoder", new PacketDecoder());
-                    ch.pipeline().addLast("encoder", PacketEncoder.INSTANCE);
-                    ch.pipeline().addLast("handler", getChannelHandler());
+                    initPipeline(ch.pipeline());
                 }
             });
 
@@ -129,16 +130,16 @@ public abstract class NettyServer implements Server {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (future.isSuccess()) {
-                    	log.error("server start success on:" + port);
-                        if (listener != null) listener.onSuccess();
+                        logger.error("server start success on:" + port);
+                        if (listener != null) listener.onSuccess(port);
                     } else {
-                        log.error("server start failure on:" + port);
-                        if (listener != null) listener.onFailure("start server failure");
+                        logger.error("server start failure on:" + port, future.cause());
+                        if (listener != null) listener.onFailure(future.cause());
                     }
                 }
             });
             if (f.isSuccess()) {
-            	serverState.set(State.Started);
+                serverState.set(State.Started);
                 /**
                  * 这里会一直等待，直到socket被关闭
                  */
@@ -146,8 +147,8 @@ public abstract class NettyServer implements Server {
             }
 
         } catch (Exception e) {
-            log.error("server start exception", e);
-            if (listener != null) listener.onFailure("start server ex=" + e.getMessage());
+            logger.error("server start exception", e);
+            if (listener != null) listener.onFailure(e);
             throw new RuntimeException("server start exception, port=" + port, e);
         } finally {
             /***
@@ -193,4 +194,18 @@ public abstract class NettyServer implements Server {
 
 
     public abstract ChannelHandler getChannelHandler();
+
+    protected ChannelHandler getDecoder() {
+        return new PacketDecoder();
+    }
+
+    protected ChannelHandler getEncoder() {
+        return PacketEncoder.INSTANCE;
+    }
+
+    protected void initPipeline(ChannelPipeline pipeline) {
+        pipeline.addLast("decoder", getDecoder());
+        pipeline.addLast("encoder", getEncoder());
+        pipeline.addLast("handler", getChannelHandler());
+    }
 }

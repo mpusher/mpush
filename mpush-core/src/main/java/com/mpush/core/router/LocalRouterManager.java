@@ -18,6 +18,8 @@ import java.util.Map;
 
 /**
  * Created by ohun on 2015/12/23.
+ *
+ * @author ohun@live.cn
  */
 public final class LocalRouterManager extends AbstractEventContainer implements RouterManager<LocalRouter> {
     public static final Logger LOGGER = LoggerFactory.getLogger(LocalRouterManager.class);

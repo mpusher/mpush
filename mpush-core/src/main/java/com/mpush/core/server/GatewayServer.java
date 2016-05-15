@@ -1,14 +1,16 @@
 package com.mpush.core.server;
 
+import com.mpush.api.protocol.Command;
+import com.mpush.common.MessageDispatcher;
 import com.mpush.core.handler.GatewayPushHandler;
 import com.mpush.netty.connection.NettyConnectionManager;
 import com.mpush.netty.server.NettyServer;
-import com.mpush.api.protocol.Command;
-import com.mpush.common.MessageDispatcher;
 import io.netty.channel.ChannelHandler;
 
 /**
  * Created by ohun on 2015/12/30.
+ *
+ * @author ohun@live.cn
  */
 public final class GatewayServer extends NettyServer {
 

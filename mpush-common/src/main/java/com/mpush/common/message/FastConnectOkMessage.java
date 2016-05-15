@@ -6,6 +6,8 @@ import io.netty.buffer.ByteBuf;
 
 /**
  * Created by ohun on 2015/12/28.
+ *
+ * @author ohun@live.cn
  */
 public final class FastConnectOkMessage extends ByteBufMessage {
     public int heartbeat;

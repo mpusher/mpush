@@ -7,13 +7,14 @@ import com.mpush.api.protocol.Packet;
 import com.mpush.tools.IOUtils;
 import com.mpush.tools.Profiler;
 import com.mpush.tools.config.ConfigCenter;
-
 import io.netty.channel.ChannelFutureListener;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by ohun on 2015/12/28.
+ *
+ * @author ohun@live.cn
  */
 public abstract class BaseMessage implements Message {
     private static final AtomicInteger ID_SEQ = new AtomicInteger();
@@ -58,7 +59,7 @@ public abstract class BaseMessage implements Message {
         byte[] tmp = encode();
         if (tmp != null && tmp.length > 0) {
             //1.压缩
-            if (tmp.length > ConfigCenter.holder.compressLimit()) {
+            if (tmp.length > ConfigCenter.I.compressLimit()) {
                 byte[] result = IOUtils.compress(tmp);
                 if (result.length > 0) {
                     tmp = result;

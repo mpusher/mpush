@@ -28,7 +28,7 @@
             <artifactId>mpush-zk</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.mpush</groupId>
+            <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-common</artifactId>
         </dependency>
     </dependencies>

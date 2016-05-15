@@ -1,12 +1,13 @@
 package com.mpush.zk;
 
-import com.mpush.zk.listener.ZKDataChangeListener;
 import com.mpush.log.LogType;
 import com.mpush.log.LoggerManage;
+import com.mpush.tools.ConsoleLog;
 import com.mpush.tools.Constants;
 import com.mpush.tools.MPushUtil;
 import com.mpush.tools.config.ConfigCenter;
 import com.mpush.tools.exception.ZKException;
+import com.mpush.zk.listener.ZKDataChangeListener;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.CuratorFrameworkFactory.Builder;
@@ -24,6 +25,7 @@ import org.apache.zookeeper.data.ACL;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ZKClient {
     public static final ZKClient I = I();
@@ -36,17 +38,22 @@ public class ZKClient {
         else return I;
     }
 
-    public ZKClient() {
-        init();
+    private ZKClient() {
+        try {
+            init();
+        } catch (Exception e) {
+            throw new ZKException("init zk error, config=" + zkConfig, e);
+        }
     }
 
     /**
      * 初始化
      */
-    public void init() {
-        zkConfig = ZKConfig.build(ConfigCenter.holder.zkIp())
-                .setDigest(ConfigCenter.holder.zkNamespace())
-                .setNamespace(ConfigCenter.holder.zkNamespace());
+    private void init() throws Exception {
+        zkConfig = ZKConfig.build(ConfigCenter.I.zkIp())
+                .setDigest(ConfigCenter.I.zkDigest())
+                .setNamespace(ConfigCenter.I.zkNamespace());
+        ConsoleLog.i("init zk client, config=" + zkConfig);
         Builder builder = CuratorFrameworkFactory
                 .builder()
                 .connectString(zkConfig.getHosts())
@@ -77,20 +84,21 @@ public class ZKClient {
         }
         client = builder.build();
         client.start();
-        try {
-            client.blockUntilConnected();
-            initLocalCache(zkConfig.getLocalCachePath());
-            registerConnectionLostListener();
-        } catch (Exception ex) {
-            throw new ZKException("init zk error, config=" + zkConfig, ex);
+        ConsoleLog.i("init zk client waiting for connected...");
+        if (!client.blockUntilConnected(1, TimeUnit.MINUTES)) {
+            throw new ZKException("init zk error, config=" + zkConfig);
         }
+        initLocalCache(zkConfig.getLocalCachePath());
+        registerConnectionLostListener();
         LoggerManage.info(LogType.ZK, "zk client start success, server lists is:{}", zkConfig.getHosts());
+
+        ConsoleLog.i("init zk client success...");
     }
 
     // 注册连接状态监听器
     private void registerConnectionLostListener() {
         client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
-
+            //TODO need close jvm?
             @Override
             public void stateChanged(final CuratorFramework client, final ConnectionState newState) {
                 if (ConnectionState.LOST == newState) {
@@ -212,6 +220,7 @@ public class ZKClient {
             }
         } catch (final Exception ex) {
             LoggerManage.execption(LogType.ZK, ex, "persist:{},{}", key, value);
+            throw new ZKException(ex);
         }
     }
 
@@ -226,6 +235,7 @@ public class ZKClient {
             client.inTransaction().check().forPath(key).and().setData().forPath(key, value.getBytes(Constants.UTF_8)).and().commit();
         } catch (final Exception ex) {
             LoggerManage.execption(LogType.ZK, ex, "update:{},{}", key, value);
+            throw new ZKException(ex);
         }
     }
 
@@ -243,6 +253,7 @@ public class ZKClient {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(key, value.getBytes(Constants.UTF_8));
         } catch (final Exception ex) {
             LoggerManage.execption(LogType.ZK, ex, "persistEphemeral:{},{}", key, value);
+            throw new ZKException(ex);
         }
     }
 
@@ -256,6 +267,7 @@ public class ZKClient {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key, value.getBytes());
         } catch (final Exception ex) {
             LoggerManage.execption(LogType.ZK, ex, "persistEphemeralSequential:{},{}", key, value);
+            throw new ZKException(ex);
         }
     }
 
@@ -269,6 +281,7 @@ public class ZKClient {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key);
         } catch (final Exception ex) {
             LoggerManage.execption(LogType.ZK, ex, "persistEphemeralSequential:{}", key);
+            throw new ZKException(ex);
         }
     }
 
@@ -282,6 +295,7 @@ public class ZKClient {
             client.delete().deletingChildrenIfNeeded().forPath(key);
         } catch (final Exception ex) {
             LoggerManage.execption(LogType.ZK, ex, "remove:{}", key);
+            throw new ZKException(ex);
         }
     }
 

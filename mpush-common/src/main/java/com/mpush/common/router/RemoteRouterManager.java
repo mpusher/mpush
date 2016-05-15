@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Created by ohun on 2015/12/23.
+ *
+ * @author ohun@live.cn
  */
 public class RemoteRouterManager implements RouterManager<RemoteRouter> {
     public static final Logger LOGGER = LoggerFactory.getLogger(RemoteRouterManager.class);

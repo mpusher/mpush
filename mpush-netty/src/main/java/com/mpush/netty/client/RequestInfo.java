@@ -11,7 +11,7 @@ import io.netty.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RequestInfo implements TimerTask, HttpCallback {
-    private static final int TIMEOUT = ConfigCenter.holder.httpDefaultReadTimeout();
+    private static final int TIMEOUT = ConfigCenter.I.httpDefaultReadTimeout();
     final AtomicBoolean cancelled = new AtomicBoolean(false);
     final long startTime = System.currentTimeMillis();
     long endTime = startTime;

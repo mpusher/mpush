@@ -29,16 +29,16 @@ public class ZKServerNode {
 
     public static ZKServerNode csNode() {
         return new ZKServerNode(MPushUtil.getLocalIp(),
-                ConfigCenter.holder.connectionServerPort(),
-                ZKPath.CONNECTION_SERVER.getWatchPath(),
-                MPushUtil.getExtranetAddress());
+                ConfigCenter.I.connectionServerPort(),
+                MPushUtil.getExtranetAddress(),
+                ZKPath.CONNECTION_SERVER.getWatchPath());
     }
 
     public static ZKServerNode gsNode() {
         return new ZKServerNode(MPushUtil.getLocalIp(),
-                ConfigCenter.holder.gatewayServerPort(),
-                ZKPath.GATEWAY_SERVER.getWatchPath(),
-                null);
+                ConfigCenter.I.gatewayServerPort(),
+                null,
+                ZKPath.GATEWAY_SERVER.getWatchPath());
     }
 
     public String getIp() {

@@ -1,14 +1,15 @@
 #!/bin/sh
 
-ENV=dev
-base_dir=`pwd`
+ENV=daily
+cd `dirname $0`
+cd ..
 
 echo "start package project..."
 mvn clean
 mvn package -P $ENV
 
 echo "start tar mpush..."
-cd $base_dir/mpush-boot/target
+cd ./mpush-boot/target
 tar -xzvf ./mpush-release.tar.gz
 
 echo "start start mpush..."
