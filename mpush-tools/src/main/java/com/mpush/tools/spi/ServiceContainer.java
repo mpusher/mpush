@@ -51,7 +51,7 @@ public class ServiceContainer {
             }
         } else {
             while (it.hasNext()) {
-                T t = factories.iterator().next();
+                T t = it.next();
                 if (name.equals(t.getClass().getSimpleName())) {
                     return t;
                 }
