@@ -4,6 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 
+/**
+ * Created by ohun on 2016/5/16.
+ *
+ * @author ohun@live.cn
+ */
 public enum Logs implements Logger {
     Conn("connectionLog"),
     PUSH("pushLog"),
