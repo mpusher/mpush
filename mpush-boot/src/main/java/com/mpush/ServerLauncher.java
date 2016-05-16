@@ -29,14 +29,14 @@ public class ServerLauncher {
     public void start() {
         BootChain chain = BootChain.chain();
         chain.boot()
-                .setNext(new RedisBoot())
-                .setNext(new ZKBoot())
-                .setNext(new ServerBoot(connectServer, csNode))
-                .setNext(new ServerBoot(gatewayServer, gsNode))
-                .setNext(new ServerBoot(adminServer, null))
-                .setNext(new HttpProxyBoot())
-                .setNext(new MonitorBoot())
-                .setNext(new LastBoot());
+                .setNext(new RedisBoot())//1.注册redis sever 到ZK
+                .setNext(new ZKBoot())//2.启动ZK节点数据变化监听
+                .setNext(new ServerBoot(connectServer, csNode))//3.启动长连接服务
+                .setNext(new ServerBoot(gatewayServer, gsNode))//4.启动网关服务
+                .setNext(new ServerBoot(adminServer, null))//5.启动控制台服务
+                .setNext(new HttpProxyBoot())//6.启动http代理服务，解析dns
+                .setNext(new MonitorBoot())//7.启动监控
+                .setNext(new LastBoot());//8.启动结束
         chain.run();
     }
 
