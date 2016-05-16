@@ -7,8 +7,8 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.ConnectionManager;
 import com.mpush.api.event.HandshakeEvent;
 import com.mpush.common.EventBus;
-import com.mpush.log.LogType;
-import com.mpush.log.LoggerManage;
+import com.mpush.log.Logs;
+
 import com.mpush.tools.config.ConfigCenter;
 import io.netty.channel.Channel;
 import io.netty.util.HashedWheelTimer;
@@ -96,20 +96,20 @@ public final class NettyConnectionManager implements ConnectionManager {
         @Override
         public void run(Timeout timeout) throws Exception {
             if (!connection.isConnected()) {
-                LoggerManage.info(LogType.HEARTBEAT, "connection is not connected:{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
+                Logs.HB.info("connection is not connected:{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
                 return;
             }
             if (connection.heartbeatTimeout()) {
                 if (++expiredTimes > ConfigCenter.I.maxHBTimeoutTimes()) {
                     connection.close();
-                    LoggerManage.info(LogType.HEARTBEAT, "connection heartbeat timeout, connection has bean closed:{},{}", connection.getChannel(), connection.getSessionContext().deviceId);
+                    Logs.HB.info("connection heartbeat timeout, connection has bean closed:{},{}", connection.getChannel(), connection.getSessionContext().deviceId);
                     return;
                 } else {
-                    LoggerManage.info(LogType.HEARTBEAT, "connection heartbeat timeout, expiredTimes:{},{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
+                    Logs.HB.info("connection heartbeat timeout, expiredTimes:{},{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
                 }
             } else {
                 expiredTimes = 0;
-                LoggerManage.info(LogType.HEARTBEAT, "connection heartbeat reset, expiredTimes:{},{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
+                Logs.HB.info("connection heartbeat reset, expiredTimes:{},{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
             }
 
             startTimeout();

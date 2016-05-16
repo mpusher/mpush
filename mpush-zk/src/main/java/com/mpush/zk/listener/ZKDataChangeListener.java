@@ -1,7 +1,7 @@
 package com.mpush.zk.listener;
 
-import com.mpush.log.LogType;
-import com.mpush.log.LoggerManage;
+import com.mpush.log.Logs;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.TreeCacheEvent;
 import org.apache.curator.framework.recipes.cache.TreeCacheListener;
@@ -14,7 +14,7 @@ public abstract class ZKDataChangeListener implements TreeCacheListener {
         if (path.isEmpty()) {
             return;
         }
-        LoggerManage.log(LogType.ZK, "DataChangeListener:{},{},namespace:{}", path, listenerPath(), client.getNamespace());
+        Logs.ZK.info("DataChangeListener:{},{},namespace:{}", path, listenerPath(), client.getNamespace());
         if (path.startsWith(listenerPath())) {
             dataChanged(client, event, path);
         }
