@@ -26,7 +26,10 @@ public class RedisGroupConverter implements Converter<RedisGroup>{
             String[] entry = chunk.split(":");
             String ip = entry[0].trim();
             String port = entry[1].trim();
-            String password = entry[2].trim();
+            String password = null;
+            if(entry.length >=3){
+            	password = entry[2].trim();
+            }
             RedisNode node = new RedisNode(ip, Integer.parseInt(port), password);
             group.addRedisNode(node);
         }
