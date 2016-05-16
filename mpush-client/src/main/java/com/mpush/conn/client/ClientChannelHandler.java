@@ -66,7 +66,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                     byte[] sessionKey = CipherBox.INSTANCE.mixKey(securityNettyClient.getClientKey(), message.serverKey);
                     connection.getSessionContext().changeCipher(new AesCipher(sessionKey, securityNettyClient.getIv()));
                     client.startHeartBeat(message.heartbeat);
-                    LOGGER.info("会话密钥：{}，message={}", sessionKey, message);
+                    LOGGER.warn("会话密钥：{}，message={}", sessionKey, message);
                     bindUser(securityNettyClient);
                     saveToRedisForFastConnection(securityNettyClient, message.sessionId, message.expireTime, sessionKey);
                 } else if (command == Command.FAST_CONNECT) {
@@ -79,7 +79,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                     FastConnectOkMessage message = new FastConnectOkMessage(packet, connection);
                     client.startHeartBeat(message.heartbeat);
                     bindUser(securityNettyClient);
-                    LOGGER.info("fast connect success, message=" + message);
+                    LOGGER.warn("fast connect success, message=" + message);
                 } else if (command == Command.KICK) {
                     KickUserMessage message = new KickUserMessage(packet, connection);
                     LOGGER.error("receive kick user userId={}, deviceId={}, message={},", securityNettyClient.getUserId(), securityNettyClient.getDeviceId(), message);
@@ -89,17 +89,17 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                     LOGGER.error("receive an error packet=" + errorMessage);
                 } else if (command == Command.BIND) {
                     OkMessage okMessage = new OkMessage(packet, connection);
-                    LOGGER.info("receive an success packet=" + okMessage);
+                    LOGGER.warn("receive an success packet=" + okMessage);
                     HttpRequestMessage message = new HttpRequestMessage(connection);
                     message.uri = "http://baidu.com";
                     message.send();
                 } else if (command == Command.PUSH) {
                     PushMessage message = new PushMessage(packet, connection);
-                    LOGGER.info("receive an push message, content=" + message.content);
+                    LOGGER.warn("receive an push message, content=" + message.content);
                 } else if (command == Command.HEARTBEAT) {
-                    LOGGER.info("receive a heartbeat pong...");
+                    LOGGER.warn("receive a heartbeat pong...");
                 } else {
-                    LOGGER.info("receive a message, type=" + command + "," + packet);
+                    LOGGER.warn("receive a message, type=" + command + "," + packet);
                 }
             }
 

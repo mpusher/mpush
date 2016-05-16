@@ -15,7 +15,7 @@ public class ConnectZKNodeManager implements ZKNodeManager<ZKServerNode> {
 
     private final Logger log = LoggerFactory.getLogger(ConnectZKNodeManager.class);
 
-    private Map<String, ZKServerNode> cache = Maps.newConcurrentMap();
+    private final Map<String, ZKServerNode> cache = Maps.newConcurrentMap();
 
     @Override
     public void addOrUpdate(String fullPath, ZKServerNode node) {
