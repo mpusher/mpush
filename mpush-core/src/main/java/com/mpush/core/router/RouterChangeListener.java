@@ -10,8 +10,8 @@ import com.mpush.api.router.Router;
 import com.mpush.common.AbstractEventContainer;
 import com.mpush.common.message.KickUserMessage;
 import com.mpush.common.router.RemoteRouter;
-import com.mpush.log.LogType;
-import com.mpush.log.LoggerManage;
+import com.mpush.log.Logs;
+
 import com.mpush.tools.Jsons;
 import com.mpush.tools.MPushUtil;
 import com.mpush.tools.redis.listener.ListenerDispatcher;
@@ -68,9 +68,9 @@ public final class RouterChangeListener extends AbstractEventContainer implement
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (future.isSuccess()) {
-                    LoggerManage.info(LogType.CONNECTION, "kick local connection success, userId={}, router={}", userId, router);
+                    Logs.Conn.info("kick local connection success, userId={}, router={}", userId, router);
                 } else {
-                    LoggerManage.info(LogType.CONNECTION, "kick local connection failure, userId={}, router={}", userId, router);
+                    Logs.Conn.info("kick local connection failure, userId={}, router={}", userId, router);
                 }
             }
         });
@@ -89,7 +89,7 @@ public final class RouterChangeListener extends AbstractEventContainer implement
         ClientLocation location = router.getRouteValue();
         //1.如果目标机器是当前机器，就不要再发送广播了，直接忽略
         if (location.getHost().equals(MPushUtil.getLocalIp())) {
-            LoggerManage.info(LogType.CONNECTION, "kick remote user but router in local, userId={}", userId);
+            Logs.Conn.info("kick remote user but router in local, userId={}", userId);
             return;
         }
 
@@ -113,7 +113,7 @@ public final class RouterChangeListener extends AbstractEventContainer implement
     public void onReceiveKickRemoteMsg(KickRemoteMsg msg) {
         //1.如果当前机器不是目标机器，直接忽略
         if (!msg.targetServer.equals(MPushUtil.getLocalIp())) {
-            LoggerManage.info(LogType.CONNECTION, "receive kick remote msg, target server error, localIp={}, msg={}", MPushUtil.getLocalIp(), msg);
+            Logs.Conn.info("receive kick remote msg, target server error, localIp={}, msg={}", MPushUtil.getLocalIp(), msg);
             return;
         }
 
@@ -122,14 +122,14 @@ public final class RouterChangeListener extends AbstractEventContainer implement
         LocalRouterManager routerManager = RouterCenter.INSTANCE.getLocalRouterManager();
         LocalRouter router = routerManager.lookup(userId);
         if (router != null) {
-            LoggerManage.info(LogType.CONNECTION, "receive kick remote msg, msg={}", msg);
+            Logs.Conn.info("receive kick remote msg, msg={}", msg);
             //2.1删除本地路由信息
             routerManager.unRegister(userId);
             //2.2发送踢人消息到客户端
             kickLocal(userId, router);
             remStatUser(userId);
         } else {
-            LoggerManage.info(LogType.CONNECTION, "no local router find, kick failure, msg={}", msg);
+            Logs.Conn.info("no local router find, kick failure, msg={}", msg);
         }
     }
 
@@ -140,10 +140,10 @@ public final class RouterChangeListener extends AbstractEventContainer implement
             if (msg != null) {
                 onReceiveKickRemoteMsg(msg);
             } else {
-                LoggerManage.info(LogType.CONNECTION, "receive an error kick message={}", message);
+                Logs.Conn.info("receive an error kick message={}", message);
             }
         } else {
-            LoggerManage.info(LogType.CONNECTION, "receive an error redis channel={}", channel);
+            Logs.Conn.info("receive an error redis channel={}", channel);
         }
     }
 

@@ -6,8 +6,8 @@ import java.util.concurrent.Executor;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mpush.log.LogType;
-import com.mpush.log.LoggerManage;
+import com.mpush.log.Logs;
+
 import com.mpush.tools.redis.manage.RedisManage;
 import com.mpush.tools.redis.pubsub.Subscriber;
 import com.mpush.tools.thread.threadpool.ThreadPoolManager;
@@ -26,7 +26,7 @@ public class ListenerDispatcher implements MessageListener {
     public void onMessage(final String channel, final String message) {
         List<MessageListener> listeners = subscribes.get(channel);
         if (listeners == null) {
-        	LoggerManage.info(LogType.REDIS, "cannot find listener:%s,%s", channel,message);
+        	Logs.REDIS.info("cannot find listener:%s,%s", channel,message);
             return;
         }
         for (final MessageListener listener : listeners) {

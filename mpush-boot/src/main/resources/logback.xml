@@ -86,7 +86,7 @@
 			<maxHistory>30</maxHistory>
 		</rollingPolicy>
 		<encoder charset="UTF-8">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
 		</encoder>
 	</appender>
 
@@ -106,7 +106,7 @@
 			<maxHistory>30</maxHistory>
 		</rollingPolicy>
 		<encoder charset="UTF-8">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
 		</encoder>
 	</appender>
 
@@ -131,7 +131,7 @@
 			<maxHistory>30</maxHistory>
 		</rollingPolicy>
 		<encoder charset="UTF-8">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
 		</encoder>
 	</appender>
 
@@ -151,7 +151,7 @@
 			<maxHistory>5</maxHistory>
 		</rollingPolicy>
 		<encoder charset="UTF-8">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
 		</encoder>
 	</appender>
 
@@ -171,7 +171,7 @@
 			<maxHistory>5</maxHistory>
 		</rollingPolicy>
 		<encoder charset="UTF-8">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
 		</encoder>
 	</appender>
 
@@ -191,7 +191,7 @@
 			<maxHistory>10</maxHistory>
 		</rollingPolicy>
 		<encoder charset="UTF-8">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
 		</encoder>
 	</appender>
 

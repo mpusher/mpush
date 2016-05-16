@@ -6,7 +6,6 @@ import com.mpush.core.router.RouterCenter;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.event.UserOfflineEvent;
-import com.mpush.api.event.UserOnlineEvent;
 import com.mpush.api.protocol.Packet;
 import com.mpush.common.EventBus;
 import com.mpush.common.handler.BaseMessageHandler;
@@ -16,8 +15,8 @@ import com.mpush.common.message.OkMessage;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.router.RemoteRouterManager;
 import com.mpush.core.router.LocalRouter;
-import com.mpush.log.LogType;
-import com.mpush.log.LoggerManage;
+import com.mpush.log.Logs;
+
 
 /**
  * Created by ohun on 2015/12/23.
@@ -41,7 +40,7 @@ public final class UnbindUserHandler extends BaseMessageHandler<BindUserMessage>
     public void handle(BindUserMessage message) {
         if (Strings.isNullOrEmpty(message.userId)) {
             ErrorMessage.from(message).setReason("invalid param").close();
-            LoggerManage.info(LogType.CONNECTION, "unbind user failure invalid param, session={}", message.getConnection().getSessionContext());
+            Logs.Conn.info("unbind user failure invalid param, session={}", message.getConnection().getSessionContext());
             return;
         }
 
@@ -73,14 +72,14 @@ public final class UnbindUserHandler extends BaseMessageHandler<BindUserMessage>
             if (unRegisterSuccess) {
                 EventBus.INSTANCE.post(new UserOfflineEvent(message.getConnection(), message.userId));
                 OkMessage.from(message).setData("unbind success").send();
-                LoggerManage.info(LogType.CONNECTION, "unbind user success, userId={}, session={}", message.userId, context);
+                Logs.Conn.info("unbind user success, userId={}, session={}", message.userId, context);
             } else {
                 ErrorMessage.from(message).setReason("unbind failed").send();
-                LoggerManage.info(LogType.CONNECTION, "unbind user failure, register router failure, userId={}, session={}", message.userId, context);
+                Logs.Conn.info("unbind user failure, register router failure, userId={}, session={}", message.userId, context);
             }
         } else {
             ErrorMessage.from(message).setReason("not handshake").close();
-            LoggerManage.info(LogType.CONNECTION, "unbind user failure not handshake, userId={}, session={}", message.userId, context);
+            Logs.Conn.info("unbind user failure not handshake, userId={}, session={}", message.userId, context);
         }
     }
 }

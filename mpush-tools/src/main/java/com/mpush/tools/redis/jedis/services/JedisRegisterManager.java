@@ -1,8 +1,8 @@
 package com.mpush.tools.redis.jedis.services;
 
 import com.google.common.collect.Lists;
-import com.mpush.log.LogType;
-import com.mpush.log.LoggerManage;
+import com.mpush.log.Logs;
+
 import com.mpush.tools.redis.RedisGroup;
 import com.mpush.tools.redis.RedisNode;
 import com.mpush.tools.Jsons;
@@ -21,7 +21,7 @@ public class JedisRegisterManager implements RedisRegister {
     @Override
     public void init(List<RedisGroup> group) {
         if (group == null || group.isEmpty()) {
-            LoggerManage.log(LogType.REDIS, "init redis client error, redis server is none.");
+            Logs.REDIS.info("init redis client error, redis server is none.");
             throw new RuntimeException("init redis client error, redis server is none.");
         }
         groups = group;
@@ -36,7 +36,7 @@ public class JedisRegisterManager implements RedisRegister {
 
     private void printGroupList() {
         for (RedisGroup app : groups) {
-            LoggerManage.log(LogType.REDIS, Jsons.toJson(app));
+            Logs.REDIS.info(Jsons.toJson(app));
         }
     }
 

@@ -8,8 +8,8 @@ import com.mpush.api.protocol.Packet;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.PacketReceiver;
 import com.mpush.common.EventBus;
-import com.mpush.log.LogType;
-import com.mpush.log.LoggerManage;
+import com.mpush.log.Logs;
+
 import com.mpush.tools.Profiler;
 
 import io.netty.channel.ChannelHandler;
@@ -64,13 +64,13 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         connectionManager.remove(ctx.channel());
-        LoggerManage.info(LogType.CONNECTION, "client exceptionCaught channel={}", ctx.channel());
+        Logs.Conn.info("client exceptionCaught channel={}", ctx.channel());
         LOGGER.error("caught an ex, channel={}", ctx.channel(), cause);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    	LoggerManage.info(LogType.CONNECTION, "client connect channel={}", ctx.channel());
+    	Logs.Conn.info("client connect channel={}", ctx.channel());
         Connection connection = new NettyConnection();
         connection.init(ctx.channel(), security);
         connectionManager.add(connection);
@@ -78,7 +78,7 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    	LoggerManage.info(LogType.CONNECTION, "client disconnect channel={}", ctx.channel());
+    	Logs.Conn.info("client disconnect channel={}", ctx.channel());
         Connection connection = connectionManager.get(ctx.channel());
         EventBus.INSTANCE.post(new ConnectionCloseEvent(connection));
         connectionManager.remove(ctx.channel());

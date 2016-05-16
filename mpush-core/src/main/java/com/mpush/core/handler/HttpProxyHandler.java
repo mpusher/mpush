@@ -1,16 +1,15 @@
 package com.mpush.core.handler;
 
 import com.google.common.base.Strings;
-import com.mpush.netty.client.HttpCallback;
-import com.mpush.netty.client.RequestInfo;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.HttpRequestMessage;
 import com.mpush.common.message.HttpResponseMessage;
-import com.mpush.log.LogType;
-import com.mpush.log.LoggerManage;
+import com.mpush.log.Logs;
+import com.mpush.netty.client.HttpCallback;
 import com.mpush.netty.client.HttpClient;
+import com.mpush.netty.client.RequestInfo;
 import com.mpush.tools.Profiler;
 import com.mpush.tools.dns.DnsMapping;
 import com.mpush.tools.dns.manage.DnsMappingManage;
@@ -32,7 +31,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  * @author ohun@live.cn
  */
 public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
-    private static final Logger LOGGER = LoggerManage.getLog(LogType.HTTP);
+    private static final Logger LOGGER = Logs.HTTP;
     private final HttpClient httpClient;
 
     public HttpProxyHandler(HttpClient httpClient) {

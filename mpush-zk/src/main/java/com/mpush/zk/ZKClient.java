@@ -1,7 +1,6 @@
 package com.mpush.zk;
 
-import com.mpush.log.LogType;
-import com.mpush.log.LoggerManage;
+import com.mpush.log.Logs;
 import com.mpush.tools.ConsoleLog;
 import com.mpush.tools.Constants;
 import com.mpush.tools.MPushUtil;
@@ -90,7 +89,7 @@ public class ZKClient {
         }
         initLocalCache(zkConfig.getLocalCachePath());
         registerConnectionLostListener();
-        LoggerManage.info(LogType.ZK, "zk client start success, server lists is:{}", zkConfig.getHosts());
+        Logs.ZK.info("zk client start success, server lists is:{}", zkConfig.getHosts());
 
         ConsoleLog.i("init zk client success...");
     }
@@ -102,9 +101,9 @@ public class ZKClient {
             @Override
             public void stateChanged(final CuratorFramework client, final ConnectionState newState) {
                 if (ConnectionState.LOST == newState) {
-                    LoggerManage.log(LogType.ZK, "{} lost connection", MPushUtil.getInetAddress());
+                    Logs.ZK.info("{} lost connection", MPushUtil.getInetAddress());
                 } else if (ConnectionState.RECONNECTED == newState) {
-                    LoggerManage.log(LogType.ZK, "{} reconnected", MPushUtil.getInetAddress());
+                    Logs.ZK.info("{} reconnected", MPushUtil.getInetAddress());
                 }
             }
         });
@@ -162,7 +161,7 @@ public class ZKClient {
         try {
             return new String(client.getData().forPath(key), Constants.UTF_8);
         } catch (final Exception ex) {
-            LoggerManage.execption(LogType.ZK, ex, "getFromRemote:{}", key);
+            Logs.ZK.error("getFromRemote:{}", key, ex);
             return null;
         }
     }
@@ -185,7 +184,7 @@ public class ZKClient {
             });
             return result;
         } catch (final Exception ex) {
-            LoggerManage.execption(LogType.ZK, ex, "getChildrenKeys:{}", key);
+            Logs.ZK.error("getChildrenKeys:{}", key, ex);
             return Collections.emptyList();
         }
     }
@@ -200,7 +199,7 @@ public class ZKClient {
         try {
             return null != client.checkExists().forPath(key);
         } catch (final Exception ex) {
-            LoggerManage.execption(LogType.ZK, ex, "isExisted:{}", key);
+            Logs.ZK.error("isExisted:{}", key, ex);
             return false;
         }
     }
@@ -219,7 +218,7 @@ public class ZKClient {
                 update(key, value);
             }
         } catch (final Exception ex) {
-            LoggerManage.execption(LogType.ZK, ex, "persist:{},{}", key, value);
+            Logs.ZK.error("persist:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
     }
@@ -234,7 +233,7 @@ public class ZKClient {
         try {
             client.inTransaction().check().forPath(key).and().setData().forPath(key, value.getBytes(Constants.UTF_8)).and().commit();
         } catch (final Exception ex) {
-            LoggerManage.execption(LogType.ZK, ex, "update:{},{}", key, value);
+            Logs.ZK.error("update:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
     }
@@ -252,7 +251,7 @@ public class ZKClient {
             }
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(key, value.getBytes(Constants.UTF_8));
         } catch (final Exception ex) {
-            LoggerManage.execption(LogType.ZK, ex, "persistEphemeral:{},{}", key, value);
+            Logs.ZK.error("persistEphemeral:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
     }
@@ -266,7 +265,7 @@ public class ZKClient {
         try {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key, value.getBytes());
         } catch (final Exception ex) {
-            LoggerManage.execption(LogType.ZK, ex, "persistEphemeralSequential:{},{}", key, value);
+            Logs.ZK.error("persistEphemeralSequential:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
     }
@@ -280,7 +279,7 @@ public class ZKClient {
         try {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key);
         } catch (final Exception ex) {
-            LoggerManage.execption(LogType.ZK, ex, "persistEphemeralSequential:{}", key);
+            Logs.ZK.error("persistEphemeralSequential:{}", key, ex);
             throw new ZKException(ex);
         }
     }
@@ -294,7 +293,7 @@ public class ZKClient {
         try {
             client.delete().deletingChildrenIfNeeded().forPath(key);
         } catch (final Exception ex) {
-            LoggerManage.execption(LogType.ZK, ex, "remove:{}", key);
+            Logs.ZK.error("remove:{}", key, ex);
             throw new ZKException(ex);
         }
     }
