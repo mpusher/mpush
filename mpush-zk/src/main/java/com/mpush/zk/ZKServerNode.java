@@ -37,7 +37,7 @@ public class ZKServerNode {
     public static ZKServerNode gsNode() {
         return new ZKServerNode(MPushUtil.getLocalIp(),
                 ConfigCenter.I.gatewayServerPort(),
-                null,
+                MPushUtil.getExtranetAddress(),
                 ZKPath.GATEWAY_SERVER.getWatchPath());
     }
 
