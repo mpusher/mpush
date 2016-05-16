@@ -26,7 +26,9 @@ public class RedisGroupConverter implements Converter<RedisGroup>{
             String[] entry = chunk.split(":");
             String ip = entry[0].trim();
             String port = entry[1].trim();
-            String password = null;
+            // 如果配置了redis密码（redis_group = 111.1.57.148:6379:ShineMoIpo）才设置密码
+            // 否则密码为空，JedisPool可以兼容两种情况
+            String password = null; 
             if(entry.length >=3){
             	password = entry[2].trim();
             }
