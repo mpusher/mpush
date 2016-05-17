@@ -136,7 +136,7 @@ public  class NettyClient implements Client {
 								}
 								log.warn("client send msg hb false:" + channel.remoteAddress().toString());
 							} else {
-								log.debug("client send msg hb success:" + channel.remoteAddress().toString());
+								log.warn("client send msg hb success:" + channel.remoteAddress().toString());
 							}
 						}
 					});

@@ -66,7 +66,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                     byte[] sessionKey = CipherBox.INSTANCE.mixKey(securityNettyClient.getClientKey(), message.serverKey);
                     connection.getSessionContext().changeCipher(new AesCipher(sessionKey, securityNettyClient.getIv()));
                     client.startHeartBeat(message.heartbeat);
-                    LOGGER.debug("会话密钥：{}，message={}", sessionKey, message);
+                    LOGGER.warn("会话密钥：{}，message={}", sessionKey, message);
                     bindUser(securityNettyClient);
                     saveToRedisForFastConnection(securityNettyClient, message.sessionId, message.expireTime, sessionKey);
                 } else if (command == Command.FAST_CONNECT) {
@@ -79,7 +79,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                     FastConnectOkMessage message = new FastConnectOkMessage(packet, connection);
                     client.startHeartBeat(message.heartbeat);
                     bindUser(securityNettyClient);
-                    LOGGER.debug("fast connect success, message=" + message);
+                    LOGGER.warn("fast connect success, message=" + message);
                 } else if (command == Command.KICK) {
                     KickUserMessage message = new KickUserMessage(packet, connection);
                     LOGGER.error("receive kick user userId={}, deviceId={}, message={},", securityNettyClient.getUserId(), securityNettyClient.getDeviceId(), message);
@@ -89,7 +89,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                     LOGGER.error("receive an error packet=" + errorMessage);
                 } else if (command == Command.BIND) {
                     OkMessage okMessage = new OkMessage(packet, connection);
-                    LOGGER.debug("receive an success packet=" + okMessage);
+                    LOGGER.warn("receive an success packet=" + okMessage);
                     HttpRequestMessage message = new HttpRequestMessage(connection);
                     message.uri = "http://baidu.com";
                     message.send();
@@ -97,7 +97,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
                     PushMessage message = new PushMessage(packet, connection);
                     LOGGER.warn("receive an push message, content=" + message.content);
                 } else if (command == Command.HEARTBEAT) {
-                    LOGGER.debug("receive a heartbeat pong...");
+                    LOGGER.warn("receive a heartbeat pong...");
                 } else {
                     LOGGER.warn("receive a message, type=" + command + "," + packet);
                 }
@@ -106,7 +106,7 @@ public final class ClientChannelHandler extends ChannelHandlerAdapter implements
         } else if (client instanceof NettyClient) {//不加密
 
         }
-        LOGGER.debug("update currentTime:" + ctx.channel() + "," + ToStringBuilder.reflectionToString(msg));
+        LOGGER.warn("update currentTime:" + ctx.channel() + "," + ToStringBuilder.reflectionToString(msg));
     }
 
     @Override
