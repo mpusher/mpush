@@ -23,3 +23,23 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+mpush-test/src/test/resources/config.properties
+
+build.sh
+
+*.prefs
+
+conf/conf-dev.properties
+
+*.properties
+
+mpush-test/src/test/java/com/mpush/test/connection/client/Main.java
+
+mpush-test/src/test/java/com/mpush/test/connection/mpns/Main.java
+
+mpush-test/src/test/java/com/mpush/test/push/Main.java
+
+*.properties
+
+conf/conf-dev.properties
