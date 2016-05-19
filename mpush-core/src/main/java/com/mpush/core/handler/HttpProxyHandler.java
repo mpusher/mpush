@@ -48,27 +48,31 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     public void handle(HttpRequestMessage message) {
         try {
             Profiler.enter("start http proxy handler");
+            Logs.HTTP.info("start http proxy handler with message:" + message.toString());
             String method = message.getMethod();
             String uri = message.uri;
             if (Strings.isNullOrEmpty(uri)) {
                 HttpResponseMessage
                         .from(message)
                         .setStatusCode(400)
-                        .setReasonPhrase("Bad Request")
+                        .setReasonPhrase("Bad request, uri should not be null!")
                         .sendRaw();
-                LOGGER.warn("request url is empty!");
+                Logs.HTTP.warn("http proxy uri is null!!");
             }
 
             uri = doDnsMapping(uri);
             FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.valueOf(method), uri);
             Profiler.enter("start set full http headers");
+            Logs.HTTP.info("start set full http headers");
             setHeaders(request, message);
             Profiler.release();
             Profiler.enter("start set full http body");
+            Logs.HTTP.info("start set full http body");
             setBody(request, message);
             Profiler.release();
 
             Profiler.enter("start http proxy request");
+            Logs.HTTP.info("start http proxy request");
             httpClient.request(new RequestInfo(request, new DefaultHttpCallback(message)));
             Profiler.release();
         } catch (Exception e) {
@@ -161,6 +165,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
         }
         InetSocketAddress remoteAddress = (InetSocketAddress) message.getConnection().getChannel().remoteAddress();
         Profiler.enter("start set x-forwarded-for");
+        
         String remoteIp = remoteAddress.getAddress().getHostAddress();
         request.headers().add("x-forwarded-for", remoteIp);
         Profiler.release();

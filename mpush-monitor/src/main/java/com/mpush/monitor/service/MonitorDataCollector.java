@@ -55,7 +55,7 @@ public class MonitorDataCollector {
             public void run() {
                 while (true) {
                     MonitorData monitorData = MonitorDataCollector.collect();
-                    log.error("monitor data:" + Jsons.toJson(monitorData));
+                    log.debug("monitor data:" + Jsons.toJson(monitorData));
 
                     if(!skipdump){
                     	double load = JVMInfo.instance.load();

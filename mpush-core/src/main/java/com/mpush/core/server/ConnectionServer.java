@@ -37,6 +37,7 @@ public final class ConnectionServer extends NettyServer {
         receiver.register(Command.BIND, new BindUserHandler());
         receiver.register(Command.UNBIND, new UnbindUserHandler());
         receiver.register(Command.FAST_CONNECT, new FastConnectHandler());
+        receiver.register(Command.CHAT, new ChatHandler());
 
         if (ConfigCenter.I.httpProxyEnable()) {
             httpClient = new NettyHttpClient();
