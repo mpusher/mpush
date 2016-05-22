@@ -7,11 +7,11 @@ import com.mpush.api.event.ConnectionCloseEvent;
 import com.mpush.api.protocol.Packet;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.PacketReceiver;
-import com.mpush.common.EventBus;
-import com.mpush.log.Logs;
+import com.mpush.tools.log.Logs;
 
 import com.mpush.tools.Profiler;
 
+import com.mpush.tools.event.EventBus;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
@@ -80,7 +80,7 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
     	Logs.Conn.info("client disconnect channel={}", ctx.channel());
         Connection connection = connectionManager.get(ctx.channel());
-        EventBus.INSTANCE.post(new ConnectionCloseEvent(connection));
+        EventBus.I.post(new ConnectionCloseEvent(connection));
         connectionManager.remove(ctx.channel());
     }
 }

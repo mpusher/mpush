@@ -6,8 +6,8 @@ import com.mpush.tools.Jsons;
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
-import com.mpush.api.PushContent;
-import com.mpush.api.PushContent.PushType;
+import com.mpush.api.push.PushContent;
+import com.mpush.api.push.PushContent.PushType;
 
 public class GsonTest {
 	

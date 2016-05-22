@@ -55,7 +55,7 @@ public final class AesCipher implements Cipher {
 
     public static byte[] toArray(String str) {
         String[] a = str.split("\\|");
-        if (a.length != CipherBox.INSTANCE.getAesKeyLength()) {
+        if (a.length != CipherBox.I.getAesKeyLength()) {
             return null;
         }
         byte[] bytes = new byte[a.length];

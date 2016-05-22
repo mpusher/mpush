@@ -1,12 +1,13 @@
 package com.mpush.core.handler;
 
-import com.mpush.zk.ZKClient;
-import com.mpush.zk.ZKPath;
-import com.mpush.zk.ZKServerNode;
-import com.mpush.api.RedisKey;
+import com.mpush.cache.redis.RedisKey;
+import com.mpush.cache.redis.manager.RedisManager;
+import com.mpush.tools.config.ConfigManager;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.MPushUtil;
-import com.mpush.tools.redis.manage.RedisManage;
+import com.mpush.zk.ZKClient;
+import com.mpush.zk.ZKPath;
+import com.mpush.zk.node.ZKServerNode;
 import io.netty.channel.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,13 +19,11 @@ import java.util.List;
 @ChannelHandler.Sharable
 public final class AdminHandler extends SimpleChannelInboundHandler<String> {
 
-    private static final Logger log = LoggerFactory.getLogger(AdminHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AdminHandler.class);
 
     private static final String DOUBLE_END = "\r\n\r\n";
 
-    private static final String ONE_END = "\r\n";
-
-    protected static final ZKClient zkClient = ZKClient.I;
+    private static final String EOL = "\r\n";
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, String request) throws Exception {
@@ -38,7 +37,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.write("welcome to " + MPushUtil.getInetAddress() + "!" + ONE_END);
+        ctx.write("welcome to " + MPushUtil.getInetAddress() + "!" + EOL);
         ctx.write("It is " + new Date() + " now." + DOUBLE_END);
         ctx.flush();
     }
@@ -53,11 +52,11 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
             @Override
             public String handler(String request) {
                 StringBuilder buf = new StringBuilder();
-                buf.append("Command:" + ONE_END);
-                buf.append("help:display all command." + ONE_END);
-                buf.append("quit:exit telnet." + ONE_END);
-                buf.append("scn:statistics conn num." + ONE_END);
-                buf.append("rcs:remove connection server zk info." + ONE_END);
+                buf.append("Command:" + EOL);
+                buf.append("help:display all command." + EOL);
+                buf.append("quit:exit checkHealth." + EOL);
+                buf.append("scn:statistics connect num." + EOL);
+                buf.append("rcs:remove current server zk info." + EOL);
                 buf.append("scs:stop connection server.");
                 return buf.toString();
             }
@@ -71,7 +70,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
         SCN("scn") {
             @Override
             public String handler(String request) {
-                Long value = RedisManage.zCard(RedisKey.getUserOnlineKey(MPushUtil.getExtranetAddress()));
+                Long value = RedisManager.I.zCard(RedisKey.getUserOnlineKey(MPushUtil.getExtranetAddress()));
                 if (value == null) {
                     value = 0L;
                 }
@@ -82,17 +81,19 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
             @Override
             public String handler(String request) {
 
-                List<String> rawData = zkClient.getChildrenKeys(ZKPath.CONNECTION_SERVER.getPath());
+                List<String> rawData = ZKClient.I.getChildrenKeys(ZKPath.CONNECT_SERVER.getRootPath());
                 boolean removeSuccess = false;
+                String localIp = ConfigManager.I.getLocalIp();
                 for (String raw : rawData) {
-                    String data = zkClient.get(ZKPath.CONNECTION_SERVER.getFullPath(raw));
+                    String dataPath = ZKPath.CONNECT_SERVER.getFullPath(raw);
+                    String data = ZKClient.I.get(dataPath);
                     ZKServerNode serverNode = Jsons.fromJson(data, ZKServerNode.class);
-                    if (serverNode.getIp().equals(MPushUtil.getInetAddress())) {
-                        zkClient.remove(ZKPath.CONNECTION_SERVER.getFullPath(raw));
-                        log.info("delete connection server success:{}", data);
+                    if (serverNode.getIp().equals(localIp)) {
+                        ZKClient.I.remove(dataPath);
+                        LOGGER.info("delete connection server success:{}", data);
                         removeSuccess = true;
                     } else {
-                        log.info("delete connection server failed: required ip:{}, but:{}", serverNode.getIp(), MPushUtil.getInetAddress());
+                        LOGGER.info("delete connection server failed: required host:{}, but:{}", serverNode.getIp(), MPushUtil.getInetAddress());
                     }
                 }
                 if (removeSuccess) {

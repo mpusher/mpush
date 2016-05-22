@@ -7,7 +7,6 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.event.UserOfflineEvent;
 import com.mpush.api.protocol.Packet;
-import com.mpush.common.EventBus;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.BindUserMessage;
 import com.mpush.common.message.ErrorMessage;
@@ -15,7 +14,8 @@ import com.mpush.common.message.OkMessage;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.router.RemoteRouterManager;
 import com.mpush.core.router.LocalRouter;
-import com.mpush.log.Logs;
+import com.mpush.tools.log.Logs;
+import com.mpush.tools.event.EventBus;
 
 
 /**
@@ -70,7 +70,7 @@ public final class UnbindUserHandler extends BaseMessageHandler<BindUserMessage>
 
             //4.路由删除成功，广播用户下线事件
             if (unRegisterSuccess) {
-                EventBus.INSTANCE.post(new UserOfflineEvent(message.getConnection(), message.userId));
+                EventBus.I.post(new UserOfflineEvent(message.getConnection(), message.userId));
                 OkMessage.from(message).setData("unbind success").send();
                 Logs.Conn.info("unbind user success, userId={}, session={}", message.userId, context);
             } else {

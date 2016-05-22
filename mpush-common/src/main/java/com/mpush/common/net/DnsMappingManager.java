@@ -1,0 +1,101 @@
+package com.mpush.common.net;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.mpush.api.BaseService;
+import com.mpush.tools.Jsons;
+import com.mpush.tools.config.CC;
+import com.mpush.tools.config.data.DnsMapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static com.mpush.tools.MPushUtil.checkHealth;
+
+public class DnsMappingManager extends BaseService implements Runnable {
+    private final Logger logger = LoggerFactory.getLogger(DnsMappingManager.class);
+
+    public static final DnsMappingManager I = new DnsMappingManager();
+
+    private DnsMappingManager() {
+    }
+
+    private final Map<String, List<DnsMapping>> all = Maps.newConcurrentMap();
+    private Map<String, List<DnsMapping>> available = Maps.newConcurrentMap();
+
+    private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+
+    @Override
+    public void start(Listener listener) {
+        if (started.compareAndSet(false, true)) {
+            scheduledExecutorService.scheduleAtFixedRate(this, 1, 20, TimeUnit.SECONDS); //20秒 定时扫描dns
+        }
+    }
+
+    @Override
+    public void stop(Listener listener) {
+        if (started.compareAndSet(true, false)) {
+            scheduledExecutorService.shutdown();
+        }
+    }
+
+    @Override
+    public void init() {
+        logger.error("start init dnsMapping");
+        all.putAll(CC.mp.http.dns_mapping);
+        available.putAll(CC.mp.http.dns_mapping);
+        logger.error("end init dnsMapping");
+    }
+
+    @Override
+    public boolean isRunning() {
+        return !scheduledExecutorService.isShutdown();
+    }
+
+    public void update(Map<String, List<DnsMapping>> nowAvailable) {
+        available = nowAvailable;
+    }
+
+    public Map<String, List<DnsMapping>> getAll() {
+        return all;
+    }
+
+    public DnsMapping translate(String origin) {
+        if (available.isEmpty())
+            return null;
+        List<DnsMapping> list = available.get(origin);
+        if (list == null || list.isEmpty())
+            return null;
+        int L = list.size();
+        if (L == 1)
+            return list.get(0);
+        return list.get((int) (Math.random() * L % L));
+    }
+
+    @Override
+    public void run() {
+        logger.debug("start dns mapping checkHealth");
+        Map<String, List<DnsMapping>> all = I.getAll();
+        Map<String, List<DnsMapping>> available = Maps.newConcurrentMap();
+        for (Map.Entry<String, List<DnsMapping>> entry : all.entrySet()) {
+            String key = entry.getKey();
+            List<DnsMapping> value = entry.getValue();
+            List<DnsMapping> nowValue = Lists.newArrayList();
+            for (DnsMapping temp : value) {
+                boolean isOk = checkHealth(temp.getIp(), temp.getPort());
+                if (isOk) {
+                    nowValue.add(temp);
+                } else {
+                    logger.error("dns can not reachable:" + Jsons.toJson(temp));
+                }
+            }
+            available.put(key, nowValue);
+        }
+        I.update(available);
+    }
+}

@@ -2,7 +2,7 @@ package com.mpush.tools;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
+import com.mpush.api.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

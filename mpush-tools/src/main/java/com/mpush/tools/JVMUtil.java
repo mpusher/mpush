@@ -22,10 +22,10 @@ import com.sun.management.HotSpotDiagnosticMXBean;
 
 public class JVMUtil {
 	
-	private static final Logger log = LoggerFactory.getLogger(JVMUtil.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JVMUtil.class);
 	
-	private static final String HOTSPOT_BEAN_NAME = "com.sun.management:type=HotSpotDiagnostic";
-    private static volatile HotSpotDiagnosticMXBean hotspotMBean;
+	private static final String HOT_SPOT_BEAN_NAME = "com.sun.management:type=HotSpotDiagnostic";
+    private static volatile HotSpotDiagnosticMXBean mxBean;
     
     private static Object lock = new Object();
 	
@@ -58,10 +58,10 @@ public class JVMUtil {
                 String logPath = jvmPath;
                 FileOutputStream jstackStream = null;
                 try {
-                    jstackStream = new FileOutputStream(new File(logPath, System.currentTimeMillis()+"-jstack.log"));
+                    jstackStream = new FileOutputStream(new File(logPath, System.currentTimeMillis()+"-jstack.LOGGER"));
                     JVMUtil.jstack(jstackStream);
                 } catch (Throwable t) {
-                	log.error("Dump JVM cache Error!", t);
+                	LOGGER.error("Dump JVM cache Error!", t);
                 } finally {
                     if (jstackStream != null) {
                         try {
@@ -74,12 +74,12 @@ public class JVMUtil {
         });
 	}
 	
-    private static HotSpotDiagnosticMXBean getHotspotMBean() {
+    private static HotSpotDiagnosticMXBean getMxBean() {
         try {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<HotSpotDiagnosticMXBean>() {
                 public HotSpotDiagnosticMXBean run() throws Exception {
                     MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-                    Set<ObjectName> s = server.queryNames(new ObjectName(HOTSPOT_BEAN_NAME), null);
+                    Set<ObjectName> s = server.queryNames(new ObjectName(HOT_SPOT_BEAN_NAME), null);
                     Iterator<ObjectName> itr = s.iterator();
                     if (itr.hasNext()) {
                         ObjectName name = itr.next();
@@ -92,45 +92,42 @@ public class JVMUtil {
                 }
             });
         } catch (Exception e) {
-            log.error("getHotspotMBean Error!", e);
+            LOGGER.error("getMxBean Error!", e);
             return null;
         }
     }
     
     private static void initHotspotMBean() throws Exception {
-        if (hotspotMBean == null) {
+        if (mxBean == null) {
             synchronized (lock) {
-                if (hotspotMBean == null) {
-                    hotspotMBean = getHotspotMBean();
+                if (mxBean == null) {
+                    mxBean = getMxBean();
                 }
             }
         }
     }
     
     public static void jMap(String fileName, boolean live) {
-    	 File f = new File(fileName, System.currentTimeMillis()+"-jmap.log");
+    	 File f = new File(fileName, System.currentTimeMillis()+"-jmap.LOGGER");
          String currentFileName = f.getPath();
         try {
             initHotspotMBean();
             if (f.exists()) {
                 f.delete();
             }
-            
-            hotspotMBean.dumpHeap(currentFileName, live);
+            mxBean.dumpHeap(currentFileName, live);
         } catch (Exception e) {
-        	log.error("dumpHeap Error!"+currentFileName, e);
+        	LOGGER.error("dumpHeap Error!"+currentFileName, e);
         }
     }
 	
 	public static void dumpJmap(final String jvmPath){
-		
 		Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
             public void run() {
             	jMap(jvmPath, false);
             }
         });
-		
 	}
 
 }

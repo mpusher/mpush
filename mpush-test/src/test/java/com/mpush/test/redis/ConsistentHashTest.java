@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.mpush.tools.redis.consistenthash.ConsistentHash;
-import com.mpush.tools.redis.consistenthash.Node;
+import com.mpush.cache.redis.hash.ConsistentHash;
+import com.mpush.cache.redis.hash.Node;
 import org.junit.Test;
 
 import redis.clients.util.Hashing;

@@ -6,10 +6,10 @@ import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.ErrorMessage;
 import com.mpush.common.message.FastConnectMessage;
 import com.mpush.common.message.FastConnectOkMessage;
+import com.mpush.tools.config.ConfigManager;
 import com.mpush.core.session.ReusableSession;
 import com.mpush.core.session.ReusableSessionManager;
-import com.mpush.log.Logs;
-import com.mpush.tools.MPushUtil;
+import com.mpush.tools.log.Logs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
             Logs.Conn.info("fast connect failure, not the same device, deviceId={}, session={}", message.deviceId, session.context);
         } else {
             //3.校验成功，重新计算心跳，完成快速重连
-            int heartbeat = MPushUtil.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
+            int heartbeat = ConfigManager.I.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
 
             session.context.setHeartbeat(heartbeat);
             message.getConnection().setSessionContext(session.context);

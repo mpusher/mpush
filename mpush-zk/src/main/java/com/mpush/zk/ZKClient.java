@@ -1,12 +1,10 @@
 package com.mpush.zk;
 
-import com.mpush.log.Logs;
-import com.mpush.tools.ConsoleLog;
-import com.mpush.tools.Constants;
+import com.mpush.api.Constants;
 import com.mpush.tools.MPushUtil;
-import com.mpush.tools.config.ConfigCenter;
 import com.mpush.tools.exception.ZKException;
-import com.mpush.zk.listener.ZKDataChangeListener;
+import com.mpush.tools.log.Logs;
+import com.mpush.zk.listener.ZKNodeCacheWatcher;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.CuratorFrameworkFactory.Builder;
@@ -38,25 +36,20 @@ public class ZKClient {
     }
 
     private ZKClient() {
-        try {
-            init();
-        } catch (Exception e) {
-            throw new ZKException("init zk error, config=" + zkConfig, e);
-        }
+        init();
     }
 
     /**
      * 初始化
      */
-    private void init() throws Exception {
-        zkConfig = ZKConfig.build(ConfigCenter.I.zkIp())
-                .setDigest(ConfigCenter.I.zkDigest())
-                .setNamespace(ConfigCenter.I.zkNamespace());
-        ConsoleLog.i("init zk client, config=" + zkConfig);
+    public void init() {
+        if (zkConfig != null) return;
+        zkConfig = ZKConfig.build();
+        Logs.Console.info("init zk client, config=" + zkConfig);
         Builder builder = CuratorFrameworkFactory
                 .builder()
                 .connectString(zkConfig.getHosts())
-                .retryPolicy(new ExponentialBackoffRetry(zkConfig.getMinTime(), zkConfig.getMaxRetry(), zkConfig.getMaxTime()))
+                .retryPolicy(new ExponentialBackoffRetry(zkConfig.getBaseSleepTimeMs(), zkConfig.getMaxRetries(), zkConfig.getMaxSleepMs()))
                 .namespace(zkConfig.getNamespace());
 
         if (zkConfig.getConnectionTimeout() > 0) {
@@ -83,15 +76,25 @@ public class ZKClient {
         }
         client = builder.build();
         client.start();
-        ConsoleLog.i("init zk client waiting for connected...");
-        if (!client.blockUntilConnected(1, TimeUnit.MINUTES)) {
-            throw new ZKException("init zk error, config=" + zkConfig);
+        Logs.Console.info("init zk client waiting for connected...");
+        try {
+            if (!client.blockUntilConnected(1, TimeUnit.MINUTES)) {
+                throw new ZKException("init zk error, config=" + zkConfig);
+            }
+            initLocalCache(zkConfig.getLocalCachePath());
+        } catch (Exception e) {
+            throw new ZKException("init zk error, config=" + zkConfig, e);
         }
-        initLocalCache(zkConfig.getLocalCachePath());
         registerConnectionLostListener();
-        Logs.ZK.info("zk client start success, server lists is:{}", zkConfig.getHosts());
 
-        ConsoleLog.i("init zk client success...");
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                close();
+            }
+        });
+
+        Logs.ZK.info("zk client start success, server lists is:{}", zkConfig.getHosts());
+        Logs.Console.info("init zk client success...");
     }
 
     // 注册连接状态监听器
@@ -298,7 +301,7 @@ public class ZKClient {
         }
     }
 
-    public void registerListener(ZKDataChangeListener listener) {
+    public void registerListener(ZKNodeCacheWatcher listener) {
         cache.getListenable().addListener(listener);
     }
 

@@ -11,7 +11,7 @@ import com.mpush.monitor.quota.BaseQuota;
 
 public class JVMInfo extends BaseQuota implements InfoQuota {
 	
-	public static final JVMInfo instance = new JVMInfo();
+	public static final JVMInfo I = new JVMInfo();
 	
 	private RuntimeMXBean runtimeMXBean;
 	

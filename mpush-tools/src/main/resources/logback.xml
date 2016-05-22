@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+    <!-- 尽量别用绝对路径，如果带参数不同容器路径解释可能不同,以下配置参数在pom.xml里 -->
+    <property name="log.root.level" value="${log.root.level}"/> <!-- 日志级别 -->
+    <property name="log.other.level" value="${log.other.level}"/> <!-- 其他日志级别 -->
+    <property name="log.home" value="${log.home}"/>  <!-- 日志路径，这里是相对路径， -->
+    <property name="log.moduleName" value="${log.moduleName}"/>  <!-- 模块名称， 影响日志配置名，日志文件名 -->
+    <property name="log.max.size" value="100MB"/> <!-- 日志文件大小 -->
+
+    <appender name="MPUSH_ERROR_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.home}/error.log</file>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>error</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.home}/error.log.%d{yyyy-MM-dd}
+            </fileNamePattern>
+            <maxHistory>3</maxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="MPUSH_INFO_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.home}/info.log</file>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>info</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.home}/info.log.%d{yyyy-MM-dd}
+            </fileNamePattern>
+            <maxHistory>3</maxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 日志 -->
+    <appender name="MPUSH_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.home}/mpush.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.home}/mpush.log.%d{yyyy-MM-dd}
+            </fileNamePattern>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- monitor log -->
+    <appender name="MONITOR_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--日志文件名称 -->
+        <file>${log.home}/monitor.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.home}/monitor.log.%d{yyyy-MM-dd}
+            </fileNamePattern>
+            <maxHistory>5</maxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- connection log -->
+    <appender name="CONNECTION_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--日志文件名称 -->
+        <file>${log.home}/conn.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.home}/conn.log.%d{yyyy-MM-dd}
+            </fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- push log -->
+    <appender name="PUSH_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--日志文件名称 -->
+        <file>${log.home}/push.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.home}/push.log.%d{yyyy-MM-dd}
+            </fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- heartbeat log -->
+    <appender name="HEARTBEAT_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--日志文件名称 -->
+        <file>${log.home}/heartbeat.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.home}/heartbeat.log.%d{yyyy-MM-dd}
+            </fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- redis log -->
+    <appender name="REDIS_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--日志文件名称 -->
+        <file>${log.home}/redis.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.home}/redis.log.%d{yyyy-MM-dd}
+            </fileNamePattern>
+            <maxHistory>5</maxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- redis log -->
+    <appender name="HTTP_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--日志文件名称 -->
+        <file>${log.home}/http.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.home}/http.log.%d{yyyy-MM-dd}
+            </fileNamePattern>
+            <maxHistory>5</maxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- zk log -->
+    <appender name="ZK_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--日志文件名称 -->
+        <file>${log.home}/zk.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.home}/zk.log.%d{yyyy-MM-dd}
+            </fileNamePattern>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoding>UTF-8</encoding>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{HH:mm:ss.SSS} - %msg%n</pattern>
+        </layout>
+    </appender>
+
+
+    <root>
+        <level value="${log.root.level}"/>
+        <appender-ref ref="MPUSH_APPENDER"/>
+        <appender-ref ref="MPUSH_ERROR_APPENDER"/>
+        <appender-ref ref="MPUSH_INFO_APPENDER"/>
+    </root>
+    <logger name="console" additivity="true">
+        <level value="debug"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <logger name="connLog" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="CONNECTION_APPENDER"/>
+    </logger>
+    <logger name="heartbeatLog" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="HEARTBEAT_APPENDER"/>
+    </logger>
+    <logger name="httpLog" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="HTTP_APPENDER"/>
+    </logger>
+    <logger name="monitorLog" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="MONITOR_APPENDER"/>
+    </logger>
+    <logger name="pushLog" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="PUSH_APPENDER"/>
+    </logger>
+    <logger name="redisLog" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="REDIS_APPENDER"/>
+    </logger>
+    <logger name="zkLog" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="ZK_APPENDER"/>
+    </logger>
+
+    <logger name="org.apache.zookeeper.ClientCnxn" additivity="false">
+        <level value="warn"/>
+        <appender-ref ref="MPUSH_ERROR_APPENDER"/>
+    </logger>
+</configuration>

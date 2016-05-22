@@ -16,7 +16,7 @@ public class NettyServerTest {
         server.init();
         server.start(new Server.Listener() {
             @Override
-            public void onSuccess(int port) {
+            public void onSuccess(Object... port) {
             }
 
             @Override

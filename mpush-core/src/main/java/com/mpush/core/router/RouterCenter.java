@@ -4,11 +4,11 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.event.RouterChangeEvent;
 import com.mpush.api.router.Router;
 import com.mpush.api.router.ClientLocation;
-import com.mpush.common.EventBus;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.router.RemoteRouterManager;
 import com.mpush.tools.MPushUtil;
 
+import com.mpush.tools.event.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,12 +53,12 @@ public final class RouterCenter {
         }
 
         if (oldLocalRouter != null) {
-            EventBus.INSTANCE.post(new RouterChangeEvent(userId, oldLocalRouter));
+            EventBus.I.post(new RouterChangeEvent(userId, oldLocalRouter));
             LOGGER.info("register router success, find old local router={}, userId={}", oldLocalRouter, userId);
         }
 
         if (oldRemoteRouter != null) {
-            EventBus.INSTANCE.post(new RouterChangeEvent(userId, oldRemoteRouter));
+            EventBus.I.post(new RouterChangeEvent(userId, oldRemoteRouter));
             LOGGER.info("register router success, find old remote router={}, userId={}", oldRemoteRouter, userId);
         }
         return true;

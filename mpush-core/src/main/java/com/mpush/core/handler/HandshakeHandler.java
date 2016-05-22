@@ -5,17 +5,17 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.event.HandshakeEvent;
 import com.mpush.api.protocol.Packet;
-import com.mpush.common.EventBus;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.ErrorMessage;
 import com.mpush.common.message.HandshakeMessage;
 import com.mpush.common.message.HandshakeOkMessage;
 import com.mpush.common.security.AesCipher;
 import com.mpush.common.security.CipherBox;
+import com.mpush.tools.config.ConfigManager;
 import com.mpush.core.session.ReusableSession;
 import com.mpush.core.session.ReusableSessionManager;
-import com.mpush.log.Logs;
-import com.mpush.tools.MPushUtil;
+import com.mpush.tools.log.Logs;
+import com.mpush.tools.event.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,21 +29,21 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
 
     @Override
     public HandshakeMessage decode(Packet packet, Connection connection) {
-    	return new HandshakeMessage(packet, connection);
+        return new HandshakeMessage(packet, connection);
     }
 
     @Override
     public void handle(HandshakeMessage message) {
-    	
+
         byte[] iv = message.iv;//AES密钥向量16位
         byte[] clientKey = message.clientKey;//客户端随机数16位
-        byte[] serverKey = CipherBox.INSTANCE.randomAESKey();//服务端随机数16位
-        byte[] sessionKey = CipherBox.INSTANCE.mixKey(clientKey, serverKey);//会话密钥16位
+        byte[] serverKey = CipherBox.I.randomAESKey();//服务端随机数16位
+        byte[] sessionKey = CipherBox.I.mixKey(clientKey, serverKey);//会话密钥16位
 
         //1.校验客户端消息字段
         if (Strings.isNullOrEmpty(message.deviceId)
-                || iv.length != CipherBox.INSTANCE.getAesKeyLength()
-                || clientKey.length != CipherBox.INSTANCE.getAesKeyLength()) {
+                || iv.length != CipherBox.I.getAesKeyLength()
+                || clientKey.length != CipherBox.I.getAesKeyLength()) {
             ErrorMessage.from(message).setReason("Param invalid").close();
             Logs.Conn.info("client handshake false:{}", message.getConnection());
             return;
@@ -63,7 +63,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
         ReusableSession session = ReusableSessionManager.INSTANCE.genSession(context);
 
         //5.计算心跳时间
-        int heartbeat = MPushUtil.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
+        int heartbeat = ConfigManager.I.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
 
         //6.响应握手成功消息
         HandshakeOkMessage
@@ -88,7 +88,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
         ReusableSessionManager.INSTANCE.cacheSession(session);
 
         //10.触发握手成功事件
-        EventBus.INSTANCE.post(new HandshakeEvent(message.getConnection(), heartbeat));
+        EventBus.I.post(new HandshakeEvent(message.getConnection(), heartbeat));
         Logs.Conn.info("client handshake success:{}", context);
     }
 }

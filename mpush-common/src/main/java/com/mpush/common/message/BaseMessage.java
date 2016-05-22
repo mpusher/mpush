@@ -6,7 +6,7 @@ import com.mpush.api.connection.SessionContext;
 import com.mpush.api.protocol.Packet;
 import com.mpush.tools.IOUtils;
 import com.mpush.tools.Profiler;
-import com.mpush.tools.config.ConfigCenter;
+import com.mpush.tools.config.CC;
 import io.netty.channel.ChannelFutureListener;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -59,7 +59,7 @@ public abstract class BaseMessage implements Message {
         byte[] tmp = encode();
         if (tmp != null && tmp.length > 0) {
             //1.压缩
-            if (tmp.length > ConfigCenter.I.compressLimit()) {
+            if (tmp.length > CC.mp.core.compress_threshold) {
                 byte[] result = IOUtils.compress(tmp);
                 if (result.length > 0) {
                     tmp = result;

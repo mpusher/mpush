@@ -1,13 +1,13 @@
 package com.mpush.tools;
 
-import com.mpush.tools.config.ConfigCenter;
-import org.apache.commons.net.telnet.TelnetClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.Socket;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,13 +40,6 @@ public final class MPushUtil {
             LOCAL_IP = getInetAddress();
         }
         return LOCAL_IP;
-    }
-
-    public static int getHeartbeat(int min, int max) {
-        return Math.max(
-                ConfigCenter.I.minHeartbeat(),
-                Math.min(max, ConfigCenter.I.maxHeartbeat())
-        );
     }
 
     /**
@@ -105,20 +98,7 @@ public final class MPushUtil {
         } catch (Throwable e) {
             LOGGER.error("getExtranetAddress exception", e);
         }
-
-
-        String localIp = getInetAddress();
-        String remoteIp = null;
-        Map<String, String> mapping = ConfigCenter.I.remoteIpMapping();
-        if (mapping != null) {
-            remoteIp = mapping.get(localIp);
-        }
-
-        if (remoteIp == null) {
-            remoteIp = localIp;
-        }
-
-        return remoteIp;
+        return null;
     }
 
     public static String headerToString(Map<String, String> headers) {
@@ -157,21 +137,14 @@ public final class MPushUtil {
         return headers;
     }
 
-    public static boolean telnet(String ip, int port) {
-        TelnetClient client = new TelnetClient();
+    public static boolean checkHealth(String ip, int port) {
         try {
-            client.connect(ip, port);
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress(ip, port), 1000);
+            socket.close();
             return true;
-        } catch (Exception e) {
+        } catch (IOException e) {
             return false;
-        } finally {
-            try {
-                if (client.isConnected()) {
-                    client.disconnect();
-                }
-            } catch (IOException e) {
-                LOGGER.error("disconnect error", e);
-            }
         }
     }
 }

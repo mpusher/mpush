@@ -3,7 +3,7 @@ package com.mpush.netty.codec;
 import com.mpush.api.exception.DecodeException;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
-import com.mpush.tools.config.ConfigCenter;
+import com.mpush.tools.config.CC;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -17,6 +17,7 @@ import java.util.List;
  * @author ohun@live.cn
  */
 public final class PacketDecoder extends ByteToMessageDecoder {
+    private static final int maxPacketSize = CC.mp.core.max_packet_size;
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
@@ -65,7 +66,7 @@ public final class PacketDecoder extends ByteToMessageDecoder {
         byte lrc = in.readByte();
         byte[] body = null;
         if (bodyLength > 0) {
-            if (bodyLength > ConfigCenter.I.maxPacketSize()) {
+            if (bodyLength > maxPacketSize) {
                 throw new RuntimeException("ERROR PACKET_SIZE：" + bodyLength);
             }
             body = new byte[bodyLength];
