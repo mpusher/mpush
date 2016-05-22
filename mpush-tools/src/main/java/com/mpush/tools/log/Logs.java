@@ -14,6 +14,7 @@ public interface Logs {
     boolean logInited = init();
 
     static boolean init() {
+        if (logInited) return true;
         System.setProperty("log.home", CC.mp.log_dir);
         System.setProperty("log.root.level", CC.mp.log_level);
         LoggerFactory
@@ -25,17 +26,18 @@ public interface Logs {
     }
 
     Logger Console = LoggerFactory.getLogger("console"),
-            Conn = LoggerFactory.getLogger("connLog"),
 
-    Monitor = LoggerFactory.getLogger("monitorLog"),
+    Conn = LoggerFactory.getLogger("mpush.conn.log"),
 
-    PUSH = LoggerFactory.getLogger("pushLog"),
+    Monitor = LoggerFactory.getLogger("mpush.monitor.log"),
 
-    HB = LoggerFactory.getLogger("heartbeatLog"),
+    PUSH = LoggerFactory.getLogger("mpush.push.log"),
 
-    REDIS = LoggerFactory.getLogger("redisLog"),
+    HB = LoggerFactory.getLogger("mpush.heartbeat.log"),
 
-    ZK = LoggerFactory.getLogger("zkLog"),
+    REDIS = LoggerFactory.getLogger("mpush.redis.log"),
 
-    HTTP = LoggerFactory.getLogger("httpLog");
+    ZK = LoggerFactory.getLogger("mpush.zk.log"),
+
+    HTTP = LoggerFactory.getLogger("mpush.http.log");
 }
