@@ -1,154 +1,81 @@
 package com.mpush.netty.client;
 
-import java.util.concurrent.TimeUnit;
-
-import com.mpush.netty.util.NettySharedHolder;
+import com.mpush.api.BaseService;
+import com.mpush.api.Client;
+import com.mpush.netty.codec.PacketDecoder;
+import com.mpush.netty.codec.PacketEncoder;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
-import io.netty.util.Timeout;
-import io.netty.util.TimerTask;
-
-import org.apache.commons.lang3.StringUtils;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mpush.api.Client;
-import com.mpush.api.connection.Connection;
-import com.mpush.api.protocol.Packet;
-import com.mpush.tools.config.ConfigCenter;
+import java.net.InetSocketAddress;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public  class NettyClient implements Client {
-	
-	private static final String format = "%s:%s";
-	
-    private static final Logger log = LoggerFactory.getLogger(NettyClient.class);
+public abstract class NettyClient extends BaseService implements Client {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NettyClient.class);
 
     private final String host;
     private final int port;
-    private Channel channel;
-    private int hbTimes;
-    private Connection connection;
-    
-    public NettyClient(final String host, final int port) {
+    private EventLoopGroup workerGroup;
+
+    public NettyClient(String host, int port) {
         this.host = host;
         this.port = port;
     }
-    
+
     @Override
-	public Channel getChannel() {
-		return channel;
-	}
+    public void start(final Listener listener) {
+        if (started.compareAndSet(false, true)) {
+            Bootstrap bootstrap = new Bootstrap();
+            workerGroup = new NioEventLoopGroup();
+            bootstrap.group(workerGroup)//
+                    .option(ChannelOption.TCP_NODELAY, true)//
+                    .option(ChannelOption.SO_REUSEADDR, true)//
+                    .option(ChannelOption.SO_KEEPALIVE, true)//
+                    .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)//
+                    .channel(NioSocketChannel.class)
+                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 4000);
 
-	public void setChannel(Channel channel) {
-		this.channel = channel;
-	}
+            bootstrap.handler(new ChannelInitializer<SocketChannel>() { // (4)
+                @Override
+                public void initChannel(SocketChannel ch) throws Exception {
+                    ch.pipeline().addLast(new PacketDecoder());
+                    ch.pipeline().addLast(PacketEncoder.INSTANCE);
+                    ch.pipeline().addLast(getChannelHandler());
+                }
+            });
 
-	@Override
-	public void initConnection(Connection connection){
-    	this.connection = connection;
+
+            ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
+            future.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    if (future.isSuccess()) {
+                        if (listener != null) listener.onSuccess(port);
+                        LOGGER.info("start netty client success, host={}, port={}", host, port);
+                    } else {
+                        if (listener != null) listener.onFailure(future.cause());
+                        LOGGER.error("start netty client failure, host={}, port={}", host, port, future.cause());
+                    }
+                }
+            });
+        } else {
+            listener.onFailure(new RuntimeException("client has started!"));
+        }
     }
-    
+
     @Override
-	public void close(String cause) {
-		if (!StringUtils.isBlank(cause) && !"null".equals(cause.trim())) {
-			log.error("close channel:"+cause);
-		}
-		if(this.channel!=null){
-			this.channel.close();
-		}
+    public void stop(Listener listener) {
+        if (workerGroup != null) {
+            workerGroup.shutdownGracefully();
+        }
+        started.set(false);
+    }
 
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return channel.isWritable();
-	}
-
-	@Override
-	public boolean isConnected() {
-		return channel.isActive();
-	}
-
-	@Override
-	public void resetHbTimes() {
-		hbTimes = 0;
-	}
-
-	@Override
-	public int inceaseAndGetHbTimes() {
-		return ++hbTimes;
-	}
-
-	@Override
-	public void startHeartBeat() throws Exception {
-		startHeartBeat((int)ConfigCenter.I.scanConnTaskCycle()/1000);
-	}
-
-
-	@Override
-	public String getUrl() {
-		return String.format(format, host, port);
-	}
-
-	@Override
-	public String getHost() {
-		return host;
-	}
-
-	@Override
-	public int getPort() {
-		return port;
-	}
-	
-	@Override
-	public void stop(){
-		this.close("stop");
-	}
-
-	@Override
-	public Connection getConnection() {
-		return connection;
-	}
-
-	@Override
-	public void init(Channel channel) {
-		this.channel = channel;
-	}
-
-	@Override
-	public String toString() {
-		return "NettyClient [host=" + host + ", port=" + port + ", channel=" + channel + ", hbTimes=" + hbTimes + ", connection=" + connection + "]";
-	}
-
-	@Override
-	public void startHeartBeat(final int heartbeat) throws Exception {
-		NettySharedHolder.HASHED_WHEEL_TIMER.newTimeout(new TimerTask() {
-			@Override
-			public void run(Timeout timeout) throws Exception {
-				try {
-					ChannelFuture channelFuture = channel.writeAndFlush(Packet.getHBPacket());
-					channelFuture.addListener(new ChannelFutureListener() {
-
-						@Override
-						public void operationComplete(ChannelFuture future) throws Exception {
-							if (!future.isSuccess()) {
-								if (!channel.isActive()) {
-									log.warn("client send hb msg false:" + channel.remoteAddress().toString()  + ",channel is not active");
-								}
-								log.warn("client send msg hb false:" + channel.remoteAddress().toString());
-							} else {
-								log.warn("client send msg hb success:" + channel.remoteAddress().toString());
-							}
-						}
-					});
-				} finally {
-					if (channel.isActive()) {
-						NettySharedHolder.HASHED_WHEEL_TIMER.newTimeout(this, heartbeat, TimeUnit.MILLISECONDS);
-					}
-				}
-			}
-		}, heartbeat, TimeUnit.MILLISECONDS);
-		
-	}
-
-	
+    public abstract ChannelHandler getChannelHandler();
 }

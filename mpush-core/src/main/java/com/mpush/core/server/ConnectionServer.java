@@ -1,15 +1,14 @@
 package com.mpush.core.server;
 
 
-import com.mpush.core.handler.*;
-import com.mpush.netty.client.HttpClient;
-import com.mpush.netty.client.NettyHttpClient;
-import com.mpush.netty.connection.NettyConnectionManager;
-import com.mpush.netty.server.NettyServer;
 import com.mpush.api.connection.ConnectionManager;
 import com.mpush.api.protocol.Command;
 import com.mpush.common.MessageDispatcher;
-import com.mpush.tools.config.ConfigCenter;
+import com.mpush.core.handler.*;
+import com.mpush.netty.http.HttpClient;
+import com.mpush.netty.http.NettyHttpClient;
+import com.mpush.netty.server.NettyServer;
+import com.mpush.tools.config.CC;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
@@ -20,7 +19,7 @@ import io.netty.channel.ChannelOption;
 public final class ConnectionServer extends NettyServer {
     private ServerChannelHandler channelHandler;
 
-    private ConnectionManager connectionManager = new NettyConnectionManager();
+    private ConnectionManager connectionManager = new ServerConnectionManager();
     private HttpClient httpClient;
 
     public ConnectionServer(int port) {
@@ -38,7 +37,7 @@ public final class ConnectionServer extends NettyServer {
         receiver.register(Command.UNBIND, new UnbindUserHandler());
         receiver.register(Command.FAST_CONNECT, new FastConnectHandler());
 
-        if (ConfigCenter.I.httpProxyEnable()) {
+        if (CC.mp.http.proxy_enable) {
             httpClient = new NettyHttpClient();
             receiver.register(Command.HTTP_PROXY, new HttpProxyHandler(httpClient));
         }

@@ -12,7 +12,7 @@ public class JVMThread extends BaseQuota implements ThreadQuota{
 
 	private ThreadMXBean  threadMXBean;
 	
-	public static final JVMThread instance = new JVMThread();
+	public static final JVMThread I = new JVMThread();
 	
 	private JVMThread() {
 		threadMXBean = ManagementFactory.getThreadMXBean();

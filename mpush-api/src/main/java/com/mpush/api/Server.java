@@ -5,19 +5,6 @@ package com.mpush.api;
  *
  * @author ohun@live.cn
  */
-public interface Server {
+public interface Server extends Service {
 
-    void start(Listener listener);
-
-    void stop(Listener listener);
-
-    void init();
-
-    boolean isRunning();
-
-    interface Listener {
-        void onSuccess(int port);
-
-        void onFailure(Throwable cause);
-    }
 }

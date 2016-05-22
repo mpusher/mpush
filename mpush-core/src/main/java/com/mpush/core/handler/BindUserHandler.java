@@ -5,13 +5,13 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.event.UserOnlineEvent;
 import com.mpush.api.protocol.Packet;
-import com.mpush.common.EventBus;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.BindUserMessage;
 import com.mpush.common.message.ErrorMessage;
 import com.mpush.common.message.OkMessage;
 import com.mpush.core.router.RouterCenter;
-import com.mpush.log.Logs;
+import com.mpush.tools.log.Logs;
+import com.mpush.tools.event.EventBus;
 
 /**
  * Created by ohun on 2015/12/23.
@@ -39,7 +39,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             boolean success = RouterCenter.INSTANCE.register(message.userId, message.getConnection());
             if (success) {
 
-                EventBus.INSTANCE.post(new UserOnlineEvent(message.getConnection(), message.userId));
+                EventBus.I.post(new UserOnlineEvent(message.getConnection(), message.userId));
 
                 OkMessage.from(message).setData("bind success").send();
                 Logs.Conn.info("bind user success, userId={}, session={}", message.userId, context);

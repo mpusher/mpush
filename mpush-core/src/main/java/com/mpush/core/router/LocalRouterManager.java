@@ -5,10 +5,9 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.event.ConnectionCloseEvent;
 import com.mpush.api.event.UserOfflineEvent;
 import com.mpush.api.router.RouterManager;
-import com.mpush.common.AbstractEventContainer;
-import com.mpush.common.EventBus;
-import com.mpush.common.router.RemoteRouter;
+import com.mpush.tools.event.EventConsumer;
 
+import com.mpush.tools.event.EventBus;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 
 import org.slf4j.Logger;
@@ -21,7 +20,7 @@ import java.util.Map;
  *
  * @author ohun@live.cn
  */
-public final class LocalRouterManager extends AbstractEventContainer implements RouterManager<LocalRouter> {
+public final class LocalRouterManager extends EventConsumer implements RouterManager<LocalRouter> {
     public static final Logger LOGGER = LoggerFactory.getLogger(LocalRouterManager.class);
 
     /**
@@ -78,7 +77,7 @@ public final class LocalRouterManager extends AbstractEventContainer implements 
         //1.清除反向关系
         String userId = connIdUserIds.remove(id);
         if (userId == null) return;
-        EventBus.INSTANCE.post(new UserOfflineEvent(event.connection, userId));
+        EventBus.I.post(new UserOfflineEvent(event.connection, userId));
         LocalRouter router = routers.get(userId);
         if (router == null) return;
 

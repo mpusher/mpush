@@ -3,7 +3,8 @@ package com.mpush.netty.connection;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.protocol.Packet;
-import com.mpush.common.security.CipherBox;
+import com.mpush.api.spi.SpiLoader;
+import com.mpush.api.spi.core.CipherFactory;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -17,14 +18,12 @@ import org.slf4j.LoggerFactory;
  */
 public final class NettyConnection implements Connection, ChannelFutureListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyConnection.class);
-
+    private static final CipherFactory factory = SpiLoader.load(CipherFactory.class);
     private SessionContext context;
     private Channel channel;
     private volatile int status = STATUS_NEW;
     private long lastReadTime;
     private long lastWriteTime;
-
-    private int hbTimes = 0;
 
     @Override
     public void init(Channel channel, boolean security) {
@@ -32,8 +31,8 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
         this.context = new SessionContext();
         this.lastReadTime = System.currentTimeMillis();
         this.status = STATUS_CONNECTED;
-        if (security) {
-            this.context.changeCipher(CipherBox.INSTANCE.getRsaCipher());
+        if (security && factory != null) {
+            this.context.changeCipher(factory.get());
         }
     }
 
@@ -112,19 +111,14 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
         lastWriteTime = System.currentTimeMillis();
     }
 
-    @Override
-    public int inceaseAndGetHbTimes() {
-        return ++hbTimes;
-    }
-
-    @Override
-    public void resetHbTimes() {
-        hbTimes = 0;
-    }
 
     @Override
     public String toString() {
-        return "NettyConnection [context=" + context + ", channel=" + channel + ", status=" + status + ", lastReadTime=" + lastReadTime + ", lastWriteTime=" + lastWriteTime + ", hbTimes=" + hbTimes
+        return "NettyConnection [context=" + context
+                + ", channel=" + channel
+                + ", status=" + status
+                + ", lastReadTime=" + lastReadTime
+                + ", lastWriteTime=" + lastWriteTime
                 + "]";
     }
 

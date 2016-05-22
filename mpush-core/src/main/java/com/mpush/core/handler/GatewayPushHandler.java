@@ -10,7 +10,7 @@ import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.core.router.LocalRouter;
 import com.mpush.core.router.RouterCenter;
-import com.mpush.log.Logs;
+import com.mpush.tools.log.Logs;
 import com.mpush.tools.MPushUtil;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;

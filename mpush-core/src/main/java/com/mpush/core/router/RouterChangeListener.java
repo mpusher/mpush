@@ -1,22 +1,22 @@
 package com.mpush.core.router;
 
 import com.google.common.eventbus.Subscribe;
-import com.mpush.api.RedisKey;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.event.RouterChangeEvent;
 import com.mpush.api.router.ClientLocation;
 import com.mpush.api.router.Router;
-import com.mpush.common.AbstractEventContainer;
+import com.mpush.cache.redis.RedisKey;
+import com.mpush.cache.redis.listener.ListenerDispatcher;
+import com.mpush.cache.redis.listener.MessageListener;
+import com.mpush.cache.redis.manager.RedisManager;
+import com.mpush.tools.event.EventConsumer;
 import com.mpush.common.message.KickUserMessage;
 import com.mpush.common.router.RemoteRouter;
-import com.mpush.log.Logs;
-
+import com.mpush.tools.config.ConfigManager;
+import com.mpush.tools.log.Logs;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.MPushUtil;
-import com.mpush.tools.redis.listener.ListenerDispatcher;
-import com.mpush.tools.redis.listener.MessageListener;
-import com.mpush.tools.redis.manage.RedisManage;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
@@ -25,12 +25,12 @@ import io.netty.channel.ChannelFutureListener;
  *
  * @author ohun@live.cn
  */
-public final class RouterChangeListener extends AbstractEventContainer implements MessageListener {
+public final class RouterChangeListener extends EventConsumer implements MessageListener {
     public static final String KICK_CHANNEL_ = "/mpush/kick/";
     private final String kick_channel = KICK_CHANNEL_ + MPushUtil.getLocalIp();
 
     public RouterChangeListener() {
-        ListenerDispatcher.INSTANCE.subscribe(getKickChannel(), this);
+        ListenerDispatcher.I.subscribe(getKickChannel(), this);
     }
 
     public String getKickChannel() {
@@ -99,7 +99,7 @@ public final class RouterChangeListener extends AbstractEventContainer implement
         msg.deviceId = location.getDeviceId();
         msg.targetServer = location.getHost();
         msg.userId = userId;
-        RedisManage.publish(getKickChannel(msg.targetServer), msg);
+        RedisManager.I.publish(getKickChannel(msg.targetServer), msg);
     }
 
     /**
@@ -148,6 +148,6 @@ public final class RouterChangeListener extends AbstractEventContainer implement
     }
 
     private void remStatUser(String userId) {
-        RedisManage.zRem(RedisKey.getUserOnlineKey(MPushUtil.getExtranetIp()), userId);
+        RedisManager.I.zRem(RedisKey.getUserOnlineKey(ConfigManager.I.getPublicIp()), userId);
     }
 }

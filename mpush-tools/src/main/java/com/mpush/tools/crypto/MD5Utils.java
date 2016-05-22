@@ -1,6 +1,6 @@
 package com.mpush.tools.crypto;
 
-import com.mpush.tools.Constants;
+import com.mpush.api.Constants;
 import com.mpush.tools.IOUtils;
 import com.mpush.tools.Strings;
 

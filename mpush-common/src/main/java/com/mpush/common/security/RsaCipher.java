@@ -14,7 +14,6 @@ import java.security.interfaces.RSAPublicKey;
  */
 public final class RsaCipher implements Cipher {
     private final RSAPrivateKey privateKey;
-
     private final RSAPublicKey publicKey;
 
     public RsaCipher(RSAPrivateKey privateKey, RSAPublicKey publicKey) {
@@ -24,28 +23,31 @@ public final class RsaCipher implements Cipher {
 
     @Override
     public byte[] decrypt(byte[] data) {
-    	try{
-    		Profiler.enter("start rsa decrypt");
-    		return RSAUtils.decryptByPrivateKey(data, privateKey);
-    	}finally{
-    		Profiler.release();
-    	}
-        
+        try {
+            Profiler.enter("start rsa decrypt");
+            return RSAUtils.decryptByPrivateKey(data, privateKey);
+        } finally {
+            Profiler.release();
+        }
+
     }
 
     @Override
     public byte[] encrypt(byte[] data) {
-    	try{
-    		Profiler.enter("start rsa encrypt");
-    		return RSAUtils.encryptByPublicKey(data, publicKey);
-    	}finally{
-    		Profiler.release();
-    	}
+        try {
+            Profiler.enter("start rsa encrypt");
+            return RSAUtils.encryptByPublicKey(data, publicKey);
+        } finally {
+            Profiler.release();
+        }
     }
 
-	@Override
-	public String toString() {
-		return "RsaCipher [privateKey=" + new String(privateKey.getEncoded()) + ", publicKey=" + new String(publicKey.getEncoded()) + "]";
-	}
-    
+    @Override
+    public String toString() {
+        return "RsaCipher [privateKey=" + new String(privateKey.getEncoded()) + ", publicKey=" + new String(publicKey.getEncoded()) + "]";
+    }
+
+    public static RsaCipher create() {
+        return new RsaCipher(CipherBox.I.getPrivateKey(), CipherBox.I.getPublicKey());
+    }
 }

@@ -1,8 +1,11 @@
 package com.mpush.tools.config;
 
 
-import com.mpush.tools.redis.RedisGroup;
-import com.mpush.tools.dns.DnsMapping;
+import com.mpush.tools.config.converter.DnsMappingConverter;
+import com.mpush.tools.config.converter.MapConverter;
+import com.mpush.tools.config.converter.RedisGroupConverter;
+import com.mpush.tools.config.data.DnsMapping;
+import com.mpush.tools.config.data.RedisGroup;
 import org.aeonbits.owner.Config;
 import org.aeonbits.owner.Config.Sources;
 import org.aeonbits.owner.ConfigFactory;
@@ -19,7 +22,7 @@ import java.util.Map;
 })
 public interface ConfigCenter extends Config {
 
-    ConfigCenter I = ConfigFactory.create(ConfigCenter.class);
+    //ConfigCenter I = ConfigFactory.create(ConfigCenter.class);
 
     /**
      * 最大包长度
@@ -140,7 +143,7 @@ public interface ConfigCenter extends Config {
     String publicKey();
 
     /**
-     * redis集群机器列表格式ip:port:pwd,ip:port:pwd,ip:port:pwd
+     * redis集群机器列表格式ip:port:pwd,host:port:pwd,host:port:pwd
      * 多台机器用“,”分割
      *
      * @return
@@ -178,7 +181,7 @@ public interface ConfigCenter extends Config {
     String zkDigest();
 
     /**
-     * redis集群机器列表格式ip:port:pwd,ip:port:pwd,ip:port:pwd
+     * redis集群机器列表格式ip:port:pwd,host:port:pwd,host:port:pwd
      * 多台机器用“;”分割
      *
      * @return

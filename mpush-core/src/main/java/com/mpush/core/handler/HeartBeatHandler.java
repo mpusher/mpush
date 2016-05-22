@@ -3,7 +3,7 @@ package com.mpush.core.handler;
 import com.mpush.api.MessageHandler;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
-import com.mpush.log.Logs;
+import com.mpush.tools.log.Logs;
 
 /**
  * Created by ohun on 2015/12/22.

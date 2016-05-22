@@ -1,136 +1,143 @@
 package com.mpush.monitor.quota.impl;
 
-import java.lang.management.GarbageCollectorMXBean;
-import java.lang.management.ManagementFactory;
-import java.util.Map;
-
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mpush.monitor.quota.BaseQuota;
 import com.mpush.monitor.quota.GCMQuota;
 
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
+import java.util.List;
+import java.util.Map;
+
 public class JVMGC extends BaseQuota implements GCMQuota {
 
-	public static final JVMGC instance = new JVMGC();
+    private final List<String> fullGcName = Lists.newArrayList("ConcurrentMarkSweep", "MarkSweepCompact", "PS MarkSweep", "G1 Old Generation",
+            "Garbage collection optimized for short pausetimes Old Collector", "Garbage collection optimized for throughput Old Collector",
+            "Garbage collection optimized for deterministic pausetimes Old Collector");
 
-	private GarbageCollectorMXBean fullGc;
-	private GarbageCollectorMXBean yongGc;
+    private final List<String> youngGcName = Lists.newArrayList("ParNew", "Copy", "PS Scavenge", "G1 Young Generation", "Garbage collection optimized for short pausetimes Young Collector",
+            "Garbage collection optimized for throughput Young Collector", "Garbage collection optimized for deterministic pausetimes Young Collector");
 
-	private long lastYoungGcCollectionCount = -1;
-	private long lastYoungGcCollectionTime = -1;
-	private long lastFullGcCollectionCount = -1;
-	private long lastFullGcCollectionTime = -1;
+    public static final JVMGC I = new JVMGC();
 
-	
-	private JVMGC() {
-		for (GarbageCollectorMXBean item : ManagementFactory.getGarbageCollectorMXBeans()) {
-			String name = item.getName();
-			if (contain(name, youngGcName)) {
-				yongGc = item;
-			} else if (contain(name,fullGcName)) {
-				fullGc = item;
-			}
-		}
+    private GarbageCollectorMXBean fullGc;
+    private GarbageCollectorMXBean yongGc;
 
-	}
+    private long lastYoungGcCollectionCount = -1;
+    private long lastYoungGcCollectionTime = -1;
+    private long lastFullGcCollectionCount = -1;
+    private long lastFullGcCollectionTime = -1;
 
-	@Override
-	public long yongGcCollectionCount() {
-		if (yongGc == null) {
-			return 0;
-		}
-		return yongGc.getCollectionCount();
-	}
 
-	@Override
-	public long yongGcCollectionTime() {
-		if (yongGc == null) {
-			return 0;
-		}
-		return yongGc.getCollectionTime();
-	}
+    private JVMGC() {
+        for (GarbageCollectorMXBean item : ManagementFactory.getGarbageCollectorMXBeans()) {
+            String name = item.getName();
+            if (youngGcName.contains(name)) {
+                yongGc = item;
+            } else if (fullGcName.contains(name)) {
+                fullGc = item;
+            }
+        }
+    }
 
-	@Override
-	public long fullGcCollectionCount() {
-		if (fullGc == null) {
-			return 0;
-		}
-		return fullGc.getCollectionCount();
-	}
+    @Override
+    public long yongGcCollectionCount() {
+        if (yongGc == null) {
+            return 0;
+        }
+        return yongGc.getCollectionCount();
+    }
 
-	@Override
-	public long fullGcCollectionTime() {
-		if (fullGc == null) {
-			return 0;
-		}
-		return fullGc.getCollectionTime();
-	}
+    @Override
+    public long yongGcCollectionTime() {
+        if (yongGc == null) {
+            return 0;
+        }
+        return yongGc.getCollectionTime();
+    }
 
-	@Override
-	public long spanYongGcCollectionCount() {
+    @Override
+    public long fullGcCollectionCount() {
+        if (fullGc == null) {
+            return 0;
+        }
+        return fullGc.getCollectionCount();
+    }
 
-		long current = yongGcCollectionCount();
-		if (lastYoungGcCollectionCount == -1) {
-			lastYoungGcCollectionCount = current;
-			return 0;
-		} else {
-			long result = current - lastYoungGcCollectionCount;
-			lastYoungGcCollectionCount = current;
-			return result;
-		}
+    @Override
+    public long fullGcCollectionTime() {
+        if (fullGc == null) {
+            return 0;
+        }
+        return fullGc.getCollectionTime();
+    }
 
-	}
+    @Override
+    public long spanYongGcCollectionCount() {
 
-	@Override
-	public long spanYongGcCollectionTime() {
-		long current = yongGcCollectionTime();
-		if (lastYoungGcCollectionTime == -1) {
-			lastYoungGcCollectionTime = current;
-			return 0;
-		} else {
-			long result = current - lastYoungGcCollectionTime;
-			lastYoungGcCollectionTime = current;
-			return result;
-		}
-	}
+        long current = yongGcCollectionCount();
+        if (lastYoungGcCollectionCount == -1) {
+            lastYoungGcCollectionCount = current;
+            return 0;
+        } else {
+            long result = current - lastYoungGcCollectionCount;
+            lastYoungGcCollectionCount = current;
+            return result;
+        }
+    }
 
-	@Override
-	public long spanFullGcCollectionCount() {
-		long current = fullGcCollectionCount();
-		if (lastFullGcCollectionCount == -1) {
-			lastFullGcCollectionCount = current;
-			return 0;
-		} else {
-			long result = current - lastFullGcCollectionCount;
-			lastFullGcCollectionCount = current;
-			return result;
-		}
-	}
+    @Override
+    public long spanYongGcCollectionTime() {
+        long current = yongGcCollectionTime();
+        if (lastYoungGcCollectionTime == -1) {
+            lastYoungGcCollectionTime = current;
+            return 0;
+        } else {
+            long result = current - lastYoungGcCollectionTime;
+            lastYoungGcCollectionTime = current;
+            return result;
+        }
+    }
 
-	@Override
-	public long spanFullGcCollectionTime() {
-		long current = fullGcCollectionTime();
-		if (lastFullGcCollectionTime == -1) {
-			lastFullGcCollectionTime = current;
-			return 0;
-		} else {
-			long result = current - lastFullGcCollectionTime;
-			lastFullGcCollectionTime = current;
-			return result;
-		}
-	}
+    @Override
+    public long spanFullGcCollectionCount() {
+        long current = fullGcCollectionCount();
+        if (lastFullGcCollectionCount == -1) {
+            lastFullGcCollectionCount = current;
+            return 0;
+        } else {
+            long result = current - lastFullGcCollectionCount;
+            lastFullGcCollectionCount = current;
+            return result;
+        }
+    }
 
-	@Override
-	public Map<String, Object> toMap() {
-		Map<String, Object> map = Maps.newHashMap();
-		map.put("yongGcCollectionCount", yongGcCollectionCount());
-		map.put("yongGcCollectionTime", yongGcCollectionTime());
-		map.put("fullGcCollectionCount", fullGcCollectionCount());
-		map.put("fullGcCollectionTime", fullGcCollectionTime());
-		map.put("spanYongGcCollectionCount", spanYongGcCollectionCount());
-		map.put("spanYongGcCollectionTime", spanYongGcCollectionTime());
-		map.put("spanFullGcCollectionCount", spanFullGcCollectionCount());
-		map.put("spanFullGcCollectionTime", spanFullGcCollectionTime());
-		return map;
-	}
-	
+    @Override
+    public long spanFullGcCollectionTime() {
+        long current = fullGcCollectionTime();
+        if (lastFullGcCollectionTime == -1) {
+            lastFullGcCollectionTime = current;
+            return 0;
+        } else {
+            long result = current - lastFullGcCollectionTime;
+            lastFullGcCollectionTime = current;
+            return result;
+        }
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("yongGcCollectionCount", yongGcCollectionCount());
+        map.put("yongGcCollectionTime", yongGcCollectionTime());
+        map.put("fullGcCollectionCount", fullGcCollectionCount());
+        map.put("fullGcCollectionTime", fullGcCollectionTime());
+        map.put("spanYongGcCollectionCount", spanYongGcCollectionCount());
+        map.put("spanYongGcCollectionTime", spanYongGcCollectionTime());
+        map.put("spanFullGcCollectionCount", spanFullGcCollectionCount());
+        map.put("spanFullGcCollectionTime", spanFullGcCollectionTime());
+        return map;
+    }
+
 }

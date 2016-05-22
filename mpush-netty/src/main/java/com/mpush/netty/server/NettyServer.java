@@ -3,7 +3,7 @@ package com.mpush.netty.server;
 import com.mpush.api.Server;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
-import com.mpush.tools.thread.threadpool.ThreadPoolManager;
+import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicReference;
+
+import static com.mpush.tools.thread.pool.ThreadPoolManager.I;
 
 /**
  * Created by ohun on 2015/12/22.
@@ -159,16 +161,16 @@ public abstract class NettyServer implements Server {
     }
 
     private void createNioServer(final Listener listener) {
-        NioEventLoopGroup bossGroup = new NioEventLoopGroup(1, ThreadPoolManager.bossExecutor);
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup(0, ThreadPoolManager.workExecutor);
+        NioEventLoopGroup bossGroup = new NioEventLoopGroup(1, I.getBossExecutor());
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup(0, I.getWorkExecutor());
         createServer(listener, bossGroup, workerGroup, NioServerSocketChannel.class);
     }
 
 
     @SuppressWarnings("unused")
     private void createEpollServer(final Listener listener) {
-        EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1, ThreadPoolManager.bossExecutor);
-        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(0, ThreadPoolManager.workExecutor);
+        EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1, I.getBossExecutor());
+        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(0, I.getWorkExecutor());
         createServer(listener, bossGroup, workerGroup, EpollServerSocketChannel.class);
     }
 

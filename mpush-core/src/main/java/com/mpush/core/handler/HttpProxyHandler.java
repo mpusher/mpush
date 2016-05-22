@@ -6,13 +6,13 @@ import com.mpush.api.protocol.Packet;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.HttpRequestMessage;
 import com.mpush.common.message.HttpResponseMessage;
-import com.mpush.log.Logs;
-import com.mpush.netty.client.HttpCallback;
-import com.mpush.netty.client.HttpClient;
-import com.mpush.netty.client.RequestInfo;
+import com.mpush.tools.config.data.DnsMapping;
+import com.mpush.common.net.DnsMappingManager;
+import com.mpush.tools.log.Logs;
+import com.mpush.netty.http.HttpCallback;
+import com.mpush.netty.http.HttpClient;
+import com.mpush.netty.http.RequestInfo;
 import com.mpush.tools.Profiler;
-import com.mpush.tools.dns.DnsMapping;
-import com.mpush.tools.dns.manage.DnsMappingManage;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
@@ -183,7 +183,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
         }
         if (uri == null) return url;
         String host = uri.getHost();
-        DnsMapping mapping = DnsMappingManage.holder.translate(host);
+        DnsMapping mapping = DnsMappingManager.I.translate(host);
         if (mapping == null) return url;
         return url.replaceFirst(host, mapping.toString());
     }

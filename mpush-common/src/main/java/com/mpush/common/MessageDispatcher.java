@@ -5,8 +5,8 @@ import com.mpush.api.PacketReceiver;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
-import com.mpush.tools.Profiler;
 import com.mpush.common.message.ErrorMessage;
+import com.mpush.tools.Profiler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public final class MessageDispatcher implements PacketReceiver {
                 handler.handle(packet, connection);
             }
         } catch (Throwable throwable) {
-            LOGGER.error("dispatch packet ex, packet={}, conn={}", packet, connection, throwable);
+            LOGGER.error("dispatch packet ex, packet={}, connect={}", packet, connection, throwable);
             ErrorMessage
                     .from(packet, connection)
                     .setErrorCode(ErrorCode.DISPATCH_ERROR)

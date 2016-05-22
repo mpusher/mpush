@@ -2,7 +2,6 @@ package com.mpush.api.connection;
 
 import com.mpush.api.protocol.Packet;
 import io.netty.channel.Channel;
-
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
@@ -35,12 +34,8 @@ public interface Connection {
 
     void updateLastReadTime();
 
-	int inceaseAndGetHbTimes();
+    long getLastReadTime();
 
-	void resetHbTimes();
+    Channel getChannel();
 
-	long getLastReadTime();
-	
-	Channel getChannel();
-	
 }

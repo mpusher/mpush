@@ -10,13 +10,13 @@ public class TelnetTest {
 
 	@Test
 	public void test(){
-		boolean ret = MPushUtil.telnet("120.27.196.68", 82);
+		boolean ret = MPushUtil.checkHealth("120.27.196.68", 82);
 		System.out.println(ret);
 	}
 	
 	@Test
 	public void test2(){
-		boolean ret = MPushUtil.telnet("120.27.196.68", 80);
+		boolean ret = MPushUtil.checkHealth("120.27.196.68", 80);
 		System.out.println(ret);
 	}
 	

@@ -1,8 +1,8 @@
 package com.mpush.common.router;
 
-import com.mpush.api.RedisKey;
+import com.mpush.cache.redis.RedisKey;
 import com.mpush.api.router.RouterManager;
-import com.mpush.tools.redis.manage.RedisManage;
+import com.mpush.cache.redis.manager.RedisManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,18 +19,18 @@ public class RemoteRouterManager implements RouterManager<RemoteRouter> {
     public RemoteRouter register(String userId, RemoteRouter router) {
     	LOGGER.info("register remote router success userId={}, router={}", userId, router);
     	String key = RedisKey.getUserKey(userId);
-        RemoteRouter old = RedisManage.get(key, RemoteRouter.class);
+        RemoteRouter old = RedisManager.I.get(key, RemoteRouter.class);
         if (old != null) {
-            RedisManage.del(key);
+            RedisManager.I.del(key);
         }
-        RedisManage.set(key, router);
+        RedisManager.I.set(key, router);
         return old;
     }
 
     @Override
     public boolean unRegister(String userId) {
     	String key = RedisKey.getUserKey(userId);
-        RedisManage.del(key);
+        RedisManager.I.del(key);
         LOGGER.info("unRegister remote router success userId={}", userId);
         return true;
     }
@@ -38,6 +38,6 @@ public class RemoteRouterManager implements RouterManager<RemoteRouter> {
     @Override
     public RemoteRouter lookup(String userId) {
     	String key = RedisKey.getUserKey(userId);
-        return RedisManage.get(key, RemoteRouter.class);
+        return RedisManager.I.get(key, RemoteRouter.class);
     }
 }

@@ -1,7 +1,8 @@
 package com.mpush.tools.crypto;
 
 
-import com.mpush.tools.Constants;
+
+import com.mpush.api.Constants;
 
 import java.io.*;
 

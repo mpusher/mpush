@@ -3,7 +3,6 @@ package com.mpush.core.server;
 import com.mpush.api.protocol.Command;
 import com.mpush.common.MessageDispatcher;
 import com.mpush.core.handler.GatewayPushHandler;
-import com.mpush.netty.connection.NettyConnectionManager;
 import com.mpush.netty.server.NettyServer;
 import io.netty.channel.ChannelHandler;
 
@@ -15,7 +14,7 @@ import io.netty.channel.ChannelHandler;
 public final class GatewayServer extends NettyServer {
 
     private ServerChannelHandler channelHandler;
-    private NettyConnectionManager connectionManager;
+    private ServerConnectionManager connectionManager;
 
     public GatewayServer(int port) {
         super(port);
@@ -26,7 +25,7 @@ public final class GatewayServer extends NettyServer {
         super.init();
         MessageDispatcher receiver = new MessageDispatcher();
         receiver.register(Command.GATEWAY_PUSH, new GatewayPushHandler());
-        connectionManager = new NettyConnectionManager();
+        connectionManager = new ServerConnectionManager();
         channelHandler = new ServerChannelHandler(false, connectionManager, receiver);
     }
 

@@ -33,8 +33,8 @@ public class RsaTest {
     public void test(){
     	
         HandshakeMessage message = new HandshakeMessage(null);
-        message.clientKey = CipherBox.INSTANCE.randomAESKey();
-        message.iv = CipherBox.INSTANCE.randomAESIV();
+        message.clientKey = CipherBox.I.randomAESKey();
+        message.iv = CipherBox.I.randomAESIV();
         message.clientVersion = "1.1.0";
         message.deviceId = "dscsdcsdcsdcdscsdcdscsdcdscdscds";
         message.osName = "android";
@@ -115,8 +115,8 @@ public class RsaTest {
 		@Override
 		public void run() {
 			HandshakeMessage message = new HandshakeMessage(null);
-	        message.clientKey = CipherBox.INSTANCE.randomAESKey();
-	        message.iv = CipherBox.INSTANCE.randomAESIV();
+	        message.clientKey = CipherBox.I.randomAESKey();
+	        message.iv = CipherBox.I.randomAESIV();
 	        message.clientVersion = "1.1.0"+i;
 	        message.deviceId = "dscsdcsdcsdcdscsdcdscsdcdscdscds";
 	        message.osName = "android";
