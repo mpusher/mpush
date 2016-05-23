@@ -1,4 +1,4 @@
-package com.mpush.boot.job;
+package com.mpush.bootstrap.job;
 
 import com.mpush.tools.log.Logs;
 
@@ -14,7 +14,7 @@ public abstract class BootJob {
 
     public void next() {
         if (next != null) {
-            Logs.Console.info("run next boot [" + next.getClass().getSimpleName() + "]");
+            Logs.Console.info("run next bootstrap job [" + next.getClass().getSimpleName() + "]");
             next.run();
         }
     }

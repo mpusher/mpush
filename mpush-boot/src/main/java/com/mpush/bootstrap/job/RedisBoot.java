@@ -1,4 +1,4 @@
-package com.mpush.boot.job;
+package com.mpush.bootstrap.job;
 
 import com.mpush.cache.redis.manager.RedisManager;
 

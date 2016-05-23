@@ -1,10 +1,11 @@
-package com.mpush.boot;
+package com.mpush.bootstrap;
 
 import com.mpush.tools.log.Logs;
 
 public class Main {
 
     public static void main(String[] args) {
+        Logs.init();
         Logs.Console.info("launch app...");
         ServerLauncher launcher = new ServerLauncher();
         launcher.start();

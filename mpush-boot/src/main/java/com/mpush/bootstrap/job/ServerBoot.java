@@ -1,4 +1,4 @@
-package com.mpush.boot.job;
+package com.mpush.bootstrap.job;
 
 import com.mpush.api.Server;
 import com.mpush.tools.log.Logs;

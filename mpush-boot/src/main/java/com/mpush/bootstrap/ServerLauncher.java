@@ -1,8 +1,8 @@
-package com.mpush.boot;
+package com.mpush.bootstrap;
 
 
 import com.mpush.api.Server;
-import com.mpush.boot.job.*;
+import com.mpush.bootstrap.job.*;
 import com.mpush.core.server.AdminServer;
 import com.mpush.core.server.ConnectionServer;
 import com.mpush.core.server.GatewayServer;

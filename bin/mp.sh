@@ -76,7 +76,7 @@ else
     MPMAIN=""
 fi
 
-MPMAIN="$MPMAIN -jar $MPBINDIR/boot.jar"
+MPMAIN="$MPMAIN -jar $MPBINDIR/bootstrap.jar"
 
 if [ "x$SERVER_JVMFLAGS"  != "x" ]
 then
