@@ -76,7 +76,7 @@ else
     MPMAIN=""
 fi
 
-MPMAIN="$MPMAIN -jar $MPUSH_PREFIX/boot.jar"
+MPMAIN="$MPMAIN -jar $MPBINDIR/boot.jar"
 
 if [ "x$SERVER_JVMFLAGS"  != "x" ]
 then
@@ -174,8 +174,11 @@ start-foreground)
     -cp "$CLASSPATH" $JVMFLAGS $MPMAIN "-Dmp.conf=$MPCFG"
     ;;
 print-cmd)
-    echo "\"$JAVA\" -Dmp.log.dir=\"${MP_LOG_DIR}\" -Dmp.root.logger=\"${MP_LOG4J_PROP}\"
-    echo -cp \"$CLASSPATH\" $JVMFLAGS $MPMAIN \"-Dmp.conf=$MPCFG\" > \"$_MP_DAEMON_OUT\" 2>&1 < /dev/null"
+    echo "\"$JAVA\" $MPMAIN "
+    echo "\"-Dmp.conf=$MPCFG\" -Dmp.log.dir=\"${MP_LOG_DIR}\" -Dmp.root.logger=\"${MP_LOG4J_PROP}\" "
+    echo "$JVMFLAGS "
+    echo "-cp \"$CLASSPATH\" "
+    echo "> \"$_MP_DAEMON_OUT\" 2>&1 < /dev/null"
     ;;
 stop)
     echo -n "Stopping mpush ... "
@@ -199,7 +202,7 @@ upgrade)
 restart)
     shift
     "$0" stop ${@}
-    sleep 3
+    sleep 5
     "$0" start ${@}
     ;;
 status)
