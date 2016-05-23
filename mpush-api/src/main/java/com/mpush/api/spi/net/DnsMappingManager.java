@@ -17,16 +17,14 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.api;
+package com.mpush.api.spi.net;
 
-import com.mpush.api.protocol.Packet;
-import com.mpush.api.connection.Connection;
+import com.mpush.api.Service;
 
 /**
- * Created by ohun on 2015/12/22.
+ * Created by yxx on 2016/5/23.
  *
- * @author ohun@live.cn
+ * @author ohun@live.cn (夜色)
  */
-public interface PacketReceiver {
-    void onReceive(Packet packet, Connection connection);
+public interface DnsMappingManager extends Service {
 }
