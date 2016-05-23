@@ -39,7 +39,7 @@
         </fileSet>
         <fileSet>
             <directory>target/</directory>
-            <outputDirectory/>
+            <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>boot.jar</include>
             </includes>
