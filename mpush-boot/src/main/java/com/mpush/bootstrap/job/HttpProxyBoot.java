@@ -1,4 +1,4 @@
-package com.mpush.boot.job;
+package com.mpush.bootstrap.job;
 
 import com.mpush.common.net.DnsMappingManager;
 import com.mpush.tools.config.CC;

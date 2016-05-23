@@ -1,4 +1,4 @@
-package com.mpush.boot.job;
+package com.mpush.bootstrap.job;
 
 import com.mpush.monitor.service.MonitorService;
 import com.mpush.tools.config.CC;

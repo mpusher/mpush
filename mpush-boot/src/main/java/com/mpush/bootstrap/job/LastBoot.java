@@ -1,4 +1,4 @@
-package com.mpush.boot.job;
+package com.mpush.bootstrap.job;
 
 import com.mpush.common.user.UserManager;
 import com.mpush.tools.log.Logs;
@@ -12,7 +12,7 @@ public class LastBoot extends BootJob {
     @Override
     public void run() {
         UserManager.INSTANCE.clearUserOnlineData();
-        Logs.Console.info("end run boot chain...");
+        Logs.Console.info("end run bootstrap chain...");
         Logs.Console.info("app start success...");
     }
 }

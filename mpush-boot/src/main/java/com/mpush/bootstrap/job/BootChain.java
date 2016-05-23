@@ -1,4 +1,4 @@
-package com.mpush.boot.job;
+package com.mpush.bootstrap.job;
 
 import com.mpush.tools.log.Logs;
 
@@ -22,7 +22,7 @@ public class BootChain {
         return new BootJob() {
             @Override
             public void run() {
-                Logs.Console.info("begin run boot chain...");
+                Logs.Console.info("begin run bootstrap chain...");
                 next();
             }
         };

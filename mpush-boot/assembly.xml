@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <assembly>
-    <id>release</id>
+    <id>release-${mpush.version}</id>
     <baseDirectory>mpush</baseDirectory>
     <includeBaseDirectory>true</includeBaseDirectory>
     <formats>
@@ -41,7 +41,7 @@
             <directory>target/</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>boot.jar</include>
+                <include>bootstrap.jar</include>
             </includes>
         </fileSet>
     </fileSets>
