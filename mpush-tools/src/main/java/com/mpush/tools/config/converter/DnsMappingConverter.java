@@ -37,7 +37,7 @@ public class DnsMappingConverter implements Converter<Map<String, List<DnsMappin
 
     @Override
     public Map<String, List<DnsMapping>> convert(Method method, String input) {
-        Logs.Console.info("method:" + method.getName() + ", input:" + input);
+        Logs.Console.error("method:" + method.getName() + ", input:" + input);
 
         Map<String, String> map = Splitter.on(';').withKeyValueSeparator('=').split(input);
         Map<String, List<DnsMapping>> result = Maps.newConcurrentMap();

@@ -25,17 +25,17 @@ public class Main {
 
     public static void main(String[] args) {
         Logs.init();
-        Logs.Console.info("launch app...");
+        Logs.Console.error("launch app...");
         ServerLauncher launcher = new ServerLauncher();
         launcher.start();
         addHook(launcher);
     }
 
-    private static void addHook(final ServerLauncher serverBoot) {
+    private static void addHook(final ServerLauncher launcher) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                serverBoot.stop();
-                Logs.Console.info("jvm exit all server stopped...");
+                launcher.stop();
+                Logs.Console.error("jvm exit, all server stopped...");
             }
         });
     }

@@ -38,11 +38,11 @@ public class ServerLauncher {
 
     private final ZKServerNode gsNode = ZKServerNode.gsNode();
 
-    private final Server connectServer = new ConnectionServer(csNode.getPort());
+    private final ConnectionServer connectServer = new ConnectionServer(csNode.getPort());
 
-    private final Server gatewayServer = new GatewayServer(gsNode.getPort());
+    private final GatewayServer gatewayServer = new GatewayServer(gsNode.getPort());
 
-    private final Server adminServer = new AdminServer(CC.mp.net.admin_server_port);
+    private final AdminServer adminServer = new AdminServer(CC.mp.net.admin_server_port, connectServer, gatewayServer);
 
 
     public void start() {
@@ -60,7 +60,7 @@ public class ServerLauncher {
     }
 
     public void stop() {
-        stopServer(gatewayServer);
+        stopServer(connectServer);
         stopServer(gatewayServer);
         stopServer(adminServer);
     }

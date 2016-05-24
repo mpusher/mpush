@@ -33,7 +33,7 @@ public abstract class BootJob {
 
     public void next() {
         if (next != null) {
-            Logs.Console.info("run next bootstrap job [" + next.getClass().getSimpleName() + "]");
+            Logs.Console.error("run next bootstrap job [" + next.getClass().getSimpleName() + "]");
             next.run();
         }
     }

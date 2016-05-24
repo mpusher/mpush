@@ -50,7 +50,7 @@ public class ZKRedisClusterManager implements RedisClusterManager {
      */
     @Override
     public void init() {
-        Logs.Console.info("begin init redis cluster");
+        Logs.Console.error("begin init redis cluster");
         List<com.mpush.tools.config.data.RedisGroup> groupList = CC.mp.redis.cluster_group;
         if (groupList.size() > 0) {
             if (CC.mp.redis.write_to_zk) {
@@ -73,7 +73,7 @@ public class ZKRedisClusterManager implements RedisClusterManager {
             groups.add(RedisGroup.from(node));
         }
         if (groups.isEmpty()) throw new RuntimeException("init redis sever fail groupList is null");
-        Logs.Console.info("init redis cluster success...");
+        Logs.Console.error("init redis cluster success...");
     }
 
     @Override
@@ -119,7 +119,7 @@ public class ZKRedisClusterManager implements RedisClusterManager {
     private void register(List<com.mpush.tools.config.data.RedisGroup> groupList) {
         String data = Jsons.toJson(groupList);
         ZKClient.I.registerPersist(REDIS_SERVER.getRootPath(), data);
-        Logs.Console.info("register redis server group success, group=" + data);
+        Logs.Console.error("register redis server group success, group=" + data);
     }
 
     public void addGroup(RedisGroup group) {

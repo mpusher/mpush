@@ -23,18 +23,22 @@ import com.mpush.core.handler.AdminHandler;
 import com.mpush.netty.server.NettyServer;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
 public final class AdminServer extends NettyServer {
+    private final ConnectionServer connectionServer;
+    private final GatewayServer gatewayServer;
 
-    private final AdminHandler adminHandler = new AdminHandler();
+    private final AdminHandler adminHandler;
 
-    public AdminServer(int port) {
+    public AdminServer(int port, ConnectionServer connectionServer, GatewayServer gatewayServer) {
         super(port);
+        this.connectionServer = connectionServer;
+        this.gatewayServer = gatewayServer;
+        this.adminHandler = new AdminHandler(this);
     }
 
     @Override
@@ -56,5 +60,13 @@ public final class AdminServer extends NettyServer {
     @Override
     protected ChannelHandler getEncoder() {
         return new StringEncoder();
+    }
+
+    public ConnectionServer getConnectionServer() {
+        return connectionServer;
+    }
+
+    public GatewayServer getGatewayServer() {
+        return gatewayServer;
     }
 }

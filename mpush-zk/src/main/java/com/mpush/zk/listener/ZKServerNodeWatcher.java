@@ -78,22 +78,14 @@ public final class ZKServerNodeWatcher extends ZKNodeCacheWatcher {
 
     @Override
     protected void beforeWatch() {
-        Logs.Console.info("start init zk server data");
-        List<String> rawData = ZKClient.I.getChildrenKeys(getRegisterPath());
+        Logs.Console.error("start init zk server data");
+        List<String> rawData = ZKClient.I.getChildrenKeys(path.getRootPath());
         for (String raw : rawData) {
-            String fullPath = getFullPath(raw);
+            String fullPath = path.getFullPath(raw);
             ZKServerNode app = getServerNode(fullPath);
             cache.put(fullPath, app);
         }
-        Logs.Console.info("end init zk server data");
-    }
-
-    public String getRegisterPath() {
-        return path.getRootPath();
-    }
-
-    public String getFullPath(String raw) {
-        return path.getFullPath(raw);
+        Logs.Console.error("end init zk server data");
     }
 
     private ZKServerNode getServerNode(String fullPath) {

@@ -50,7 +50,7 @@ public class ServerBoot extends BootJob {
                 server.start(new Server.Listener() {
                     @Override
                     public void onSuccess(Object... args) {
-                        Logs.Console.info("start " + serverName + " success listen:" + args[0]);
+                        Logs.Console.error("start " + serverName + " success listen:" + args[0]);
                         if (node != null) {
                             registerServerToZk(node.getZkPath(), Jsons.toJson(node));
                         }
@@ -70,6 +70,6 @@ public class ServerBoot extends BootJob {
     //step7  注册应用到zk
     public void registerServerToZk(String path, String value) {
         ZKClient.I.registerEphemeralSequential(path, value);
-        Logs.Console.info("register server node=" + value + " to zk name=" + path);
+        Logs.Console.error("register server node=" + value + " to zk name=" + path);
     }
 }

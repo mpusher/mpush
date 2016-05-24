@@ -366,8 +366,12 @@ public final class RSAUtils {
         byte[] ming = "123456789".getBytes(Constants.UTF_8);
         System.out.println("明文：" + new String(ming, Constants.UTF_8));
         //使用模和指数生成公钥和私钥
-        RSAPublicKey pubKey = RSAUtils.getPublicKey(modulus, public_exponent);
         RSAPrivateKey priKey = RSAUtils.getPrivateKey(modulus, private_exponent);
+        RSAPublicKey pubKey = RSAUtils.getPublicKey(modulus, public_exponent);
+        System.out.println("privateKey=" + priKey);
+        System.out.println("publicKey=" + pubKey);
+        System.out.println("privateKey=" + priKey);
+        System.out.println("publicKey=" + pubKey);
         //加密后的密文
         byte[] mi = RSAUtils.encryptByPublicKey(ming, pubKey);
         System.out.println("密文：" + new String(mi, Constants.UTF_8));

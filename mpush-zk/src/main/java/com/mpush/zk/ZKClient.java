@@ -64,7 +64,7 @@ public class ZKClient {
     public void init() {
         if (zkConfig != null) return;
         zkConfig = ZKConfig.build();
-        Logs.Console.info("init zk client, config=" + zkConfig);
+        Logs.Console.error("init zk client, config=" + zkConfig);
         Builder builder = CuratorFrameworkFactory
                 .builder()
                 .connectString(zkConfig.getHosts())
@@ -95,7 +95,7 @@ public class ZKClient {
         }
         client = builder.build();
         client.start();
-        Logs.Console.info("init zk client waiting for connected...");
+        Logs.Console.error("init zk client waiting for connected...");
         try {
             if (!client.blockUntilConnected(1, TimeUnit.MINUTES)) {
                 throw new ZKException("init zk error, config=" + zkConfig);
@@ -113,7 +113,7 @@ public class ZKClient {
         });
 
         Logs.ZK.info("zk client start success, server lists is:{}", zkConfig.getHosts());
-        Logs.Console.info("init zk client success...");
+        Logs.Console.error("init zk client success...");
     }
 
     // 注册连接状态监听器

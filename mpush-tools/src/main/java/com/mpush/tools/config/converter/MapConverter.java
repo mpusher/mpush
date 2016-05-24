@@ -37,7 +37,7 @@ public class MapConverter implements Converter<Map<String, String>> {
 
     @Override
     public Map<String, String> convert(Method method, String input) {
-        Logs.Console.info("method:" + method.getName() + ", input:" + input);
+        Logs.Console.error("method:" + method.getName() + ", input:" + input);
         if (Strings.isNullOrEmpty(input)) return Collections.emptyMap();
         return Splitter.on(',').withKeyValueSeparator(':').split(input);
     }
