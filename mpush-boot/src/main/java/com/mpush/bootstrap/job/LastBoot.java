@@ -31,7 +31,7 @@ public class LastBoot extends BootJob {
     @Override
     public void run() {
         UserManager.INSTANCE.clearUserOnlineData();
-        Logs.Console.info("end run bootstrap chain...");
-        Logs.Console.info("app start success...");
+        Logs.Console.error("end run bootstrap chain...");
+        Logs.Console.error("app start success...");
     }
 }

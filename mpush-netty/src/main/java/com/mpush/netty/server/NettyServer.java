@@ -22,7 +22,7 @@ package com.mpush.netty.server;
 import com.mpush.api.Server;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
+import com.mpush.tools.log.Logs;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -75,11 +75,13 @@ public abstract class NettyServer implements Server {
         if (!serverState.compareAndSet(State.Started, State.Shutdown)) {
             IllegalStateException e = new IllegalStateException("server was already shutdown.");
             if (listener != null) listener.onFailure(e);
-            throw e;
+            Logs.Console.error("{} was already shutdown.", this.getClass().getSimpleName());
+            return;
         }
+        Logs.Console.error("try shutdown {}...", this.getClass().getSimpleName());
         if (workerGroup != null) workerGroup.shutdownGracefully().syncUninterruptibly();
         if (bossGroup != null) bossGroup.shutdownGracefully().syncUninterruptibly();
-        logger.error("netty server stop now");
+        Logs.Console.error("{} shutdown success.", this.getClass().getSimpleName());
         if (listener != null) {
             listener.onSuccess(port);
         }
@@ -151,10 +153,10 @@ public abstract class NettyServer implements Server {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (future.isSuccess()) {
-                        logger.error("server start success on:" + port);
+                        Logs.Console.error("server start success on:{}", port);
                         if (listener != null) listener.onSuccess(port);
                     } else {
-                        logger.error("server start failure on:" + port, future.cause());
+                        Logs.Console.error("server start failure on:{}", port, future.cause());
                         if (listener != null) listener.onFailure(future.cause());
                     }
                 }

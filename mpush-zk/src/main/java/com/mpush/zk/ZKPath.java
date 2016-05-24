@@ -25,7 +25,6 @@ import org.apache.curator.utils.ZKPaths;
 public enum ZKPath {
     REDIS_SERVER("/redis", "machine", "redis注册的地方"),
     CONNECT_SERVER("/cs/hosts", "machine", "connection server服务器应用注册的路径"),
-    PUSH_SERVER("/ps/hosts", "machine", "push server服务器应用注册的路径"),
     GATEWAY_SERVER("/gs/hosts", "machine", "gateway server服务器应用注册的路径");
 
     ZKPath(String root, String name, String desc) {

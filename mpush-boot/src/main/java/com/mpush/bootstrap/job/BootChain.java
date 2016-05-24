@@ -41,7 +41,7 @@ public class BootChain {
         return new BootJob() {
             @Override
             public void run() {
-                Logs.Console.info("begin run bootstrap chain...");
+                Logs.Console.error("begin run bootstrap chain...");
                 next();
             }
         };

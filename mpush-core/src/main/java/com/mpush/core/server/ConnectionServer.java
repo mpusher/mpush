@@ -94,4 +94,12 @@ public final class ConnectionServer extends NettyServer {
     public ChannelHandler getChannelHandler() {
         return channelHandler;
     }
+
+    public ConnectionManager getConnectionManager() {
+        return connectionManager;
+    }
+
+    public HttpClient getHttpClient() {
+        return httpClient;
+    }
 }

@@ -32,7 +32,7 @@ public class RedisGroupConverter implements Converter<RedisGroup> {
 
     @Override
     public RedisGroup convert(Method method, String input) {
-        Logs.Console.info("method:" + method.getName() + ", input:" + input);
+        Logs.Console.error("method:" + method.getName() + ", input:" + input);
 
         List<RedisServer> servers = new ArrayList<>();
         String[] chunks = input.split(",");
