@@ -251,10 +251,10 @@ public interface CC {
             int connect_server_port = cfg.getInt("connect-server-port");
 
             interface public_ip_mapping {
-                Config cfg = net.cfg.getObject("public-host-mapping").toConfig();
+                Map<String, Object> mappings = net.cfg.getObject("public-host-mapping").unwrapped();
 
                 static String getString(String localIp) {
-                    return cfg.hasPath(localIp) ? cfg.getString(localIp) : localIp;
+                    return (String) mappings.getOrDefault(localIp, localIp);
                 }
             }
 
