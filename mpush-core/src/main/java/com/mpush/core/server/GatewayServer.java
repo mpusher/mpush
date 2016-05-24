@@ -51,7 +51,9 @@ public final class GatewayServer extends NettyServer {
     @Override
     public void stop(Listener listener) {
         super.stop(listener);
-        connectionManager.destroy();
+        if (connectionManager != null) {
+            connectionManager.destroy();
+        }
     }
 
     @Override
