@@ -126,7 +126,7 @@ public class ThreadPoolManager {
     public static Map<String, Object> getPoolInfo(ThreadPoolExecutor executor) {
         Map<String, Object> info = new HashMap<>();
         info.put("corePoolSize", executor.getCorePoolSize());
-        info.put("maximumPoolSize", executor.getMaximumPoolSize());
+        info.put("maxPoolSize", executor.getMaximumPoolSize());
         info.put("activeCount(workingThread)", executor.getActiveCount());
         info.put("poolSize(workThread)", executor.getPoolSize());
         info.put("queueSize(blockedTask)", executor.getQueue().size());

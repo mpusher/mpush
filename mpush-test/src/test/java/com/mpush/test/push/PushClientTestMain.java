@@ -38,7 +38,7 @@ public class PushClientTestMain {
         Logs.init();
         PushSender sender = PushSender.create();
         sender.start().get();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             PushContent content = PushContent.build(PushType.MESSAGE, "this a first push." + i);
             content.setMsgId("msgId_" + (i % 2));
             //Thread.sleep(1000);
