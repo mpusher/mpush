@@ -30,7 +30,7 @@ public interface ThreadPoolFactory {
     String SERVER_BOSS = "sb";
     String SERVER_WORK = "sw";
     String HTTP_CLIENT_WORK = "hcw";
-    String PUSH_CLIENT_WORK = "puw";
+    String PUSH_CALLBACK = "pc";
     String EVENT_BUS = "eb";
     String MQ = "r";
     String BIZ = "b";

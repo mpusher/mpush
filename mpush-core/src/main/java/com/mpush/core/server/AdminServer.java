@@ -21,12 +21,15 @@ package com.mpush.core.server;
 
 import com.mpush.core.handler.AdminHandler;
 import com.mpush.netty.server.NettyServer;
+import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+
+import java.util.concurrent.Executor;
 
 public final class AdminServer extends NettyServer {
     private final ConnectionServer connectionServer;
@@ -45,6 +48,16 @@ public final class AdminServer extends NettyServer {
     protected void initPipeline(ChannelPipeline pipeline) {
         pipeline.addLast(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
         super.initPipeline(pipeline);
+    }
+
+    @Override
+    protected Executor getBossExecutor() {
+        return ThreadPoolManager.I.getWorkExecutor();
+    }
+
+    @Override
+    protected Executor getWorkExecutor() {
+        return ThreadPoolManager.I.getWorkExecutor();
     }
 
     @Override

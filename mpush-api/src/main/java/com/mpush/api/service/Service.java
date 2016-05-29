@@ -17,23 +17,27 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.tools.spi.test;
+package com.mpush.api.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.Future;
 
+/**
+ * Created by yxx on 2016/5/17.
+ *
+ * @author ohun@live.cn
+ */
+public interface Service {
 
-public class TestServiceImpl2 implements TestService {
+    void start(Listener listener);
 
-	private static final Logger log = LoggerFactory.getLogger(TestServiceImpl.class);
-	
-    public TestServiceImpl2() {
-    	log.warn("init");
-    }
-    
-	@Override
-	public String sayHi(String name) {
-		return "TestServiceImpl2 hi,"+name;
-	}
-	
+    void stop(Listener listener);
+
+    Future<Boolean> start();
+
+    Future<Boolean> stop();
+
+    void init();
+
+    boolean isRunning();
+
 }

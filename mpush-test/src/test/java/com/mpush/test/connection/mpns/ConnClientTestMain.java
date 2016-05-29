@@ -19,7 +19,7 @@
 
 package com.mpush.test.connection.mpns;
 
-import com.mpush.api.Client;
+import com.mpush.api.service.Client;
 import com.mpush.client.connect.ClientConfig;
 import com.mpush.client.connect.ConnectClient;
 import com.mpush.common.security.CipherBox;

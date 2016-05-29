@@ -20,8 +20,8 @@
 package com.mpush.common.handler;
 
 import com.mpush.api.connection.Connection;
-import com.mpush.common.message.OkMessage;
 import com.mpush.api.protocol.Packet;
+import com.mpush.common.message.OkMessage;
 
 /**
  * Created by ohun on 2015/12/30.

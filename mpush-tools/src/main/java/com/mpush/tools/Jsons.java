@@ -22,6 +22,7 @@ package com.mpush.tools;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mpush.api.Constants;
+import com.mpush.tools.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,11 +117,5 @@ public final class Jsons {
         sb.append('"').append(key).append('"');
         sb.append(':');
         sb.append('"').append(value).append('"');
-    }
-
-    public static void main(String[] args) {
-    	String tet = "7";
-    	Long l = Jsons.fromJson(tet, Long.class);
-    	System.out.println(l);
     }
 }

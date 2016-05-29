@@ -20,7 +20,6 @@
 package com.mpush.common.security;
 
 import com.mpush.api.connection.Cipher;
-import com.mpush.tools.Profiler;
 import com.mpush.tools.crypto.RSAUtils;
 
 import java.security.interfaces.RSAPrivateKey;
@@ -42,23 +41,12 @@ public final class RsaCipher implements Cipher {
 
     @Override
     public byte[] decrypt(byte[] data) {
-        try {
-            Profiler.enter("start rsa decrypt");
-            return RSAUtils.decryptByPrivateKey(data, privateKey);
-        } finally {
-            Profiler.release();
-        }
-
+        return RSAUtils.decryptByPrivateKey(data, privateKey);
     }
 
     @Override
     public byte[] encrypt(byte[] data) {
-        try {
-            Profiler.enter("start rsa encrypt");
-            return RSAUtils.encryptByPublicKey(data, publicKey);
-        } finally {
-            Profiler.release();
-        }
+        return RSAUtils.encryptByPublicKey(data, publicKey);
     }
 
     @Override

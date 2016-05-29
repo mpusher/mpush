@@ -26,6 +26,7 @@ import com.mpush.tools.thread.NamedThreadFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class ThreadPoolManager {
     public static final ThreadPoolManager I = new ThreadPoolManager();
@@ -39,6 +40,7 @@ public class ThreadPoolManager {
     private Executor eventBusExecutor;
     private Executor redisExecutor;
     private Executor httpExecutor;
+    private Executor pushCallbackExecutor;
 
     public final Thread newThread(String name, Runnable target) {
         return threadFactory.newThread(name, target);
@@ -98,6 +100,15 @@ public class ThreadPoolManager {
         return bossExecutor;
     }
 
+    public Executor getPushCallbackExecutor() {
+        if (pushCallbackExecutor == null) {
+            synchronized (this) {
+                pushCallbackExecutor = threadPoolFactory.get(ThreadPoolFactory.PUSH_CALLBACK);
+            }
+        }
+        return pushCallbackExecutor;
+    }
+
     public Map<String, Executor> getActivePools() {
         Map<String, Executor> map = new HashMap<>();
         if (bossExecutor != null) map.put("bossExecutor", bossExecutor);
@@ -106,7 +117,17 @@ public class ThreadPoolManager {
         if (eventBusExecutor != null) map.put("eventBusExecutor", eventBusExecutor);
         if (redisExecutor != null) map.put("redisExecutor", redisExecutor);
         if (httpExecutor != null) map.put("httpExecutor", httpExecutor);
+        if (pushCallbackExecutor != null) map.put("pushCallbackExecutor", pushCallbackExecutor);
         return map;
     }
 
+    public static Map<String, Object> getPoolInfo(ThreadPoolExecutor executor) {
+        Map<String, Object> info = new HashMap<>();
+        info.put("corePoolSize", executor.getCorePoolSize());
+        info.put("maximumPoolSize", executor.getMaximumPoolSize());
+        info.put("activeCount[workingThread]", executor.getActiveCount());
+        info.put("poolSize[workThread]", executor.getPoolSize());
+        info.put("queueSize[blockTask]", executor.getQueue().size());
+        return info;
+    }
 }

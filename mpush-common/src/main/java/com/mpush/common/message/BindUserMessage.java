@@ -55,4 +55,14 @@ public final class BindUserMessage extends ByteBufMessage {
         encodeString(body, alias);
         encodeString(body, tags);
     }
+
+    @Override
+    public String toString() {
+        return "BindUserMessage{" +
+                "alias='" + alias + '\'' +
+                ", userId='" + userId + '\'' +
+                ", tags='" + tags + '\'' +
+                ", packet=" + packet +
+                '}';
+    }
 }

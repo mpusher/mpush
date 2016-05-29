@@ -25,20 +25,20 @@ import com.mpush.api.protocol.Packet;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.HttpRequestMessage;
 import com.mpush.common.message.HttpResponseMessage;
-import com.mpush.tools.config.data.DnsMapping;
 import com.mpush.common.net.DnsMappingManager;
-import com.mpush.tools.log.Logs;
 import com.mpush.netty.http.HttpCallback;
 import com.mpush.netty.http.HttpClient;
-import com.mpush.netty.http.RequestInfo;
-import com.mpush.tools.Profiler;
+import com.mpush.netty.http.RequestContext;
+import com.mpush.tools.common.Profiler;
+import com.mpush.tools.config.data.DnsMapping;
+import com.mpush.tools.log.Logs;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
@@ -67,6 +67,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     public void handle(HttpRequestMessage message) {
         try {
             Profiler.enter("start http proxy handler");
+            //1.参数校验
             String method = message.getMethod();
             String uri = message.uri;
             if (Strings.isNullOrEmpty(uri)) {
@@ -78,18 +79,16 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                 LOGGER.warn("request url is empty!");
             }
 
+            //2.url转换
             uri = doDnsMapping(uri);
-            FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.valueOf(method), uri);
-            Profiler.enter("start set full http headers");
-            setHeaders(request, message);
-            Profiler.release();
-            Profiler.enter("start set full http body");
-            setBody(request, message);
-            Profiler.release();
 
-            Profiler.enter("start http proxy request");
-            httpClient.request(new RequestInfo(request, new DefaultHttpCallback(message)));
-            Profiler.release();
+            //3.包装成HTTP request
+            FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.valueOf(method), uri);
+            setHeaders(request, message);//处理header
+            setBody(request, message);//处理body
+
+            //4.发送请求
+            httpClient.request(new RequestContext(request, new DefaultHttpCallback(message)));
         } catch (Exception e) {
             HttpResponseMessage
                     .from(message)
@@ -179,10 +178,8 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
             }
         }
         InetSocketAddress remoteAddress = (InetSocketAddress) message.getConnection().getChannel().remoteAddress();
-        Profiler.enter("start set x-forwarded-for");
-        String remoteIp = remoteAddress.getAddress().getHostAddress();
+        String remoteIp = remoteAddress.getAddress().getHostAddress();//这个要小心，不要使用getHostName,不然会耗时比较大
         request.headers().add("x-forwarded-for", remoteIp);
-        Profiler.release();
         request.headers().add("x-forwarded-port", Integer.toString(remoteAddress.getPort()));
     }
 
@@ -195,15 +192,19 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     }
 
     private String doDnsMapping(String url) {
-        URI uri = null;
+        URL uri = null;
         try {
-            uri = new URI(url);
-        } catch (URISyntaxException e) {
+            uri = new URL(url);
+        } catch (MalformedURLException e) {
         }
-        if (uri == null) return url;
+        if (uri == null) {
+            return url;
+        }
         String host = uri.getHost();
-        DnsMapping mapping = DnsMappingManager.I.translate(host);
-        if (mapping == null) return url;
-        return url.replaceFirst(host, mapping.toString());
+        DnsMapping mapping = DnsMappingManager.I.lookup(host);
+        if (mapping == null) {
+            return url;
+        }
+        return mapping.translate(uri);
     }
 }

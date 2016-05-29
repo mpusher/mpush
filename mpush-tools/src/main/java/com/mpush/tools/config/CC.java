@@ -28,6 +28,7 @@ import com.typesafe.config.ConfigList;
 import com.typesafe.config.ConfigObject;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,11 +61,81 @@ public interface CC {
 
     interface mp {
         Config cfg = CC.cfg.getObject("mp").toConfig();
-
         String log_dir = cfg.getString("log.dir");
         String log_level = cfg.getString("log.level");
 
+        interface core {
+            Config cfg = mp.cfg.getObject("core").toConfig();
+
+            int session_expired_time = (int) cfg.getDuration("session-expired-time").getSeconds();
+
+            int max_heartbeat = (int) cfg.getDuration("max-heartbeat", TimeUnit.MILLISECONDS);
+
+            int max_packet_size = (int) cfg.getMemorySize("max-packet-size").toBytes();
+
+            int min_heartbeat = (int) cfg.getDuration("min-heartbeat", TimeUnit.MILLISECONDS);
+
+            long compress_threshold = cfg.getBytes("compress-threshold");
+
+            int max_hb_timeout_times = cfg.getInt("max-hb-timeout-times");
+
+            String epoll_provider = cfg.getString("epoll-provider");
+        }
+
+        interface net {
+            Config cfg = mp.cfg.getObject("net").toConfig();
+
+            int connect_server_port = cfg.getInt("connect-server-port");
+            int gateway_server_port = cfg.getInt("gateway-server-port");
+            int admin_server_port = cfg.getInt("admin-server-port");
+
+            interface public_ip_mapping {
+
+                Map<String, Object> mappings = net.cfg.getObject("public-host-mapping").unwrapped();
+
+                static String getString(String localIp) {
+                    return (String) mappings.getOrDefault(localIp, localIp);
+                }
+
+            }
+
+            interface traffic_shaping {
+                Config cfg = net.cfg.getObject("traffic-shaping").toConfig();
+
+                interface gateway_client {
+                    Config cfg = traffic_shaping.cfg.getObject("gateway-client").toConfig();
+                    boolean enabled = cfg.getBoolean("enabled");
+                    long check_interval = cfg.getDuration("check-interval", TimeUnit.MILLISECONDS);
+                    long write_global_limit = cfg.getBytes("write-global-limit");
+                    long read_global_limit = cfg.getBytes("read-global-limit");
+                    long write_channel_limit = cfg.getBytes("write-channel-limit");
+                    long read_channel_limit = cfg.getBytes("read-channel-limit");
+                }
+
+                interface gateway_server {
+                    Config cfg = traffic_shaping.cfg.getObject("gateway-server").toConfig();
+                    boolean enabled = cfg.getBoolean("enabled");
+                    long check_interval = cfg.getDuration("check-interval", TimeUnit.MILLISECONDS);
+                    long write_global_limit = cfg.getBytes("write-global-limit");
+                    long read_global_limit = cfg.getBytes("read-global-limit");
+                    long write_channel_limit = cfg.getBytes("write-channel-limit");
+                    long read_channel_limit = cfg.getBytes("read-channel-limit");
+                }
+
+                interface connect_server {
+                    Config cfg = traffic_shaping.cfg.getObject("connect-server").toConfig();
+                    boolean enabled = cfg.getBoolean("enabled");
+                    long check_interval = cfg.getDuration("check-interval", TimeUnit.MILLISECONDS);
+                    long write_global_limit = cfg.getBytes("write-global-limit");
+                    long read_global_limit = cfg.getBytes("read-global-limit");
+                    long write_channel_limit = cfg.getBytes("write-channel-limit");
+                    long read_channel_limit = cfg.getBytes("read-channel-limit");
+                }
+            }
+        }
+
         interface security {
+
             Config cfg = mp.cfg.getObject("security").toConfig();
 
             int aes_key_length = cfg.getInt("aes-key-length");
@@ -77,7 +148,74 @@ public interface CC {
 
         }
 
+        interface thread {
+
+            Config cfg = mp.cfg.getObject("thread").toConfig();
+
+            interface pool {
+
+                Config cfg = thread.cfg.getObject("pool").toConfig();
+
+                interface boss {
+                    Config cfg = pool.cfg.getObject("boss").toConfig();
+                    int min = cfg.getInt("min");
+                    int max = cfg.getInt("max");
+                    int queue_size = cfg.getInt("queue-size");
+
+                }
+
+                interface work {
+                    Config cfg = pool.cfg.getObject("work").toConfig();
+                    int min = cfg.getInt("min");
+                    int max = cfg.getInt("max");
+                    int queue_size = cfg.getInt("queue-size");
+
+                }
+
+                interface event_bus {
+                    Config cfg = pool.cfg.getObject("event-bus").toConfig();
+                    int min = cfg.getInt("min");
+                    int max = cfg.getInt("max");
+                    int queue_size = cfg.getInt("queue-size");
+
+                }
+
+                interface http_proxy {
+                    Config cfg = pool.cfg.getObject("http-proxy").toConfig();
+                    int min = cfg.getInt("min");
+                    int max = cfg.getInt("max");
+                    int queue_size = cfg.getInt("queue-size");
+
+                }
+
+                interface biz {
+                    Config cfg = pool.cfg.getObject("biz").toConfig();
+                    int min = cfg.getInt("min");
+                    int max = cfg.getInt("max");
+                    int queue_size = cfg.getInt("queue-size");
+
+                }
+
+                interface mq {
+                    Config cfg = pool.cfg.getObject("mq").toConfig();
+                    int min = cfg.getInt("min");
+                    int max = cfg.getInt("max");
+                    int queue_size = cfg.getInt("queue-size");
+
+                }
+
+                interface push_callback {
+                    Config cfg = pool.cfg.getObject("push-callback").toConfig();
+                    int min = cfg.getInt("min");
+                    int max = cfg.getInt("max");
+                    int queue_size = cfg.getInt("queue-size");
+                }
+            }
+
+        }
+
         interface zk {
+
             Config cfg = mp.cfg.getObject("zk").toConfig();
 
             int sessionTimeoutMs = (int) cfg.getDuration("sessionTimeoutMs", TimeUnit.MILLISECONDS);
@@ -93,6 +231,7 @@ public interface CC {
             String server_address = cfg.getString("server-address");
 
             interface retry {
+
                 Config cfg = zk.cfg.getObject("retry").toConfig();
 
                 int maxRetries = cfg.getInt("maxRetries");
@@ -100,62 +239,13 @@ public interface CC {
                 int baseSleepTimeMs = (int) cfg.getDuration("baseSleepTimeMs", TimeUnit.MILLISECONDS);
 
                 int maxSleepMs = (int) cfg.getDuration("maxSleepMs", TimeUnit.MILLISECONDS);
-
             }
-        }
 
-        interface thread {
-            Config cfg = mp.cfg.getObject("thread").toConfig();
-
-            interface pool {
-                Config cfg = thread.cfg.getObject("pool").toConfig();
-
-                interface boss {
-                    Config cfg = pool.cfg.getObject("boss").toConfig();
-                    int min = cfg.getInt("min");
-                    int max = cfg.getInt("max");
-                    int queue_size = cfg.getInt("queue-size");
-                }
-
-                interface work {
-                    Config cfg = pool.cfg.getObject("work").toConfig();
-                    int min = cfg.getInt("min");
-                    int max = cfg.getInt("max");
-                    int queue_size = cfg.getInt("queue-size");
-                }
-
-                interface event_bus {
-                    Config cfg = pool.cfg.getObject("event-bus").toConfig();
-                    int min = cfg.getInt("min");
-                    int max = cfg.getInt("max");
-                    int queue_size = cfg.getInt("queue-size");
-                }
-
-                interface http_proxy {
-                    Config cfg = pool.cfg.getObject("http-proxy").toConfig();
-                    int min = cfg.getInt("min");
-                    int max = cfg.getInt("max");
-                    int queue_size = cfg.getInt("queue-size");
-                }
-
-                interface biz {
-                    Config cfg = pool.cfg.getObject("biz").toConfig();
-                    int min = cfg.getInt("min");
-                    int max = cfg.getInt("max");
-                    int queue_size = cfg.getInt("queue-size");
-                }
-
-                interface mq {
-                    Config cfg = pool.cfg.getObject("mq").toConfig();
-                    int min = cfg.getInt("min");
-                    int max = cfg.getInt("max");
-                    int queue_size = cfg.getInt("queue-size");
-                }
-            }
         }
 
         interface redis {
             Config cfg = mp.cfg.getObject("redis").toConfig();
+
             boolean write_to_zk = cfg.getBoolean("write-to-zk");
 
             List<RedisGroup> cluster_group = cfg.getList("cluster-group")
@@ -169,6 +259,7 @@ public interface CC {
                     .collect(toCollection(ArrayList::new));
 
             interface config {
+
                 Config cfg = redis.cfg.getObject("config").toConfig();
 
                 boolean jmxEnabled = cfg.getBoolean("jmxEnabled");
@@ -187,7 +278,7 @@ public interface CC {
 
                 String jmxNameBase = cfg.getString("jmxNameBase");
 
-                long numTestsPerEvictionRun = cfg.getDuration("numTestsPerEvictionRun", TimeUnit.MILLISECONDS);
+                int numTestsPerEvictionRun = (int) cfg.getDuration("numTestsPerEvictionRun", TimeUnit.MILLISECONDS);
 
                 String jmxNamePrefix = cfg.getString("jmxNamePrefix");
 
@@ -211,17 +302,15 @@ public interface CC {
 
         }
 
-        interface monitor {
-            Config cfg = mp.cfg.getObject("monitor").toConfig();
-
-            boolean dump_stack = cfg.getBoolean("dump-stack");
-
-        }
-
         interface http {
-            Config cfg = mp.cfg.getObject("http").toConfig();
 
-            boolean proxy_enable = cfg.getBoolean("proxy-enable");
+            Config cfg = mp.cfg.getObject("http").toConfig();
+            boolean proxy_enabled = cfg.getBoolean("proxy-enabled");
+            int default_read_timeout = (int) cfg.getDuration("default-read-timeout", TimeUnit.MILLISECONDS);
+            int max_conn_per_host = cfg.getInt("max-conn-per-host");
+
+
+            long max_content_length = cfg.getBytes("max-content-length");
 
             Map<String, List<DnsMapping>> dns_mapping = loadMapping();
 
@@ -237,46 +326,17 @@ public interface CC {
                 return map;
             }
 
-            int default_read_timeout = (int) cfg.getDuration("default-read-timeout", TimeUnit.MILLISECONDS);
-
-            int max_conn_per_host = cfg.getInt("max-conn-per-host");
-
         }
 
-        interface net {
-            Config cfg = mp.cfg.getObject("net").toConfig();
+        interface monitor {
 
-            int gateway_server_port = cfg.getInt("gateway-server-port");
+            Config cfg = mp.cfg.getObject("monitor").toConfig();
+            String dump_dir = cfg.getString("dump-dir");
+            boolean dump_stack = cfg.getBoolean("dump-stack");
+            boolean print_log = cfg.getBoolean("print-log");
 
-            int connect_server_port = cfg.getInt("connect-server-port");
+            Duration dump_period = cfg.getDuration("dump-period");
 
-            interface public_ip_mapping {
-                Map<String, Object> mappings = net.cfg.getObject("public-host-mapping").unwrapped();
-
-                static String getString(String localIp) {
-                    return (String) mappings.getOrDefault(localIp, localIp);
-                }
-            }
-
-            int admin_server_port = cfg.getInt("admin-server-port");
-
-        }
-
-        interface core {
-            Config cfg = mp.cfg.getObject("core").toConfig();
-
-            int session_expired_time = (int) cfg.getDuration("session-expired-time").getSeconds();
-
-            int max_heartbeat = (int) cfg.getDuration("max-heartbeat", TimeUnit.MILLISECONDS);
-
-            int max_packet_size = (int) cfg.getMemorySize("max-packet-size").toBytes();
-
-            int min_heartbeat = (int) cfg.getDuration("min-heartbeat", TimeUnit.MILLISECONDS);
-
-            long compress_threshold = cfg.getBytes("compress-threshold");
-
-            int max_hb_timeout_times = cfg.getInt("max-hb-timeout-times");
         }
     }
-
 }

@@ -19,7 +19,8 @@
 
 package com.mpush.tools.thread.pool;
 
-import com.mpush.tools.JVMUtil;
+import com.mpush.tools.common.JVMUtil;
+import com.mpush.tools.config.CC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,32 +28,46 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static com.mpush.tools.thread.pool.ThreadPoolConfig.REJECTED_POLICY_ABORT;
+import static com.mpush.tools.thread.pool.ThreadPoolConfig.REJECTED_POLICY_CALLER_RUNS;
+
 public class DumpThreadRejectedHandler implements RejectedExecutionHandler {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DumpThreadRejectedHandler.class);
 
     private volatile boolean dumping = false;
 
-    private static final String preFixPath = "/tmp/mpush/logs/dump/";
+    private static final String DUMP_DIR = CC.mp.monitor.dump_dir;
 
-    private final ThreadPoolConfig context;
+    private final ThreadPoolConfig poolConfig;
 
-    public DumpThreadRejectedHandler(ThreadPoolConfig context) {
-        this.context = context;
+    private final int rejectedPolicy;
+
+    public DumpThreadRejectedHandler(ThreadPoolConfig poolConfig) {
+        this.poolConfig = poolConfig;
+        this.rejectedPolicy = poolConfig.getRejectedPolicy();
     }
 
     @Override
-    public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+        LOGGER.warn("one task rejected, poolConfig={}, poolInfo={}", poolConfig, ThreadPoolManager.getPoolInfo(e));
         if (!dumping) {
             dumping = true;
             dumpJVMInfo();
         }
-        throw new RejectedExecutionException();
+
+        if (rejectedPolicy == REJECTED_POLICY_ABORT) {
+            throw new RejectedExecutionException("one task rejected, pool=" + poolConfig.getName());
+        } else if (rejectedPolicy == REJECTED_POLICY_CALLER_RUNS) {
+            if (!e.isShutdown()) {
+                r.run();
+            }
+        }
     }
 
     private void dumpJVMInfo() {
         LOGGER.error("start dump jvm info");
-        JVMUtil.dumpJstack(preFixPath + "/" + context.getName());
+        JVMUtil.dumpJstack(DUMP_DIR + "/" + poolConfig.getName());
         LOGGER.error("end dump jvm info");
     }
 }

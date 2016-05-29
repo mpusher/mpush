@@ -17,27 +17,13 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.tools.exception;
+package com.mpush.api.service;
 
 /**
- * Created by yxx on 2016/5/14.
+ * Created by ohun on 2015/12/24.
  *
  * @author ohun@live.cn
  */
-public class ZKException extends RuntimeException {
+public interface Server extends Service {
 
-    public ZKException() {
-    }
-
-    public ZKException(String message) {
-        super(message);
-    }
-
-    public ZKException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ZKException(Throwable cause) {
-        super(cause);
-    }
 }

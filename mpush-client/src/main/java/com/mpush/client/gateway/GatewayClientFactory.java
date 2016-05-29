@@ -20,9 +20,9 @@
 package com.mpush.client.gateway;
 
 import com.google.common.collect.Maps;
-import com.mpush.api.Client;
-import com.mpush.api.Service;
 import com.mpush.api.connection.Connection;
+import com.mpush.api.service.Client;
+import com.mpush.api.service.Listener;
 import com.mpush.zk.cache.ZKServerNodeCache;
 import com.mpush.zk.node.ZKServerNode;
 import org.slf4j.Logger;
@@ -45,13 +45,14 @@ public class GatewayClientFactory extends ZKServerNodeCache {
     @Override
     public void put(String fullPath, ZKServerNode node) {
         super.put(fullPath, node);
-        addClient(node);
+        addClient(node.getIp(), node.getPort());
     }
 
     @Override
     public ZKServerNode remove(String fullPath) {
         ZKServerNode node = super.remove(fullPath);
         removeClient(node);
+        logger.warn("Gateway Server zkNode={} was removed.", node);
         return node;
     }
 
@@ -76,7 +77,27 @@ public class GatewayClientFactory extends ZKServerNodeCache {
         if (client == null) {
             return null;//TODO create client
         }
-        return client.getConnection();
+        Connection connection = client.getConnection();
+        if (connection.isConnected()) {
+            return connection;
+        }
+        restartClient(client);
+        return null;
+    }
+
+    private void restartClient(final GatewayClient client) {
+        ip_client.remove(client.getHost());
+        client.stop(new Listener() {
+            @Override
+            public void onSuccess(Object... args) {
+                addClient(client.getHost(), client.getPort());
+            }
+
+            @Override
+            public void onFailure(Throwable cause) {
+                addClient(client.getHost(), client.getPort());
+            }
+        });
     }
 
     private void removeClient(ZKServerNode node) {
@@ -88,17 +109,17 @@ public class GatewayClientFactory extends ZKServerNodeCache {
         }
     }
 
-    private void addClient(final ZKServerNode node) {
-        final GatewayClient client = new GatewayClient(node.getIp(), node.getPort());
-        client.start(new Service.Listener() {
+    private void addClient(final String host, final int port) {
+        final GatewayClient client = new GatewayClient(host, port);
+        client.start(new Listener() {
             @Override
             public void onSuccess(Object... args) {
-                ip_client.put(node.getIp(), client);
+                ip_client.put(host, client);
             }
 
             @Override
             public void onFailure(Throwable cause) {
-                logger.error("create gateway client ex, node", node, cause);
+                logger.error("create gateway client ex, client={}", client, cause);
             }
         });
     }

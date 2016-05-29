@@ -23,7 +23,10 @@ import com.mpush.api.spi.common.ThreadPoolFactory;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.PoolThreadFactory;
 
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import static com.mpush.tools.thread.ThreadNames.*;
 
@@ -41,7 +44,7 @@ public class DefaultThreadPoolFactory implements ThreadPoolFactory {
         BlockingQueue queue = config.getQueue();
         ThreadFactory threadFactory = new PoolThreadFactory(name);
 
-        return new ThreadPoolExecutor(corePoolSize
+        return new DefaultExecutor(corePoolSize
                 , maxPoolSize
                 , keepAliveSeconds
                 , TimeUnit.SECONDS
@@ -56,7 +59,7 @@ public class DefaultThreadPoolFactory implements ThreadPoolFactory {
         switch (name) {
             case SERVER_BOSS:
                 config = ThreadPoolConfig
-                        .build(NETTY_BOSS)
+                        .build(T_SERVER_BOSS)
                         .setCorePoolSize(CC.mp.thread.pool.boss.min)
                         .setMaxPoolSize(CC.mp.thread.pool.boss.max)
                         .setKeepAliveSeconds(TimeUnit.MINUTES.toSeconds(5))
@@ -64,7 +67,7 @@ public class DefaultThreadPoolFactory implements ThreadPoolFactory {
                 break;
             case SERVER_WORK:
                 config = ThreadPoolConfig
-                        .build(NETTY_WORKER)
+                        .build(T_SERVER_WORKER)
                         .setCorePoolSize(CC.mp.thread.pool.work.min)
                         .setMaxPoolSize(CC.mp.thread.pool.work.max)
                         .setKeepAliveSeconds(TimeUnit.MINUTES.toSeconds(5))
@@ -72,29 +75,39 @@ public class DefaultThreadPoolFactory implements ThreadPoolFactory {
                 break;
             case HTTP_CLIENT_WORK:
                 config = ThreadPoolConfig
-                        .buildFixed(NETTY_HTTP,
+                        .buildFixed(T_HTTP_CLIENT,
                                 CC.mp.thread.pool.http_proxy.min,
                                 CC.mp.thread.pool.http_proxy.queue_size
-                        );
+                        )
+                        .setRejectedPolicy(ThreadPoolConfig.REJECTED_POLICY_DISCARD);
                 break;
             case EVENT_BUS:
                 config = ThreadPoolConfig
-                        .buildFixed(EVENT_BUS,
+                        .buildFixed(T_EVENT_BUS,
                                 CC.mp.thread.pool.event_bus.min,
                                 CC.mp.thread.pool.event_bus.queue_size
                         );
                 break;
             case MQ:
                 config = ThreadPoolConfig
-                        .buildFixed(MQ,
+                        .buildFixed(T_MQ,
                                 CC.mp.thread.pool.mq.min,
                                 CC.mp.thread.pool.mq.queue_size
                         );
                 break;
+            case PUSH_CALLBACK:
+                config = ThreadPoolConfig
+                        .build(T_PUSH_CALLBACK)
+                        .setCorePoolSize(CC.mp.thread.pool.push_callback.min)
+                        .setMaxPoolSize(CC.mp.thread.pool.push_callback.max)
+                        .setKeepAliveSeconds(TimeUnit.SECONDS.toSeconds(10))
+                        .setQueueCapacity(CC.mp.thread.pool.push_callback.queue_size)
+                        .setRejectedPolicy(ThreadPoolConfig.REJECTED_POLICY_CALLER_RUNS);
+                break;
             default:
             case BIZ:
                 config = ThreadPoolConfig
-                        .build(BIZ)
+                        .build(T_BIZ)
                         .setCorePoolSize(CC.mp.thread.pool.biz.min)
                         .setMaxPoolSize(CC.mp.thread.pool.biz.max)
                         .setKeepAliveSeconds(TimeUnit.MINUTES.toSeconds(5))

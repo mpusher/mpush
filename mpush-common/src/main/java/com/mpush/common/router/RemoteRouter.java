@@ -19,8 +19,8 @@
 
 package com.mpush.common.router;
 
-import com.mpush.api.router.Router;
 import com.mpush.api.router.ClientLocation;
+import com.mpush.api.router.Router;
 
 /**
  * Created by ohun on 2015/12/23.

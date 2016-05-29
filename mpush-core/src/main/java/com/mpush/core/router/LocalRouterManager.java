@@ -24,11 +24,9 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.event.ConnectionCloseEvent;
 import com.mpush.api.event.UserOfflineEvent;
 import com.mpush.api.router.RouterManager;
-import com.mpush.tools.event.EventConsumer;
-
 import com.mpush.tools.event.EventBus;
+import com.mpush.tools.event.EventConsumer;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,9 +86,9 @@ public final class LocalRouterManager extends EventConsumer implements RouterMan
      * @param event
      */
     @Subscribe
-    void onConnectionCloseEvent(ConnectionCloseEvent event) {
-    	Connection connection = event.connection;
-    	if(connection == null) return;
+    void on(ConnectionCloseEvent event) {
+        Connection connection = event.connection;
+        if (connection == null) return;
         String id = event.connection.getId();
 
         //1.清除反向关系

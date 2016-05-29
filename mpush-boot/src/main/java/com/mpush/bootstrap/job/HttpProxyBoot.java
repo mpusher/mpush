@@ -30,8 +30,7 @@ import com.mpush.tools.config.CC;
 public class HttpProxyBoot extends BootJob {
     @Override
     void run() {
-        if (CC.mp.http.proxy_enable) {
-            DnsMappingManager.I.init();
+        if (CC.mp.http.proxy_enabled) {
             DnsMappingManager.I.start();
         }
         next();

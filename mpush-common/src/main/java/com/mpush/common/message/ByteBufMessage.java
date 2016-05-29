@@ -19,8 +19,8 @@
 
 package com.mpush.common.message;
 
-import com.mpush.api.connection.Connection;
 import com.mpush.api.Constants;
+import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

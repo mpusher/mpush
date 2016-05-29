@@ -19,6 +19,7 @@
 
 package com.mpush.tools;
 
+import com.mpush.tools.common.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +38,8 @@ import java.util.regex.Pattern;
  *
  * @author ohun@live.cn
  */
-public final class MPushUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MPushUtil.class);
+public final class Utils {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
     private static String LOCAL_IP;
 

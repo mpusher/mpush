@@ -29,8 +29,8 @@ import com.mpush.common.message.BindUserMessage;
 import com.mpush.common.message.ErrorMessage;
 import com.mpush.common.message.OkMessage;
 import com.mpush.core.router.RouterCenter;
-import com.mpush.tools.log.Logs;
 import com.mpush.tools.event.EventBus;
+import com.mpush.tools.log.Logs;
 
 /**
  * Created by ohun on 2015/12/23.

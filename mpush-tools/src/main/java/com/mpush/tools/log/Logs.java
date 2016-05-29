@@ -30,17 +30,15 @@ import org.slf4j.LoggerFactory;
  * @author ohun@live.cn
  */
 public interface Logs {
-    boolean logInited = init();
+    boolean logInit = init();
 
     static boolean init() {
-        if (logInited) return true;
+        if (logInit) return true;
         System.setProperty("log.home", CC.mp.log_dir);
         System.setProperty("log.root.level", CC.mp.log_level);
         LoggerFactory
                 .getLogger("console")
-                .info(
-                        CC.mp.cfg.root().render(ConfigRenderOptions.concise().setFormatted(true))
-                );
+                .info(CC.mp.cfg.root().render(ConfigRenderOptions.concise().setFormatted(true)));
         return true;
     }
 

@@ -19,10 +19,15 @@
 
 package com.mpush.netty.server;
 
-import com.mpush.api.Server;
+import com.mpush.api.service.BaseService;
+import com.mpush.api.service.Listener;
+import com.mpush.api.service.Server;
+import com.mpush.api.service.ServiceException;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
+import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
+import com.sun.istack.internal.NotNull;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -34,16 +39,16 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static com.mpush.tools.thread.pool.ThreadPoolManager.I;
 
 /**
  * Created by ohun on 2015/12/22.
  *
  * @author ohun@live.cn
  */
-public abstract class NettyServer implements Server {
+public abstract class NettyServer extends BaseService implements Server {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -92,7 +97,11 @@ public abstract class NettyServer implements Server {
         if (!serverState.compareAndSet(State.Initialized, State.Starting)) {
             throw new IllegalStateException("Server already started or have not init");
         }
-        createNioServer(listener);
+        if (useNettyEpoll()) {
+            createEpollServer(listener);
+        } else {
+            createNioServer(listener);
+        }
     }
 
     private void createServer(final Listener listener, EventLoopGroup boss, EventLoopGroup work, Class<? extends ServerChannel> clazz) {
@@ -172,7 +181,7 @@ public abstract class NettyServer implements Server {
         } catch (Exception e) {
             logger.error("server start exception", e);
             if (listener != null) listener.onFailure(e);
-            throw new RuntimeException("server start exception, port=" + port, e);
+            throw new ServiceException("server start exception, port=" + port, e);
         } finally {
             /***
              * 优雅关闭
@@ -181,17 +190,16 @@ public abstract class NettyServer implements Server {
         }
     }
 
-    private void createNioServer(final Listener listener) {
-        NioEventLoopGroup bossGroup = new NioEventLoopGroup(1, I.getBossExecutor());
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup(0, I.getWorkExecutor());
+    private void createNioServer(Listener listener) {
+        NioEventLoopGroup bossGroup = new NioEventLoopGroup(1, getBossExecutor());
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup(0, getWorkExecutor());
         createServer(listener, bossGroup, workerGroup, NioServerSocketChannel.class);
     }
 
-
     @SuppressWarnings("unused")
-    private void createEpollServer(final Listener listener) {
-        EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1, I.getBossExecutor());
-        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(0, I.getWorkExecutor());
+    private void createEpollServer(Listener listener) {
+        EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1, getBossExecutor());
+        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(0, getWorkExecutor());
         createServer(listener, bossGroup, workerGroup, EpollServerSocketChannel.class);
     }
 
@@ -230,5 +238,29 @@ public abstract class NettyServer implements Server {
         pipeline.addLast("decoder", getDecoder());
         pipeline.addLast("encoder", getEncoder());
         pipeline.addLast("handler", getChannelHandler());
+    }
+
+    protected Executor getBossExecutor() {
+        return null;
+    }
+
+    protected Executor getWorkExecutor() {
+        return null;
+    }
+
+    private boolean useNettyEpoll() {
+        if (!"netty".equals(CC.mp.core.epoll_provider)) return false;
+        String name = CC.cfg.getString("os.name").toLowerCase(Locale.UK).trim();
+        return name.startsWith("linux");
+    }
+
+    @Override
+    protected void doStart(@NotNull Listener listener) throws Throwable {
+
+    }
+
+    @Override
+    protected void doStop(@NotNull Listener listener) throws Throwable {
+
     }
 }

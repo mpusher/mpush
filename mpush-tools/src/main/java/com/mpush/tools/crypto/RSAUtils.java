@@ -20,7 +20,7 @@
 package com.mpush.tools.crypto;
 
 import com.mpush.api.Constants;
-import com.mpush.tools.Pair;
+import com.mpush.tools.common.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -188,7 +188,7 @@ public final class RSAUtils {
             return (RSAPublicKey) keyFactory.generatePublic(keySpec);
         } catch (Exception e) {
             LOGGER.error("getPublicKey ex modulus={}, exponent={}", modulus, exponent, e);
-            throw new RuntimeException("Get PublicKey ex", e);
+            throw new CryptoException("Get PublicKey ex", e);
         }
     }
 
@@ -211,7 +211,7 @@ public final class RSAUtils {
             return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
         } catch (Exception e) {
             LOGGER.error("getPrivateKey ex modulus={}, exponent={}", modulus, exponent, e);
-            throw new RuntimeException("Get PrivateKey ex", e);
+            throw new CryptoException("Get PrivateKey ex", e);
         }
     }
 
@@ -234,7 +234,7 @@ public final class RSAUtils {
             return doFinal(cipher, data, key_len - 11);
         } catch (Exception e) {
             LOGGER.error("encryptByPublicKey ex", e);
-            throw new RuntimeException("RSA encrypt ex", e);
+            throw new CryptoException("RSA encrypt ex", e);
         }
     }
 
@@ -256,7 +256,7 @@ public final class RSAUtils {
             return doFinal(cipher, data, key_len);
         } catch (Exception e) {
             LOGGER.error("decryptByPrivateKey ex", e);
-            throw new RuntimeException("RSA decrypt ex", e);
+            throw new CryptoException("RSA decrypt ex", e);
         }
     }
 

@@ -30,13 +30,11 @@ import com.mpush.common.message.HandshakeMessage;
 import com.mpush.common.message.HandshakeOkMessage;
 import com.mpush.common.security.AesCipher;
 import com.mpush.common.security.CipherBox;
-import com.mpush.tools.config.ConfigManager;
 import com.mpush.core.session.ReusableSession;
 import com.mpush.core.session.ReusableSessionManager;
-import com.mpush.tools.log.Logs;
+import com.mpush.tools.config.ConfigManager;
 import com.mpush.tools.event.EventBus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.mpush.tools.log.Logs;
 
 /**
  * Created by ohun on 2015/12/24.
@@ -44,7 +42,6 @@ import org.slf4j.LoggerFactory;
  * @author ohun@live.cn
  */
 public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage> {
-    public static final Logger LOGGER = LoggerFactory.getLogger(HandshakeHandler.class);
 
     @Override
     public HandshakeMessage decode(Packet packet, Connection connection) {
@@ -64,14 +61,14 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
                 || iv.length != CipherBox.I.getAesKeyLength()
                 || clientKey.length != CipherBox.I.getAesKeyLength()) {
             ErrorMessage.from(message).setReason("Param invalid").close();
-            Logs.Conn.info("client handshake false:{}", message.getConnection());
+            Logs.Conn.info("handshake failure, message={}", message.toString());
             return;
         }
 
         //2.重复握手判断
         SessionContext context = message.getConnection().getSessionContext();
         if (message.deviceId.equals(context.deviceId)) {
-            Logs.Conn.info("client handshake false for repeat handshake:{}", message.getConnection().getSessionContext());
+            Logs.Conn.info("handshake failure, repeat handshake, session={}", message.getConnection().getSessionContext());
             return;
         }
 
@@ -108,6 +105,6 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
 
         //10.触发握手成功事件
         EventBus.I.post(new HandshakeEvent(message.getConnection(), heartbeat));
-        Logs.Conn.info("client handshake success:{}", context);
+        Logs.Conn.info("handshake success, session={}", context);
     }
 }

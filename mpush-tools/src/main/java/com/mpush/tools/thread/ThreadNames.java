@@ -26,26 +26,28 @@ public final class ThreadNames {
     /**
      * netty boss 线程
      */
-    public static final String NETTY_BOSS = NS + "-boss-";
+    public static final String T_SERVER_BOSS = NS + "-boss-";
 
     /**
      * netty worker 线程
      */
-    public static final String NETTY_WORKER = NS + "-worker-";
+    public static final String T_SERVER_WORKER = NS + "-worker-";
 
-    public static final String NETTY_HTTP = NS + "-http-";
+    public static final String T_HTTP_CLIENT = NS + "-http-";
 
-    public static final String EVENT_BUS = NS + "-event-";
+    public static final String T_EVENT_BUS = NS + "-event-";
 
-    public static final String REDIS = NS + "-redis-";
+    public static final String T_MQ = NS + "-mq-";
 
-    public static final String ZK = NS + "-zk-";
+    public static final String T_ZK = NS + "-zk-";
 
-    public static final String BIZ = NS + "-biz-";
+    public static final String T_BIZ = NS + "-biz-";
+    public static final String T_PUSH_CALLBACK = NS + "-push-cb-";
+    public static final String T_PUSH_REQ_TIMER = NS + "-push-timer-";
 
     /**
      * connection 定期检测线程
      */
-    public static final String NETTY_TIMER = NS + "-timer-";
+    public static final String T_NETTY_TIMER = NS + "-timer-";
 
 }

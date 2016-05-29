@@ -17,7 +17,7 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.tools;
+package com.mpush.tools.common;
 
 /**
  * Created by ohun on 2015/12/23.

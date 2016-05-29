@@ -17,7 +17,7 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.tools;
+package com.mpush.tools.common;
 
 import com.mpush.api.Constants;
 import org.slf4j.Logger;
@@ -49,9 +49,9 @@ public final class IOUtils {
     }
 
     public static byte[] compress(byte[] data) {
-    	
-    	Profiler.enter("start compress");
-    	
+
+        Profiler.enter("start compress");
+
         ByteArrayOutputStream out = new ByteArrayOutputStream(data.length / 4);
         DeflaterOutputStream zipOut = new DeflaterOutputStream(out);
         try {
@@ -68,8 +68,8 @@ public final class IOUtils {
         return out.toByteArray();
     }
 
-    public static byte[] uncompress(byte[] data) {
-    	Profiler.enter("start uncompress");
+    public static byte[] decompress(byte[] data) {
+        Profiler.enter("start decompress");
         InflaterInputStream zipIn = new InflaterInputStream(new ByteArrayInputStream(data));
         ByteArrayOutputStream out = new ByteArrayOutputStream(data.length * 4);
         byte[] buffer = new byte[1024];
@@ -79,7 +79,7 @@ public final class IOUtils {
                 out.write(buffer, 0, length);
             }
         } catch (IOException e) {
-            LOGGER.error("uncompress ex", e);
+            LOGGER.error("decompress ex", e);
             return Constants.EMPTY_BYTES;
         } finally {
             close(zipIn);

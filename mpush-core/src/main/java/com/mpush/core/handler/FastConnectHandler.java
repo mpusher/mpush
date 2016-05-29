@@ -25,12 +25,10 @@ import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.ErrorMessage;
 import com.mpush.common.message.FastConnectMessage;
 import com.mpush.common.message.FastConnectOkMessage;
-import com.mpush.tools.config.ConfigManager;
 import com.mpush.core.session.ReusableSession;
 import com.mpush.core.session.ReusableSessionManager;
+import com.mpush.tools.config.ConfigManager;
 import com.mpush.tools.log.Logs;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by ohun on 2015/12/25.
@@ -38,7 +36,6 @@ import org.slf4j.LoggerFactory;
  * @author ohun@live.cn
  */
 public final class FastConnectHandler extends BaseMessageHandler<FastConnectMessage> {
-    public static final Logger LOGGER = LoggerFactory.getLogger(FastConnectHandler.class);
 
     @Override
     public FastConnectMessage decode(Packet packet, Connection connection) {
@@ -53,11 +50,13 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
         if (session == null) {
             //1.没查到说明session已经失效了
             ErrorMessage.from(message).setReason("session expired").send();
-            Logs.Conn.info("fast connect failure, session is expired, sessionId={}, deviceId={}", message.sessionId, message.deviceId);
+            Logs.Conn.info("fast connect failure, session is expired, sessionId={}, deviceId={}"
+                    , message.sessionId, message.deviceId);
         } else if (!session.context.deviceId.equals(message.deviceId)) {
             //2.非法的设备, 当前设备不是上次生成session时的设备
             ErrorMessage.from(message).setReason("invalid device").send();
-            Logs.Conn.info("fast connect failure, not the same device, deviceId={}, session={}", message.deviceId, session.context);
+            Logs.Conn.info("fast connect failure, not the same device, deviceId={}, session={}"
+                    , message.deviceId, session.context);
         } else {
             //3.校验成功，重新计算心跳，完成快速重连
             int heartbeat = ConfigManager.I.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);

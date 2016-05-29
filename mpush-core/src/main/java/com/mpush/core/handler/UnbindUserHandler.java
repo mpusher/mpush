@@ -20,8 +20,6 @@
 package com.mpush.core.handler;
 
 import com.google.common.base.Strings;
-import com.mpush.core.router.LocalRouterManager;
-import com.mpush.core.router.RouterCenter;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.event.UserOfflineEvent;
@@ -33,8 +31,10 @@ import com.mpush.common.message.OkMessage;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.router.RemoteRouterManager;
 import com.mpush.core.router.LocalRouter;
-import com.mpush.tools.log.Logs;
+import com.mpush.core.router.LocalRouterManager;
+import com.mpush.core.router.RouterCenter;
 import com.mpush.tools.event.EventBus;
+import com.mpush.tools.log.Logs;
 
 
 /**

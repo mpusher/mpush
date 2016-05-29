@@ -22,8 +22,8 @@ package com.mpush.core.router;
 import com.google.common.eventbus.Subscribe;
 import com.mpush.api.event.UserOfflineEvent;
 import com.mpush.api.event.UserOnlineEvent;
-import com.mpush.common.user.UserManager;
 import com.mpush.cache.redis.manager.RedisManager;
+import com.mpush.common.user.UserManager;
 import com.mpush.tools.event.EventBus;
 
 /**
@@ -42,13 +42,13 @@ public final class UserOnlineOfflineListener {
     }
 
     @Subscribe
-    void onUserOnline(UserOnlineEvent event) {
+    void on(UserOnlineEvent event) {
         UserManager.INSTANCE.recordUserOnline(event.getUserId());
         RedisManager.I.publish(ONLINE_CHANNEL, event.getUserId());
     }
 
     @Subscribe
-    void onUserOffline(UserOfflineEvent event) {
+    void on(UserOfflineEvent event) {
         UserManager.INSTANCE.recordUserOffline(event.getUserId());
         RedisManager.I.publish(OFFLINE_CHANNEL, event.getUserId());
     }

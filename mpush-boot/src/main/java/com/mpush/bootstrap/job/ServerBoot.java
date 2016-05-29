@@ -19,9 +19,10 @@
 
 package com.mpush.bootstrap.job;
 
-import com.mpush.api.Server;
-import com.mpush.tools.log.Logs;
+import com.mpush.api.service.Listener;
+import com.mpush.api.service.Server;
 import com.mpush.tools.Jsons;
+import com.mpush.tools.log.Logs;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import com.mpush.zk.ZKClient;
 import com.mpush.zk.node.ZKServerNode;
@@ -47,7 +48,7 @@ public class ServerBoot extends BootJob {
             @Override
             public void run() {
                 server.init();
-                server.start(new Server.Listener() {
+                server.start(new Listener() {
                     @Override
                     public void onSuccess(Object... args) {
                         Logs.Console.error("start " + serverName + " success listen:" + args[0]);

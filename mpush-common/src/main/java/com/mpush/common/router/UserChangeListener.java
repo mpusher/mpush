@@ -22,7 +22,7 @@ package com.mpush.common.router;
 import com.mpush.cache.redis.listener.ListenerDispatcher;
 import com.mpush.cache.redis.listener.MessageListener;
 import com.mpush.cache.redis.manager.RedisManager;
-import com.mpush.tools.MPushUtil;
+import com.mpush.tools.Utils;
 import com.mpush.tools.event.EventConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +42,11 @@ public class UserChangeListener extends EventConsumer implements MessageListener
 
     //只需要一台机器注册online、offline 消息通道
     public UserChangeListener() {
-        if ("127.0.0.1".equals(MPushUtil.getLocalIp())) {
+        if ("127.0.0.1".equals(Utils.getLocalIp())) {
             ListenerDispatcher.I.subscribe(getOnlineChannel(), this);
             ListenerDispatcher.I.subscribe(getOfflineChannel(), this);
         } else {
-            LOGGER.error("UserChangeListener is not localhost,required:{}, but:{}", "127.0.0.1", MPushUtil.getLocalIp());
+            LOGGER.error("UserChangeListener is not localhost,required:{}, but:{}", "127.0.0.1", Utils.getLocalIp());
         }
     }
 

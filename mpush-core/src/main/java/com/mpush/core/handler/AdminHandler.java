@@ -20,14 +20,14 @@
 package com.mpush.core.handler;
 
 import com.google.common.base.Strings;
-import com.mpush.api.Service;
+import com.mpush.api.service.Listener;
 import com.mpush.cache.redis.RedisKey;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.core.router.RouterCenter;
 import com.mpush.core.server.AdminServer;
 import com.mpush.tools.Jsons;
-import com.mpush.tools.MPushUtil;
+import com.mpush.tools.Utils;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.config.ConfigManager;
 import com.mpush.zk.ZKClient;
@@ -76,7 +76,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.write("welcome to " + MPushUtil.getInetAddress() + "!" + EOL);
+        ctx.write("welcome to " + Utils.getInetAddress() + "!" + EOL);
         ctx.write("It is " + new Date() + " now." + EOL + EOL);
         ctx.flush();
     }
@@ -101,6 +101,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
                 buf.append("count:<conn, online>                 count conn num or online user count" + EOL);
                 buf.append("route:<uid>                          show user route info" + EOL);
                 buf.append("conf:[key]                           show config info" + EOL);
+                buf.append("monitor:[mxBean]                     show system monitor" + EOL);
                 return buf.toString();
             }
         },
@@ -114,7 +115,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
             @Override
             public String handler(ChannelHandlerContext ctx, String args) {
                 ctx.writeAndFlush("try close connect server...");
-                adminServer.getConnectionServer().stop(new Service.Listener() {
+                adminServer.getConnectionServer().stop(new Listener() {
                     @Override
                     public void onSuccess(Object... args) {
                         ctx.writeAndFlush("connect server close success" + EOL);
@@ -167,7 +168,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
                     case "conn":
                         return adminServer.getConnectionServer().getConnectionManager().getConnections().size();
                     case "online": {
-                        Long value = RedisManager.I.zCard(RedisKey.getUserOnlineKey(MPushUtil.getExtranetAddress()));
+                        Long value = RedisManager.I.zCard(RedisKey.getUserOnlineKey(Utils.getExtranetAddress()));
                         return value == null ? 0 : value;
                     }
 
@@ -212,13 +213,13 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
                         LOGGER.info("delete connection server success:{}", data);
                         removeSuccess = true;
                     } else {
-                        LOGGER.info("delete connection server failed: required host:{}, but:{}", serverNode.getIp(), MPushUtil.getInetAddress());
+                        LOGGER.info("delete connection server failed: required host:{}, but:{}", serverNode.getIp(), Utils.getInetAddress());
                     }
                 }
                 if (removeSuccess) {
-                    return "remove success.";
+                    return "removeAndClose success.";
                 } else {
-                    return "remove false.";
+                    return "removeAndClose false.";
                 }
             }
         };

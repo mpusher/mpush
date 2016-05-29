@@ -20,8 +20,12 @@
 package com.mpush.common.security;
 
 import com.mpush.api.connection.Cipher;
-import com.mpush.tools.Profiler;
 import com.mpush.tools.crypto.AESUtils;
+
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import static com.mpush.tools.crypto.AESUtils.KEY_ALGORITHM;
 
 
 /**
@@ -32,30 +36,25 @@ import com.mpush.tools.crypto.AESUtils;
 public final class AesCipher implements Cipher {
     public final byte[] key;
     public final byte[] iv;
+    private final IvParameterSpec zeroIv;
+    private final SecretKeySpec keySpec;
 
     public AesCipher(byte[] key, byte[] iv) {
         this.key = key;
         this.iv = iv;
+        this.zeroIv = new IvParameterSpec(iv);
+        this.keySpec = new SecretKeySpec(key, KEY_ALGORITHM);
+    }
+
+
+    @Override
+    public byte[] encrypt(byte[] data) {
+        return AESUtils.encrypt(data, zeroIv, keySpec);
     }
 
     @Override
     public byte[] decrypt(byte[] data) {
-        try {
-            Profiler.enter("start aes decrypt");
-            return AESUtils.decrypt(data, key, iv);
-        } finally {
-            Profiler.release();
-        }
-    }
-
-    @Override
-    public byte[] encrypt(byte[] data) {
-        try {
-            Profiler.enter("start encrypt");
-            return AESUtils.encrypt(data, key, iv);
-        } finally {
-            Profiler.release();
-        }
+        return AESUtils.decrypt(data, zeroIv, keySpec);
     }
 
     @Override

@@ -29,35 +29,37 @@ import io.netty.util.TimerTask;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RequestInfo implements TimerTask, HttpCallback {
+public class RequestContext implements TimerTask, HttpCallback {
     private static final int TIMEOUT = CC.mp.http.default_read_timeout;
     final AtomicBoolean cancelled = new AtomicBoolean(false);
     final long startTime = System.currentTimeMillis();
+    final int readTimeout;
     long endTime = startTime;
-    int readTimeout = TIMEOUT;
     private String uri;
     private HttpCallback callback;
     FullHttpRequest request;
     String host;
 
-    public RequestInfo(FullHttpRequest request, HttpCallback callback) {
+    public RequestContext(FullHttpRequest request, HttpCallback callback) {
         this.callback = callback;
         this.request = request;
         this.uri = request.uri();
+        this.readTimeout = parseTimeout();
+    }
+
+    private int parseTimeout() {
         String timeout = request.headers().getAndRemoveAndConvert(Constants.HTTP_HEAD_READ_TIMEOUT);
         if (timeout != null) {
             Integer integer = Ints.tryParse(timeout);
-            if (integer != null && integer > 0) readTimeout = integer;
+            if (integer != null && integer > 0) {
+                return integer;
+            }
         }
+        return TIMEOUT;
     }
 
     public int getReadTimeout() {
         return readTimeout;
-    }
-
-    public RequestInfo setReadTimeout(int timeout) {
-        this.readTimeout = timeout;
-        return this;
     }
 
     @Override
@@ -69,6 +71,11 @@ public class RequestInfo implements TimerTask, HttpCallback {
         }
     }
 
+    /**
+     * 由于检测请求超时的任务存在，为了防止多线程下重复处理
+     *
+     * @return
+     */
     public boolean tryDone() {
         return cancelled.compareAndSet(false, true);
     }

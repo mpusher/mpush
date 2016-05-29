@@ -36,14 +36,13 @@ import java.util.concurrent.locks.LockSupport;
 public class PushClientTestMain {
     public static void main(String[] args) throws Exception {
         Logs.init();
-        PushSender sender = PushSender.factory.get();
-        sender.start();
-        Thread.sleep(1000);
-        for (int i = 0; i < 100; i++) {
+        PushSender sender = PushSender.create();
+        sender.start().get();
+        for (int i = 0; i < 10000; i++) {
             PushContent content = PushContent.build(PushType.MESSAGE, "this a first push." + i);
             content.setMsgId("msgId_" + (i % 2));
-
-            sender.send(Jsons.toJson(content), Arrays.asList("doctor43test", "user-0", "huang"), new PushSender.Callback() {
+            //Thread.sleep(1000);
+            sender.send(Jsons.toJson(content), Arrays.asList("user-0"), new PushSender.Callback() {
                 @Override
                 public void onSuccess(String userId) {
                     System.err.println("push onSuccess userId=" + userId);
@@ -64,7 +63,6 @@ public class PushClientTestMain {
                     System.err.println("push onTimeout userId=" + userId);
                 }
             });
-            Thread.sleep(10000);
         }
         LockSupport.park();
     }

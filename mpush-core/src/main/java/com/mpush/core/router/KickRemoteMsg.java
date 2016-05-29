@@ -25,12 +25,12 @@ package com.mpush.core.router;
  * @author ohun@live.cn
  */
 public final class KickRemoteMsg {
-	public String userId;
-	public String deviceId;
-	public String targetServer;
+    public String userId;
+    public String deviceId;
+    public String targetServer;
 
-	@Override
-	public String toString() {
-		return "KickRemoteMsg{" + "userId='" + userId + '\'' + ", deviceId='" + deviceId + '\'' + ", targetServer='" + targetServer + '\'' + '}';
-	}
+    @Override
+    public String toString() {
+        return "KickRemoteMsg{" + "userId='" + userId + '\'' + ", deviceId='" + deviceId + '\'' + ", targetServer='" + targetServer + '\'' + '}';
+    }
 }

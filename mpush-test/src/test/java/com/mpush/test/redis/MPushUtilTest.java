@@ -19,14 +19,14 @@
 
 package com.mpush.test.redis;
 
-import com.mpush.tools.MPushUtil;
+import com.mpush.tools.Utils;
 import org.junit.Test;
 
 public class MPushUtilTest {
-	
-	@Test
-	public void getIp() throws Exception{
-		System.out.println(MPushUtil.getExtranetAddress());
-	}
+
+    @Test
+    public void getIp() throws Exception {
+        System.out.println(Utils.getExtranetAddress());
+    }
 
 }

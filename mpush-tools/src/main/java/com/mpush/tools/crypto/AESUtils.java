@@ -28,6 +28,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 /**
  * Created by ohun on 2015/12/25.
@@ -58,26 +59,38 @@ public final class AESUtils {
     public static byte[] encrypt(byte[] data, byte[] encryptKey, byte[] iv) {
         IvParameterSpec zeroIv = new IvParameterSpec(iv);
         SecretKeySpec key = new SecretKeySpec(encryptKey, KEY_ALGORITHM);
-        try {
-            Cipher cipher = Cipher.getInstance(KEY_ALGORITHM_PADDING);
-            cipher.init(Cipher.ENCRYPT_MODE, key, zeroIv);
-            return cipher.doFinal(data);
-        } catch (Exception e) {
-            LOGGER.error("encrypt ex, decryptKey=" + encryptKey, e);
-            throw new RuntimeException("AES encrypt ex", e);
-        }
+        return encrypt(data, zeroIv, key);
     }
 
     public static byte[] decrypt(byte[] data, byte[] decryptKey, byte[] iv) {
         IvParameterSpec zeroIv = new IvParameterSpec(iv);
         SecretKeySpec key = new SecretKeySpec(decryptKey, KEY_ALGORITHM);
+        return decrypt(data, zeroIv, key);
+    }
+
+    public static byte[] encrypt(byte[] data, IvParameterSpec zeroIv, SecretKeySpec keySpec) {
         try {
             Cipher cipher = Cipher.getInstance(KEY_ALGORITHM_PADDING);
-            cipher.init(Cipher.DECRYPT_MODE, key, zeroIv);
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec, zeroIv);
             return cipher.doFinal(data);
         } catch (Exception e) {
-            LOGGER.error("decrypt ex, decryptKey=" + decryptKey, e);
-            throw new RuntimeException("AES decrypt ex", e);
+            LOGGER.error("AES encrypt ex, iv={}, key={}",
+                    Arrays.toString(zeroIv.getIV()),
+                    Arrays.toString(keySpec.getEncoded()), e);
+            throw new CryptoException("AES encrypt ex", e);
+        }
+    }
+
+    public static byte[] decrypt(byte[] data, IvParameterSpec zeroIv, SecretKeySpec keySpec) {
+        try {
+            Cipher cipher = Cipher.getInstance(KEY_ALGORITHM_PADDING);
+            cipher.init(Cipher.DECRYPT_MODE, keySpec, zeroIv);
+            return cipher.doFinal(data);
+        } catch (Exception e) {
+            LOGGER.error("AES decrypt ex, iv={}, key={}",
+                    Arrays.toString(zeroIv.getIV()),
+                    Arrays.toString(keySpec.getEncoded()), e);
+            throw new CryptoException("AES decrypt ex", e);
         }
     }
 }

@@ -21,7 +21,7 @@ package com.mpush.common.message;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
-import com.mpush.tools.MPushUtil;
+import com.mpush.tools.Utils;
 import io.netty.buffer.ByteBuf;
 
 import java.util.HashMap;
@@ -46,7 +46,7 @@ public class HttpResponseMessage extends ByteBufMessage {
     public void decode(ByteBuf body) {
         statusCode = decodeInt(body);
         reasonPhrase = decodeString(body);
-        headers = MPushUtil.headerFromString(decodeString(body));
+        headers = Utils.headerFromString(decodeString(body));
         this.body = decodeBytes(body);
     }
 
@@ -54,7 +54,7 @@ public class HttpResponseMessage extends ByteBufMessage {
     public void encode(ByteBuf body) {
         encodeInt(body, statusCode);
         encodeString(body, reasonPhrase);
-        encodeString(body, MPushUtil.headerToString(headers));
+        encodeString(body, Utils.headerToString(headers));
         encodeBytes(body, this.body);
     }
 
