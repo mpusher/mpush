@@ -27,9 +27,7 @@ import com.mpush.api.service.Listener;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.client.gateway.GatewayClientFactory;
 import com.mpush.zk.ZKClient;
-import com.mpush.zk.ZKPath;
 import com.mpush.zk.listener.ZKServerNodeWatcher;
-import com.sun.istack.internal.NotNull;
 
 import java.util.Collection;
 
@@ -68,14 +66,14 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
     }
 
     @Override
-    protected void doStart(@NotNull Listener listener) throws Throwable {
+    protected void doStart(Listener listener) throws Throwable {
         ZKClient.I.start(listener);
         RedisManager.I.init();
         ZKServerNodeWatcher.build(GATEWAY_SERVER, factory).beginWatch();
     }
 
     @Override
-    protected void doStop(@NotNull Listener listener) throws Throwable {
+    protected void doStop(Listener listener) throws Throwable {
         factory.clear();
         ZKClient.I.stop(listener);
     }

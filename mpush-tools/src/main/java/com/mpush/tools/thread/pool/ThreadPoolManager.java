@@ -28,10 +28,12 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static com.mpush.tools.config.CC.mp.spi.thread_pool_factory;
+
 public class ThreadPoolManager {
     public static final ThreadPoolManager I = new ThreadPoolManager();
 
-    private final ThreadPoolFactory threadPoolFactory = SpiLoader.load(ThreadPoolFactory.class);
+    private final ThreadPoolFactory threadPoolFactory = SpiLoader.load(ThreadPoolFactory.class, thread_pool_factory);
     private final NamedThreadFactory threadFactory = new NamedThreadFactory();
 
     private Executor bossExecutor;
@@ -125,9 +127,9 @@ public class ThreadPoolManager {
         Map<String, Object> info = new HashMap<>();
         info.put("corePoolSize", executor.getCorePoolSize());
         info.put("maximumPoolSize", executor.getMaximumPoolSize());
-        info.put("activeCount[workingThread]", executor.getActiveCount());
-        info.put("poolSize[workThread]", executor.getPoolSize());
-        info.put("queueSize[blockTask]", executor.getQueue().size());
+        info.put("activeCount(workingThread)", executor.getActiveCount());
+        info.put("poolSize(workThread)", executor.getPoolSize());
+        info.put("queueSize(blockedTask)", executor.getQueue().size());
         return info;
     }
 }

@@ -20,14 +20,13 @@
 package com.mpush.monitor.quota.impl;
 
 import com.google.common.collect.Maps;
-import com.mpush.monitor.quota.BaseQuota;
 import com.mpush.monitor.quota.ThreadQuota;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.util.Map;
 
-public class JVMThread extends BaseQuota implements ThreadQuota {
+public class JVMThread implements ThreadQuota {
 
     private ThreadMXBean threadMXBean;
 
@@ -66,7 +65,7 @@ public class JVMThread extends BaseQuota implements ThreadQuota {
     }
 
     @Override
-    public Map<String, Object> toMap() {
+    public Object monitor(Object... args) {
         Map<String, Object> map = Maps.newHashMap();
         map.put("daemonThreadCount", daemonThreadCount());
         map.put("threadCount", threadCount());
@@ -74,6 +73,4 @@ public class JVMThread extends BaseQuota implements ThreadQuota {
         map.put("deadLockedThreadCount", deadLockedThreadCount());
         return map;
     }
-
-
 }

@@ -29,13 +29,13 @@ import com.mpush.monitor.quota.impl.*;
 public class ResultCollector {
 
     public MonitorResult collect() {
-        MonitorResult data = new MonitorResult();
-        data.setInfoMap(JVMInfo.I.toMap());
-        data.setGcMap(JVMGC.I.toMap());
-        data.setMemoryMap(JVMMemory.I.toMap());
-        data.setThreadMap(JVMThread.I.toMap());
-        data.setThreadPoolMap(JVMThreadPool.I.toMap());
-        return data;
+        MonitorResult result = new MonitorResult();
+        result.addResult("jvm-info", JVMInfo.I.monitor());
+        result.addResult("jvm-gc", JVMGC.I.monitor());
+        result.addResult("jvm-memory", JVMMemory.I.monitor());
+        result.addResult("jvm-thread", JVMThread.I.monitor());
+        result.addResult("jvm-thread-pool", JVMThreadPool.I.monitor());
+        return result;
     }
 
 }

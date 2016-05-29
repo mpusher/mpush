@@ -71,7 +71,8 @@ public final class SpiLoader {
         } else {
             while (it.hasNext()) {
                 T t = it.next();
-                if (name.equals(t.getClass().getSimpleName())) {
+                if (name.equals(t.getClass().getName()) ||
+                        name.equals(t.getClass().getSimpleName())) {
                     return t;
                 }
             }

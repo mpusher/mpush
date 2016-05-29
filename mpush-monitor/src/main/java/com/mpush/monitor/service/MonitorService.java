@@ -24,22 +24,22 @@ import com.mpush.api.service.Listener;
 import com.mpush.monitor.data.MonitorResult;
 import com.mpush.monitor.data.ResultCollector;
 import com.mpush.monitor.quota.impl.JVMInfo;
-import com.mpush.tools.Jsons;
 import com.mpush.tools.common.JVMUtil;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
-import com.sun.istack.internal.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
 public class MonitorService extends BaseService implements Runnable {
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     public static final MonitorService I = new MonitorService();
 
     private static final int firstJstack = 2, secondJstack = 4, thirdJstack = 6, firstJmap = 4;
 
     private static final String dumpLogDir = CC.mp.monitor.dump_dir;
-    private static final boolean enableDump = CC.mp.monitor.dump_stack;
+    private static final boolean dumpEnabled = CC.mp.monitor.dump_stack;
     private static final boolean printLog = CC.mp.monitor.print_log;
     private static final long dumpPeriod = CC.mp.monitor.dump_period.getSeconds();
 
@@ -52,14 +52,17 @@ public class MonitorService extends BaseService implements Runnable {
 
     @Override
     public void run() {
-        while (started.get()) {
+        while (isRunning()) {
             MonitorResult result = collector.collect();
+
             if (printLog) {
-                Logs.Monitor.info(Jsons.toJson(result));
+                Logs.Monitor.info(result.toJson());
             }
-            if (enableDump) {
+
+            if (dumpEnabled) {
                 dump();
             }
+
             try {
                 TimeUnit.SECONDS.sleep(dumpPeriod);
             } catch (InterruptedException e) {
@@ -69,16 +72,16 @@ public class MonitorService extends BaseService implements Runnable {
     }
 
     @Override
-    protected void doStart(@NotNull Listener listener) throws Throwable {
-        if (CC.mp.monitor.print_log || enableDump) {
+    protected void doStart(Listener listener) throws Throwable {
+        if (printLog || dumpEnabled) {
             Thread thread = new Thread(this, "mp-t-monitor");
             thread.start();
         }
     }
 
     @Override
-    protected void doStop(@NotNull Listener listener) throws Throwable {
-
+    protected void doStop(Listener listener) throws Throwable {
+        logger.error("monitor service stopped!");
     }
 
     private void dump() {

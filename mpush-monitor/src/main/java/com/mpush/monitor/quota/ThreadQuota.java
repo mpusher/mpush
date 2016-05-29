@@ -20,14 +20,14 @@
 package com.mpush.monitor.quota;
 
 
-public interface ThreadQuota {
+public interface ThreadQuota extends MonitorQuota {
 
-    public int daemonThreadCount();
+    int daemonThreadCount();
 
-    public int threadCount();
+    int threadCount();
 
-    public long totalStartedThreadCount();
+    long totalStartedThreadCount();
 
-    public int deadLockedThreadCount();
+    int deadLockedThreadCount();
 
 }

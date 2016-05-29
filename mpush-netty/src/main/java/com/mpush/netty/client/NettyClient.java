@@ -25,7 +25,6 @@ import com.mpush.api.service.Listener;
 import com.mpush.api.service.ServiceException;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
-import com.sun.istack.internal.NotNull;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -105,12 +104,12 @@ public abstract class NettyClient extends BaseService implements Client {
     public abstract ChannelHandler getChannelHandler();
 
     @Override
-    protected void doStart(@NotNull Listener listener) throws Throwable {
+    protected void doStart(Listener listener) throws Throwable {
 
     }
 
     @Override
-    protected void doStop(@NotNull Listener listener) throws Throwable {
+    protected void doStop(Listener listener) throws Throwable {
         if (workerGroup != null) {
             workerGroup.shutdownGracefully();
         }

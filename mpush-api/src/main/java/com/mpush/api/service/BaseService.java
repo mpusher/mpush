@@ -19,8 +19,6 @@
 
 package com.mpush.api.service;
 
-import com.sun.istack.internal.NotNull;
-
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,7 +42,7 @@ public abstract class BaseService implements Service {
     }
 
     protected void tryStart(Listener listener, Function function) {
-        listener = new FutureListener(listener);
+        listener = wrap(listener);
         if (started.compareAndSet(false, true)) {
             try {
                 init();
@@ -52,6 +50,7 @@ public abstract class BaseService implements Service {
                 listener.onSuccess("service " + this.getClass().getSimpleName() + " start success");
             } catch (Throwable e) {
                 listener.onFailure(e);
+                throw new ServiceException(e);
             }
         } else {
             listener.onFailure(new ServiceException("service already started."));
@@ -59,13 +58,14 @@ public abstract class BaseService implements Service {
     }
 
     protected void tryStop(Listener listener, Function function) {
-        listener = new FutureListener(listener);
+        listener = wrap(listener);
         if (started.compareAndSet(true, false)) {
             try {
                 function.apply(listener);
                 listener.onSuccess("service " + this.getClass().getSimpleName() + " stop success");
             } catch (Throwable e) {
                 listener.onFailure(e);
+                throw new ServiceException(e);
             }
         } else {
             listener.onFailure(new ServiceException("service already stopped."));
@@ -73,13 +73,13 @@ public abstract class BaseService implements Service {
     }
 
     public final Future<Boolean> start() {
-        FutureListener listener = new FutureListener(null);
+        FutureListener listener = new FutureListener();
         start(listener);
         return listener;
     }
 
     public final Future<Boolean> stop() {
-        FutureListener listener = new FutureListener(null);
+        FutureListener listener = new FutureListener();
         stop(listener);
         return listener;
     }
@@ -94,16 +94,33 @@ public abstract class BaseService implements Service {
         tryStop(listener, this::doStop);
     }
 
-    protected abstract void doStart(@NotNull Listener listener) throws Throwable;
+    protected abstract void doStart(Listener listener) throws Throwable;
 
-    protected abstract void doStop(@NotNull Listener listener) throws Throwable;
+    protected abstract void doStop(Listener listener) throws Throwable;
 
     protected interface Function {
-        void apply(@NotNull Listener l) throws Throwable;
+        void apply(Listener l) throws Throwable;
+    }
+
+    /**
+     * 防止Listener被重复执行
+     *
+     * @param l
+     * @return
+     */
+    public FutureListener wrap(Listener l) {
+        if (l == null) return new FutureListener();
+        if (l instanceof FutureListener) return (FutureListener) l;
+        return new FutureListener(l);
     }
 
     protected class FutureListener extends FutureTask<Boolean> implements Listener {
-        private final Listener l;
+        private final Listener l;// 防止Listener被重复执行
+
+        public FutureListener() {
+            super(BaseService.this::isRunning);
+            this.l = null;
+        }
 
         public FutureListener(Listener l) {
             super(BaseService.this::isRunning);
@@ -112,14 +129,14 @@ public abstract class BaseService implements Service {
 
         @Override
         public void onSuccess(Object... args) {
-            if (isDone()) return;
+            if (isDone()) return;// 防止Listener被重复执行
             set(started.get());
             if (l != null) l.onSuccess(args);
         }
 
         @Override
         public void onFailure(Throwable cause) {
-            if (isDone()) return;
+            if (isDone()) return;// 防止Listener被重复执行
             set(started.get());
             setException(cause);
             if (l != null) l.onFailure(cause);

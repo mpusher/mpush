@@ -19,9 +19,9 @@
 
 package com.mpush.monitor.quota;
 
-public interface InfoQuota {
+public interface InfoQuota extends MonitorQuota {
 
-    public String pid();
+    String pid();
 
-    public double load();
+    double load();
 }

@@ -19,7 +19,7 @@
 
 package com.mpush.monitor.quota;
 
-public interface MemoryQuota {
+public interface MemoryQuota extends MonitorQuota {
 
     // Heap
     long heapMemoryCommitted();
