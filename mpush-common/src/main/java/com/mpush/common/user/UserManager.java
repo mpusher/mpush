@@ -21,7 +21,7 @@ package com.mpush.common.user;
 
 import com.mpush.cache.redis.RedisKey;
 import com.mpush.cache.redis.manager.RedisManager;
-import com.mpush.tools.Utils;
+import com.mpush.tools.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +30,9 @@ import java.util.List;
 //查询使用
 public final class UserManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
-    public static final UserManager INSTANCE = new UserManager();
+    public static final UserManager I = new UserManager();
 
-    private final String ONLINE_KEY = RedisKey.getUserOnlineKey(Utils.getExtranetAddress());
+    private final String ONLINE_KEY = RedisKey.getUserOnlineKey(ConfigManager.I.getPublicIp());
 
     public UserManager() {
         clearUserOnlineData();
@@ -54,7 +54,8 @@ public final class UserManager {
 
     //在线用户
     public long getOnlineUserNum() {
-        return RedisManager.I.zCard(ONLINE_KEY);
+        Long value = RedisManager.I.zCard(ONLINE_KEY);
+        return value == null ? 0 : value;
     }
 
     //在线用户列表

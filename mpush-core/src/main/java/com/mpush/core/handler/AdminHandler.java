@@ -21,9 +21,8 @@ package com.mpush.core.handler;
 
 import com.google.common.base.Strings;
 import com.mpush.api.service.Listener;
-import com.mpush.cache.redis.RedisKey;
-import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.common.router.RemoteRouter;
+import com.mpush.common.user.UserManager;
 import com.mpush.core.router.RouterCenter;
 import com.mpush.core.server.AdminServer;
 import com.mpush.tools.Jsons;
@@ -168,8 +167,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
                     case "conn":
                         return adminServer.getConnectionServer().getConnectionManager().getConnections().size();
                     case "online": {
-                        Long value = RedisManager.I.zCard(RedisKey.getUserOnlineKey(Utils.getExtranetAddress()));
-                        return value == null ? 0 : value;
+                        return UserManager.I.getOnlineUserNum();
                     }
 
                 }

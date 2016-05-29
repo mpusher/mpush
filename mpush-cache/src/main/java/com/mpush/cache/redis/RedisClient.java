@@ -28,6 +28,8 @@ import redis.clients.jedis.*;
 
 import java.util.*;
 
+import static redis.clients.jedis.Protocol.DEFAULT_TIMEOUT;
+
 public class RedisClient {
     public static final JedisPoolConfig CONFIG = buildConfig();
     private static final Map<RedisServer, JedisPool> POOL_MAP = Maps.newConcurrentMap();
@@ -60,7 +62,7 @@ public class RedisClient {
     public static Jedis getClient(RedisServer node) {
         JedisPool pool = POOL_MAP.get(node);
         if (pool == null) {
-            pool = new JedisPool(CONFIG, node.getHost(), node.getPort(), Protocol.DEFAULT_TIMEOUT, node.getPassword());
+            pool = new JedisPool(CONFIG, node.getHost(), node.getPort(), DEFAULT_TIMEOUT, node.getPassword());
             POOL_MAP.put(node, pool);
         }
         return pool.getResource();

@@ -25,7 +25,7 @@ public class Main {
 
     public static void main(String[] args) {
         Logs.init();
-        Logs.Console.error("launch app...");
+        Logs.Console.error("launch mpush server...");
         ServerLauncher launcher = new ServerLauncher();
         launcher.start();
         addHook(launcher);
@@ -39,5 +39,4 @@ public class Main {
             }
         });
     }
-
 }

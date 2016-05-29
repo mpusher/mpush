@@ -22,7 +22,6 @@ package com.mpush.zk;
 import com.mpush.api.Constants;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
-import com.mpush.tools.Utils;
 import com.mpush.tools.log.Logs;
 import com.mpush.zk.listener.ZKNodeCacheWatcher;
 import org.apache.curator.framework.CuratorFramework;
@@ -123,11 +122,7 @@ public class ZKClient extends BaseService {
             //TODO need close jvm?
             @Override
             public void stateChanged(final CuratorFramework client, final ConnectionState newState) {
-                if (ConnectionState.LOST == newState) {
-                    Logs.ZK.info("{} lost connection", Utils.getInetAddress());
-                } else if (ConnectionState.RECONNECTED == newState) {
-                    Logs.ZK.info("{} reconnected", Utils.getInetAddress());
-                }
+                Logs.ZK.warn("zk connection state changed new state={}, isConnected={}", newState, newState.isConnected());
             }
         });
     }
