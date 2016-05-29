@@ -19,17 +19,16 @@
 
 package com.mpush.cache.redis.listener;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Executor;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mpush.cache.redis.manager.RedisManager;
-import com.mpush.tools.log.Logs;
-
 import com.mpush.cache.redis.mq.Subscriber;
+import com.mpush.tools.log.Logs;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executor;
 
 public class ListenerDispatcher implements MessageListener {
 
@@ -39,20 +38,21 @@ public class ListenerDispatcher implements MessageListener {
 
     private final Executor executor = ThreadPoolManager.I.getRedisExecutor();
 
-    private ListenerDispatcher(){}
+    private ListenerDispatcher() {
+    }
 
     @Override
     public void onMessage(final String channel, final String message) {
         List<MessageListener> listeners = subscribes.get(channel);
         if (listeners == null) {
-        	Logs.REDIS.info("cannot find listener:%s,%s", channel,message);
+            Logs.REDIS.info("cannot find listener:%s,%s", channel, message);
             return;
         }
         for (final MessageListener listener : listeners) {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                	listener.onMessage(channel, message);
+                    listener.onMessage(channel, message);
                 }
             });
         }

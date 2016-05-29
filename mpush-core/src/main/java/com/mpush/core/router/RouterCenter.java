@@ -21,12 +21,11 @@ package com.mpush.core.router;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.event.RouterChangeEvent;
-import com.mpush.api.router.Router;
 import com.mpush.api.router.ClientLocation;
+import com.mpush.api.router.Router;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.router.RemoteRouterManager;
-import com.mpush.tools.MPushUtil;
-
+import com.mpush.tools.Utils;
 import com.mpush.tools.event.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +55,7 @@ public final class RouterCenter {
     public boolean register(String userId, Connection connection) {
         ClientLocation location = ClientLocation
                 .from(connection.getSessionContext())
-                .setHost(MPushUtil.getLocalIp());
+                .setHost(Utils.getLocalIp());
 
         LocalRouter localRouter = new LocalRouter(connection);
         RemoteRouter remoteRouter = new RemoteRouter(location);

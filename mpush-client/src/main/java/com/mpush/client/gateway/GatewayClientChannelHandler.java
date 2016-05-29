@@ -23,10 +23,11 @@ package com.mpush.client.gateway;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
-import com.mpush.common.message.ErrorMessage;
-import com.mpush.netty.connection.NettyConnection;
 import com.mpush.client.push.PushRequest;
 import com.mpush.client.push.PushRequestBus;
+import com.mpush.common.message.ErrorMessage;
+import com.mpush.common.message.OkMessage;
+import com.mpush.netty.connection.NettyConnection;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
@@ -45,34 +46,53 @@ public final class GatewayClientChannelHandler extends ChannelHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GatewayClientChannelHandler.class);
 
-    private Connection connection = new NettyConnection();
+    private final Connection connection = new NettyConnection();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        LOGGER.info("receive gateway packet={}, channel={}", msg, ctx.channel());
         connection.updateLastReadTime();
         if (msg instanceof Packet) {
-            Packet packet = ((Packet) msg);
-            PushRequest request = PushRequestBus.INSTANCE.remove(packet.sessionId);
-            if (request == null) {
-                LOGGER.warn("receive a gateway response, but request timeout. packet={}", packet);
-                return;
-            }
-
+            Packet packet = (Packet) msg;
             if (packet.cmd == Command.OK.cmd) {
-                request.success();
-            } else {
-                ErrorMessage message = new ErrorMessage(packet, connection);
-                if (message.code == OFFLINE.errorCode) {
-                    request.offline();
-                } else if (message.code == PUSH_CLIENT_FAILURE.errorCode) {
-                    request.failure();
-                } else if (message.code == ROUTER_CHANGE.errorCode) {
-                    request.redirect();
-                }
-                LOGGER.warn("receive an error gateway response, message={}", message);
+                handleOK(new OkMessage(packet, connection));
+            } else if (packet.cmd == Command.ERROR.cmd) {
+                handleError(new ErrorMessage(packet, connection));
             }
         }
-        LOGGER.info("receive msg:" + ctx.channel() + "," + msg);
+    }
+
+    private void handleOK(OkMessage message) {
+        if (message.cmd == Command.GATEWAY_PUSH.cmd) {
+            handPush(message, null, message.getPacket());
+        }
+    }
+
+    private void handleError(ErrorMessage message) {
+        if (message.cmd == Command.GATEWAY_PUSH.cmd) {
+            handPush(null, message, message.getPacket());
+        }
+    }
+
+    private void handPush(OkMessage ok, ErrorMessage error, Packet packet) {
+        PushRequest request = PushRequestBus.I.getAndRemove(packet.sessionId);
+        if (request == null) {
+            LOGGER.warn("receive a gateway response, but request has timeout. ok={}, error={}", ok, error);
+            return;
+        }
+
+        if (ok != null) {//推送成功
+            request.success();
+        } else if (error != null) {//推送失败
+            LOGGER.warn("receive an error gateway response, message={}", error);
+            if (error.code == OFFLINE.errorCode) {//用户离线
+                request.offline();
+            } else if (error.code == PUSH_CLIENT_FAILURE.errorCode) {//下发到客户端失败
+                request.failure();
+            } else if (error.code == ROUTER_CHANGE.errorCode) {//用户路由信息更改
+                request.redirect();
+            }
+        }
     }
 
     @Override
@@ -91,6 +111,7 @@ public final class GatewayClientChannelHandler extends ChannelHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         connection.close();
         LOGGER.info("client disconnect channel={}", ctx.channel());
+        //TODO notify gateway-client-factory to removeAndClose this gateway-client
     }
 
     public Connection getConnection() {

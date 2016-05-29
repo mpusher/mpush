@@ -21,6 +21,7 @@ package com.mpush.cache.redis.manager;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.mpush.cache.redis.RedisException;
 import com.mpush.cache.redis.RedisGroup;
 import com.mpush.cache.redis.RedisServer;
 import com.mpush.tools.Jsons;
@@ -51,6 +52,7 @@ public class ZKRedisClusterManager implements RedisClusterManager {
     @Override
     public void init() {
         Logs.Console.error("begin init redis cluster");
+        if (!ZKClient.I.isRunning()) throw new RedisException("init redis cluster ex, ZK client not running.");
         List<com.mpush.tools.config.data.RedisGroup> groupList = CC.mp.redis.cluster_group;
         if (groupList.size() > 0) {
             if (CC.mp.redis.write_to_zk) {
@@ -67,12 +69,12 @@ public class ZKRedisClusterManager implements RedisClusterManager {
         Collection<ZKRedisNode> nodes = watcher.getCache().values();
         if (nodes == null || nodes.isEmpty()) {
             Logs.REDIS.info("init redis client error, redis server is none.");
-            throw new RuntimeException("init redis client error, redis server is none.");
+            throw new RedisException("init redis client error, redis server is none.");
         }
         for (ZKRedisNode node : nodes) {
             groups.add(RedisGroup.from(node));
         }
-        if (groups.isEmpty()) throw new RuntimeException("init redis sever fail groupList is null");
+        if (groups.isEmpty()) throw new RedisException("init redis sever fail groupList is null");
         Logs.Console.error("init redis cluster success...");
     }
 

@@ -29,8 +29,8 @@ import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.core.router.LocalRouter;
 import com.mpush.core.router.RouterCenter;
+import com.mpush.tools.Utils;
 import com.mpush.tools.log.Logs;
-import com.mpush.tools.MPushUtil;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
@@ -51,7 +51,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
     /**
      * 处理PushClient发送过来的Push推送请求
      * <p>
-     * 查推送策略，先查本地路由，本地不存在，查远程，（注意：有可能远程也是本机）
+     * 查寻路由策略，先查本地路由，本地不存在，查远程，（注意：有可能远程查到也是本机IP）
      * <p>
      * 正常情况本地路由应该存在，如果不存在或链接失效，有以下几种情况：
      * <p>
@@ -59,9 +59,9 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
      * 2.客户端下线，本地路由失效，远程路由还未清除
      * 3.PushClient使用了本地缓存，但缓存数据已经和实际情况不一致了
      * <p>
-     * 对于三种情况的处理方式是, 再检查下远程路由：
-     * 1.如果发现远程路由是本机，直接删除，因为此时的路由已失效
-     * 2.如果用户真在另一台机器，让PushClient清理下本地缓存后，重新推送
+     * 对于三种情况的处理方式是, 再重新查寻下远程路由：
+     * 1.如果发现远程路由是本机，直接删除，因为此时的路由已失效 (解决场景2)
+     * 2.如果用户真在另一台机器，让PushClient清理下本地缓存后，重新推送 (解决场景1,3)
      * <p>
      *
      * @param message
@@ -144,7 +144,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
         }
 
         //2.如果查出的远程机器是当前机器，说明路由已经失效，此时用户已下线，需要删除失效的缓存
-        if (MPushUtil.getLocalIp().equals(router.getRouteValue().getHost())) {
+        if (Utils.getLocalIp().equals(router.getRouteValue().getHost())) {
 
             ErrorMessage.from(message).setErrorCode(OFFLINE).send();
 

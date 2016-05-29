@@ -19,7 +19,8 @@
 
 package com.mpush.bootstrap.job;
 
-import com.mpush.api.exception.BootException;
+import com.mpush.api.service.Listener;
+import com.mpush.bootstrap.BootException;
 import com.mpush.zk.ZKClient;
 
 /**
@@ -31,10 +32,16 @@ public class ZKBoot extends BootJob {
 
     @Override
     public void run() {
-        if (ZKClient.I.getZKConfig() != null) {
-            next();
-        } else {
-            throw new BootException("init zk client failure");
-        }
+        ZKClient.I.start(new Listener() {
+            @Override
+            public void onSuccess(Object... args) {
+                next();
+            }
+
+            @Override
+            public void onFailure(Throwable cause) {
+                throw new BootException("init zk client failure", cause);
+            }
+        });
     }
 }

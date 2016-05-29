@@ -19,47 +19,108 @@
 
 package com.mpush.netty.http;
 
-import com.google.common.collect.ArrayListMultimap;
+import com.mpush.api.service.BaseService;
+import com.mpush.api.service.Listener;
 import com.mpush.tools.config.CC;
-import com.mpush.tools.thread.PoolThreadFactory;
+import com.mpush.tools.thread.NamedThreadFactory;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
+import com.sun.istack.internal.NotNull;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.*;
-import io.netty.util.*;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpRequestEncoder;
+import io.netty.handler.codec.http.HttpResponseDecoder;
+import io.netty.util.AttributeKey;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
+import static io.netty.handler.codec.http.HttpHeaderNames.HOST;
+import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
+
 /**
+ * Netty的一个Bootstrap是可以关联多个channel的，
+ * 本Client采用的就是这种模式，在种模式下如果Handler添加了@ChannelHandler.Sharable
+ * 注解的话，要特殊处理，因为这时的client和handler是被所有请求共享的。
+ * <p>
  * Created by ohun on 2016/2/15.
  *
  * @author ohun@live.cn
  */
-public class NettyHttpClient implements HttpClient {
+public class NettyHttpClient extends BaseService implements HttpClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyHttpClient.class);
-
-    private final int maxConnPerHost = CC.mp.http.max_conn_per_host;
-    private final AttributeKey<RequestInfo> requestKey = AttributeKey.newInstance("request");
-    private final AttributeKey<String> hostKey = AttributeKey.newInstance("host");
-    private final ArrayListMultimap<String, Channel> channelPool = ArrayListMultimap.create();
-
+    private static final int maxContentLength = (int) CC.mp.http.max_content_length;
+    /*package*/ final AttributeKey<RequestContext> requestKey = AttributeKey.newInstance("request");
+    /*package*/ final HttpConnectionPool pool = new HttpConnectionPool();
     private Bootstrap b;
     private EventLoopGroup workerGroup;
     private Timer timer;
 
     @Override
-    public void start() {
+    public void request(RequestContext context) throws Exception {
+        URI uri = new URI(context.request.uri());
+        String host = context.host = uri.getHost();
+        int port = uri.getPort() == -1 ? 80 : uri.getPort();
+        //1.设置请求头
+        context.request.headers().set(HOST, host);//映射后的host
+        context.request.headers().set(CONNECTION, KEEP_ALIVE);//保存长链接
+
+        //2.添加请求超时检测队列
+        timer.newTimeout(context, context.readTimeout, TimeUnit.MILLISECONDS);
+
+        //3.先尝试从连接池里取可用链接，去取不到就创建新链接。
+        Channel channel = pool.tryAcquire(host);
+        if (channel == null) {
+            final long startCreate = System.currentTimeMillis();
+            LOGGER.debug("create new channel, host={}", host);
+            ChannelFuture f = b.connect(host, port);
+            f.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    LOGGER.debug("create new channel cost={}", (System.currentTimeMillis() - startCreate));
+                    if (future.isSuccess()) {//3.1.把请求写到http server
+                        writeRequest(future.channel(), context);
+                    } else {//3.2如果链接创建失败，直接返回客户端网关超时
+                        context.tryDone();
+                        context.onFailure(504, "Gateway Timeout");
+                        LOGGER.warn("create new channel failure, request={}", context);
+                    }
+                }
+            });
+        } else {
+            //3.1.把请求写到http server
+            writeRequest(channel, context);
+        }
+    }
+
+    private void writeRequest(Channel channel, RequestContext context) {
+        channel.attr(requestKey).set(context);
+        pool.attachHost(context.host, channel);
+        channel.writeAndFlush(context.request).addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (!future.isSuccess()) {
+                    RequestContext info = future.channel().attr(requestKey).getAndRemove();
+                    info.tryDone();
+                    info.onFailure(503, "Service Unavailable");
+                    LOGGER.debug("request failure request={}", info);
+                    pool.tryRelease(future.channel());
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void doStart(@NotNull Listener listener) throws Throwable {
         workerGroup = new NioEventLoopGroup(0, ThreadPoolManager.I.getHttpExecutor());
         b = new Bootstrap();
         b.group(workerGroup);
@@ -73,207 +134,18 @@ public class NettyHttpClient implements HttpClient {
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
                 ch.pipeline().addLast("decoder", new HttpResponseDecoder());
-                ch.pipeline().addLast("aggregator", new HttpObjectAggregator(1024 * 1024 * 5));//5M
+                ch.pipeline().addLast("aggregator", new HttpObjectAggregator(maxContentLength));
                 ch.pipeline().addLast("encoder", new HttpRequestEncoder());
-                ch.pipeline().addLast("handler", new HttpClientHandler());
+                ch.pipeline().addLast("handler", new HttpClientHandler(NettyHttpClient.this));
             }
         });
-        timer = new HashedWheelTimer(new PoolThreadFactory("http-client-timer-"),
-                1, TimeUnit.SECONDS, 64);
+        timer = new HashedWheelTimer(new NamedThreadFactory("http-client-timer-"), 1, TimeUnit.SECONDS, 64);
     }
 
     @Override
-    public void stop() {
-        for (Channel channel : channelPool.values()) {
-            channel.close();
-        }
-        channelPool.clear();
+    protected void doStop(@NotNull Listener listener) throws Throwable {
+        pool.close();
         workerGroup.shutdownGracefully();
         timer.stop();
-    }
-
-    @Override
-    public void request(final RequestInfo info) throws Exception {
-        URI uri = new URI(info.request.uri());
-        String host = info.host = uri.getHost();
-        int port = uri.getPort() == -1 ? 80 : uri.getPort();
-        info.request.headers().set(HttpHeaderNames.HOST, host);
-        info.request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-        timer.newTimeout(info, info.readTimeout, TimeUnit.MILLISECONDS);
-        Channel channel = tryAcquire(host);
-        if (channel == null) {
-            final long startConnectChannel = System.currentTimeMillis();
-            LOGGER.debug("create new channel, host={}", host);
-            ChannelFuture f = b.connect(host, port);
-            f.addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    LOGGER.debug("create new channel cost:" + (System.currentTimeMillis() - startConnectChannel));
-                    if (future.isSuccess()) {
-                        writeRequest(future.channel(), info);
-                    } else {
-                        info.tryDone();
-                        info.onFailure(504, "Gateway Timeout");
-                        LOGGER.debug("request failure request={}", info);
-                    }
-                }
-            });
-        } else {
-            writeRequest(channel, info);
-        }
-    }
-
-    private synchronized Channel tryAcquire(String host) {
-        List<Channel> channels = channelPool.get(host);
-        if (channels == null || channels.isEmpty()) return null;
-        Iterator<Channel> it = channels.iterator();
-        while (it.hasNext()) {
-            Channel channel = it.next();
-            it.remove();
-            if (channel.isActive()) {
-                LOGGER.debug("tryAcquire channel success, host={}", host);
-                channel.attr(hostKey).set(host);
-                return channel;
-            } else {//链接由于意外情况不可用了，keepAlive_timeout
-                LOGGER.error("tryAcquire channel false channel is inactive, host={}", host);
-            }
-        }
-        return null;
-    }
-
-    private synchronized void tryRelease(Channel channel) {
-        String host = channel.attr(hostKey).getAndRemove();
-        List<Channel> channels = channelPool.get(host);
-        if (channels == null || channels.size() < maxConnPerHost) {
-            LOGGER.debug("tryRelease channel success, host={}", host);
-            channelPool.put(host, channel);
-        } else {
-            LOGGER.debug("tryRelease channel pool size over limit={}, host={}, channel closed.", maxConnPerHost, host);
-            channel.close();
-        }
-    }
-
-    private void writeRequest(Channel channel, RequestInfo info) {
-        channel.attr(requestKey).set(info);
-        channel.attr(hostKey).set(info.host);
-        channel.writeAndFlush(info.request).addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if (!future.isSuccess()) {
-                    RequestInfo info = future.channel().attr(requestKey).getAndRemove();
-                    info.tryDone();
-                    info.onFailure(503, "Service Unavailable");
-                    LOGGER.debug("request failure request={}", info);
-                    tryRelease(future.channel());
-                }
-            }
-        });
-    }
-
-    @ChannelHandler.Sharable
-    private class HttpClientHandler extends ChannelHandlerAdapter {
-
-        @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            RequestInfo info = ctx.channel().attr(requestKey).getAndRemove();
-            try {
-                if (info != null && info.tryDone()) {
-                    info.onException(cause);
-                }
-            } finally {
-                tryRelease(ctx.channel());
-            }
-            LOGGER.error("http client caught an error, info={}", info, cause);
-        }
-
-        @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            RequestInfo info = ctx.channel().attr(requestKey).getAndRemove();
-            try {
-                if (info != null && info.tryDone()) {
-                    HttpResponse response = (HttpResponse) msg;
-                    if (isRedirect(response)) {
-                        if (info.onRedirect(response)) {
-                            String location = getRedirectLocation(info.request, response);
-                            if (location != null && location.length() > 0) {
-                                info.cancelled.set(false);
-                                info.request = info.request.copy().setUri(location);
-                                request(info);
-                                return;
-                            }
-                        }
-                    }
-                    info.onResponse(response);
-                    LOGGER.debug("request done request={}", info);
-                }
-            } finally {
-                tryRelease(ctx.channel());
-                ReferenceCountUtil.release(msg);
-            }
-        }
-
-        private boolean isRedirect(HttpResponse response) {
-            HttpResponseStatus status = response.status();
-            switch (status.code()) {
-                case 300:
-                case 301:
-                case 302:
-                case 303:
-                case 305:
-                case 307:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        private String getRedirectLocation(HttpRequest request, HttpResponse response) throws Exception {
-            String hdr = URLDecoder.decode(response.headers().get(HttpHeaderNames.LOCATION).toString(), "UTF-8");
-            if (hdr != null) {
-                if (hdr.toLowerCase().startsWith("http://") || hdr.toLowerCase().startsWith("https://")) {
-                    return hdr;
-                } else {
-                    URL orig = new URL(request.uri());
-                    String pth = orig.getPath() == null ? "/" : URLDecoder.decode(orig.getPath().toString(), "UTF-8");
-                    if (hdr.startsWith("/")) {
-                        pth = hdr;
-                    } else if (pth.endsWith("/")) {
-                        pth += hdr;
-                    } else {
-                        pth += "/" + hdr;
-                    }
-                    StringBuilder sb = new StringBuilder(orig.getProtocol().toString());
-                    sb.append("://").append(orig.getHost());
-                    if (orig.getPort() > 0) {
-                        sb.append(":").append(orig.getPort());
-                    }
-                    if (pth.charAt(0) != '/') {
-                        sb.append('/');
-                    }
-                    sb.append(pth);
-                    return sb.toString();
-                }
-            }
-            return null;
-        }
-
-        private HttpRequest copy(String uri, HttpRequest request) {
-            HttpRequest nue = request;
-            if (request instanceof DefaultFullHttpRequest) {
-                DefaultFullHttpRequest dfrq = (DefaultFullHttpRequest) request;
-                FullHttpRequest rq;
-                try {
-                    rq = dfrq.copy();
-                } catch (IllegalReferenceCountException e) { // Empty bytebuf
-                    rq = dfrq;
-                }
-                rq.setUri(uri);
-            } else {
-                DefaultHttpRequest dfr = new DefaultHttpRequest(request.protocolVersion(), request.method(), uri);
-                dfr.headers().set(request.headers());
-                nue = dfr;
-            }
-            return nue;
-        }
     }
 }

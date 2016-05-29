@@ -52,4 +52,12 @@ public final class PushMessage extends BaseMessage {
     public byte[] encode() {
         return content == null ? null : content.getBytes(Constants.UTF_8);
     }
+
+    @Override
+    public String toString() {
+        return "PushMessage{" +
+                "content='" + content + '\'' +
+                ", packet=" + packet +
+                '}';
+    }
 }

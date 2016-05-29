@@ -21,7 +21,8 @@ package com.mpush.common.net;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mpush.api.BaseService;
+import com.mpush.api.service.BaseService;
+import com.mpush.api.service.Listener;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.config.data.DnsMapping;
@@ -34,7 +35,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static com.mpush.tools.MPushUtil.checkHealth;
+import static com.mpush.tools.Utils.checkHealth;
 
 public class DnsMappingManager extends BaseService implements Runnable {
     private final Logger logger = LoggerFactory.getLogger(DnsMappingManager.class);
@@ -50,18 +51,15 @@ public class DnsMappingManager extends BaseService implements Runnable {
     private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     @Override
-    public void start(Listener listener) {
-        if (started.compareAndSet(false, true)) {
-            scheduledExecutorService.scheduleAtFixedRate(this, 1, 20, TimeUnit.SECONDS); //20秒 定时扫描dns
-        }
+    protected void doStart(Listener listener) throws Throwable {
+        scheduledExecutorService.scheduleAtFixedRate(this, 1, 20, TimeUnit.SECONDS); //20秒 定时扫描dns
     }
 
     @Override
-    public void stop(Listener listener) {
-        if (started.compareAndSet(true, false)) {
-            scheduledExecutorService.shutdown();
-        }
+    protected void doStop(Listener listener) throws Throwable {
+        scheduledExecutorService.shutdown();
     }
+
 
     @Override
     public void init() {
@@ -84,7 +82,7 @@ public class DnsMappingManager extends BaseService implements Runnable {
         return all;
     }
 
-    public DnsMapping translate(String origin) {
+    public DnsMapping lookup(String origin) {
         if (available.isEmpty())
             return null;
         List<DnsMapping> list = available.get(origin);

@@ -19,32 +19,32 @@
 
 package com.mpush.test.util;
 
+import com.mpush.tools.Utils;
+import org.junit.Test;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import com.mpush.tools.MPushUtil;
-import org.junit.Test;
-
 public class TelnetTest {
 
-	@Test
-	public void test(){
-		boolean ret = MPushUtil.checkHealth("120.27.196.68", 82);
-		System.out.println(ret);
-	}
-	
-	@Test
-	public void test2(){
-		boolean ret = MPushUtil.checkHealth("120.27.196.68", 80);
-		System.out.println(ret);
-	}
-	
-	@Test
-	public void uriTest() throws URISyntaxException{
-		String url = "http://127.0.0.1";
-		URI uri = new URI(url);
-		System.out.println(uri.getPort());
-	}
-	
-	
+    @Test
+    public void test() {
+        boolean ret = Utils.checkHealth("120.27.196.68", 82);
+        System.out.println(ret);
+    }
+
+    @Test
+    public void test2() {
+        boolean ret = Utils.checkHealth("120.27.196.68", 80);
+        System.out.println(ret);
+    }
+
+    @Test
+    public void uriTest() throws URISyntaxException {
+        String url = "http://127.0.0.1";
+        URI uri = new URI(url);
+        System.out.println(uri.getPort());
+    }
+
+
 }

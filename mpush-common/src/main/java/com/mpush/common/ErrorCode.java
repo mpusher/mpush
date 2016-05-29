@@ -29,6 +29,7 @@ public enum ErrorCode {
     PUSH_CLIENT_FAILURE(2, "push to client failure"),
     ROUTER_CHANGE(3, "router change"),
     DISPATCH_ERROR(100, "handle message error"),
+    UNSUPPORTED_CMD(101, "unsupported command"),
     UNKNOWN(-1, "unknown");
 
     ErrorCode(int code, String errorMsg) {

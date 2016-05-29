@@ -17,12 +17,8 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.api.exception;
+package com.mpush.api.service;
 
-/**
- * Created by ohun on 2015/12/30.
- *
- * @author ohun@live.cn
- */
-public class SendMessageException extends RuntimeException {
+public interface Client extends Service {
+
 }

@@ -23,6 +23,8 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 
+import java.util.Arrays;
+
 /**
  * Created by ohun on 2015/12/27.
  *
@@ -76,5 +78,16 @@ public final class HandshakeOkMessage extends ByteBufMessage {
     public HandshakeOkMessage setExpireTime(long expireTime) {
         this.expireTime = expireTime;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "HandshakeOkMessage{" +
+                "expireTime=" + expireTime +
+                ", serverKey=" + Arrays.toString(serverKey) +
+                ", heartbeat=" + heartbeat +
+                ", sessionId='" + sessionId + '\'' +
+                ", packet=" + packet +
+                '}';
     }
 }

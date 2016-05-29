@@ -19,9 +19,9 @@
 
 package com.mpush.tools.config;
 
-import com.mpush.tools.MPushUtil;
+import com.mpush.tools.Utils;
 
-import static com.mpush.tools.MPushUtil.getInetAddress;
+import static com.mpush.tools.Utils.getInetAddress;
 
 /**
  * Created by yxx on 2016/5/18.
@@ -42,7 +42,7 @@ public class ConfigManager {
     }
 
     public String getLocalIp() {
-        return MPushUtil.getLocalIp();
+        return Utils.getLocalIp();
     }
 
     public String getPublicIp() {

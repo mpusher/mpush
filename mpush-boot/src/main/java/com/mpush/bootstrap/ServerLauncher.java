@@ -20,12 +20,14 @@
 package com.mpush.bootstrap;
 
 
-import com.mpush.api.Server;
+import com.mpush.api.service.Server;
 import com.mpush.bootstrap.job.*;
 import com.mpush.core.server.AdminServer;
 import com.mpush.core.server.ConnectionServer;
 import com.mpush.core.server.GatewayServer;
+import com.mpush.monitor.service.MonitorService;
 import com.mpush.tools.config.CC;
+import com.mpush.zk.ZKClient;
 import com.mpush.zk.node.ZKServerNode;
 
 /**
@@ -63,6 +65,8 @@ public class ServerLauncher {
         stopServer(connectServer);
         stopServer(gatewayServer);
         stopServer(adminServer);
+        ZKClient.I.stop();
+        MonitorService.I.stop();
     }
 
     private void stopServer(Server server) {

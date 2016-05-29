@@ -24,11 +24,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
 public class ThreadPoolConfig {
+    public static final int REJECTED_POLICY_ABORT = 0;
+    public static final int REJECTED_POLICY_DISCARD = 1;
+    public static final int REJECTED_POLICY_CALLER_RUNS = 2;
     private String name;//名字
     private int corePoolSize; //最小线程大小
     private int maxPoolSize; //最大线程大小
     private int queueCapacity;  // 允许缓冲在队列中的任务数 (0:不缓冲、负数：无限大、正数：缓冲的任务数)
     private int keepAliveSeconds;// 存活时间
+    private int rejectedPolicy = REJECTED_POLICY_ABORT;
 
     public ThreadPoolConfig(String name) {
         this.name = name;
@@ -79,6 +83,14 @@ public class ThreadPoolConfig {
         return this;
     }
 
+    public int getRejectedPolicy() {
+        return rejectedPolicy;
+    }
+
+    public ThreadPoolConfig setRejectedPolicy(int rejectedPolicy) {
+        this.rejectedPolicy = rejectedPolicy;
+        return this;
+    }
 
     public static ThreadPoolConfig buildFixed(String name, int threads, int queueCapacity) {
         return new ThreadPoolConfig(name)

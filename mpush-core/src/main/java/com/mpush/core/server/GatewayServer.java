@@ -20,10 +20,17 @@
 package com.mpush.core.server;
 
 import com.mpush.api.protocol.Command;
+import com.mpush.api.service.Listener;
 import com.mpush.common.MessageDispatcher;
 import com.mpush.core.handler.GatewayPushHandler;
 import com.mpush.netty.server.NettyServer;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelPipeline;
+import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
+
+import java.util.concurrent.Executors;
+
+import static com.mpush.tools.config.CC.mp.net.traffic_shaping.gateway_server.*;
 
 /**
  * Created by ohun on 2015/12/30.
@@ -34,6 +41,7 @@ public final class GatewayServer extends NettyServer {
 
     private ServerChannelHandler channelHandler;
     private ServerConnectionManager connectionManager;
+    private GlobalChannelTrafficShapingHandler trafficShapingHandler;
 
     public GatewayServer(int port) {
         super(port);
@@ -46,13 +54,31 @@ public final class GatewayServer extends NettyServer {
         receiver.register(Command.GATEWAY_PUSH, new GatewayPushHandler());
         connectionManager = new ServerConnectionManager();
         channelHandler = new ServerChannelHandler(false, connectionManager, receiver);
+        if (enabled) {
+            trafficShapingHandler = new GlobalChannelTrafficShapingHandler(
+                    Executors.newSingleThreadScheduledExecutor()
+                    , write_global_limit, read_global_limit,
+                    write_channel_limit, read_channel_limit,
+                    check_interval);
+        }
     }
 
     @Override
     public void stop(Listener listener) {
+        if (trafficShapingHandler != null) {
+            trafficShapingHandler.release();
+        }
         super.stop(listener);
         if (connectionManager != null) {
             connectionManager.destroy();
+        }
+    }
+
+    @Override
+    protected void initPipeline(ChannelPipeline pipeline) {
+        super.initPipeline(pipeline);
+        if (trafficShapingHandler != null) {
+            pipeline.addLast(trafficShapingHandler);
         }
     }
 

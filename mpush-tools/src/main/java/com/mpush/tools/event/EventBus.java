@@ -1,4 +1,3 @@
-
 /*
  * (C) Copyright 2015-2016 the original author or authors.
  *
@@ -23,6 +22,7 @@ package com.mpush.tools.event;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.SubscriberExceptionContext;
 import com.google.common.eventbus.SubscriberExceptionHandler;
+import com.mpush.api.event.Event;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public class EventBus {
         });
     }
 
-    public void post(Object event) {
+    public void post(Event event) {
         eventBus.post(event);
     }
 

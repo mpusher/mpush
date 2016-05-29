@@ -19,6 +19,7 @@
 
 package com.mpush.tools;
 
+import com.mpush.tools.common.IOUtils;
 import org.junit.Test;
 
 /**
@@ -65,12 +66,12 @@ public class IOUtilsTest {
         for (int i = 0; i < 100; i++) {
             IOUtils.compress(s);
         }
-        System.out.println((System.currentTimeMillis()-t1)/100);
+        System.out.println((System.currentTimeMillis() - t1) / 100);
         System.out.println("src:" + s.length);
         byte[] out = IOUtils.compress(s);
         System.out.println("compress:" + out.length);
-        byte[] ss = IOUtils.uncompress(out);
-        System.out.println("uncompress:" + ss.length);
+        byte[] ss = IOUtils.decompress(out);
+        System.out.println("decompress:" + ss.length);
     }
 
     @Test

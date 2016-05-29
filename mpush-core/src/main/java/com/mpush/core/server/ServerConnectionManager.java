@@ -46,7 +46,6 @@ import java.util.concurrent.TimeUnit;
  * @author ohun@live.cn
  */
 public final class ServerConnectionManager implements ConnectionManager {
-    //可能会有20w的链接数
     private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMapV8<>();
 
     private Timer timer;
@@ -71,20 +70,21 @@ public final class ServerConnectionManager implements ConnectionManager {
 
     @Override
     public Connection get(final Channel channel) {
-        return connections.get(channel.id().asLongText());
+        return connections.get(channel.id().asShortText());
     }
 
     @Override
     public void add(Connection connection) {
-        connections.putIfAbsent(connection.getId(), connection);
+        connections.putIfAbsent(connection.getChannel().id().asShortText(), connection);
     }
 
     @Override
-    public void remove(Channel channel) {
-        Connection connection = connections.remove(channel.id().asLongText());
+    public Connection removeAndClose(Channel channel) {
+        Connection connection = connections.remove(channel.id().asShortText());
         if (connection != null) {
             connection.close();
         }
+        return connection;
     }
 
     @Override
@@ -93,14 +93,14 @@ public final class ServerConnectionManager implements ConnectionManager {
     }
 
     @Subscribe
-    void onHandshakeOk(HandshakeEvent event) {
+    void on(HandshakeEvent event) {
         HeartbeatCheckTask task = new HeartbeatCheckTask(event.connection);
         task.startTimeout();
     }
 
     private class HeartbeatCheckTask implements TimerTask {
 
-        private int expiredTimes = 0;
+        private int timeoutTimes = 0;
         private final Connection connection;
 
         public HeartbeatCheckTask(Connection connection) {
@@ -115,22 +115,21 @@ public final class ServerConnectionManager implements ConnectionManager {
         @Override
         public void run(Timeout timeout) throws Exception {
             if (!connection.isConnected()) {
-                Logs.HB.info("connection is not connected:{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
+                Logs.HB.info("connection was disconnected, heartbeat timeout times={}, connection={}", timeoutTimes, connection);
                 return;
             }
             if (connection.heartbeatTimeout()) {
-                if (++expiredTimes > CC.mp.core.max_hb_timeout_times) {
+                if (++timeoutTimes > CC.mp.core.max_hb_timeout_times) {
                     connection.close();
-                    Logs.HB.info("connection heartbeat timeout, connection has bean closed:{},{}", connection.getChannel(), connection.getSessionContext().deviceId);
+                    Logs.HB.info("client heartbeat timeout times={}, do close connection={}", timeoutTimes, connection);
                     return;
                 } else {
-                    Logs.HB.info("connection heartbeat timeout, expiredTimes:{},{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
+                    Logs.HB.info("client heartbeat timeout times={}, connection={}", timeoutTimes, connection);
                 }
             } else {
-                expiredTimes = 0;
-                Logs.HB.info("connection heartbeat reset, expiredTimes:{},{},{}", expiredTimes, connection.getChannel(), connection.getSessionContext().deviceId);
+                timeoutTimes = 0;
+                //Logs.HB.info("client heartbeat timeout times reset 0, connection={}", connection);
             }
-
             startTimeout();
         }
     }

@@ -22,7 +22,7 @@ package com.mpush.common.message;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
-import com.mpush.tools.MPushUtil;
+import com.mpush.tools.Utils;
 import io.netty.buffer.ByteBuf;
 
 import java.util.Map;
@@ -50,7 +50,7 @@ public class HttpRequestMessage extends ByteBufMessage {
     public void decode(ByteBuf body) {
         method = decodeByte(body);
         uri = decodeString(body);
-        headers = MPushUtil.headerFromString(decodeString(body));
+        headers = Utils.headerFromString(decodeString(body));
         this.body = decodeBytes(body);
     }
 
@@ -58,7 +58,7 @@ public class HttpRequestMessage extends ByteBufMessage {
     public void encode(ByteBuf body) {
         encodeByte(body, method);
         encodeString(body, uri);
-        encodeString(body, MPushUtil.headerToString(headers));
+        encodeString(body, Utils.headerToString(headers));
         encodeBytes(body, this.body);
     }
 

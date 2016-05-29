@@ -17,23 +17,23 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.tools;
+package com.mpush.tools.common;
 
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * 用来测试并统计线程执行时间的工具。
  */
-@SuppressWarnings(value={"rawtypes","unchecked"})
+@SuppressWarnings(value = {"rawtypes", "unchecked"})
 public class Profiler {
 
-	private static final ThreadLocal entryStack = new ThreadLocal();
+    private static final ThreadLocal entryStack = new ThreadLocal();
     public static final String EMPTY_STRING = "";
 
     /**
@@ -49,7 +49,7 @@ public class Profiler {
      * @param message 第一个entry的信息
      */
 
-	public static void start(String message) {
+    public static void start(String message) {
         entryStack.set(new Entry(message, null, null));
     }
 
@@ -212,7 +212,7 @@ public class Profiler {
             this.message = message;
             this.startTime = System.currentTimeMillis();
             this.parentEntry = parentEntry;
-            this.firstEntry = (Entry) firstEntry == null ? this : firstEntry;
+            this.firstEntry = firstEntry == null ? this : firstEntry;
             this.baseTime = (firstEntry == null) ? 0
                     : firstEntry.startTime;
         }

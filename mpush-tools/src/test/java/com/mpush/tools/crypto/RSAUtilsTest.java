@@ -19,8 +19,7 @@
 
 package com.mpush.tools.crypto;
 
-import com.mpush.tools.Pair;
-
+import com.mpush.tools.common.Pair;
 import org.junit.Before;
 import org.junit.Test;
 

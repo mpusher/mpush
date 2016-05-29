@@ -19,7 +19,6 @@
 
 package com.mpush.netty.codec;
 
-import com.mpush.api.exception.DecodeException;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.tools.config.CC;

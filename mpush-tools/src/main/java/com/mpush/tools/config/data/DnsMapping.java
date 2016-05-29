@@ -20,6 +20,7 @@
 package com.mpush.tools.config.data;
 
 
+import java.net.URL;
 import java.util.Objects;
 
 public class DnsMapping {
@@ -47,6 +48,18 @@ public class DnsMapping {
         } else {
             return new DnsMapping(host_port[0], Integer.valueOf(host_port[1]));
         }
+    }
+
+    public String translate(URL uri) {
+        StringBuilder sb = new StringBuilder(128);
+        sb.append(uri.getProtocol()).append("://")
+                .append(ip)
+                .append(':')
+                .append(port)
+                .append(uri.getPath());
+        String query = uri.getQuery();
+        if (query != null) sb.append('?').append(query);
+        return sb.toString();
     }
 
     @Override

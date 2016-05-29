@@ -67,7 +67,7 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
 
     @Override
     public String getId() {
-        return channel.id().asLongText();
+        return channel.id().asShortText();
     }
 
     @Override
@@ -122,7 +122,7 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
         if (future.isSuccess()) {
             lastWriteTime = System.currentTimeMillis();
         } else {
-            LOGGER.error("send msg error");
+            LOGGER.error("connection send msg error", future.cause());
         }
     }
 

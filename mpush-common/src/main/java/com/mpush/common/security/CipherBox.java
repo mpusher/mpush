@@ -32,7 +32,7 @@ import java.security.interfaces.RSAPublicKey;
  * @author ohun@live.cn
  */
 public final class CipherBox {
-    public int aesKeyLength = CC.mp.security.aes_key_length;
+    public final int aesKeyLength = CC.mp.security.aes_key_length;
     public static final CipherBox I = new CipherBox();
     private SecureRandom random = new SecureRandom();
     private RSAPrivateKey privateKey;

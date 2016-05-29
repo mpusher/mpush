@@ -19,21 +19,20 @@
 
 package com.mpush.common.user;
 
-import java.util.List;
-
-import com.mpush.tools.MPushUtil;
+import com.mpush.cache.redis.RedisKey;
 import com.mpush.cache.redis.manager.RedisManager;
+import com.mpush.tools.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mpush.cache.redis.RedisKey;
+import java.util.List;
 
 //查询使用
 public final class UserManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
     public static final UserManager INSTANCE = new UserManager();
 
-    private final String ONLINE_KEY = RedisKey.getUserOnlineKey(MPushUtil.getExtranetAddress());
+    private final String ONLINE_KEY = RedisKey.getUserOnlineKey(Utils.getExtranetAddress());
 
     public UserManager() {
         clearUserOnlineData();

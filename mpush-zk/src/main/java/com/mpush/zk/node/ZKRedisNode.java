@@ -19,8 +19,8 @@
 
 package com.mpush.zk.node;
 
-import com.mpush.tools.config.data.RedisGroup;
 import com.mpush.tools.Jsons;
+import com.mpush.tools.config.data.RedisGroup;
 
 /**
  * Created by yxx on 2016/5/18.

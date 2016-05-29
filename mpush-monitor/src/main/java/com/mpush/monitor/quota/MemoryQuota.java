@@ -21,58 +21,58 @@ package com.mpush.monitor.quota;
 
 public interface MemoryQuota {
 
-	// Heap
-	long heapMemoryCommitted();
+    // Heap
+    long heapMemoryCommitted();
 
-	long heapMemoryInit();
+    long heapMemoryInit();
 
-	long heapMemoryMax();
+    long heapMemoryMax();
 
-	long heapMemoryUsed();
+    long heapMemoryUsed();
 
-	// NonHeap
-	long nonHeapMemoryCommitted();
+    // NonHeap
+    long nonHeapMemoryCommitted();
 
-	long nonHeapMemoryInit();
+    long nonHeapMemoryInit();
 
-	long nonHeapMemoryMax();
+    long nonHeapMemoryMax();
 
-	long nonHeapMemoryUsed();
+    long nonHeapMemoryUsed();
 
-	// PermGen
-	long permGenCommitted();
+    // PermGen
+    long permGenCommitted();
 
-	long permGenInit();
+    long permGenInit();
 
-	long permGenMax();
+    long permGenMax();
 
-	long permGenUsed();
+    long permGenUsed();
 
-	// OldGen
-	long oldGenCommitted();
+    // OldGen
+    long oldGenCommitted();
 
-	long oldGenInit();
+    long oldGenInit();
 
-	long oldGenMax();
+    long oldGenMax();
 
-	long oldGenUsed();
+    long oldGenUsed();
 
-	// EdenSpace
-	long edenSpaceCommitted();
+    // EdenSpace
+    long edenSpaceCommitted();
 
-	long edenSpaceInit();
+    long edenSpaceInit();
 
-	long edenSpaceMax();
+    long edenSpaceMax();
 
-	long edenSpaceUsed();
+    long edenSpaceUsed();
 
-	// Survivor
-	long survivorCommitted();
+    // Survivor
+    long survivorCommitted();
 
-	long survivorInit();
+    long survivorInit();
 
-	long survivorMax();
+    long survivorMax();
 
-	long survivorUsed();
+    long survivorUsed();
 
 }

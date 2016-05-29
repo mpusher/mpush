@@ -20,8 +20,16 @@
 package com.mpush.client.gateway;
 
 import com.mpush.api.connection.Connection;
+import com.mpush.api.service.Listener;
 import com.mpush.netty.client.NettyClient;
+import com.sun.istack.internal.NotNull;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelPipeline;
+import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
+
+import java.util.concurrent.Executors;
+
+import static com.mpush.tools.config.CC.mp.net.traffic_shaping.gateway_client.*;
 
 /**
  * Created by yxx on 2016/5/17.
@@ -30,9 +38,17 @@ import io.netty.channel.ChannelHandler;
  */
 public class GatewayClient extends NettyClient {
     private final GatewayClientChannelHandler handler = new GatewayClientChannelHandler();
+    private GlobalChannelTrafficShapingHandler trafficShapingHandler;
 
     public GatewayClient(String host, int port) {
         super(host, port);
+        if (enabled) {
+            trafficShapingHandler = new GlobalChannelTrafficShapingHandler(
+                    Executors.newSingleThreadScheduledExecutor()
+                    , write_global_limit, read_global_limit,
+                    write_channel_limit, read_channel_limit,
+                    check_interval);
+        }
     }
 
     @Override
@@ -42,5 +58,21 @@ public class GatewayClient extends NettyClient {
 
     public Connection getConnection() {
         return handler.getConnection();
+    }
+
+    @Override
+    protected void initPipeline(ChannelPipeline pipeline) {
+        super.initPipeline(pipeline);
+        if (trafficShapingHandler != null) {
+            pipeline.addLast(trafficShapingHandler);
+        }
+    }
+
+    @Override
+    protected void doStop(@NotNull Listener listener) throws Throwable {
+        if (trafficShapingHandler != null) {
+            trafficShapingHandler.release();
+        }
+        super.doStop(listener);
     }
 }

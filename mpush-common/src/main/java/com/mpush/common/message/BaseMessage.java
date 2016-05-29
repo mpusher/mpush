@@ -23,8 +23,7 @@ import com.mpush.api.Message;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.protocol.Packet;
-import com.mpush.tools.IOUtils;
-import com.mpush.tools.Profiler;
+import com.mpush.tools.common.IOUtils;
 import com.mpush.tools.config.CC;
 import io.netty.channel.ChannelFutureListener;
 
@@ -43,12 +42,7 @@ public abstract class BaseMessage implements Message {
     public BaseMessage(Packet packet, Connection connection) {
         this.packet = packet;
         this.connection = connection;
-        Profiler.enter("start decode message");
-        try {
-            decodeBody();
-        } finally {
-            Profiler.release();
-        }
+        decodeBody();
     }
 
     protected void decodeBody() {
@@ -62,7 +56,7 @@ public abstract class BaseMessage implements Message {
             }
             //2.解压
             if (packet.hasFlag(Packet.FLAG_COMPRESS)) {
-                tmp = IOUtils.uncompress(tmp);
+                tmp = IOUtils.decompress(tmp);
             }
 
             if (tmp.length == 0) {
@@ -150,10 +144,5 @@ public abstract class BaseMessage implements Message {
     }
 
     @Override
-    public String toString() {
-        return "BaseMessage{" +
-                "packet=" + packet +
-                ", connection=" + connection +
-                '}';
-    }
+    public abstract String toString();
 }

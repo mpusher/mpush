@@ -22,21 +22,31 @@ package com.mpush.core.server;
 
 import com.mpush.api.connection.ConnectionManager;
 import com.mpush.api.protocol.Command;
+import com.mpush.api.service.Listener;
 import com.mpush.common.MessageDispatcher;
 import com.mpush.core.handler.*;
 import com.mpush.netty.http.HttpClient;
 import com.mpush.netty.http.NettyHttpClient;
 import com.mpush.netty.server.NettyServer;
 import com.mpush.tools.config.CC;
+import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
+import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import static com.mpush.tools.config.CC.mp.net.traffic_shaping.connect_server.*;
 
 /**
  * Created by ohun on 2015/12/30.
  */
 public final class ConnectionServer extends NettyServer {
     private ServerChannelHandler channelHandler;
+    private GlobalChannelTrafficShapingHandler trafficShapingHandler;
 
     private ConnectionManager connectionManager = new ServerConnectionManager();
     private HttpClient httpClient;
@@ -56,18 +66,47 @@ public final class ConnectionServer extends NettyServer {
         receiver.register(Command.UNBIND, new UnbindUserHandler());
         receiver.register(Command.FAST_CONNECT, new FastConnectHandler());
 
-        if (CC.mp.http.proxy_enable) {
+        if (CC.mp.http.proxy_enabled) {
             httpClient = new NettyHttpClient();
             receiver.register(Command.HTTP_PROXY, new HttpProxyHandler(httpClient));
         }
         channelHandler = new ServerChannelHandler(true, connectionManager, receiver);
+
+        if (enabled) {
+            trafficShapingHandler = new GlobalChannelTrafficShapingHandler(
+                    Executors.newSingleThreadScheduledExecutor()
+                    , write_global_limit, read_global_limit,
+                    write_channel_limit, read_channel_limit,
+                    check_interval);
+        }
     }
 
     @Override
     public void stop(Listener listener) {
+        if (trafficShapingHandler != null) {
+            trafficShapingHandler.release();
+        }
         super.stop(listener);
         if (httpClient != null) httpClient.stop();
         connectionManager.destroy();
+    }
+
+    @Override
+    protected Executor getWorkExecutor() {
+        return ThreadPoolManager.I.getWorkExecutor();
+    }
+
+    @Override
+    protected Executor getBossExecutor() {
+        return ThreadPoolManager.I.getBossExecutor();
+    }
+
+    @Override
+    protected void initPipeline(ChannelPipeline pipeline) {
+        super.initPipeline(pipeline);
+        if (trafficShapingHandler != null) {
+            pipeline.addLast(trafficShapingHandler);
+        }
     }
 
     @Override

@@ -20,8 +20,8 @@
 package com.mpush.tools.crypto;
 
 import com.mpush.api.Constants;
-import com.mpush.tools.IOUtils;
-import com.mpush.tools.Strings;
+import com.mpush.tools.common.IOUtils;
+import com.mpush.tools.common.Strings;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

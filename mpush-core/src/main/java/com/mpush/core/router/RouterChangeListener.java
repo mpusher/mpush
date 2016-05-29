@@ -29,13 +29,13 @@ import com.mpush.cache.redis.RedisKey;
 import com.mpush.cache.redis.listener.ListenerDispatcher;
 import com.mpush.cache.redis.listener.MessageListener;
 import com.mpush.cache.redis.manager.RedisManager;
-import com.mpush.tools.event.EventConsumer;
 import com.mpush.common.message.KickUserMessage;
 import com.mpush.common.router.RemoteRouter;
-import com.mpush.tools.config.ConfigManager;
-import com.mpush.tools.log.Logs;
 import com.mpush.tools.Jsons;
-import com.mpush.tools.MPushUtil;
+import com.mpush.tools.Utils;
+import com.mpush.tools.config.ConfigManager;
+import com.mpush.tools.event.EventConsumer;
+import com.mpush.tools.log.Logs;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
@@ -46,7 +46,7 @@ import io.netty.channel.ChannelFutureListener;
  */
 public final class RouterChangeListener extends EventConsumer implements MessageListener {
     public static final String KICK_CHANNEL_ = "/mpush/kick/";
-    private final String kick_channel = KICK_CHANNEL_ + MPushUtil.getLocalIp();
+    private final String kick_channel = KICK_CHANNEL_ + Utils.getLocalIp();
 
     public RouterChangeListener() {
         ListenerDispatcher.I.subscribe(getKickChannel(), this);
@@ -61,7 +61,7 @@ public final class RouterChangeListener extends EventConsumer implements Message
     }
 
     @Subscribe
-    void onRouteChange(RouterChangeEvent event) {
+    void on(RouterChangeEvent event) {
         String userId = event.userId;
         Router<?> r = event.router;
         if (r.getRouteType().equals(Router.RouterType.LOCAL)) {
@@ -107,7 +107,7 @@ public final class RouterChangeListener extends EventConsumer implements Message
     public void kickRemote(String userId, RemoteRouter router) {
         ClientLocation location = router.getRouteValue();
         //1.如果目标机器是当前机器，就不要再发送广播了，直接忽略
-        if (location.getHost().equals(MPushUtil.getLocalIp())) {
+        if (location.getHost().equals(Utils.getLocalIp())) {
             Logs.Conn.info("kick remote user but router in local, userId={}", userId);
             return;
         }
@@ -131,8 +131,8 @@ public final class RouterChangeListener extends EventConsumer implements Message
      */
     public void onReceiveKickRemoteMsg(KickRemoteMsg msg) {
         //1.如果当前机器不是目标机器，直接忽略
-        if (!msg.targetServer.equals(MPushUtil.getLocalIp())) {
-            Logs.Conn.info("receive kick remote msg, target server error, localIp={}, msg={}", MPushUtil.getLocalIp(), msg);
+        if (!msg.targetServer.equals(Utils.getLocalIp())) {
+            Logs.Conn.info("receive kick remote msg, target server error, localIp={}, msg={}", Utils.getLocalIp(), msg);
             return;
         }
 

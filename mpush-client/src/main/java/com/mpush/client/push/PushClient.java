@@ -20,16 +20,20 @@
 package com.mpush.client.push;
 
 import com.google.common.base.Strings;
-import com.mpush.api.BaseService;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.push.PushSender;
+import com.mpush.api.service.BaseService;
+import com.mpush.api.service.Listener;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.client.gateway.GatewayClientFactory;
 import com.mpush.zk.ZKClient;
 import com.mpush.zk.ZKPath;
 import com.mpush.zk.listener.ZKServerNodeWatcher;
+import com.sun.istack.internal.NotNull;
 
 import java.util.Collection;
+
+import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
 
 /*package*/ class PushClient extends BaseService implements PushSender {
     private static final int DEFAULT_TIMEOUT = 3000;
@@ -64,22 +68,16 @@ import java.util.Collection;
     }
 
     @Override
-    public void start(Listener listener) {
-        if (started.compareAndSet(false, true)) {
-            ZKClient.I.init();
-            RedisManager.I.init();
-            ZKServerNodeWatcher.build(ZKPath.GATEWAY_SERVER, factory).beginWatch();
-            if (listener != null) {
-                listener.onSuccess(0);
-            }
-        }
+    protected void doStart(@NotNull Listener listener) throws Throwable {
+        ZKClient.I.start(listener);
+        RedisManager.I.init();
+        ZKServerNodeWatcher.build(GATEWAY_SERVER, factory).beginWatch();
     }
 
     @Override
-    public void stop(Listener listener) {
-        if (started.compareAndSet(true, false)) {
-            factory.clear();
-        }
+    protected void doStop(@NotNull Listener listener) throws Throwable {
+        factory.clear();
+        ZKClient.I.stop(listener);
     }
 
     @Override

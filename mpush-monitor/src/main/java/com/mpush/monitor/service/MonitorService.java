@@ -19,30 +19,34 @@
 
 package com.mpush.monitor.service;
 
-import com.mpush.api.BaseService;
-import com.mpush.tools.log.Logs;
+import com.mpush.api.service.BaseService;
+import com.mpush.api.service.Listener;
 import com.mpush.monitor.data.MonitorResult;
 import com.mpush.monitor.data.ResultCollector;
 import com.mpush.monitor.quota.impl.JVMInfo;
-import com.mpush.tools.JVMUtil;
 import com.mpush.tools.Jsons;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.mpush.tools.common.JVMUtil;
+import com.mpush.tools.config.CC;
+import com.mpush.tools.log.Logs;
+import com.sun.istack.internal.NotNull;
+
+import java.util.concurrent.TimeUnit;
 
 public class MonitorService extends BaseService implements Runnable {
-
-    private final Logger LOGGER = LoggerFactory.getLogger(MonitorService.class);
 
     public static final MonitorService I = new MonitorService();
 
     private static final int firstJstack = 2, secondJstack = 4, thirdJstack = 6, firstJmap = 4;
 
-    private String dumpLogDir = "/tmp/logs/mpush/";
+    private static final String dumpLogDir = CC.mp.monitor.dump_dir;
+    private static final boolean enableDump = CC.mp.monitor.dump_stack;
+    private static final boolean printLog = CC.mp.monitor.print_log;
+    private static final long dumpPeriod = CC.mp.monitor.dump_period.getSeconds();
+
     private boolean dumpFirstJstack = false;
     private boolean dumpSecondJstack = false;
     private boolean dumpThirdJstack = false;
     private boolean dumpJmap = false;
-    private boolean enableDump = false;
 
     private final ResultCollector collector = new ResultCollector();
 
@@ -50,34 +54,31 @@ public class MonitorService extends BaseService implements Runnable {
     public void run() {
         while (started.get()) {
             MonitorResult result = collector.collect();
-            Logs.Monitor.info(Jsons.toJson(result));
+            if (printLog) {
+                Logs.Monitor.info(Jsons.toJson(result));
+            }
             if (enableDump) {
                 dump();
             }
-            try {//30s
-                Thread.sleep(30000L);
+            try {
+                TimeUnit.SECONDS.sleep(dumpPeriod);
             } catch (InterruptedException e) {
-                LOGGER.warn("monitor data exception", e);
+                stop();
             }
         }
     }
 
     @Override
-    public void start(Listener listener) {
-        if (started.compareAndSet(false, true)) {
+    protected void doStart(@NotNull Listener listener) throws Throwable {
+        if (CC.mp.monitor.print_log || enableDump) {
             Thread thread = new Thread(this, "mp-t-monitor");
             thread.start();
         }
     }
 
     @Override
-    public void stop(Listener listener) {
-        started.set(false);
-    }
+    protected void doStop(@NotNull Listener listener) throws Throwable {
 
-    @Override
-    public boolean isRunning() {
-        return started.get();
     }
 
     private void dump() {
@@ -109,16 +110,5 @@ public class MonitorService extends BaseService implements Runnable {
                 JVMUtil.dumpJmap(dumpLogDir);
             }
         }
-    }
-
-
-    public MonitorService setDumpLogDir(String dumpLogDir) {
-        this.dumpLogDir = dumpLogDir;
-        return this;
-    }
-
-    public MonitorService setEnableDump(boolean enableDump) {
-        this.enableDump = enableDump;
-        return this;
     }
 }

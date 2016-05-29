@@ -17,31 +17,27 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.tools;
+package com.mpush.zk;
 
 /**
- * Created by ohun on 2015/12/24.
+ * Created by yxx on 2016/5/14.
  *
  * @author ohun@live.cn
  */
-public final class Pair<K, V> {
-    public final K key;
-    public final V value;
+public class ZKException extends RuntimeException {
 
-    public Pair(K key, V value) {
-        this.key = key;
-        this.value = value;
+    public ZKException() {
     }
 
-    public K first() {
-        return key;
+    public ZKException(String message) {
+        super(message);
     }
 
-    public V second() {
-        return value;
+    public ZKException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public static <K, V> Pair<K, V> of(K k, V v) {
-        return new Pair<>(k, v);
+    public ZKException(Throwable cause) {
+        super(cause);
     }
 }

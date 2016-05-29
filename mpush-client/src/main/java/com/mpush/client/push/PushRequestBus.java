@@ -19,50 +19,47 @@
 
 package com.mpush.client.push;
 
+import com.mpush.api.push.PushException;
+import com.mpush.tools.thread.PoolThreadFactory;
+import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.*;
+
+import static com.mpush.tools.thread.ThreadNames.T_PUSH_REQ_TIMER;
 
 /**
  * Created by ohun on 2015/12/30.
  *
  * @author ohun@live.cn
  */
-public class PushRequestBus implements Runnable {
-	
-    public static final PushRequestBus INSTANCE = new PushRequestBus();
-    private Map<Integer, PushRequest> requests = new ConcurrentHashMapV8<>(1024);
-    private Executor executor = Executors.newFixedThreadPool(5);//test
-    private ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();//test
+public class PushRequestBus {
+    public static final PushRequestBus I = new PushRequestBus();
+    private final Logger logger = LoggerFactory.getLogger(PushRequestBus.class);
+    private final Map<Integer, PushRequest> reqQueue = new ConcurrentHashMapV8<>(1024);
+    private final Executor executor = ThreadPoolManager.I.getPushCallbackExecutor();
+    private final ScheduledExecutorService scheduledExecutor;
 
     private PushRequestBus() {
-        scheduledExecutor.scheduleAtFixedRate(this, 1, 1, TimeUnit.SECONDS);
+        scheduledExecutor = new ScheduledThreadPoolExecutor(1, new PoolThreadFactory(T_PUSH_REQ_TIMER), (r, e) -> {
+            logger.error("one push request was rejected, request=" + r);
+            throw new PushException("one push request was rejected. request=" + r);
+        });
     }
 
-    public void put(int sessionId, PushRequest request) {
-        requests.put(sessionId, request);
+    public Future<?> put(int sessionId, PushRequest request) {
+        reqQueue.put(sessionId, request);
+        return scheduledExecutor.schedule(request, request.getTimeout(), TimeUnit.MILLISECONDS);
     }
 
-    public PushRequest remove(int sessionId) {
-        return requests.remove(sessionId);
+    public PushRequest getAndRemove(int sessionId) {
+        return reqQueue.remove(sessionId);
     }
 
-    public Executor getExecutor() {
-        return executor;
-    }
-
-    @Override
-    public void run() {
-        if (requests.isEmpty()) return;
-        Iterator<PushRequest> it = requests.values().iterator();
-        while (it.hasNext()) {
-            PushRequest request = it.next();
-            if (request.isTimeout()) {
-                it.remove();//清除超时的请求
-                request.timeout();
-            }
-        }
+    public void asyncCall(Runnable runnable) {
+        executor.execute(runnable);
     }
 }

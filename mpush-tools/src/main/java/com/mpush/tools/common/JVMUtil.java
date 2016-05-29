@@ -17,8 +17,14 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.tools;
+package com.mpush.tools.common;
 
+import com.sun.management.HotSpotDiagnosticMXBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,24 +37,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.management.HotSpotDiagnosticMXBean;
-
 public class JVMUtil {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(JVMUtil.class);
-	
-	private static final String HOT_SPOT_BEAN_NAME = "com.sun.management:type=HotSpotDiagnostic";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JVMUtil.class);
+
+    private static final String HOT_SPOT_BEAN_NAME = "com.sun.management:type=HotSpotDiagnostic";
     private static volatile HotSpotDiagnosticMXBean mxBean;
-    
+
     private static Object lock = new Object();
-	
-	public static void jstack(OutputStream stream) throws Exception {
+
+    public static void jstack(OutputStream stream) throws Exception {
         try {
             Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
             Iterator<Map.Entry<Thread, StackTraceElement[]>> ite = map.entrySet().iterator();
@@ -69,18 +67,18 @@ public class JVMUtil {
             throw e;
         }
     }
-	
-	public static void dumpJstack(final String jvmPath){
-		Executors.newSingleThreadExecutor().execute(new Runnable() {
+
+    public static void dumpJstack(final String jvmPath) {
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 String logPath = jvmPath;
                 FileOutputStream jstackStream = null;
                 try {
-                    jstackStream = new FileOutputStream(new File(logPath, System.currentTimeMillis()+"-jstack.LOGGER"));
+                    jstackStream = new FileOutputStream(new File(logPath, System.currentTimeMillis() + "-jstack.LOGGER"));
                     JVMUtil.jstack(jstackStream);
                 } catch (Throwable t) {
-                	LOGGER.error("Dump JVM cache Error!", t);
+                    LOGGER.error("Dump JVM cache Error!", t);
                 } finally {
                     if (jstackStream != null) {
                         try {
@@ -91,8 +89,8 @@ public class JVMUtil {
                 }
             }
         });
-	}
-	
+    }
+
     private static HotSpotDiagnosticMXBean getMxBean() {
         try {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<HotSpotDiagnosticMXBean>() {
@@ -115,7 +113,7 @@ public class JVMUtil {
             return null;
         }
     }
-    
+
     private static void initHotspotMBean() throws Exception {
         if (mxBean == null) {
             synchronized (lock) {
@@ -125,10 +123,10 @@ public class JVMUtil {
             }
         }
     }
-    
+
     public static void jMap(String fileName, boolean live) {
-    	 File f = new File(fileName, System.currentTimeMillis()+"-jmap.LOGGER");
-         String currentFileName = f.getPath();
+        File f = new File(fileName, System.currentTimeMillis() + "-jmap.LOGGER");
+        String currentFileName = f.getPath();
         try {
             initHotspotMBean();
             if (f.exists()) {
@@ -136,17 +134,17 @@ public class JVMUtil {
             }
             mxBean.dumpHeap(currentFileName, live);
         } catch (Exception e) {
-        	LOGGER.error("dumpHeap Error!"+currentFileName, e);
+            LOGGER.error("dumpHeap Error!" + currentFileName, e);
         }
     }
-	
-	public static void dumpJmap(final String jvmPath){
-		Executors.newSingleThreadExecutor().execute(new Runnable() {
+
+    public static void dumpJmap(final String jvmPath) {
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
             public void run() {
-            	jMap(jvmPath, false);
+                jMap(jvmPath, false);
             }
         });
-	}
+    }
 
 }

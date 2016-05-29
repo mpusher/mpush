@@ -17,8 +17,19 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.api;
+package com.mpush.bootstrap;
 
-public interface Client extends Service {
+/**
+ * Created by yxx on 2016/5/19.
+ *
+ * @author ohun@live.cn
+ */
+public class BootException extends RuntimeException {
+    public BootException(String s) {
+        super(s);
+    }
 
+    public BootException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

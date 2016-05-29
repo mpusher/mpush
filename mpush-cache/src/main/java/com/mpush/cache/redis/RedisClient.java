@@ -21,69 +21,53 @@ package com.mpush.cache.redis;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mpush.tools.log.Logs;
 import com.mpush.tools.Jsons;
+import com.mpush.tools.config.CC;
+import com.mpush.tools.log.Logs;
 import redis.clients.jedis.*;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class RedisClient {
-    private static final int REDIS_TIMEOUT = 2000;
-    private static final int REDIS_MAX_TOTAL = 8;
-    private static final int REDIS_MAX_IDLE = 4;
-    private static final int REDIS_MIN_IDLE = 1;
-    private static final int REDIS_MAX_WAIT_MILLIS = 5000;
-    private static final int REDIS_MIN_EVICTABLE_IDLE_TIME_MILLIS = 300000;
-    private static final int REDIS_NUM_TESTS_PER_EVICTION_RUN = 3;
-    private static final int REDIS_TIME_BETWEEN_EVICTION_RUNS_MILLIS = 60000;
-    private static final boolean REDIS_TEST_ON_BORROW = false;
-    private static final boolean REDIS_TEST_ON_RETURN = false;
-    private static final boolean REDIS_TEST_WHILE_IDLE = false;
-
-    public static final JedisPoolConfig CONFIG = new JedisPoolConfig();
+    public static final JedisPoolConfig CONFIG = buildConfig();
     private static final Map<RedisServer, JedisPool> POOL_MAP = Maps.newConcurrentMap();
 
-    static {
+    private static JedisPoolConfig buildConfig() {
+        JedisPoolConfig config = new JedisPoolConfig();
         //连接池中最大连接数。高版本：maxTotal，低版本：maxActive
-        CONFIG.setMaxTotal(REDIS_MAX_TOTAL);
+        config.setMaxTotal(CC.mp.redis.config.maxTotal);
         //连接池中最大空闲的连接数
-        CONFIG.setMaxIdle(REDIS_MAX_IDLE);
+        config.setMaxIdle(CC.mp.redis.config.maxIdle);
         //连接池中最少空闲的连接数
-        CONFIG.setMinIdle(REDIS_MIN_IDLE);
+        config.setMinIdle(CC.mp.redis.config.minIdle);
         //当连接池资源耗尽时，调用者最大阻塞的时间，超时将跑出异常。单位，毫秒数;默认为-1.表示永不超时。高版本：maxWaitMillis，低版本：maxWait
-        CONFIG.setMaxWaitMillis(REDIS_MAX_WAIT_MILLIS);
+        config.setMaxWaitMillis(CC.mp.redis.config.maxWaitMillis);
         //连接空闲的最小时间，达到此值后空闲连接将可能会被移除。负值(-1)表示不移除
-        CONFIG.setMinEvictableIdleTimeMillis(REDIS_MIN_EVICTABLE_IDLE_TIME_MILLIS);
+        config.setMinEvictableIdleTimeMillis(CC.mp.redis.config.minEvictableIdleTimeMillis);
         //对于“空闲链接”检测线程而言，每次检测的链接资源的个数。默认为3
-        CONFIG.setNumTestsPerEvictionRun(REDIS_NUM_TESTS_PER_EVICTION_RUN);
+        config.setNumTestsPerEvictionRun(CC.mp.redis.config.numTestsPerEvictionRun);
         //“空闲链接”检测线程，检测的周期，毫秒数。如果为负值，表示不运行“检测线程”。默认为-1
-        CONFIG.setTimeBetweenEvictionRunsMillis(REDIS_TIME_BETWEEN_EVICTION_RUNS_MILLIS);
+        config.setTimeBetweenEvictionRunsMillis(CC.mp.redis.config.timeBetweenEvictionRunsMillis);
         //testOnBorrow:向调用者输出“链接”资源时，是否检测是有有效，如果无效则从连接池中移除，并尝试获取继续获取。默认为false。建议保持默认值.
-        CONFIG.setTestOnBorrow(REDIS_TEST_ON_BORROW);
+        config.setTestOnBorrow(CC.mp.redis.config.testOnBorrow);
         //testOnReturn:向连接池“归还”链接时，是否检测“链接”对象的有效性。默认为false。建议保持默认值
-        CONFIG.setTestOnReturn(REDIS_TEST_ON_RETURN);
+        config.setTestOnReturn(CC.mp.redis.config.testOnReturn);
         //testWhileIdle:向调用者输出“链接”对象时，是否检测它的空闲超时；默认为false。如果“链接”空闲超时，将会被移除。建议保持默认值.
-        CONFIG.setTestWhileIdle(REDIS_TEST_WHILE_IDLE);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(Jsons.toJson(CONFIG));
+        config.setTestWhileIdle(CC.mp.redis.config.testWhileIdle);
+        return config;
     }
 
     public static Jedis getClient(RedisServer node) {
         JedisPool pool = POOL_MAP.get(node);
         if (pool == null) {
-            pool = new JedisPool(CONFIG, node.getHost(), node.getPort(), REDIS_TIMEOUT, node.getPassword());
+            pool = new JedisPool(CONFIG, node.getHost(), node.getPort(), Protocol.DEFAULT_TIMEOUT, node.getPassword());
             POOL_MAP.put(node, pool);
         }
         return pool.getResource();
     }
 
     public static void close(Jedis jedis) {
-        jedis.close();
+        if (jedis != null) jedis.close();
     }
 
     public static long incr(List<RedisServer> nodeList, String key, Integer time) {
@@ -98,7 +82,7 @@ public class RedisClient {
                 }
                 incrRet = ret;
             } catch (Exception e) {
-                Logs.REDIS.error("redis incr exception:{},{},{},{}", key, time, node, e);
+                Logs.REDIS.error("redis incr exception:{}, {}, {}, {}", key, time, node, e);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -117,7 +101,7 @@ public class RedisClient {
                 long ret = jedis.incrBy(key, delt);
                 incrRet = ret;
             } catch (Exception e) {
-                Logs.REDIS.error("redis incr exception:{},{},{},{}", key, delt, node, e);
+                Logs.REDIS.error("redis incr exception:{}, {}, {}, {}", key, delt, node, e);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -143,7 +127,7 @@ public class RedisClient {
             jedis = getClient(node);
             value = jedis.get(key);
         } catch (Exception e) {
-            Logs.REDIS.error("redis get exception:{},{}", key, node, e);
+            Logs.REDIS.error("redis get exception:{}, {}", key, node, e);
         } finally {
             // 返还到连接池
             close(jedis);
@@ -153,9 +137,7 @@ public class RedisClient {
     }
 
     public static void set(List<RedisServer> nodeList, String key, String value) {
-
         set(nodeList, key, value, null);
-
     }
 
     public static <T> void set(List<RedisServer> nodeList, String key, T value) {
@@ -186,7 +168,7 @@ public class RedisClient {
                     jedis.expire(key, time);
                 }
             } catch (Exception e) {
-                Logs.REDIS.error("redis set exception:{},{},{},{}", key, value, time, node, e);
+                Logs.REDIS.error("redis set exception:{}, {}, {}, {}", key, value, time, node, e);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -202,7 +184,7 @@ public class RedisClient {
                 jedis = getClient(node);
                 jedis.del(key);
             } catch (Exception e) {
-                Logs.REDIS.error("redis del exception:{},{}", key, node, e);
+                Logs.REDIS.error("redis del exception:{}, {}", key, node, e);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -223,7 +205,7 @@ public class RedisClient {
                 jedis = getClient(node);
                 jedis.hset(namespace, key, value);
             } catch (Exception e) {
-                Logs.REDIS.error("redis hset exception:{},{},{},{}", namespace, key, value, node, e);
+                Logs.REDIS.error("redis hset exception:{}, {}, {}, {}", namespace, key, value, node, e);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -243,7 +225,7 @@ public class RedisClient {
             jedis = getClient(node);
             value = jedis.hget(namespace, key);
         } catch (Exception e) {
-            Logs.REDIS.error("redis hget exception:{},{}", namespace, key, node, e);
+            Logs.REDIS.error("redis hget exception:{}, {}", namespace, key, node, e);
         } finally {
             // 返还到连接池
             close(jedis);
@@ -260,7 +242,7 @@ public class RedisClient {
                 jedis = getClient(node);
                 jedis.hdel(namespace, key);
             } catch (Exception e) {
-                Logs.REDIS.error("redis hdel exception:{},{},{}", namespace, key, node, e);
+                Logs.REDIS.error("redis hdel exception:{}, {}, {}", namespace, key, node, e);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -275,7 +257,7 @@ public class RedisClient {
             jedis = getClient(node);
             result = jedis.hgetAll(namespace);
         } catch (Exception e) {
-            Logs.REDIS.error("redis hgetAll exception:{},{}", namespace, node, e);
+            Logs.REDIS.error("redis hgetAll exception:{}, {}", namespace, node, e);
         } finally {
             // 返还到连接池
             close(jedis);
@@ -284,17 +266,7 @@ public class RedisClient {
     }
 
     public static <T> Map<String, T> hgetAll(RedisServer node, String namespace, Class<T> clazz) {
-        Map<String, String> result = null;
-        Jedis jedis = null;
-        try {
-            jedis = getClient(node);
-            result = jedis.hgetAll(namespace);
-        } catch (Exception e) {
-            Logs.REDIS.error("redis hgetAll exception:{},{}", namespace, node, e);
-        } finally {
-            // 返还到连接池
-            close(jedis);
-        }
+        Map<String, String> result = hgetAll(node, namespace);
         if (result != null) {
             Map<String, T> newMap = Maps.newHashMap();
             Iterator<Map.Entry<String, String>> iterator = result.entrySet().iterator();
@@ -308,7 +280,6 @@ public class RedisClient {
         } else {
             return null;
         }
-
     }
 
     /**
@@ -355,14 +326,7 @@ public class RedisClient {
             // 返还到连接池
             close(jedis);
         }
-        if (value != null) {
-            List<T> newValue = Lists.newArrayList();
-            for (String temp : value) {
-                newValue.add(Jsons.fromJson(temp, clazz));
-            }
-            return newValue;
-        }
-        return null;
+        return toList(value, clazz);
 
     }
 
@@ -517,14 +481,7 @@ public class RedisClient {
             // 返还到连接池
             close(jedis);
         }
-        if (value != null) {
-            List<T> newValue = Lists.newArrayList();
-            for (String temp : value) {
-                newValue.add(Jsons.fromJson(temp, clazz));
-            }
-            return newValue;
-        }
-        return null;
+        return toList(value, clazz);
     }
 
     /**
@@ -708,15 +665,7 @@ public class RedisClient {
             // 返还到连接池
             close(jedis);
         }
-        if (value != null) {
-            List<T> newValue = Lists.newArrayList();
-            for (String temp : value) {
-                newValue.add(Jsons.fromJson(temp, clazz));
-            }
-            return newValue;
-        }
-        return null;
-
+        return toList(value, clazz);
     }
 
     /*********************
@@ -797,6 +746,11 @@ public class RedisClient {
             // 返还到连接池
             close(jedis);
         }
+
+        return toList(value, clazz);
+    }
+
+    private static <T> List<T> toList(Collection<String> value, Class<T> clazz) {
         if (value != null) {
             List<T> newValue = Lists.newArrayList();
             for (String temp : value) {

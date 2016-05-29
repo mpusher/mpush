@@ -19,7 +19,7 @@
 
 package com.mpush.api.spi.net;
 
-import com.mpush.api.Service;
+import com.mpush.api.service.Service;
 
 /**
  * Created by yxx on 2016/5/23.

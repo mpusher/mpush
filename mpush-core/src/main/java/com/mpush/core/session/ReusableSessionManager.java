@@ -22,7 +22,7 @@ package com.mpush.core.session;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.cache.redis.RedisKey;
 import com.mpush.cache.redis.manager.RedisManager;
-import com.mpush.tools.Strings;
+import com.mpush.tools.common.Strings;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.crypto.MD5Utils;
 

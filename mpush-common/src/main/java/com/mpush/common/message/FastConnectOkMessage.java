@@ -53,4 +53,12 @@ public final class FastConnectOkMessage extends ByteBufMessage {
         this.heartbeat = heartbeat;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "FastConnectOkMessage{" +
+                "heartbeat=" + heartbeat +
+                ", packet=" + packet +
+                '}';
+    }
 }

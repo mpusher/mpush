@@ -21,7 +21,7 @@ package com.mpush.zk.node;
 
 
 import com.mpush.tools.Jsons;
-import com.mpush.tools.MPushUtil;
+import com.mpush.tools.Utils;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.config.ConfigManager;
 import com.mpush.zk.ZKPath;
@@ -50,14 +50,14 @@ public class ZKServerNode implements ZKNode {
     }
 
     public static ZKServerNode csNode() {
-        return new ZKServerNode(MPushUtil.getLocalIp(),
+        return new ZKServerNode(Utils.getLocalIp(),
                 CC.mp.net.connect_server_port,
                 ConfigManager.I.getPublicIp(),
                 ZKPath.CONNECT_SERVER.getNodePath());
     }
 
     public static ZKServerNode gsNode() {
-        return new ZKServerNode(MPushUtil.getLocalIp(),
+        return new ZKServerNode(Utils.getLocalIp(),
                 CC.mp.net.gateway_server_port,
                 null,
                 ZKPath.GATEWAY_SERVER.getNodePath());

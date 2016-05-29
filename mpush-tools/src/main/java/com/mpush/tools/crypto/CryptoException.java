@@ -17,22 +17,22 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.tools.spi.test;
+package com.mpush.tools.crypto;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+/**
+ * Created by ohun on 2015/12/23.
+ *
+ * @author ohun@live.cn
+ */
+public class CryptoException extends RuntimeException {
 
-public class TestServiceImpl implements TestService {
+    private static final long serialVersionUID = 368277451733324220L;
 
-	private static final Logger log = LoggerFactory.getLogger(TestServiceImpl.class);
-	
-    public TestServiceImpl() {
-    	log.warn("init");
+    public CryptoException(String message) {
+        super(message);
     }
 
-	@Override
-	public String sayHi(String name) {
-		return "TestServiceImpl1 hi,"+name;
-	}
-
+    public CryptoException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

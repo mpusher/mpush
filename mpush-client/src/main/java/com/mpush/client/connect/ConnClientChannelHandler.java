@@ -21,15 +21,17 @@ package com.mpush.client.connect;
 
 
 import com.google.common.collect.Maps;
-import com.mpush.cache.redis.RedisKey;
 import com.mpush.api.connection.Connection;
+import com.mpush.api.event.ConnectionCloseEvent;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
+import com.mpush.cache.redis.RedisKey;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.common.message.*;
 import com.mpush.common.security.AesCipher;
 import com.mpush.common.security.CipherBox;
 import com.mpush.netty.connection.NettyConnection;
+import com.mpush.tools.event.EventBus;
 import com.mpush.tools.thread.PoolThreadFactory;
 import com.mpush.tools.thread.ThreadNames;
 import io.netty.channel.*;
@@ -37,7 +39,6 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,10 +53,10 @@ import java.util.concurrent.TimeUnit;
 @ChannelHandler.Sharable
 public final class ConnClientChannelHandler extends ChannelHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnClientChannelHandler.class);
-    private static final Timer HASHED_WHEEL_TIMER = new HashedWheelTimer(new PoolThreadFactory(ThreadNames.NETTY_TIMER));
+    private static final Timer HASHED_WHEEL_TIMER = new HashedWheelTimer(new PoolThreadFactory(ThreadNames.T_NETTY_TIMER));
 
-    private Connection connection = new NettyConnection();
-    private ClientConfig clientConfig;
+    private final Connection connection = new NettyConnection();
+    private final ClientConfig clientConfig;
 
     public ConnClientChannelHandler(ClientConfig clientConfig) {
         this.clientConfig = clientConfig;
@@ -116,7 +117,7 @@ public final class ConnClientChannelHandler extends ChannelHandlerAdapter {
         }
 
 
-        LOGGER.warn("update currentTime:" + ctx.channel() + "," + ToStringBuilder.reflectionToString(msg));
+        LOGGER.warn("update currentTime:" + ctx.channel() + "," + msg);
     }
 
     @Override
@@ -135,7 +136,8 @@ public final class ConnClientChannelHandler extends ChannelHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         connection.close();
-        LOGGER.info("client disconnect channel={}", ctx.channel());
+        EventBus.I.post(new ConnectionCloseEvent(connection));
+        LOGGER.info("client disconnect connection={}", connection);
     }
 
     private void tryFastConnect() {
@@ -166,14 +168,11 @@ public final class ConnClientChannelHandler extends ChannelHandlerAdapter {
         message.deviceId = clientConfig.getDeviceId();
         message.sessionId = sessionId;
 
-        message.sendRaw(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                if (channelFuture.isSuccess()) {
-                    clientConfig.setCipher(cipher);
-                } else {
-                    handshake(clientConfig);
-                }
+        message.sendRaw(channelFuture -> {
+            if (channelFuture.isSuccess()) {
+                clientConfig.setCipher(cipher);
+            } else {
+                handshake(clientConfig);
             }
         });
     }
@@ -210,33 +209,27 @@ public final class ConnClientChannelHandler extends ChannelHandlerAdapter {
         message.send();
     }
 
-
     public void startHeartBeat(final int heartbeat) throws Exception {
         HASHED_WHEEL_TIMER.newTimeout(new TimerTask() {
             @Override
             public void run(Timeout timeout) throws Exception {
+                final TimerTask self = this;
                 final Channel channel = connection.getChannel();
-
-                try {
+                if (channel.isActive()) {
                     ChannelFuture channelFuture = channel.writeAndFlush(Packet.getHBPacket());
                     channelFuture.addListener(new ChannelFutureListener() {
-
                         @Override
                         public void operationComplete(ChannelFuture future) throws Exception {
-                            if (!future.isSuccess()) {
-                                if (!channel.isActive()) {
-                                    LOGGER.warn("client send hb msg false:" + channel.remoteAddress().toString() + ",channel is not active");
-                                }
-                                LOGGER.warn("client send msg hb false:" + channel.remoteAddress().toString());
-                            } else {
+                            if (future.isSuccess()) {
                                 LOGGER.debug("client send msg hb success:" + channel.remoteAddress().toString());
+                            } else {
+                                LOGGER.warn("client send msg hb false:" + channel.remoteAddress().toString(), future.cause());
                             }
+                            HASHED_WHEEL_TIMER.newTimeout(self, heartbeat, TimeUnit.MILLISECONDS);
                         }
                     });
-                } finally {
-                    if (channel.isActive()) {
-                        HASHED_WHEEL_TIMER.newTimeout(this, heartbeat, TimeUnit.MILLISECONDS);
-                    }
+                } else {
+                    LOGGER.error("connection was closed, connection={}", connection);
                 }
             }
         }, heartbeat, TimeUnit.MILLISECONDS);

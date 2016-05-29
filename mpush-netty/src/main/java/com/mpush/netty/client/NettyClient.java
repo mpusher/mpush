@@ -19,10 +19,13 @@
 
 package com.mpush.netty.client;
 
-import com.mpush.api.BaseService;
-import com.mpush.api.Client;
+import com.mpush.api.service.BaseService;
+import com.mpush.api.service.Client;
+import com.mpush.api.service.Listener;
+import com.mpush.api.service.ServiceException;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
+import com.sun.istack.internal.NotNull;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -33,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class NettyClient extends BaseService implements Client {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyClient.class);
@@ -63,12 +65,9 @@ public abstract class NettyClient extends BaseService implements Client {
             bootstrap.handler(new ChannelInitializer<SocketChannel>() { // (4)
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
-                    ch.pipeline().addLast(new PacketDecoder());
-                    ch.pipeline().addLast(PacketEncoder.INSTANCE);
-                    ch.pipeline().addLast(getChannelHandler());
+                    initPipeline(ch.pipeline());
                 }
             });
-
 
             ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
             future.addListener(new ChannelFutureListener() {
@@ -84,17 +83,54 @@ public abstract class NettyClient extends BaseService implements Client {
                 }
             });
         } else {
-            listener.onFailure(new RuntimeException("client has started!"));
+            listener.onFailure(new ServiceException("client has started!"));
         }
+    }
+
+    protected void initPipeline(ChannelPipeline pipeline) {
+        pipeline.addLast("decoder", getDecoder());
+        pipeline.addLast("encoder", getEncoder());
+        pipeline.addLast("handler", getChannelHandler());
+    }
+
+    protected ChannelHandler getDecoder() {
+        return new PacketDecoder();
+    }
+
+    protected ChannelHandler getEncoder() {
+        return PacketEncoder.INSTANCE;
+    }
+
+
+    public abstract ChannelHandler getChannelHandler();
+
+    @Override
+    protected void doStart(@NotNull Listener listener) throws Throwable {
+
     }
 
     @Override
-    public void stop(Listener listener) {
+    protected void doStop(@NotNull Listener listener) throws Throwable {
         if (workerGroup != null) {
             workerGroup.shutdownGracefully();
         }
-        started.set(false);
+        LOGGER.error("netty client [{}] stopped.", this.getClass().getSimpleName());
     }
 
-    public abstract ChannelHandler getChannelHandler();
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    @Override
+    public String toString() {
+        return "NettyClient{" +
+                "host='" + host + '\'' +
+                ", port=" + port +
+                ", name=" + this.getClass().getSimpleName() +
+                '}';
+    }
 }

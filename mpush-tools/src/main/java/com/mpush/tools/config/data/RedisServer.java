@@ -61,6 +61,25 @@ public class RedisServer {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RedisServer server = (RedisServer) o;
+
+        if (port != server.port) return false;
+        return host.equals(server.host);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = host.hashCode();
+        result = 31 * result + port;
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "RedisServer{" +
                 "host='" + host + '\'' +

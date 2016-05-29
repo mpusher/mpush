@@ -93,6 +93,11 @@
                 <artifactId>netty-codec-http</artifactId>
                 <version>${netty.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
+                <version>5.0.0.Alpha2</version>
+            </dependency>
             <!-- ======================================== -->
             <!-- 第三方依赖 -->
             <!-- ======================================== -->
