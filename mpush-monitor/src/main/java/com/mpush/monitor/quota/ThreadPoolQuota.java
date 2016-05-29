@@ -19,6 +19,6 @@
 
 package com.mpush.monitor.quota;
 
-public interface ThreadPoolQuota {
+public interface ThreadPoolQuota  extends MonitorQuota {
 
 }

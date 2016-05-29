@@ -21,7 +21,6 @@ package com.mpush.monitor.quota.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mpush.monitor.quota.BaseQuota;
 import com.mpush.monitor.quota.MemoryQuota;
 
 import java.lang.management.ManagementFactory;
@@ -30,7 +29,7 @@ import java.lang.management.MemoryPoolMXBean;
 import java.util.List;
 import java.util.Map;
 
-public class JVMMemory extends BaseQuota implements MemoryQuota {
+public class JVMMemory implements MemoryQuota {
 
     private final List<String> permGenName = Lists.newArrayList("CMS Perm Gen", "Perm Gen", "PS Perm Gen", "G1 Perm Gen");
 
@@ -235,7 +234,7 @@ public class JVMMemory extends BaseQuota implements MemoryQuota {
     }
 
     @Override
-    public Map<String, Object> toMap() {
+    public Object monitor(Object... args) {
         Map<String, Object> map = Maps.newHashMap();
         map.put("heapMemoryCommitted", heapMemoryCommitted());
         map.put("heapMemoryInit", heapMemoryInit());
@@ -263,5 +262,4 @@ public class JVMMemory extends BaseQuota implements MemoryQuota {
         map.put("survivorUsed", survivorUsed());
         return map;
     }
-
 }

@@ -329,14 +329,16 @@ public interface CC {
         }
 
         interface monitor {
-
             Config cfg = mp.cfg.getObject("monitor").toConfig();
             String dump_dir = cfg.getString("dump-dir");
             boolean dump_stack = cfg.getBoolean("dump-stack");
             boolean print_log = cfg.getBoolean("print-log");
-
             Duration dump_period = cfg.getDuration("dump-period");
+        }
 
+        interface spi {
+            Config cfg = mp.cfg.getObject("spi").toConfig();
+            String thread_pool_factory = cfg.getString("thread-pool-factory");
         }
     }
 }

@@ -24,7 +24,6 @@ import com.mpush.api.service.Listener;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.NamedThreadFactory;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
-import com.sun.istack.internal.NotNull;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -120,7 +119,7 @@ public class NettyHttpClient extends BaseService implements HttpClient {
     }
 
     @Override
-    protected void doStart(@NotNull Listener listener) throws Throwable {
+    protected void doStart(Listener listener) throws Throwable {
         workerGroup = new NioEventLoopGroup(0, ThreadPoolManager.I.getHttpExecutor());
         b = new Bootstrap();
         b.group(workerGroup);
@@ -143,7 +142,7 @@ public class NettyHttpClient extends BaseService implements HttpClient {
     }
 
     @Override
-    protected void doStop(@NotNull Listener listener) throws Throwable {
+    protected void doStop(Listener listener) throws Throwable {
         pool.close();
         workerGroup.shutdownGracefully();
         timer.stop();

@@ -21,7 +21,6 @@ package com.mpush.monitor.quota.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mpush.monitor.quota.BaseQuota;
 import com.mpush.monitor.quota.GCMQuota;
 
 import java.lang.management.GarbageCollectorMXBean;
@@ -29,7 +28,7 @@ import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.Map;
 
-public class JVMGC extends BaseQuota implements GCMQuota {
+public class JVMGC implements GCMQuota {
 
     private final List<String> fullGcName = Lists.newArrayList("ConcurrentMarkSweep", "MarkSweepCompact", "PS MarkSweep", "G1 Old Generation",
             "Garbage collection optimized for short pausetimes Old Collector", "Garbage collection optimized for throughput Old Collector",
@@ -146,7 +145,7 @@ public class JVMGC extends BaseQuota implements GCMQuota {
     }
 
     @Override
-    public Map<String, Object> toMap() {
+    public Object monitor(Object... args) {
         Map<String, Object> map = Maps.newHashMap();
         map.put("yongGcCollectionCount", yongGcCollectionCount());
         map.put("yongGcCollectionTime", yongGcCollectionTime());
@@ -158,5 +157,4 @@ public class JVMGC extends BaseQuota implements GCMQuota {
         map.put("spanFullGcCollectionTime", spanFullGcCollectionTime());
         return map;
     }
-
 }

@@ -19,22 +19,22 @@
 
 package com.mpush.monitor.quota;
 
-public interface GCMQuota {
+public interface GCMQuota extends MonitorQuota {
 
-    public long yongGcCollectionCount();
+    long yongGcCollectionCount();
 
-    public long yongGcCollectionTime();
+    long yongGcCollectionTime();
 
-    public long fullGcCollectionCount();
+    long fullGcCollectionCount();
 
-    public long fullGcCollectionTime();
+    long fullGcCollectionTime();
 
-    public long spanYongGcCollectionCount();
+    long spanYongGcCollectionCount();
 
-    public long spanYongGcCollectionTime();
+    long spanYongGcCollectionTime();
 
-    public long spanFullGcCollectionCount();
+    long spanFullGcCollectionCount();
 
-    public long spanFullGcCollectionTime();
+    long spanFullGcCollectionTime();
 
 }

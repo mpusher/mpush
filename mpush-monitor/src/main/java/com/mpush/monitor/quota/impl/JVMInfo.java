@@ -20,15 +20,15 @@
 package com.mpush.monitor.quota.impl;
 
 import com.google.common.collect.Maps;
-import com.mpush.monitor.quota.BaseQuota;
 import com.mpush.monitor.quota.InfoQuota;
+import com.mpush.monitor.quota.MonitorQuota;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.util.Map;
 
-public class JVMInfo extends BaseQuota implements InfoQuota {
+public class JVMInfo implements InfoQuota {
 
     public static final JVMInfo I = new JVMInfo();
 
@@ -52,17 +52,19 @@ public class JVMInfo extends BaseQuota implements InfoQuota {
     }
 
     @Override
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = Maps.newHashMap();
-        map.put("pid", pid());
-        map.put("load", load());
-        return map;
-    }
-
-    @Override
     public double load() {
         double averageLoad = systemMXBean.getSystemLoadAverage();
         return averageLoad;
     }
 
+    @Override
+    public Object monitor(Object... args) {
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("pid", pid());
+        map.put("load", load());
+        map.put("totalMemory", Runtime.getRuntime().totalMemory() / 1024 / 1024 + "m");
+        map.put("freeMemory", Runtime.getRuntime().freeMemory() / 1024 / 1024 + "m");
+        map.put("maxMemory", Runtime.getRuntime().maxMemory() / 1024 / 1024 + "m");
+        return map;
+    }
 }

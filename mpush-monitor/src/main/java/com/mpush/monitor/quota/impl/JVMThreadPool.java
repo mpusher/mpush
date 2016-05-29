@@ -19,7 +19,6 @@
 
 package com.mpush.monitor.quota.impl;
 
-import com.mpush.monitor.quota.BaseQuota;
 import com.mpush.monitor.quota.ThreadPoolQuota;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 
@@ -28,14 +27,15 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class JVMThreadPool extends BaseQuota implements ThreadPoolQuota {
+public class JVMThreadPool implements ThreadPoolQuota {
     public static final JVMThreadPool I = new JVMThreadPool();
 
     private JVMThreadPool() {
     }
 
+
     @Override
-    public Map<String, Object> toMap() {
+    public Object monitor(Object... args) {
         Map<String, Object> map = new HashMap<>();
         Map<String, Executor> pool = ThreadPoolManager.I.getActivePools();
         for (Map.Entry<String, Executor> entry : pool.entrySet()) {
@@ -45,6 +45,4 @@ public class JVMThreadPool extends BaseQuota implements ThreadPoolQuota {
         }
         return map;
     }
-
-
 }

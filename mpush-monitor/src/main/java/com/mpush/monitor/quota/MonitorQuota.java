@@ -19,9 +19,7 @@
 
 package com.mpush.monitor.quota;
 
-import java.util.Map;
+public interface MonitorQuota {
 
-public abstract class BaseQuota {
-
-    public abstract Map<String, Object> toMap();
+    Object monitor(Object... args);
 }

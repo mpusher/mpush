@@ -27,7 +27,6 @@ import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
-import com.sun.istack.internal.NotNull;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -255,12 +254,12 @@ public abstract class NettyServer extends BaseService implements Server {
     }
 
     @Override
-    protected void doStart(@NotNull Listener listener) throws Throwable {
+    protected void doStart(Listener listener) throws Throwable {
 
     }
 
     @Override
-    protected void doStop(@NotNull Listener listener) throws Throwable {
+    protected void doStop(Listener listener) throws Throwable {
 
     }
 }
