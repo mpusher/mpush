@@ -41,7 +41,7 @@ public class ConnClientTestMain {
 
         int index = (int) ((Math.random() % serverList.size()) * serverList.size());
         ZKServerNode server = serverList.get(index);
-        server = new ZKServerNode("127.0.0.1", 3000, "127.0.0.1", null);
+        //server = new ZKServerNode("127.0.0.1", 3000, "127.0.0.1", null);
         for (int i = 0; i < 1; i++) {
             String clientVersion = "1.0." + i;
             String osName = "android";
