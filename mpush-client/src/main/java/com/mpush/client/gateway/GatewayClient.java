@@ -22,7 +22,6 @@ package com.mpush.client.gateway;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.service.Listener;
 import com.mpush.netty.client.NettyClient;
-import com.sun.istack.internal.NotNull;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
@@ -69,7 +68,7 @@ public class GatewayClient extends NettyClient {
     }
 
     @Override
-    protected void doStop(@NotNull Listener listener) throws Throwable {
+    protected void doStop(Listener listener) throws Throwable {
         if (trafficShapingHandler != null) {
             trafficShapingHandler.release();
         }
