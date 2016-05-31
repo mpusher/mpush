@@ -64,7 +64,7 @@ public class ZKClient extends BaseService {
             throw new ZKException("init zk error, config=" + zkConfig);
         }
         initLocalCache(zkConfig.getLocalCachePath());
-        registerConnectionLostListener();
+        addConnectionStateListener();
         listener.onSuccess(zkConfig.getHosts());
         Logs.ZK.info("zk client start success, server lists is:{}", zkConfig.getHosts());
         Logs.Console.error("init zk client success...");
@@ -117,7 +117,7 @@ public class ZKClient extends BaseService {
     }
 
     // 注册连接状态监听器
-    private void registerConnectionLostListener() {
+    private void addConnectionStateListener() {
         client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
             //TODO need close jvm?
             @Override
