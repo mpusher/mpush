@@ -46,7 +46,7 @@ public final class PacketDecoder extends ByteToMessageDecoder {
     private void decodeHeartbeat(ByteBuf in, List<Object> out) {
         while (in.isReadable()) {
             if (in.readByte() == Packet.HB_PACKET_BYTE) {
-                out.add(new Packet(Command.HEARTBEAT));
+                out.add(Packet.HB_PACKE);
             } else {
                 in.readerIndex(in.readerIndex() - 1);
                 break;
