@@ -41,8 +41,8 @@ public class PushClientTestMain {
         for (int i = 0; i < 1000; i++) {
             PushContent content = PushContent.build(PushType.MESSAGE, "this a first push." + i);
             content.setMsgId("msgId_" + (i % 2));
-            //Thread.sleep(1000);
-            sender.send(Jsons.toJson(content), Arrays.asList("user-0"), new PushSender.Callback() {
+            Thread.sleep(1000);
+            sender.send(Jsons.toJson(content), Arrays.asList("user_1"), new PushSender.Callback() {
                 @Override
                 public void onSuccess(String userId) {
                     System.err.println("push onSuccess userId=" + userId);

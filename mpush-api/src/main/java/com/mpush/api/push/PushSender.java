@@ -40,6 +40,10 @@ public interface PushSender extends Service {
 
     void send(String content, String userId, Callback callback);
 
+    void send(byte[] content, Collection<String> userIds, Callback callback);
+
+    void send(byte[] content, String userId, Callback callback);
+
     interface Callback {
         void onSuccess(String userId);
 

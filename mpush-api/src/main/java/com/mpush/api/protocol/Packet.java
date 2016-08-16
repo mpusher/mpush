@@ -35,6 +35,7 @@ public final class Packet {
 
     public static final byte HB_PACKET_BYTE = -33;
     public static final byte[] HB_PACKET_BYTES = new byte[]{HB_PACKET_BYTE};
+    public static final Packet HB_PACKE = new Packet(Command.HEARTBEAT);
 
     public byte cmd; //命令
     public short cc; //校验码 暂时没有用到
@@ -65,7 +66,7 @@ public final class Packet {
         return body == null ? 0 : body.length;
     }
 
-    public void setFlag(byte flag) {
+    public void addFlag(byte flag) {
         this.flags |= flag;
     }
 

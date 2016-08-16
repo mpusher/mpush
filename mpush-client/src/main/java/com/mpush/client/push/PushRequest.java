@@ -55,7 +55,7 @@ public class PushRequest extends FutureTask<Boolean> implements Runnable {
 
     private PushSender.Callback callback;
     private String userId;
-    private String content;
+    private byte[] content;
     private long timeout;
     private ClientLocation location;
     private Future<?> future;
@@ -195,7 +195,7 @@ public class PushRequest extends FutureTask<Boolean> implements Runnable {
         return this;
     }
 
-    public PushRequest setContent(String content) {
+    public PushRequest setContent(byte[] content) {
         this.content = content;
         return this;
     }

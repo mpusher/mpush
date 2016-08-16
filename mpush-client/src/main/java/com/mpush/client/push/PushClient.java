@@ -20,6 +20,7 @@
 package com.mpush.client.push;
 
 import com.google.common.base.Strings;
+import com.mpush.api.Constants;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.push.PushSender;
 import com.mpush.api.service.BaseService;
@@ -38,20 +39,24 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
     private final GatewayClientFactory factory = GatewayClientFactory.I;
 
     public void send(String content, Collection<String> userIds, Callback callback) {
-        if (Strings.isNullOrEmpty(content)) return;
-        for (String userId : userIds) {
-            PushRequest
-                    .build(this)
-                    .setCallback(callback)
-                    .setUserId(userId)
-                    .setContent(content)
-                    .setTimeout(DEFAULT_TIMEOUT)
-                    .send();
-        }
+        send(content.getBytes(Constants.UTF_8), userIds, callback);
     }
 
     @Override
     public void send(String content, String userId, Callback callback) {
+        send(content.getBytes(Constants.UTF_8), userId, callback);
+    }
+
+    @Override
+    public void send(byte[] content, Collection<String> userIds, Callback callback) {
+        if (content == null || content.length == 0) return;
+        for (String userId : userIds) {
+            send(content, userId, callback);
+        }
+    }
+
+    @Override
+    public void send(byte[] content, String userId, Callback callback) {
         PushRequest
                 .build(this)
                 .setCallback(callback)

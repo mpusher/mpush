@@ -23,6 +23,8 @@ import com.mpush.api.Constants;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 
+import java.util.Arrays;
+
 import static com.mpush.api.protocol.Command.PUSH;
 
 /**
@@ -32,31 +34,31 @@ import static com.mpush.api.protocol.Command.PUSH;
  */
 public final class PushMessage extends BaseMessage {
 
-    public String content;
+    public byte[] content;
 
     public PushMessage(Packet packet, Connection connection) {
         super(packet, connection);
     }
 
-    public PushMessage(String content, Connection connection) {
+    public PushMessage(byte[] content, Connection connection) {
         super(new Packet(PUSH, genSessionId()), connection);
         this.content = content;
     }
 
     @Override
     public void decode(byte[] body) {
-        content = new String(body, Constants.UTF_8);
+        content = body;
     }
 
     @Override
     public byte[] encode() {
-        return content == null ? null : content.getBytes(Constants.UTF_8);
+        return content;
     }
 
     @Override
     public String toString() {
         return "PushMessage{" +
-                "content='" + content + '\'' +
+                "content='" + content.length + '\'' +
                 ", packet=" + packet +
                 '}';
     }
