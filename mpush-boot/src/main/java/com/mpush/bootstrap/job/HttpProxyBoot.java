@@ -19,7 +19,9 @@
 
 package com.mpush.bootstrap.job;
 
-import com.mpush.common.net.DnsMappingManager;
+import com.mpush.api.spi.SpiLoader;
+import com.mpush.api.spi.net.DnsMappingManager;
+import com.mpush.common.net.HttpProxyDnsMappingManager;
 import com.mpush.tools.config.CC;
 
 /**
@@ -31,7 +33,7 @@ public class HttpProxyBoot extends BootJob {
     @Override
     void run() {
         if (CC.mp.http.proxy_enabled) {
-            DnsMappingManager.I.start();
+            SpiLoader.load(DnsMappingManager.class, CC.mp.spi.dns_mapping_manager).start();
         }
         next();
     }

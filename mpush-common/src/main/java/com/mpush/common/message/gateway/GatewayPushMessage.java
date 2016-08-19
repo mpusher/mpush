@@ -34,11 +34,13 @@ import static com.mpush.api.protocol.Command.GATEWAY_PUSH;
  */
 public class GatewayPushMessage extends ByteBufMessage {
     public String userId;
+    public int clientType;
     public byte[] content;
 
-    public GatewayPushMessage(String userId, byte[] content, Connection connection) {
+    public GatewayPushMessage(String userId, int clientType, byte[] content, Connection connection) {
         super(new Packet(GATEWAY_PUSH, genSessionId()), connection);
         this.userId = userId;
+        this.clientType = clientType;
         this.content = content;
     }
 
@@ -49,12 +51,14 @@ public class GatewayPushMessage extends ByteBufMessage {
     @Override
     public void decode(ByteBuf body) {
         userId = decodeString(body);
+        clientType = decodeInt(body);
         content = decodeBytes(body);
     }
 
     @Override
     public void encode(ByteBuf body) {
         encodeString(body, userId);
+        encodeInt(body, clientType);
         encodeBytes(body, content);
     }
 
@@ -72,6 +76,7 @@ public class GatewayPushMessage extends ByteBufMessage {
     public String toString() {
         return "GatewayPushMessage{" +
                 "userId='" + userId + '\'' +
+                "clientType='" + clientType + '\'' +
                 ", content='" + content.length + '\'' +
                 '}';
     }

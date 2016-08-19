@@ -21,7 +21,7 @@ package com.mpush.cache.redis;
 
 public final class RedisKey {
 
-    private static final String USER_PREFIX = "mp_u_";
+    private static final String USER_PREFIX = "mp_uc_";
 
     private static final String SESSION_PREFIX = "mp_s_";
 

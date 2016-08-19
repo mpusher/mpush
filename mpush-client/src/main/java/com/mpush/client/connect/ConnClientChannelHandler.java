@@ -130,7 +130,7 @@ public final class ConnClientChannelHandler extends ChannelHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.info("client connect channel={}", ctx.channel());
         connection.init(ctx.channel(), true);
-        tryFastConnect();
+        handshake(clientConfig);
     }
 
     @Override

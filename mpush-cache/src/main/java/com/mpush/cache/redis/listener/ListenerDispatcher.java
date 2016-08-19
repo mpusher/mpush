@@ -49,12 +49,7 @@ public class ListenerDispatcher implements MessageListener {
             return;
         }
         for (final MessageListener listener : listeners) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onMessage(channel, message);
-                }
-            });
+            executor.execute(() -> listener.onMessage(channel, message));
         }
     }
 

@@ -68,33 +68,36 @@ public final class UnbindUserHandler extends BaseMessageHandler<BindUserMessage>
         if (context.handshakeOk()) {
             //2.先删除远程路由, 必须是同一个设备才允许解绑
             boolean unRegisterSuccess = true;
-            RemoteRouterManager remoteRouterManager = RouterCenter.INSTANCE.getRemoteRouterManager();
-            RemoteRouter remoteRouter = remoteRouterManager.lookup(message.userId);
+            int clientType = context.getClientType();
+            String userId = message.userId;
+            RemoteRouterManager remoteRouterManager = RouterCenter.I.getRemoteRouterManager();
+            RemoteRouter remoteRouter = remoteRouterManager.lookup(userId, clientType);
             if (remoteRouter != null) {
                 String deviceId = remoteRouter.getRouteValue().getDeviceId();
                 if (context.deviceId.equals(deviceId)) {//判断是否是同一个设备
-                    unRegisterSuccess = remoteRouterManager.unRegister(message.userId);
+                    unRegisterSuccess = remoteRouterManager.unRegister(userId, clientType);
                 }
             }
 
             //3.删除本地路由信息
-            LocalRouterManager localRouterManager = RouterCenter.INSTANCE.getLocalRouterManager();
-            LocalRouter localRouter = localRouterManager.lookup(message.userId);
+            LocalRouterManager localRouterManager = RouterCenter.I.getLocalRouterManager();
+            LocalRouter localRouter = localRouterManager.lookup(userId, clientType);
             if (localRouter != null) {
                 String deviceId = localRouter.getRouteValue().getSessionContext().deviceId;
                 if (context.deviceId.equals(deviceId)) {//判断是否是同一个设备
-                    unRegisterSuccess = localRouterManager.unRegister(message.userId) && unRegisterSuccess;
+                    unRegisterSuccess = localRouterManager.unRegister(userId, clientType) && unRegisterSuccess;
                 }
             }
 
             //4.路由删除成功，广播用户下线事件
             if (unRegisterSuccess) {
-                EventBus.I.post(new UserOfflineEvent(message.getConnection(), message.userId));
+                context.userId = null;
+                EventBus.I.post(new UserOfflineEvent(message.getConnection(), userId));
                 OkMessage.from(message).setData("unbind success").send();
-                Logs.Conn.info("unbind user success, userId={}, session={}", message.userId, context);
+                Logs.Conn.info("unbind user success, userId={}, session={}", userId, context);
             } else {
                 ErrorMessage.from(message).setReason("unbind failed").send();
-                Logs.Conn.info("unbind user failure, register router failure, userId={}, session={}", message.userId, context);
+                Logs.Conn.info("unbind user failure, register router failure, userId={}, session={}", userId, context);
             }
         } else {
             ErrorMessage.from(message).setReason("not handshake").close();

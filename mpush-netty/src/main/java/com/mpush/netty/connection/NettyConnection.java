@@ -85,7 +85,6 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
             }
         } else {
             return this.close();
-
         }
     }
 

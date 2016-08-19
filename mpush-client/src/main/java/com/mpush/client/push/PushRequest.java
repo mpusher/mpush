@@ -26,11 +26,10 @@ import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.common.router.ConnectionRouterManager;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.tools.common.TimeLine;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -41,12 +40,12 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author ohun@live.cn
  */
-public class PushRequest extends FutureTask<Boolean> implements Runnable {
+public class PushRequest extends FutureTask<Boolean> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PushRequest.class);
 
-    private enum Status {init, success, failure, offline, timeout}
-
     private static final Callable<Boolean> NONE = () -> Boolean.FALSE;
+
+    private enum Status {init, success, failure, offline, timeout}
 
     private final AtomicReference<Status> status = new AtomicReference<>(Status.init);
     private final TimeLine timeLine = new TimeLine("Push-Time-Line");
@@ -60,11 +59,9 @@ public class PushRequest extends FutureTask<Boolean> implements Runnable {
     private ClientLocation location;
     private Future<?> future;
 
-    private void sendToConnServer() {
+    private void sendToConnServer(RemoteRouter router) {
         timeLine.addTimePoint("lookup-remote");
 
-        //1.查询用户长连接所在的机器
-        RemoteRouter router = ConnectionRouterManager.INSTANCE.lookup(userId);
         if (router == null) {
             //1.1没有查到说明用户已经下线
             offline();
@@ -85,18 +82,15 @@ public class PushRequest extends FutureTask<Boolean> implements Runnable {
 
         timeLine.addTimePoint("send-to-gateway-begin");
 
-        GatewayPushMessage pushMessage = new GatewayPushMessage(userId, content, gatewayConn);
+        GatewayPushMessage pushMessage = new GatewayPushMessage(userId, location.getClientType(), content, gatewayConn);
         timeLine.addTimePoint("put-request-bus");
         future = PushRequestBus.I.put(pushMessage.getSessionId(), this);
 
-        pushMessage.sendRaw(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                timeLine.addTimePoint("send-to-gateway-end");
-                if (future.isSuccess()) {
-                } else {
-                    failure();
-                }
+        pushMessage.sendRaw(f -> {
+            timeLine.addTimePoint("send-to-gateway-end");
+            if (f.isSuccess()) {
+            } else {
+                failure();
             }
         });
     }
@@ -109,6 +103,7 @@ public class PushRequest extends FutureTask<Boolean> implements Runnable {
             } else {
                 LOGGER.warn("callback is null");
             }
+            super.set(this.status.get() == Status.success);
         }
         timeLine.end();
         LOGGER.info("push request {} end, userId={}, content={}, location={}, timeLine={}"
@@ -119,16 +114,16 @@ public class PushRequest extends FutureTask<Boolean> implements Runnable {
     public void run() {
         switch (status.get()) {
             case success:
-                callback.onSuccess(userId);
+                callback.onSuccess(userId, location);
                 break;
             case failure:
-                callback.onFailure(userId);
+                callback.onFailure(userId, location);
                 break;
             case offline:
-                callback.onOffline(userId);
+                callback.onOffline(userId, location);
                 break;
             case timeout:
-                callback.onTimeout(userId);
+                callback.onTimeout(userId, location);
                 break;
             case init://从定时任务过来的，超时时间到了
                 submit(Status.timeout);
@@ -141,22 +136,26 @@ public class PushRequest extends FutureTask<Boolean> implements Runnable {
         throw new UnsupportedOperationException();
     }
 
-    public void send() {
+    public FutureTask<Boolean> send(RemoteRouter router) {
         timeLine.begin();
-        sendToConnServer();
+        sendToConnServer(router);
+        return this;
     }
 
     public void redirect() {
         timeLine.addTimePoint("redirect");
         LOGGER.warn("user route has changed, userId={}, location={}", userId, location);
-        ConnectionRouterManager.INSTANCE.invalidateLocalCache(userId);
+        ConnectionRouterManager.I.invalidateLocalCache(userId);
         if (status.get() == Status.init) {//表示任务还没有完成，还可以重新发送
-            send();
+            RemoteRouter route = ConnectionRouterManager.I.lookup(userId, location.getClientType());
+            send(route);
         }
     }
 
-    public long getTimeout() {
-        return timeout;
+    public FutureTask<Boolean> offline() {
+        ConnectionRouterManager.I.invalidateLocalCache(userId);
+        submit(Status.offline);
+        return this;
     }
 
     public void timeout() {
@@ -171,9 +170,8 @@ public class PushRequest extends FutureTask<Boolean> implements Runnable {
         submit(Status.failure);
     }
 
-    public void offline() {
-        ConnectionRouterManager.INSTANCE.invalidateLocalCache(userId);
-        submit(Status.offline);
+    public long getTimeout() {
+        return timeout;
     }
 
     public PushRequest(PushClient client) {

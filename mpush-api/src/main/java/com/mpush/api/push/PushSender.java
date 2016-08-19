@@ -19,11 +19,13 @@
 
 package com.mpush.api.push;
 
+import com.mpush.api.router.ClientLocation;
 import com.mpush.api.service.Service;
 import com.mpush.api.spi.SpiLoader;
 import com.mpush.api.spi.client.PusherFactory;
 
 import java.util.Collection;
+import java.util.concurrent.FutureTask;
 
 /**
  * Created by ohun on 2015/12/30.
@@ -38,19 +40,19 @@ public interface PushSender extends Service {
 
     void send(String content, Collection<String> userIds, Callback callback);
 
-    void send(String content, String userId, Callback callback);
+    FutureTask<Boolean> send(String content, String userId, Callback callback);
 
     void send(byte[] content, Collection<String> userIds, Callback callback);
 
-    void send(byte[] content, String userId, Callback callback);
+    FutureTask<Boolean> send(byte[] content, String userId, Callback callback);
 
     interface Callback {
-        void onSuccess(String userId);
+        void onSuccess(String userId, ClientLocation location);
 
-        void onFailure(String userId);
+        void onFailure(String userId, ClientLocation location);
 
-        void onOffline(String userId);
+        void onOffline(String userId, ClientLocation location);
 
-        void onTimeout(String userId);
+        void onTimeout(String userId, ClientLocation location);
     }
 }

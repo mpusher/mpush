@@ -20,6 +20,7 @@
 package com.mpush.core.router;
 
 import com.mpush.api.connection.Connection;
+import com.mpush.api.router.ClientType;
 import com.mpush.api.router.Router;
 
 /**
@@ -29,9 +30,15 @@ import com.mpush.api.router.Router;
  */
 public final class LocalRouter implements Router<Connection> {
     private final Connection connection;
+    private final int clientType;
 
     public LocalRouter(Connection connection) {
         this.connection = connection;
+        this.clientType = connection.getSessionContext().getClientType();
+    }
+
+    public int getClientType() {
+        return clientType;
     }
 
     @Override
@@ -42,6 +49,22 @@ public final class LocalRouter implements Router<Connection> {
     @Override
     public RouterType getRouteType() {
         return RouterType.LOCAL;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LocalRouter that = (LocalRouter) o;
+
+        return clientType == that.clientType;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(clientType);
     }
 
     @Override

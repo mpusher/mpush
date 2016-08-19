@@ -22,6 +22,7 @@ package com.mpush.core.router;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.event.RouterChangeEvent;
 import com.mpush.api.router.ClientLocation;
+import com.mpush.api.router.ClientType;
 import com.mpush.api.router.Router;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.router.RemoteRouterManager;
@@ -30,6 +31,8 @@ import com.mpush.tools.event.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+
 /**
  * Created by ohun on 2015/12/23.
  *
@@ -37,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class RouterCenter {
     public static final Logger LOGGER = LoggerFactory.getLogger(RouterCenter.class);
-    public static final RouterCenter INSTANCE = new RouterCenter();
+    public static final RouterCenter I = new RouterCenter();
 
     private final LocalRouterManager localRouterManager = new LocalRouterManager();
     private final RemoteRouterManager remoteRouterManager = new RemoteRouterManager();
@@ -54,7 +57,7 @@ public final class RouterCenter {
      */
     public boolean register(String userId, Connection connection) {
         ClientLocation location = ClientLocation
-                .from(connection.getSessionContext())
+                .from(connection)
                 .setHost(Utils.getLocalIp());
 
         LocalRouter localRouter = new LocalRouter(connection);
@@ -65,7 +68,6 @@ public final class RouterCenter {
         try {
             oldLocalRouter = localRouterManager.register(userId, localRouter);
             oldRemoteRouter = remoteRouterManager.register(userId, remoteRouter);
-
         } catch (Exception e) {
             LOGGER.error("register router ex, userId={}, connection={}", userId, connection, e);
         }
@@ -82,19 +84,25 @@ public final class RouterCenter {
         return true;
     }
 
-    public boolean unRegister(String userId) {
-        localRouterManager.unRegister(userId);
-        remoteRouterManager.unRegister(userId);
+    public boolean unRegister(String userId, int clientType) {
+        localRouterManager.unRegister(userId, clientType);
+        remoteRouterManager.unRegister(userId, clientType);
         return true;
     }
 
-    public Router<?> lookup(String userId) {
-        LocalRouter local = localRouterManager.lookup(userId);
+    public Router<?> lookup(String userId, int clientType) {
+        LocalRouter local = localRouterManager.lookup(userId, clientType);
         if (local != null) return local;
-        RemoteRouter remote = remoteRouterManager.lookup(userId);
+        RemoteRouter remote = remoteRouterManager.lookup(userId, clientType);
         return remote;
     }
 
+    public Set<? extends Router<?>> lookupAll(String userId) {
+        Set<LocalRouter> locals = localRouterManager.lookupAll(userId);
+        if (locals != null) return locals;
+        Set<RemoteRouter> remotes = remoteRouterManager.lookupAll(userId);
+        return remotes;
+    }
 
     public LocalRouterManager getLocalRouterManager() {
         return localRouterManager;

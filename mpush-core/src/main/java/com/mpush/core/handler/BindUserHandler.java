@@ -55,16 +55,15 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
         SessionContext context = message.getConnection().getSessionContext();
         if (context.handshakeOk()) {
             //2.如果握手成功，就把用户链接信息注册到路由中心，本地和远程各一份
-            boolean success = RouterCenter.INSTANCE.register(message.userId, message.getConnection());
+            boolean success = RouterCenter.I.register(message.userId, message.getConnection());
             if (success) {
-
+                context.userId = message.userId;
                 EventBus.I.post(new UserOnlineEvent(message.getConnection(), message.userId));
-
                 OkMessage.from(message).setData("bind success").send();
                 Logs.Conn.info("bind user success, userId={}, session={}", message.userId, context);
             } else {
                 //3.注册失败再处理下，防止本地注册成功，远程注册失败的情况，只有都成功了才叫成功
-                RouterCenter.INSTANCE.unRegister(message.userId);
+                RouterCenter.I.unRegister(message.userId, context.getClientType());
                 ErrorMessage.from(message).setReason("bind failed").close();
                 Logs.Conn.info("bind user failure, userId={}, session={}", message.userId, context);
             }

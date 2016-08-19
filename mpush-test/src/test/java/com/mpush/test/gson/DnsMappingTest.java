@@ -19,7 +19,7 @@
 
 package com.mpush.test.gson;
 
-import com.mpush.tools.config.data.DnsMapping;
+import com.mpush.api.spi.net.DnsMapping;
 import org.junit.Test;
 
 import java.net.MalformedURLException;

@@ -95,39 +95,39 @@ public class RedisManager {
     /*********************
      * hash redis start
      ********************************/
-    public void hset(String namespace, String key, String value) {
+    public void hset(String key, String field, String value) {
 
+        List<RedisServer> nodeList = clusterManager.hashSet(field);
+        RedisClient.hset(nodeList, key, field, value);
+
+    }
+
+    public <T> void hset(String key, String field, T value) {
+        hset(key, field, Jsons.toJson(value));
+    }
+
+    public <T> T hget(String key, String field, Class<T> clazz) {
+
+        RedisServer node = clusterManager.randomGetRedisNode(key);
+        return RedisClient.hget(node, key, field, clazz);
+
+    }
+
+    public void hdel(String key, String field) {
         List<RedisServer> nodeList = clusterManager.hashSet(key);
-        RedisClient.hset(nodeList, namespace, key, value);
+        RedisClient.hdel(nodeList, key, field);
+    }
+
+    public Map<String, String> hgetAll(String key) {
+
+        RedisServer node = clusterManager.randomGetRedisNode(key);
+        return RedisClient.hgetAll(node, key);
 
     }
 
-    public <T> void hset(String namespace, String key, T value) {
-        hset(namespace, key, Jsons.toJson(value));
-    }
-
-    public <T> T hget(String namespace, String key, Class<T> clazz) {
-
-        RedisServer node = clusterManager.randomGetRedisNode(namespace);
-        return RedisClient.hget(node, namespace, key, clazz);
-
-    }
-
-    public void hdel(String namespace, String key) {
-        List<RedisServer> nodeList = clusterManager.hashSet(namespace);
-        RedisClient.hdel(nodeList, namespace, key);
-    }
-
-    public Map<String, String> hgetAll(String namespace) {
-
-        RedisServer node = clusterManager.randomGetRedisNode(namespace);
-        return RedisClient.hgetAll(node, namespace);
-
-    }
-
-    public <T> Map<String, T> hgetAll(String namespace, Class<T> clazz) {
-        RedisServer node = clusterManager.randomGetRedisNode(namespace);
-        return RedisClient.hgetAll(node, namespace, clazz);
+    public <T> Map<String, T> hgetAll(String key, Class<T> clazz) {
+        RedisServer node = clusterManager.randomGetRedisNode(key);
+        return RedisClient.hgetAll(node, key, clazz);
     }
 
     /**
@@ -135,21 +135,21 @@ public class RedisManager {
      *
      * @return
      */
-    public Set<String> hkeys(String namespace) {
-        RedisServer node = clusterManager.randomGetRedisNode(namespace);
-        return RedisClient.hkeys(node, namespace);
+    public Set<String> hkeys(String key) {
+        RedisServer node = clusterManager.randomGetRedisNode(key);
+        return RedisClient.hkeys(node, key);
     }
 
     /**
      * 返回 key 指定的哈希集中指定字段的值
      *
-     * @param key
+     * @param fields
      * @param clazz
      * @return
      */
-    public <T> List<T> hmget(String namespace, Class<T> clazz, String... key) {
-        RedisServer node = clusterManager.randomGetRedisNode(namespace);
-        return RedisClient.hmget(node, namespace, clazz, key);
+    public <T> List<T> hmget(String key, Class<T> clazz, String... fields) {
+        RedisServer node = clusterManager.randomGetRedisNode(key);
+        return RedisClient.hmget(node, key, clazz, fields);
     }
 
     /**
@@ -158,13 +158,13 @@ public class RedisManager {
      * @param hash
      * @param time
      */
-    public void hmset(String namespace, Map<String, String> hash, Integer time) {
-        List<RedisServer> nodeList = clusterManager.hashSet(namespace);
-        RedisClient.hmset(nodeList, namespace, hash, time);
+    public void hmset(String key, Map<String, String> hash, Integer time) {
+        List<RedisServer> nodeList = clusterManager.hashSet(key);
+        RedisClient.hmset(nodeList, key, hash, time);
     }
 
-    public void hmset(String namespace, Map<String, String> hash) {
-        hmset(namespace, hash, null);
+    public void hmset(String key, Map<String, String> hash) {
+        hmset(key, hash, null);
     }
 
 

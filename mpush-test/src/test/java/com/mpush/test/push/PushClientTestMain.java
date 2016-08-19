@@ -22,6 +22,7 @@ package com.mpush.test.push;
 import com.mpush.api.push.PushContent;
 import com.mpush.api.push.PushContent.PushType;
 import com.mpush.api.push.PushSender;
+import com.mpush.api.router.ClientLocation;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.log.Logs;
 
@@ -38,28 +39,28 @@ public class PushClientTestMain {
         Logs.init();
         PushSender sender = PushSender.create();
         sender.start().get();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1; i++) {
             PushContent content = PushContent.build(PushType.MESSAGE, "this a first push." + i);
             content.setMsgId("msgId_" + (i % 2));
             Thread.sleep(1000);
-            sender.send(Jsons.toJson(content), Arrays.asList("user_1"), new PushSender.Callback() {
+            sender.send(Jsons.toJson(content), Arrays.asList("user-0"), new PushSender.Callback() {
                 @Override
-                public void onSuccess(String userId) {
+                public void onSuccess(String userId, ClientLocation location) {
                     System.err.println("push onSuccess userId=" + userId);
                 }
 
                 @Override
-                public void onFailure(String userId) {
+                public void onFailure(String userId, ClientLocation location) {
                     System.err.println("push onFailure userId=" + userId);
                 }
 
                 @Override
-                public void onOffline(String userId) {
+                public void onOffline(String userId, ClientLocation location) {
                     System.err.println("push onOffline userId=" + userId);
                 }
 
                 @Override
-                public void onTimeout(String userId) {
+                public void onTimeout(String userId, ClientLocation location) {
                     System.err.println("push onTimeout userId=" + userId);
                 }
             });

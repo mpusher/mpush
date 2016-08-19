@@ -17,7 +17,7 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.tools.config.data;
+package com.mpush.api.spi.net;
 
 
 import java.net.URL;

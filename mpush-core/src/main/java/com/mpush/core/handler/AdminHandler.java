@@ -20,6 +20,7 @@
 package com.mpush.core.handler;
 
 import com.google.common.base.Strings;
+import com.mpush.api.push.PushSender;
 import com.mpush.api.service.Listener;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.user.UserManager;
@@ -38,8 +39,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @ChannelHandler.Sharable
 public final class AdminHandler extends SimpleChannelInboundHandler<String> {
@@ -58,15 +62,19 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, String request) throws Exception {
         Command command = Command.help;
-        String args = null;
+        String arg = null;
+        String[] args = null;
         if (request != null) {
             String[] cmd_args = request.split(" ");
             command = Command.toCmd(cmd_args[0].trim());
             if (cmd_args.length == 2) {
-                args = cmd_args[1];
+                arg = cmd_args[1];
+            } else if (cmd_args.length > 2) {
+                args = Arrays.copyOfRange(cmd_args, 1, cmd_args.length - 1);
             }
         }
-        Object result = command.handler(ctx, args);
+
+        Object result = args != null ? command.handler(ctx, args) : command.handler(ctx, arg);
         ChannelFuture future = ctx.writeAndFlush(result + EOL + EOL);
         if (command == Command.quit) {
             future.addListener(ChannelFutureListener.CLOSE);
@@ -99,6 +107,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
                 buf.append("zk:<redis, cs ,gs>                   query zk node" + EOL);
                 buf.append("count:<conn, online>                 count conn num or online user count" + EOL);
                 buf.append("route:<uid>                          show user route info" + EOL);
+                buf.append("push:<uid>, <msg>                    push test msg to client" + EOL);
                 buf.append("conf:[key]                           show config info" + EOL);
                 buf.append("monitor:[mxBean]                     show system monitor" + EOL);
                 return buf.toString();
@@ -178,9 +187,17 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
             @Override
             public String handler(ChannelHandlerContext ctx, String args) {
                 if (Strings.isNullOrEmpty(args)) return "please input userId";
-                RemoteRouter router = RouterCenter.INSTANCE.getRemoteRouterManager().lookup(args);
-                if (router == null) return "user [" + args + "] offline now.";
-                return router.getRouteValue().toString();
+                Set<RemoteRouter> routers = RouterCenter.I.getRemoteRouterManager().lookupAll(args);
+                if (routers.isEmpty()) return "user [" + args + "] offline now.";
+                return Jsons.toJson(routers);
+            }
+        },
+        push {
+            @Override
+            public String handler(ChannelHandlerContext ctx, String... args) throws Exception {
+                Boolean success = PushSender.create().send(args[1], args[0], null).get(5, TimeUnit.SECONDS);
+
+                return success.toString();
             }
         },
         conf {
@@ -222,7 +239,13 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
             }
         };
 
-        public abstract Object handler(ChannelHandlerContext ctx, String args);
+        public Object handler(ChannelHandlerContext ctx, String... args) throws Exception {
+            return "unsupported";
+        }
+
+        public Object handler(ChannelHandlerContext ctx, String args) throws Exception {
+            return "unsupported";
+        }
 
         public static Command toCmd(String cmd) {
             try {
