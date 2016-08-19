@@ -19,6 +19,8 @@
 
 package com.mpush.core.router;
 
+import com.mpush.api.router.ClientType;
+
 /**
  * Created by ohun on 2016/1/4.
  *
@@ -27,10 +29,16 @@ package com.mpush.core.router;
 public final class KickRemoteMsg {
     public String userId;
     public String deviceId;
+    public int clientType;
     public String targetServer;
 
     @Override
     public String toString() {
-        return "KickRemoteMsg{" + "userId='" + userId + '\'' + ", deviceId='" + deviceId + '\'' + ", targetServer='" + targetServer + '\'' + '}';
+        return "KickRemoteMsg{"
+                + "userId='" + userId + '\''
+                + ", deviceId='" + deviceId + '\''
+                + ", clientType='" + clientType + '\''
+                + ", targetServer='" + targetServer + '\''
+                + '}';
     }
 }

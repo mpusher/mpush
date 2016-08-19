@@ -36,6 +36,7 @@ public final class ErrorMessage extends ByteBufMessage {
     public byte cmd;
     public byte code;
     public String reason;
+    public String data;
 
     public ErrorMessage(byte cmd, Packet message, Connection connection) {
         super(message, connection);
@@ -51,6 +52,7 @@ public final class ErrorMessage extends ByteBufMessage {
         cmd = decodeByte(body);
         code = decodeByte(body);
         reason = decodeString(body);
+        data = decodeString(body);
     }
 
     @Override
@@ -58,6 +60,7 @@ public final class ErrorMessage extends ByteBufMessage {
         encodeByte(body, cmd);
         encodeByte(body, code);
         encodeString(body, reason);
+        encodeString(body, data);
     }
 
     public static ErrorMessage from(BaseMessage src) {
@@ -72,6 +75,11 @@ public final class ErrorMessage extends ByteBufMessage {
 
     public ErrorMessage setReason(String reason) {
         this.reason = reason;
+        return this;
+    }
+
+    public ErrorMessage setData(String data) {
+        this.data = data;
         return this;
     }
 

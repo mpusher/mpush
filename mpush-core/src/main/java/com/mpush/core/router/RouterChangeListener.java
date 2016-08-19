@@ -24,6 +24,7 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.event.RouterChangeEvent;
 import com.mpush.api.router.ClientLocation;
+import com.mpush.api.router.ClientType;
 import com.mpush.api.router.Router;
 import com.mpush.cache.redis.RedisKey;
 import com.mpush.cache.redis.listener.ListenerDispatcher;
@@ -36,8 +37,6 @@ import com.mpush.tools.Utils;
 import com.mpush.tools.config.ConfigManager;
 import com.mpush.tools.event.EventConsumer;
 import com.mpush.tools.log.Logs;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 
 /**
  * Created by ohun on 2016/1/4.
@@ -83,14 +82,11 @@ public final class RouterChangeListener extends EventConsumer implements Message
         KickUserMessage message = new KickUserMessage(connection);
         message.deviceId = context.deviceId;
         message.userId = userId;
-        message.send(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if (future.isSuccess()) {
-                    Logs.Conn.info("kick local connection success, userId={}, router={}", userId, router);
-                } else {
-                    Logs.Conn.info("kick local connection failure, userId={}, router={}", userId, router);
-                }
+        message.send(future -> {
+            if (future.isSuccess()) {
+                Logs.Conn.info("kick local connection success, userId={}, router={}", userId, router);
+            } else {
+                Logs.Conn.info("kick local connection failure, userId={}, router={}", userId, router);
             }
         });
     }
@@ -116,6 +112,7 @@ public final class RouterChangeListener extends EventConsumer implements Message
         //TODO 远程机器可能不存在，需要确认下redis 那个通道如果机器不存在的话，是否会存在消息积压的问题。
         KickRemoteMsg msg = new KickRemoteMsg();
         msg.deviceId = location.getDeviceId();
+        msg.clientType = location.getClientType();
         msg.targetServer = location.getHost();
         msg.userId = userId;
         RedisManager.I.publish(getKickChannel(msg.targetServer), msg);
@@ -138,12 +135,13 @@ public final class RouterChangeListener extends EventConsumer implements Message
 
         //2.查询本地路由，找到要被踢下线的链接，并删除该本地路由
         String userId = msg.userId;
-        LocalRouterManager routerManager = RouterCenter.INSTANCE.getLocalRouterManager();
-        LocalRouter router = routerManager.lookup(userId);
+        int clientType = msg.clientType;
+        LocalRouterManager routerManager = RouterCenter.I.getLocalRouterManager();
+        LocalRouter router = routerManager.lookup(userId, clientType);
         if (router != null) {
             Logs.Conn.info("receive kick remote msg, msg={}", msg);
             //2.1删除本地路由信息
-            routerManager.unRegister(userId);
+            routerManager.unRegister(userId, clientType);
             //2.2发送踢人消息到客户端
             kickLocal(userId, router);
             remStatUser(userId);

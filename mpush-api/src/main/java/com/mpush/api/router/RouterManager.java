@@ -19,6 +19,8 @@
 
 package com.mpush.api.router;
 
+import java.util.Set;
+
 /**
  * Created by ohun on 2015/12/23.
  *
@@ -39,9 +41,10 @@ public interface RouterManager<R extends Router> {
      * 删除路由
      *
      * @param userId
+     * @param clientType
      * @return
      */
-    boolean unRegister(String userId);
+    boolean unRegister(String userId, int clientType);
 
     /**
      * 查询路由
@@ -49,5 +52,14 @@ public interface RouterManager<R extends Router> {
      * @param userId
      * @return
      */
-    R lookup(String userId);
+    Set<R> lookupAll(String userId);
+
+    /**
+     * 查询路由
+     *
+     * @param userId
+     * @param clientType
+     * @return
+     */
+    R lookup(String userId, int clientType);
 }

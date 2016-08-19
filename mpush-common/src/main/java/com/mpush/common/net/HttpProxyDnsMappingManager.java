@@ -23,9 +23,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
+import com.mpush.api.spi.net.DnsMapping;
+import com.mpush.api.spi.net.DnsMappingManager;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.config.CC;
-import com.mpush.tools.config.data.DnsMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,29 +38,31 @@ import java.util.concurrent.TimeUnit;
 
 import static com.mpush.tools.Utils.checkHealth;
 
-public class DnsMappingManager extends BaseService implements Runnable {
-    private final Logger logger = LoggerFactory.getLogger(DnsMappingManager.class);
+public class HttpProxyDnsMappingManager extends BaseService implements DnsMappingManager, Runnable {
+    private final Logger logger = LoggerFactory.getLogger(HttpProxyDnsMappingManager.class);
 
-    public static final DnsMappingManager I = new DnsMappingManager();
-
-    private DnsMappingManager() {
+    public HttpProxyDnsMappingManager() {
     }
 
     private final Map<String, List<DnsMapping>> all = Maps.newConcurrentMap();
     private Map<String, List<DnsMapping>> available = Maps.newConcurrentMap();
 
-    private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService executorService;
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        scheduledExecutorService.scheduleAtFixedRate(this, 1, 20, TimeUnit.SECONDS); //20秒 定时扫描dns
+        if (all.size() > 0) {
+            executorService = Executors.newSingleThreadScheduledExecutor();
+            executorService.scheduleAtFixedRate(this, 1, 20, TimeUnit.SECONDS); //20秒 定时扫描dns
+        }
     }
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
-        scheduledExecutorService.shutdown();
+        if (executorService != null) {
+            executorService.shutdown();
+        }
     }
-
 
     @Override
     public void init() {
@@ -71,7 +74,7 @@ public class DnsMappingManager extends BaseService implements Runnable {
 
     @Override
     public boolean isRunning() {
-        return !scheduledExecutorService.isShutdown();
+        return executorService != null && !executorService.isShutdown();
     }
 
     public void update(Map<String, List<DnsMapping>> nowAvailable) {
@@ -83,21 +86,18 @@ public class DnsMappingManager extends BaseService implements Runnable {
     }
 
     public DnsMapping lookup(String origin) {
-        if (available.isEmpty())
-            return null;
+        if (available.isEmpty()) return null;
         List<DnsMapping> list = available.get(origin);
-        if (list == null || list.isEmpty())
-            return null;
+        if (list == null || list.isEmpty()) return null;
         int L = list.size();
-        if (L == 1)
-            return list.get(0);
+        if (L == 1) return list.get(0);
         return list.get((int) (Math.random() * L % L));
     }
 
     @Override
     public void run() {
         logger.debug("start dns mapping checkHealth");
-        Map<String, List<DnsMapping>> all = I.getAll();
+        Map<String, List<DnsMapping>> all = this.getAll();
         Map<String, List<DnsMapping>> available = Maps.newConcurrentMap();
         for (Map.Entry<String, List<DnsMapping>> entry : all.entrySet()) {
             String key = entry.getKey();
@@ -113,6 +113,6 @@ public class DnsMappingManager extends BaseService implements Runnable {
             }
             available.put(key, nowValue);
         }
-        I.update(available);
+        this.update(available);
     }
 }

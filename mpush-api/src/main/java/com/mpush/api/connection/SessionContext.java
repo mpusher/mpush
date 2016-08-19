@@ -19,6 +19,8 @@
 
 package com.mpush.api.connection;
 
+import com.mpush.api.router.ClientType;
+
 /**
  * Created by ohun on 2015/12/22.
  *
@@ -29,8 +31,10 @@ public final class SessionContext {
     public String osVersion;
     public String clientVersion;
     public String deviceId;
+    public String userId;
     public int heartbeat;
     public Cipher cipher;
+    private int clientType;
 
     public void changeCipher(Cipher cipher) {
         this.cipher = cipher;
@@ -56,12 +60,24 @@ public final class SessionContext {
         return this;
     }
 
+    public SessionContext setUserId(String userId) {
+        this.userId = userId;
+        return this;
+    }
+
     public void setHeartbeat(int heartbeat) {
         this.heartbeat = heartbeat;
     }
 
     public boolean handshakeOk() {
         return deviceId != null && deviceId.length() > 0;
+    }
+
+    public int getClientType() {
+        if (clientType == 0) {
+            clientType = ClientType.find(osName).type;
+        }
+        return clientType;
     }
 
     @Override

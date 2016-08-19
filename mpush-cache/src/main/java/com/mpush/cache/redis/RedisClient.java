@@ -200,14 +200,14 @@ public class RedisClient {
     /*********************
      * hash redis start
      ********************************/
-    public static void hset(List<RedisServer> nodeList, String namespace, String key, String value) {
+    public static void hset(List<RedisServer> nodeList, String key, String field, String value) {
         for (RedisServer node : nodeList) {
             Jedis jedis = null;
             try {
                 jedis = getClient(node);
-                jedis.hset(namespace, key, value);
+                jedis.hset(key, field, value);
             } catch (Exception e) {
-                Logs.REDIS.error("redis hset exception:{}, {}, {}, {}", namespace, key, value, node, e);
+                Logs.REDIS.error("redis hset exception:{}, {}, {}, {}", key, field, value, node, e);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -215,19 +215,19 @@ public class RedisClient {
         }
     }
 
-    public static <T> void hset(List<RedisServer> nodeList, String namespace, String key, T value) {
-        hset(nodeList, namespace, key, Jsons.toJson(value));
+    public static <T> void hset(List<RedisServer> nodeList, String key, String field, T value) {
+        hset(nodeList, key, field, Jsons.toJson(value));
     }
 
-    public static <T> T hget(RedisServer node, String namespace, String key, Class<T> clazz) {
+    public static <T> T hget(RedisServer node, String key, String field, Class<T> clazz) {
 
         String value = null;
         Jedis jedis = null;
         try {
             jedis = getClient(node);
-            value = jedis.hget(namespace, key);
+            value = jedis.hget(key, field);
         } catch (Exception e) {
-            Logs.REDIS.error("redis hget exception:{}, {}", namespace, key, node, e);
+            Logs.REDIS.error("redis hget exception:{}, {}", key, field, node, e);
         } finally {
             // 返还到连接池
             close(jedis);
@@ -236,15 +236,15 @@ public class RedisClient {
 
     }
 
-    public static void hdel(List<RedisServer> nodeList, String namespace, String key) {
+    public static void hdel(List<RedisServer> nodeList, String key, String field) {
 
         for (RedisServer node : nodeList) {
             Jedis jedis = null;
             try {
                 jedis = getClient(node);
-                jedis.hdel(namespace, key);
+                jedis.hdel(key, field);
             } catch (Exception e) {
-                Logs.REDIS.error("redis hdel exception:{}, {}, {}", namespace, key, node, e);
+                Logs.REDIS.error("redis hdel exception:{}, {}, {}", key, field, node, e);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -252,14 +252,14 @@ public class RedisClient {
         }
     }
 
-    public static Map<String, String> hgetAll(RedisServer node, String namespace) {
+    public static Map<String, String> hgetAll(RedisServer node, String key) {
         Map<String, String> result = null;
         Jedis jedis = null;
         try {
             jedis = getClient(node);
-            result = jedis.hgetAll(namespace);
+            result = jedis.hgetAll(key);
         } catch (Exception e) {
-            Logs.REDIS.error("redis hgetAll exception:{}, {}", namespace, node, e);
+            Logs.REDIS.error("redis hgetAll exception:{}, {}", key, node, e);
         } finally {
             // 返还到连接池
             close(jedis);
@@ -267,16 +267,16 @@ public class RedisClient {
         return result;
     }
 
-    public static <T> Map<String, T> hgetAll(RedisServer node, String namespace, Class<T> clazz) {
-        Map<String, String> result = hgetAll(node, namespace);
+    public static <T> Map<String, T> hgetAll(RedisServer node, String key, Class<T> clazz) {
+        Map<String, String> result = hgetAll(node, key);
         if (result != null) {
             Map<String, T> newMap = Maps.newHashMap();
             Iterator<Map.Entry<String, String>> iterator = result.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<String, String> entry = iterator.next();
-                String key = entry.getKey();
-                String val = entry.getValue();
-                newMap.put(key, Jsons.fromJson(val, clazz));
+                String k = entry.getKey();
+                String v = entry.getValue();
+                newMap.put(k, Jsons.fromJson(v, clazz));
             }
             return newMap;
         } else {
@@ -311,19 +311,19 @@ public class RedisClient {
      * 返回 key 指定的哈希集中指定字段的值
      *
      * @param node
-     * @param key
+     * @param fields
      * @param clazz
      * @return
      */
-    public static <T> List<T> hmget(RedisServer node, String namespace, Class<T> clazz, String... key) {
+    public static <T> List<T> hmget(RedisServer node, String key, Class<T> clazz, String... fields) {
 
         List<String> value = null;
         Jedis jedis = null;
         try {
             jedis = getClient(node);
-            value = jedis.hmget(namespace, key);
+            value = jedis.hmget(key, fields);
         } catch (Exception e) {
-            Logs.REDIS.error("redis hmget exception:{},{},{}", namespace, key, node, e);
+            Logs.REDIS.error("redis hmget exception:{},{},{}", key, fields, node, e);
         } finally {
             // 返还到连接池
             close(jedis);
@@ -340,7 +340,7 @@ public class RedisClient {
      * @param hash
      * @param time
      */
-    public static void hmset(List<RedisServer> nodeList, String namespace, Map<String, String> hash, Integer time) {
+    public static void hmset(List<RedisServer> nodeList, String key, Map<String, String> hash, Integer time) {
 
         if (time == null) {
             time = -1;
@@ -349,13 +349,13 @@ public class RedisClient {
             Jedis jedis = null;
             try {
                 jedis = getClient(node);
-                jedis.hmset(namespace, hash);
+                jedis.hmset(key, hash);
                 if (time > 0) {
-                    jedis.expire(namespace, time);
+                    jedis.expire(key, time);
                 }
 
             } catch (Exception e) {
-                Logs.REDIS.error("redis hmset exception:{},{},{}", namespace, time, node, e);
+                Logs.REDIS.error("redis hmset exception:{},{},{}", key, time, node, e);
             } finally {
                 // 返还到连接池
                 close(jedis);
@@ -364,8 +364,8 @@ public class RedisClient {
 
     }
 
-    public static void hmset(List<RedisServer> nodeList, String namespace, Map<String, String> hash) {
-        hmset(nodeList, namespace, hash, null);
+    public static void hmset(List<RedisServer> nodeList, String key, Map<String, String> hash) {
+        hmset(nodeList, key, hash, null);
     }
 
     /********************* hash redis end ********************************/

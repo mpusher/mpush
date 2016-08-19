@@ -19,7 +19,7 @@
 
 package com.mpush.tools.config;
 
-import com.mpush.tools.config.data.DnsMapping;
+import com.mpush.api.spi.net.DnsMapping;
 import com.mpush.tools.config.data.RedisGroup;
 import com.mpush.tools.config.data.RedisServer;
 import com.typesafe.config.Config;
@@ -339,6 +339,7 @@ public interface CC {
         interface spi {
             Config cfg = mp.cfg.getObject("spi").toConfig();
             String thread_pool_factory = cfg.getString("thread-pool-factory");
+            String dns_mapping_manager = cfg.getString("dns-mapping-manager");
         }
     }
 }

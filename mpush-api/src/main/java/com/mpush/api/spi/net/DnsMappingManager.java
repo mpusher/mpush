@@ -20,6 +20,7 @@
 package com.mpush.api.spi.net;
 
 import com.mpush.api.service.Service;
+import com.mpush.api.spi.SpiLoader;
 
 /**
  * Created by yxx on 2016/5/23.
@@ -27,4 +28,10 @@ import com.mpush.api.service.Service;
  * @author ohun@live.cn (夜色)
  */
 public interface DnsMappingManager extends Service {
+
+    static DnsMappingManager create() {
+        return SpiLoader.load(DnsMappingManager.class);
+    }
+
+    DnsMapping lookup(String origin);
 }
