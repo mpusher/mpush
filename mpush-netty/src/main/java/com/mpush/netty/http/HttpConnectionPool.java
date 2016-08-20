@@ -77,9 +77,7 @@ public class HttpConnectionPool {
     }
 
     public void close() {
-        for (Channel channel : channelPool.values()) {
-            channel.close();
-        }
+        channelPool.values().forEach(Channel::close);
         channelPool.clear();
     }
 }

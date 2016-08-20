@@ -44,27 +44,24 @@ public class ServerBoot extends BootJob {
     @Override
     public void run() {
         final String serverName = server.getClass().getSimpleName();
-        ThreadPoolManager.I.newThread(serverName, new Runnable() {
-            @Override
-            public void run() {
-                server.init();
-                server.start(new Listener() {
-                    @Override
-                    public void onSuccess(Object... args) {
-                        Logs.Console.error("start " + serverName + " success listen:" + args[0]);
-                        if (node != null) {
-                            registerServerToZk(node.getZkPath(), Jsons.toJson(node));
-                        }
-                        next();
+        ThreadPoolManager.I.newThread(serverName, () -> {
+            server.init();
+            server.start(new Listener() {
+                @Override
+                public void onSuccess(Object... args) {
+                    Logs.Console.error("start " + serverName + " success listen:" + args[0]);
+                    if (node != null) {
+                        registerServerToZk(node.getZkPath(), Jsons.toJson(node));
                     }
+                    next();
+                }
 
-                    @Override
-                    public void onFailure(Throwable cause) {
-                        Logs.Console.error("start " + serverName + " failure, jvm exit with code -1", cause);
-                        System.exit(-1);
-                    }
-                });
-            }
+                @Override
+                public void onFailure(Throwable cause) {
+                    Logs.Console.error("start " + serverName + " failure, jvm exit with code -1", cause);
+                    System.exit(-1);
+                }
+            });
         }).start();
     }
 
