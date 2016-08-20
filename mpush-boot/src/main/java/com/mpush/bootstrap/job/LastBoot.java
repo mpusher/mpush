@@ -32,6 +32,8 @@ public class LastBoot extends BootJob {
     public void run() {
         UserManager.I.clearUserOnlineData();
         Logs.Console.error("end run bootstrap chain...");
-        Logs.Console.error("mpush server start success...");
+        Logs.Console.error("===================================================================");
+        Logs.Console.error("====================MPUSH SERVER START SUCCESS=====================");
+        Logs.Console.error("===================================================================");
     }
 }

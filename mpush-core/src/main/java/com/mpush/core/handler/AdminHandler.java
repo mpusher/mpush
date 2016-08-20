@@ -70,7 +70,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
             if (cmd_args.length == 2) {
                 arg = cmd_args[1];
             } else if (cmd_args.length > 2) {
-                args = Arrays.copyOfRange(cmd_args, 1, cmd_args.length - 1);
+                args = Arrays.copyOfRange(cmd_args, 1, cmd_args.length);
             }
         }
 
