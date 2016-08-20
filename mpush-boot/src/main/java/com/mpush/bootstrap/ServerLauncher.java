@@ -20,7 +20,8 @@
 package com.mpush.bootstrap;
 
 
-import com.mpush.api.service.Server;
+import com.mpush.api.service.BaseService;
+import com.mpush.api.service.Service;
 import com.mpush.bootstrap.job.*;
 import com.mpush.core.server.AdminServer;
 import com.mpush.core.server.ConnectionServer;
@@ -29,6 +30,8 @@ import com.mpush.monitor.service.MonitorService;
 import com.mpush.tools.config.CC;
 import com.mpush.zk.ZKClient;
 import com.mpush.zk.node.ZKServerNode;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by yxx on 2016/5/14.
@@ -61,17 +64,17 @@ public class ServerLauncher {
         chain.run();
     }
 
-    public void stop() {
-        stopServer(connectServer);
-        stopServer(gatewayServer);
-        stopServer(adminServer);
-        ZKClient.I.stop();
-        MonitorService.I.stop();
+    public void stop() throws Exception {
+        stopService(connectServer);
+        stopService(gatewayServer);
+        stopService(adminServer);
+        stopService(ZKClient.I);
+        stopService(MonitorService.I);
     }
 
-    private void stopServer(Server server) {
-        if (server != null) {
-            server.stop(null);
+    private void stopService(Service service) throws Exception {
+        if (service != null) {
+            service.stop().get(1, TimeUnit.MINUTES);
         }
     }
 }

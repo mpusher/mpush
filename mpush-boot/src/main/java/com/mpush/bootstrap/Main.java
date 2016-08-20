@@ -20,9 +20,10 @@
 package com.mpush.bootstrap;
 
 import com.mpush.tools.log.Logs;
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
 
 public class Main {
-
     public static void main(String[] args) {
         Logs.init();
         Logs.Console.error("launch mpush server...");
@@ -32,11 +33,35 @@ public class Main {
     }
 
     private static void addHook(final ServerLauncher launcher) {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
+        Hook hook = new Hook(launcher);
+        //Signal.handle(new Signal("USR2"), hook);
+        Runtime.getRuntime().addShutdownHook(new Thread(hook, "mpush-hook-thread"));
+    }
+
+    private static class Hook implements Runnable, SignalHandler {
+        private final ServerLauncher launcher;
+
+        private Hook(ServerLauncher launcher) {
+            this.launcher = launcher;
+        }
+
+        @Override
+        public void run() {
+            stop();
+        }
+
+        @Override
+        public void handle(Signal signal) {
+            stop();
+        }
+
+        private void stop() {
+            try {
                 launcher.stop();
-                Logs.Console.error("jvm exit, all server stopped...");
+            } catch (Exception e) {
+                Logs.Console.error("mpush server stop ex", e);
             }
-        });
+            Logs.Console.error("jvm exit, all server stopped...");
+        }
     }
 }
