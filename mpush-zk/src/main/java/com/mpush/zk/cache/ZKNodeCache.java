@@ -24,6 +24,13 @@ import com.mpush.zk.node.ZKNode;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * ZK节点缓存方案, 不同等节点应该有不同实现
+ * <p>
+ * Created by yxx on 2016/5/18.
+ *
+ * @author ohun@live.cn
+ */
 public interface ZKNodeCache<T extends ZKNode> {
 
     void addAll(List<T> list);

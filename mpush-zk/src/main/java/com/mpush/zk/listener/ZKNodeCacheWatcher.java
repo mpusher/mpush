@@ -27,6 +27,12 @@ import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.TreeCacheEvent;
 import org.apache.curator.framework.recipes.cache.TreeCacheListener;
 
+/**
+ * 缓存节点变化监听
+ * Created by yxx on 2016/5/18.
+ *
+ * @author ohun@live.cn
+ */
 public abstract class ZKNodeCacheWatcher implements TreeCacheListener {
 
     @Override
