@@ -19,11 +19,15 @@
 
 package com.mpush.zk.node;
 
+import com.mpush.tools.Jsons;
+
 /**
  * Created by yxx on 2016/5/17.
  *
  * @author ohun@live.cn
  */
 public interface ZKNode {
-    String encode();
+    default String encode() {
+        return Jsons.toJson(this);
+    }
 }

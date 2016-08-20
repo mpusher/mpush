@@ -30,15 +30,12 @@ import org.apache.curator.framework.CuratorFrameworkFactory.Builder;
 import org.apache.curator.framework.api.ACLProvider;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.TreeCache;
-import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -118,13 +115,10 @@ public class ZKClient extends BaseService {
 
     // 注册连接状态监听器
     private void addConnectionStateListener() {
-        client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
-            //TODO need close jvm?
-            @Override
-            public void stateChanged(final CuratorFramework client, final ConnectionState newState) {
-                Logs.ZK.warn("zk connection state changed new state={}, isConnected={}", newState, newState.isConnected());
-            }
-        });
+        client.getConnectionStateListenable()
+                .addListener((cli, newState)
+                        -> Logs.ZK.warn("zk connection state changed new state={}, isConnected={}",
+                        newState, newState.isConnected()));
     }
 
     // 本地缓存
@@ -159,7 +153,7 @@ public class ZKClient extends BaseService {
     public String getFromRemote(final String key) {
         try {
             return new String(client.getData().forPath(key), Constants.UTF_8);
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
             Logs.ZK.error("getFromRemote:{}", key, ex);
             return null;
         }
@@ -174,15 +168,9 @@ public class ZKClient extends BaseService {
     public List<String> getChildrenKeys(final String key) {
         try {
             List<String> result = client.getChildren().forPath(key);
-            Collections.sort(result, new Comparator<String>() {
-
-                @Override
-                public int compare(final String o1, final String o2) {
-                    return o2.compareTo(o1);
-                }
-            });
+            Collections.sort(result, (o1, o2) -> o2.compareTo(o1));
             return result;
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
             Logs.ZK.error("getChildrenKeys:{}", key, ex);
             return Collections.emptyList();
         }
@@ -197,7 +185,7 @@ public class ZKClient extends BaseService {
     public boolean isExisted(final String key) {
         try {
             return null != client.checkExists().forPath(key);
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
             Logs.ZK.error("isExisted:{}", key, ex);
             return false;
         }
@@ -211,12 +199,12 @@ public class ZKClient extends BaseService {
      */
     public void registerPersist(final String key, final String value) {
         try {
-            if (!isExisted(key)) {
-                client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(key, value.getBytes());
-            } else {
+            if (isExisted(key)) {
                 update(key, value);
+            } else {
+                client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(key, value.getBytes());
             }
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
             Logs.ZK.error("persist:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
@@ -230,8 +218,13 @@ public class ZKClient extends BaseService {
      */
     public void update(final String key, final String value) {
         try {
+            /*TransactionOp op = client.transactionOp();
+            client.transaction().forOperations(
+                    op.check().forPath(key),
+                    op.setData().forPath(key, value.getBytes(Constants.UTF_8))
+            );*/
             client.inTransaction().check().forPath(key).and().setData().forPath(key, value.getBytes(Constants.UTF_8)).and().commit();
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
             Logs.ZK.error("update:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
@@ -249,7 +242,7 @@ public class ZKClient extends BaseService {
                 client.delete().deletingChildrenIfNeeded().forPath(key);
             }
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(key, value.getBytes(Constants.UTF_8));
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
             Logs.ZK.error("persistEphemeral:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
@@ -263,7 +256,7 @@ public class ZKClient extends BaseService {
     public void registerEphemeralSequential(final String key, final String value) {
         try {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key, value.getBytes());
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
             Logs.ZK.error("persistEphemeralSequential:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
@@ -277,7 +270,7 @@ public class ZKClient extends BaseService {
     public void registerEphemeralSequential(final String key) {
         try {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key);
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
             Logs.ZK.error("persistEphemeralSequential:{}", key, ex);
             throw new ZKException(ex);
         }
@@ -291,7 +284,7 @@ public class ZKClient extends BaseService {
     public void remove(final String key) {
         try {
             client.delete().deletingChildrenIfNeeded().forPath(key);
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
             Logs.ZK.error("removeAndClose:{}", key, ex);
             throw new ZKException(ex);
         }

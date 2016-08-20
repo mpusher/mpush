@@ -20,14 +20,17 @@
 package com.mpush.zk.node;
 
 
-import com.mpush.tools.Jsons;
 import com.mpush.tools.Utils;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.config.ConfigManager;
 import com.mpush.zk.ZKPath;
 
 /**
- * 系统配置
+ * MPUSH server 节点配置
+ * <p>
+ * Created by yxx on 2016/5/18.
+ *
+ * @author ohun@live.cn
  */
 public class ZKServerNode implements ZKNode {
 
@@ -126,10 +129,5 @@ public class ZKServerNode implements ZKNode {
                 ", extranetIp='" + extranetIp + '\'' +
                 ", zkPath='" + zkPath + '\'' +
                 '}';
-    }
-
-    @Override
-    public String encode() {
-        return Jsons.toJson(this);
     }
 }

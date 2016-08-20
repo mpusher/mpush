@@ -19,10 +19,10 @@
 
 package com.mpush.zk.node;
 
-import com.mpush.tools.Jsons;
 import com.mpush.tools.config.data.RedisGroup;
 
 /**
+ * Redis 节点配置
  * Created by yxx on 2016/5/18.
  *
  * @author ohun@live.cn
@@ -36,10 +36,5 @@ public class ZKRedisNode extends RedisGroup implements ZKNode {
 
     public void setZkPath(String zkPath) {
         this.zkPath = zkPath;
-    }
-
-    @Override
-    public String encode() {
-        return Jsons.toJson(this);
     }
 }
