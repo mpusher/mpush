@@ -82,17 +82,14 @@ public class NettyHttpClient extends BaseService implements HttpClient {
             final long startCreate = System.currentTimeMillis();
             LOGGER.debug("create new channel, host={}", host);
             ChannelFuture f = b.connect(host, port);
-            f.addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    LOGGER.debug("create new channel cost={}", (System.currentTimeMillis() - startCreate));
-                    if (future.isSuccess()) {//3.1.把请求写到http server
-                        writeRequest(future.channel(), context);
-                    } else {//3.2如果链接创建失败，直接返回客户端网关超时
-                        context.tryDone();
-                        context.onFailure(504, "Gateway Timeout");
-                        LOGGER.warn("create new channel failure, request={}", context);
-                    }
+            f.addListener((ChannelFutureListener) future -> {
+                LOGGER.debug("create new channel cost={}", (System.currentTimeMillis() - startCreate));
+                if (future.isSuccess()) {//3.1.把请求写到http server
+                    writeRequest(future.channel(), context);
+                } else {//3.2如果链接创建失败，直接返回客户端网关超时
+                    context.tryDone();
+                    context.onFailure(504, "Gateway Timeout");
+                    LOGGER.warn("create new channel failure, request={}", context);
                 }
             });
         } else {
@@ -104,16 +101,13 @@ public class NettyHttpClient extends BaseService implements HttpClient {
     private void writeRequest(Channel channel, RequestContext context) {
         channel.attr(requestKey).set(context);
         pool.attachHost(context.host, channel);
-        channel.writeAndFlush(context.request).addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if (!future.isSuccess()) {
-                    RequestContext info = future.channel().attr(requestKey).getAndRemove();
-                    info.tryDone();
-                    info.onFailure(503, "Service Unavailable");
-                    LOGGER.debug("request failure request={}", info);
-                    pool.tryRelease(future.channel());
-                }
+        channel.writeAndFlush(context.request).addListener((ChannelFutureListener) future -> {
+            if (!future.isSuccess()) {
+                RequestContext info = future.channel().attr(requestKey).getAndRemove();
+                info.tryDone();
+                info.onFailure(503, "Service Unavailable");
+                LOGGER.debug("request failure request={}", info);
+                pool.tryRelease(future.channel());
             }
         });
     }

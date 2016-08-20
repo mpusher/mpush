@@ -41,12 +41,8 @@ public class EventBus {
 
     public EventBus() {
         Executor executor = ThreadPoolManager.I.getEventBusExecutor();
-        eventBus = new AsyncEventBus(executor, new SubscriberExceptionHandler() {
-            @Override
-            public void handleException(Throwable exception, SubscriberExceptionContext context) {
-                LOGGER.error("event bus subscriber ex", exception);
-            }
-        });
+        eventBus = new AsyncEventBus(executor, (exception, context)
+                -> LOGGER.error("event bus subscriber ex", exception));
     }
 
     public void post(Event event) {

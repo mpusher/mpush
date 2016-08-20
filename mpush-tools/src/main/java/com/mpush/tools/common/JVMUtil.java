@@ -107,26 +107,23 @@ public class JVMUtil {
     }
 
     public static void dumpJstack(final String jvmPath) {
-        new Thread((new Runnable() {
-            @Override
-            public void run() {
-                String logPath = jvmPath;
-                FileOutputStream jstackStream = null;
-                try {
-                    jstackStream = new FileOutputStream(new File(logPath, System.currentTimeMillis() + "-jstack.LOGGER"));
-                    JVMUtil.jstack(jstackStream);
-                } catch (Throwable t) {
-                    LOGGER.error("Dump JVM cache Error!", t);
-                } finally {
-                    if (jstackStream != null) {
-                        try {
-                            jstackStream.close();
-                        } catch (IOException e) {
-                        }
+        new Thread((() -> {
+            String logPath = jvmPath;
+            FileOutputStream jstackStream = null;
+            try {
+                jstackStream = new FileOutputStream(new File(logPath, System.currentTimeMillis() + "-jstack.LOGGER"));
+                JVMUtil.jstack(jstackStream);
+            } catch (Throwable t) {
+                LOGGER.error("Dump JVM cache Error!", t);
+            } finally {
+                if (jstackStream != null) {
+                    try {
+                        jstackStream.close();
+                    } catch (IOException e) {
                     }
                 }
             }
-        })).start();
+        }),"mp-monitor-dump-jstack-thread").start();
     }
 
     private static HotSpotDiagnosticMXBean getHotSpotMXBean() {
@@ -177,11 +174,6 @@ public class JVMUtil {
     }
 
     public static void dumpJmap(final String jvmPath) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                jMap(jvmPath, false);
-            }
-        }).start();
+        new Thread(() -> jMap(jvmPath, false), "mp-monitor-dump-jmap-thread").start();
     }
 }

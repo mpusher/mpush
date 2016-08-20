@@ -21,6 +21,7 @@ package com.mpush.client.connect;
 
 
 import com.google.common.collect.Maps;
+import com.mpush.api.Constants;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.event.ConnectionCloseEvent;
 import com.mpush.api.protocol.Command;
@@ -108,7 +109,7 @@ public final class ConnClientChannelHandler extends ChannelHandlerAdapter {
                 message.send();
             } else if (command == Command.PUSH) {
                 PushMessage message = new PushMessage(packet, connection);
-                LOGGER.warn("receive an push message, content=" + message.content);
+                LOGGER.warn("receive an push message, content=" + new String(message.content, Constants.UTF_8));
             } else if (command == Command.HEARTBEAT) {
                 LOGGER.warn("receive a heartbeat pong...");
             } else {
@@ -217,16 +218,13 @@ public final class ConnClientChannelHandler extends ChannelHandlerAdapter {
                 final Channel channel = connection.getChannel();
                 if (channel.isActive()) {
                     ChannelFuture channelFuture = channel.writeAndFlush(Packet.getHBPacket());
-                    channelFuture.addListener(new ChannelFutureListener() {
-                        @Override
-                        public void operationComplete(ChannelFuture future) throws Exception {
-                            if (future.isSuccess()) {
-                                LOGGER.debug("client send msg hb success:" + channel.remoteAddress().toString());
-                            } else {
-                                LOGGER.warn("client send msg hb false:" + channel.remoteAddress().toString(), future.cause());
-                            }
-                            HASHED_WHEEL_TIMER.newTimeout(self, heartbeat, TimeUnit.MILLISECONDS);
+                    channelFuture.addListener((ChannelFutureListener) future -> {
+                        if (future.isSuccess()) {
+                            LOGGER.debug("client send msg hb success:" + channel.remoteAddress().toString());
+                        } else {
+                            LOGGER.warn("client send msg hb false:" + channel.remoteAddress().toString(), future.cause());
                         }
+                        HASHED_WHEEL_TIMER.newTimeout(self, heartbeat, TimeUnit.MILLISECONDS);
                     });
                 } else {
                     LOGGER.error("connection was closed, connection={}", connection);

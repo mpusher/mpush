@@ -69,16 +69,13 @@ public abstract class NettyClient extends BaseService implements Client {
             });
 
             ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
-            future.addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    if (future.isSuccess()) {
-                        if (listener != null) listener.onSuccess(port);
-                        LOGGER.info("start netty client success, host={}, port={}", host, port);
-                    } else {
-                        if (listener != null) listener.onFailure(future.cause());
-                        LOGGER.error("start netty client failure, host={}, port={}", host, port, future.cause());
-                    }
+            future.addListener((ChannelFutureListener) f -> {
+                if (f.isSuccess()) {
+                    if (listener != null) listener.onSuccess(port);
+                    LOGGER.info("start netty client success, host={}, port={}", host, port);
+                } else {
+                    if (listener != null) listener.onFailure(f.cause());
+                    LOGGER.error("start netty client failure, host={}, port={}", host, port, f.cause());
                 }
             });
         } else {

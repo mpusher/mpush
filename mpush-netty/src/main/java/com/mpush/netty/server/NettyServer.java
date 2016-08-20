@@ -157,16 +157,13 @@ public abstract class NettyServer extends BaseService implements Server {
             /***
              * 绑定端口并启动去接收进来的连接
              */
-            ChannelFuture f = b.bind(port).sync().addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    if (future.isSuccess()) {
-                        Logs.Console.error("server start success on:{}", port);
-                        if (listener != null) listener.onSuccess(port);
-                    } else {
-                        Logs.Console.error("server start failure on:{}", port, future.cause());
-                        if (listener != null) listener.onFailure(future.cause());
-                    }
+            ChannelFuture f = b.bind(port).sync().addListener((ChannelFutureListener) future -> {
+                if (future.isSuccess()) {
+                    Logs.Console.error("server start success on:{}", port);
+                    if (listener != null) listener.onSuccess(port);
+                } else {
+                    Logs.Console.error("server start failure on:{}", port, future.cause());
+                    if (listener != null) listener.onFailure(future.cause());
                 }
             });
             if (f.isSuccess()) {
