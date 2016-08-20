@@ -20,8 +20,7 @@
 package com.mpush.tools.config;
 
 import com.mpush.tools.Utils;
-
-import static com.mpush.tools.Utils.getInetAddress;
+import com.mpush.tools.config.CC.mp.net.public_ip_mapping;
 
 /**
  * Created by yxx on 2016/5/18.
@@ -41,15 +40,30 @@ public class ConfigManager {
         );
     }
 
+    /**
+     * 获取内网IP地址
+     *
+     * @return
+     */
     public String getLocalIp() {
         return Utils.getLocalIp();
     }
 
+    /**
+     * 获取外网IP地址
+     *
+     * @return
+     */
     public String getPublicIp() {
-        String localIp = getInetAddress();
 
-        String remoteIp = CC.mp.net.public_ip_mapping.getString(localIp);
+        String localIp = Utils.getLocalIp();
 
-        return remoteIp;
+        String remoteIp = public_ip_mapping.getString(localIp);
+
+        if (remoteIp == null) {
+            remoteIp = Utils.getExtranetIp();
+        }
+
+        return remoteIp == null ? localIp : remoteIp;
     }
 }
