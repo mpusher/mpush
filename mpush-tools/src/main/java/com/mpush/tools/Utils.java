@@ -70,15 +70,17 @@ public final class Utils {
      */
     public static String getInetAddress() {
         try {
-            Profiler.enter("start get inet addresss");
+            Profiler.enter("start get inet address");
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            InetAddress address = null;
+            InetAddress address;
             while (interfaces.hasMoreElements()) {
                 NetworkInterface ni = interfaces.nextElement();
                 Enumeration<InetAddress> addresses = ni.getInetAddresses();
                 while (addresses.hasMoreElements()) {
                     address = addresses.nextElement();
-                    if (!address.isLoopbackAddress() && address.getHostAddress().indexOf(":") == -1 && address.isSiteLocalAddress()) {
+                    if (!address.isLoopbackAddress()
+                            && address.getHostAddress().indexOf(":") == -1
+                            && address.isSiteLocalAddress()) {
                         return address.getHostAddress();
                     }
                 }
@@ -100,16 +102,23 @@ public final class Utils {
         return EXTRANET_IP;
     }
 
+    /**
+     * 获取外网IP
+     *
+     * @return
+     */
     public static String getExtranetAddress() {
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            InetAddress address = null;
+            InetAddress address;
             while (interfaces.hasMoreElements()) {
                 NetworkInterface ni = interfaces.nextElement();
                 Enumeration<InetAddress> addresses = ni.getInetAddresses();
                 while (addresses.hasMoreElements()) {
                     address = addresses.nextElement();
-                    if (!address.isLoopbackAddress() && address.getHostAddress().indexOf(":") == -1 && !address.isSiteLocalAddress()) {
+                    if (!address.isLoopbackAddress()
+                            && address.getHostAddress().indexOf(":") == -1
+                            && !address.isSiteLocalAddress()) {
                         return address.getHostAddress();
                     }
                 }
