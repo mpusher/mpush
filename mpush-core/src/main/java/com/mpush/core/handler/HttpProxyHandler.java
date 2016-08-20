@@ -1,25 +1,47 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *   ohun@live.cn (夜色)
+ */
+
 package com.mpush.core.handler;
 
 import com.google.common.base.Strings;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
+import com.mpush.api.spi.SpiLoader;
+import com.mpush.api.spi.net.DnsMapping;
+import com.mpush.api.spi.net.DnsMappingManager;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.HttpRequestMessage;
 import com.mpush.common.message.HttpResponseMessage;
-import com.mpush.log.Logs;
-import com.mpush.netty.client.HttpCallback;
-import com.mpush.netty.client.HttpClient;
-import com.mpush.netty.client.RequestInfo;
-import com.mpush.tools.Profiler;
-import com.mpush.tools.dns.DnsMapping;
-import com.mpush.tools.dns.manage.DnsMappingManage;
+import com.mpush.common.net.HttpProxyDnsMappingManager;
+import com.mpush.netty.http.HttpCallback;
+import com.mpush.netty.http.HttpClient;
+import com.mpush.netty.http.RequestContext;
+import com.mpush.tools.common.Profiler;
+import com.mpush.tools.config.CC;
+import com.mpush.tools.log.Logs;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
@@ -33,6 +55,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     private static final Logger LOGGER = Logs.HTTP;
     private final HttpClient httpClient;
+    private final DnsMappingManager dnsMappingManager = SpiLoader.load(DnsMappingManager.class, CC.mp.spi.dns_mapping_manager);
 
     public HttpProxyHandler(HttpClient httpClient) {
         this.httpClient = httpClient;
@@ -48,6 +71,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     public void handle(HttpRequestMessage message) {
         try {
             Profiler.enter("start http proxy handler");
+            //1.参数校验
             String method = message.getMethod();
             String uri = message.uri;
             if (Strings.isNullOrEmpty(uri)) {
@@ -59,18 +83,16 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                 LOGGER.warn("request url is empty!");
             }
 
+            //2.url转换
             uri = doDnsMapping(uri);
-            FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.valueOf(method), uri);
-            Profiler.enter("start set full http headers");
-            setHeaders(request, message);
-            Profiler.release();
-            Profiler.enter("start set full http body");
-            setBody(request, message);
-            Profiler.release();
 
-            Profiler.enter("start http proxy request");
-            httpClient.request(new RequestInfo(request, new DefaultHttpCallback(message)));
-            Profiler.release();
+            //3.包装成HTTP request
+            FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.valueOf(method), uri);
+            setHeaders(request, message);//处理header
+            setBody(request, message);//处理body
+
+            //4.发送请求
+            httpClient.request(new RequestContext(request, new DefaultHttpCallback(message)));
         } catch (Exception e) {
             HttpResponseMessage
                     .from(message)
@@ -160,10 +182,8 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
             }
         }
         InetSocketAddress remoteAddress = (InetSocketAddress) message.getConnection().getChannel().remoteAddress();
-        Profiler.enter("start set x-forwarded-for");
-        String remoteIp = remoteAddress.getAddress().getHostAddress();
+        String remoteIp = remoteAddress.getAddress().getHostAddress();//这个要小心，不要使用getHostName,不然会耗时比较大
         request.headers().add("x-forwarded-for", remoteIp);
-        Profiler.release();
         request.headers().add("x-forwarded-port", Integer.toString(remoteAddress.getPort()));
     }
 
@@ -176,15 +196,19 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     }
 
     private String doDnsMapping(String url) {
-        URI uri = null;
+        URL uri = null;
         try {
-            uri = new URI(url);
-        } catch (URISyntaxException e) {
+            uri = new URL(url);
+        } catch (MalformedURLException e) {
         }
-        if (uri == null) return url;
+        if (uri == null) {
+            return url;
+        }
         String host = uri.getHost();
-        DnsMapping mapping = DnsMappingManage.holder.translate(host);
-        if (mapping == null) return url;
-        return url.replaceFirst(host, mapping.toString());
+        DnsMapping mapping = dnsMappingManager.lookup(host);
+        if (mapping == null) {
+            return url;
+        }
+        return mapping.translate(uri);
     }
 }

@@ -1,7 +1,26 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *   ohun@live.cn (夜色)
+ */
+
 package com.mpush.tools.crypto;
 
-import com.mpush.tools.Constants;
-import com.mpush.tools.Pair;
+import com.mpush.api.Constants;
+import com.mpush.tools.common.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -169,7 +188,7 @@ public final class RSAUtils {
             return (RSAPublicKey) keyFactory.generatePublic(keySpec);
         } catch (Exception e) {
             LOGGER.error("getPublicKey ex modulus={}, exponent={}", modulus, exponent, e);
-            throw new RuntimeException("Get PublicKey ex", e);
+            throw new CryptoException("Get PublicKey ex", e);
         }
     }
 
@@ -192,7 +211,7 @@ public final class RSAUtils {
             return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
         } catch (Exception e) {
             LOGGER.error("getPrivateKey ex modulus={}, exponent={}", modulus, exponent, e);
-            throw new RuntimeException("Get PrivateKey ex", e);
+            throw new CryptoException("Get PrivateKey ex", e);
         }
     }
 
@@ -215,7 +234,7 @@ public final class RSAUtils {
             return doFinal(cipher, data, key_len - 11);
         } catch (Exception e) {
             LOGGER.error("encryptByPublicKey ex", e);
-            throw new RuntimeException("RSA encrypt ex", e);
+            throw new CryptoException("RSA encrypt ex", e);
         }
     }
 
@@ -237,7 +256,7 @@ public final class RSAUtils {
             return doFinal(cipher, data, key_len);
         } catch (Exception e) {
             LOGGER.error("decryptByPrivateKey ex", e);
-            throw new RuntimeException("RSA decrypt ex", e);
+            throw new CryptoException("RSA decrypt ex", e);
         }
     }
 
@@ -347,8 +366,12 @@ public final class RSAUtils {
         byte[] ming = "123456789".getBytes(Constants.UTF_8);
         System.out.println("明文：" + new String(ming, Constants.UTF_8));
         //使用模和指数生成公钥和私钥
-        RSAPublicKey pubKey = RSAUtils.getPublicKey(modulus, public_exponent);
         RSAPrivateKey priKey = RSAUtils.getPrivateKey(modulus, private_exponent);
+        RSAPublicKey pubKey = RSAUtils.getPublicKey(modulus, public_exponent);
+        System.out.println("privateKey=" + priKey);
+        System.out.println("publicKey=" + pubKey);
+        System.out.println("privateKey=" + priKey);
+        System.out.println("publicKey=" + pubKey);
         //加密后的密文
         byte[] mi = RSAUtils.encryptByPublicKey(ming, pubKey);
         System.out.println("密文：" + new String(mi, Constants.UTF_8));

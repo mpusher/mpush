@@ -1,3 +1,22 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *   ohun@live.cn (夜色)
+ */
+
 package com.mpush.core.handler;
 
 import com.google.common.base.Strings;
@@ -5,7 +24,6 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.event.HandshakeEvent;
 import com.mpush.api.protocol.Packet;
-import com.mpush.common.EventBus;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.ErrorMessage;
 import com.mpush.common.message.HandshakeMessage;
@@ -14,10 +32,9 @@ import com.mpush.common.security.AesCipher;
 import com.mpush.common.security.CipherBox;
 import com.mpush.core.session.ReusableSession;
 import com.mpush.core.session.ReusableSessionManager;
-import com.mpush.log.Logs;
-import com.mpush.tools.MPushUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.mpush.tools.config.ConfigManager;
+import com.mpush.tools.event.EventBus;
+import com.mpush.tools.log.Logs;
 
 /**
  * Created by ohun on 2015/12/24.
@@ -25,34 +42,33 @@ import org.slf4j.LoggerFactory;
  * @author ohun@live.cn
  */
 public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage> {
-    public static final Logger LOGGER = LoggerFactory.getLogger(HandshakeHandler.class);
 
     @Override
     public HandshakeMessage decode(Packet packet, Connection connection) {
-    	return new HandshakeMessage(packet, connection);
+        return new HandshakeMessage(packet, connection);
     }
 
     @Override
     public void handle(HandshakeMessage message) {
-    	
+
         byte[] iv = message.iv;//AES密钥向量16位
         byte[] clientKey = message.clientKey;//客户端随机数16位
-        byte[] serverKey = CipherBox.INSTANCE.randomAESKey();//服务端随机数16位
-        byte[] sessionKey = CipherBox.INSTANCE.mixKey(clientKey, serverKey);//会话密钥16位
+        byte[] serverKey = CipherBox.I.randomAESKey();//服务端随机数16位
+        byte[] sessionKey = CipherBox.I.mixKey(clientKey, serverKey);//会话密钥16位
 
         //1.校验客户端消息字段
         if (Strings.isNullOrEmpty(message.deviceId)
-                || iv.length != CipherBox.INSTANCE.getAesKeyLength()
-                || clientKey.length != CipherBox.INSTANCE.getAesKeyLength()) {
+                || iv.length != CipherBox.I.getAesKeyLength()
+                || clientKey.length != CipherBox.I.getAesKeyLength()) {
             ErrorMessage.from(message).setReason("Param invalid").close();
-            Logs.Conn.info("client handshake false:{}", message.getConnection());
+            Logs.Conn.info("handshake failure, message={}", message.toString());
             return;
         }
 
         //2.重复握手判断
         SessionContext context = message.getConnection().getSessionContext();
         if (message.deviceId.equals(context.deviceId)) {
-            Logs.Conn.info("client handshake false for repeat handshake:{}", message.getConnection().getSessionContext());
+            Logs.Conn.info("handshake failure, repeat handshake, session={}", message.getConnection().getSessionContext());
             return;
         }
 
@@ -63,7 +79,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
         ReusableSession session = ReusableSessionManager.INSTANCE.genSession(context);
 
         //5.计算心跳时间
-        int heartbeat = MPushUtil.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
+        int heartbeat = ConfigManager.I.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
 
         //6.响应握手成功消息
         HandshakeOkMessage
@@ -88,7 +104,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
         ReusableSessionManager.INSTANCE.cacheSession(session);
 
         //10.触发握手成功事件
-        EventBus.INSTANCE.post(new HandshakeEvent(message.getConnection(), heartbeat));
-        Logs.Conn.info("client handshake success:{}", context);
+        EventBus.I.post(new HandshakeEvent(message.getConnection(), heartbeat));
+        Logs.Conn.info("handshake success, session={}", context);
     }
 }

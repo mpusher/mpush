@@ -1,6 +1,25 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *   ohun@live.cn (夜色)
+ */
+
 package com.mpush.zk;
 
-import com.mpush.tools.config.ConfigCenter;
+import com.mpush.tools.config.CC.mp.zk;
 
 public class ZKConfig {
     public static final int ZK_MAX_RETRY = 3;
@@ -16,11 +35,11 @@ public class ZKConfig {
 
     private String namespace;
 
-    private int maxRetry = ZK_MAX_RETRY;
+    private int maxRetries = ZK_MAX_RETRY;
 
-    private int minTime = ZK_MIN_TIME;
+    private int baseSleepTimeMs = ZK_MIN_TIME;
 
-    private int maxTime = ZK_MAX_TIME;
+    private int maxSleepMs = ZK_MAX_TIME;
 
     private int sessionTimeout = ZK_SESSION_TIMEOUT;
 
@@ -32,8 +51,17 @@ public class ZKConfig {
         this.hosts = hosts;
     }
 
-    public static ZKConfig build(String hosts) {
-        return new ZKConfig(hosts);
+    public static ZKConfig build() {
+        return new ZKConfig(zk.server_address)
+                .setConnectionTimeout(zk.connectionTimeoutMs)
+                .setDigest(zk.digest)
+                .setLocalCachePath(zk.local_cache_path)
+                .setMaxRetries(zk.retry.maxRetries)
+                .setMaxSleepMs(zk.retry.maxSleepMs)
+                .setBaseSleepTimeMs(zk.retry.baseSleepTimeMs)
+                .setNamespace(zk.namespace)
+                .setSessionTimeout(zk.sessionTimeoutMs)
+                ;
     }
 
     public String getHosts() {
@@ -54,30 +82,30 @@ public class ZKConfig {
         return this;
     }
 
-    public int getMaxRetry() {
-        return maxRetry;
+    public int getMaxRetries() {
+        return maxRetries;
     }
 
-    public ZKConfig setMaxRetry(int maxRetry) {
-        this.maxRetry = maxRetry;
+    public ZKConfig setMaxRetries(int maxRetries) {
+        this.maxRetries = maxRetries;
         return this;
     }
 
-    public int getMinTime() {
-        return minTime;
+    public int getBaseSleepTimeMs() {
+        return baseSleepTimeMs;
     }
 
-    public ZKConfig setMinTime(int minTime) {
-        this.minTime = minTime;
+    public ZKConfig setBaseSleepTimeMs(int baseSleepTimeMs) {
+        this.baseSleepTimeMs = baseSleepTimeMs;
         return this;
     }
 
-    public int getMaxTime() {
-        return maxTime;
+    public int getMaxSleepMs() {
+        return maxSleepMs;
     }
 
-    public ZKConfig setMaxTime(int maxTime) {
-        this.maxTime = maxTime;
+    public ZKConfig setMaxSleepMs(int maxSleepMs) {
+        this.maxSleepMs = maxSleepMs;
         return this;
     }
 
@@ -123,9 +151,9 @@ public class ZKConfig {
                 "hosts='" + hosts + '\'' +
                 ", digest='" + digest + '\'' +
                 ", namespace='" + namespace + '\'' +
-                ", maxRetry=" + maxRetry +
-                ", minTime=" + minTime +
-                ", maxTime=" + maxTime +
+                ", maxRetries=" + maxRetries +
+                ", baseSleepTimeMs=" + baseSleepTimeMs +
+                ", maxSleepMs=" + maxSleepMs +
                 ", sessionTimeout=" + sessionTimeout +
                 ", connectionTimeout=" + connectionTimeout +
                 ", localCachePath='" + localCachePath + '\'' +

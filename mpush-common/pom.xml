@@ -11,7 +11,7 @@
 
     <groupId>${mpush.groupId}</groupId>
     <artifactId>mpush-common</artifactId>
-    <version>${mpush-common-version}</version>
+    <version>${mpush.version}</version>
     <name>mpush-common</name>
     <packaging>jar</packaging>
 
@@ -27,6 +27,10 @@
         <dependency>
             <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-zk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${mpush.groupId}</groupId>
+            <artifactId>mpush-cache</artifactId>
         </dependency>
     </dependencies>
 
