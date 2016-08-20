@@ -66,6 +66,9 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
             return PushRequest
                     .build(this)
                     .setCallback(callback)
+                    .setUserId(userId)
+                    .setContent(content)
+                    .setTimeout(DEFAULT_TIMEOUT)
                     .offline();
 
         }

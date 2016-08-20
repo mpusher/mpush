@@ -38,7 +38,9 @@ import io.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -73,11 +75,17 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
                 args = Arrays.copyOfRange(cmd_args, 1, cmd_args.length);
             }
         }
-
-        Object result = args != null ? command.handler(ctx, args) : command.handler(ctx, arg);
-        ChannelFuture future = ctx.writeAndFlush(result + EOL + EOL);
-        if (command == Command.quit) {
-            future.addListener(ChannelFutureListener.CLOSE);
+        try {
+            Object result = args != null ? command.handler(ctx, args) : command.handler(ctx, arg);
+            ChannelFuture future = ctx.writeAndFlush(result + EOL + EOL);
+            if (command == Command.quit) {
+                future.addListener(ChannelFutureListener.CLOSE);
+            }
+        } catch (Throwable throwable) {
+            ctx.writeAndFlush(throwable.getLocalizedMessage() + EOL + EOL);
+            StringWriter writer = new StringWriter(1024);
+            throwable.printStackTrace(new PrintWriter(writer));
+            ctx.writeAndFlush(writer.toString());
         }
     }
 
