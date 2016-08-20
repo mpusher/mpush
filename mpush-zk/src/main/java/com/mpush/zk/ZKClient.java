@@ -1,12 +1,29 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *   ohun@live.cn (夜色)
+ */
+
 package com.mpush.zk;
 
-import com.mpush.log.Logs;
-import com.mpush.tools.ConsoleLog;
-import com.mpush.tools.Constants;
-import com.mpush.tools.MPushUtil;
-import com.mpush.tools.config.ConfigCenter;
-import com.mpush.tools.exception.ZKException;
-import com.mpush.zk.listener.ZKDataChangeListener;
+import com.mpush.api.Constants;
+import com.mpush.api.service.BaseService;
+import com.mpush.api.service.Listener;
+import com.mpush.tools.log.Logs;
+import com.mpush.zk.listener.ZKNodeCacheWatcher;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.CuratorFrameworkFactory.Builder;
@@ -16,7 +33,6 @@ import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.curator.utils.CloseableUtils;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
@@ -26,7 +42,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class ZKClient {
+public class ZKClient extends BaseService {
     public static final ZKClient I = I();
     private ZKConfig zkConfig;
     private CuratorFramework client;
@@ -38,25 +54,40 @@ public class ZKClient {
     }
 
     private ZKClient() {
-        try {
-            init();
-        } catch (Exception e) {
-            throw new ZKException("init zk error, config=" + zkConfig, e);
+    }
+
+    @Override
+    protected void doStart(Listener listener) throws Throwable {
+        client.start();
+        Logs.Console.error("init zk client waiting for connected...");
+        if (!client.blockUntilConnected(1, TimeUnit.MINUTES)) {
+            throw new ZKException("init zk error, config=" + zkConfig);
         }
+        initLocalCache(zkConfig.getLocalCachePath());
+        addConnectionStateListener();
+        listener.onSuccess(zkConfig.getHosts());
+        Logs.ZK.info("zk client start success, server lists is:{}", zkConfig.getHosts());
+        Logs.Console.error("init zk client success...");
+    }
+
+    @Override
+    protected void doStop(Listener listener) throws Throwable {
+        if (cache != null) cache.close();
+        TimeUnit.MILLISECONDS.sleep(600);
+        client.close();
     }
 
     /**
      * 初始化
      */
-    private void init() throws Exception {
-        zkConfig = ZKConfig.build(ConfigCenter.I.zkIp())
-                .setDigest(ConfigCenter.I.zkDigest())
-                .setNamespace(ConfigCenter.I.zkNamespace());
-        ConsoleLog.i("init zk client, config=" + zkConfig);
+    @Override
+    public void init() {
+        if (zkConfig != null) return;
+        zkConfig = ZKConfig.build();
         Builder builder = CuratorFrameworkFactory
                 .builder()
                 .connectString(zkConfig.getHosts())
-                .retryPolicy(new ExponentialBackoffRetry(zkConfig.getMinTime(), zkConfig.getMaxRetry(), zkConfig.getMaxTime()))
+                .retryPolicy(new ExponentialBackoffRetry(zkConfig.getBaseSleepTimeMs(), zkConfig.getMaxRetries(), zkConfig.getMaxSleepMs()))
                 .namespace(zkConfig.getNamespace());
 
         if (zkConfig.getConnectionTimeout() > 0) {
@@ -82,29 +113,16 @@ public class ZKClient {
                     });
         }
         client = builder.build();
-        client.start();
-        ConsoleLog.i("init zk client waiting for connected...");
-        if (!client.blockUntilConnected(1, TimeUnit.MINUTES)) {
-            throw new ZKException("init zk error, config=" + zkConfig);
-        }
-        initLocalCache(zkConfig.getLocalCachePath());
-        registerConnectionLostListener();
-        Logs.ZK.info("zk client start success, server lists is:{}", zkConfig.getHosts());
-
-        ConsoleLog.i("init zk client success...");
+        Logs.Console.error("init zk client, config=" + zkConfig);
     }
 
     // 注册连接状态监听器
-    private void registerConnectionLostListener() {
+    private void addConnectionStateListener() {
         client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
             //TODO need close jvm?
             @Override
             public void stateChanged(final CuratorFramework client, final ConnectionState newState) {
-                if (ConnectionState.LOST == newState) {
-                    Logs.ZK.info("{} lost connection", MPushUtil.getInetAddress());
-                } else if (ConnectionState.RECONNECTED == newState) {
-                    Logs.ZK.info("{} reconnected", MPushUtil.getInetAddress());
-                }
+                Logs.ZK.warn("zk connection state changed new state={}, isConnected={}", newState, newState.isConnected());
             }
         });
     }
@@ -113,25 +131,6 @@ public class ZKClient {
     private void initLocalCache(String cachePath) throws Exception {
         cache = new TreeCache(client, cachePath);
         cache.start();
-    }
-
-    private void waitClose() {
-        try {
-            Thread.sleep(600);
-        } catch (final InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    /**
-     * 关闭
-     */
-    public void close() {
-        if (null != cache) {
-            cache.close();
-        }
-        waitClose();
-        CloseableUtils.closeQuietly(client);
     }
 
     /**
@@ -293,12 +292,12 @@ public class ZKClient {
         try {
             client.delete().deletingChildrenIfNeeded().forPath(key);
         } catch (final Exception ex) {
-            Logs.ZK.error("remove:{}", key, ex);
+            Logs.ZK.error("removeAndClose:{}", key, ex);
             throw new ZKException(ex);
         }
     }
 
-    public void registerListener(ZKDataChangeListener listener) {
+    public void registerListener(ZKNodeCacheWatcher listener) {
         cache.getListenable().addListener(listener);
     }
 

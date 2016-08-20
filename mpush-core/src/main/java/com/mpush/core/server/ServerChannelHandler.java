@@ -1,21 +1,37 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *   ohun@live.cn (夜色)
+ */
+
 package com.mpush.core.server;
 
 
-import com.mpush.netty.connection.NettyConnection;
+import com.mpush.api.PacketReceiver;
+import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.ConnectionManager;
 import com.mpush.api.event.ConnectionCloseEvent;
 import com.mpush.api.protocol.Packet;
-import com.mpush.api.connection.Connection;
-import com.mpush.api.PacketReceiver;
-import com.mpush.common.EventBus;
-import com.mpush.log.Logs;
-
-import com.mpush.tools.Profiler;
-
+import com.mpush.netty.connection.NettyConnection;
+import com.mpush.tools.common.Profiler;
+import com.mpush.tools.event.EventBus;
+import com.mpush.tools.log.Logs;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,33 +60,32 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-    	try{
-    		 Profiler.start("end channel read:");
-    		 Connection connection = connectionManager.get(ctx.channel());
-	         LOGGER.debug("channelRead channel={}, packet={}", ctx.channel(), msg);
-	         connection.updateLastReadTime();
-	         receiver.onReceive((Packet) msg, connection);
-    	}finally{
-    		Profiler.release();
-    		long duration = Profiler.getDuration();
-    		if(duration>80){
-    			LOGGER.error("end channel read:"+duration+","+Profiler.dump());
-    		}
-    		Profiler.reset();
-    	}
-       
+        try {
+            Profiler.start("channel read:");
+            Connection connection = connectionManager.get(ctx.channel());
+            LOGGER.debug("channelRead channel={}, connection={}, packet={}", ctx.channel(), connection, msg);
+            connection.updateLastReadTime();
+            receiver.onReceive((Packet) msg, connection);
+        } finally {
+            Profiler.release();
+            long duration = Profiler.getDuration();
+            if (duration > 80) {
+                LOGGER.error("channel read busy:" + duration + "," + Profiler.dump());
+            }
+            Profiler.reset();
+        }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        connectionManager.remove(ctx.channel());
-        Logs.Conn.info("client exceptionCaught channel={}", ctx.channel());
-        LOGGER.error("caught an ex, channel={}", ctx.channel(), cause);
+        Connection connection = connectionManager.removeAndClose(ctx.channel());
+        Logs.Conn.error("client exceptionCaught channel={}, connection={}", ctx.channel(), connection);
+        LOGGER.error("caught an ex, channel={}, connection={}", ctx.channel(), connection, cause);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    	Logs.Conn.info("client connect channel={}", ctx.channel());
+        Logs.Conn.info("client connect channel={}", ctx.channel());
         Connection connection = new NettyConnection();
         connection.init(ctx.channel(), security);
         connectionManager.add(connection);
@@ -78,9 +93,8 @@ public final class ServerChannelHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    	Logs.Conn.info("client disconnect channel={}", ctx.channel());
-        Connection connection = connectionManager.get(ctx.channel());
-        EventBus.INSTANCE.post(new ConnectionCloseEvent(connection));
-        connectionManager.remove(ctx.channel());
+        Connection connection = connectionManager.removeAndClose(ctx.channel());
+        EventBus.I.post(new ConnectionCloseEvent(connection));
+        Logs.Conn.info("client disconnect channel={}, connection={}", ctx.channel(), connection);
     }
 }

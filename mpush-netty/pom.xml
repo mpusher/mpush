@@ -18,7 +18,11 @@
     <dependencies>
         <dependency>
             <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-common</artifactId>
+            <artifactId>mpush-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${mpush.groupId}</groupId>
+            <artifactId>mpush-tools</artifactId>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
@@ -36,6 +40,10 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
         </dependency>
     </dependencies>
 </project>

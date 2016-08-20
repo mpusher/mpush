@@ -1,9 +1,27 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *   ohun@live.cn (夜色)
+ */
+
 package com.mpush.netty.codec;
 
-import com.mpush.api.exception.DecodeException;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
-import com.mpush.tools.config.ConfigCenter;
+import com.mpush.tools.config.CC;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -17,6 +35,7 @@ import java.util.List;
  * @author ohun@live.cn
  */
 public final class PacketDecoder extends ByteToMessageDecoder {
+    private static final int maxPacketSize = CC.mp.core.max_packet_size;
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
@@ -27,7 +46,7 @@ public final class PacketDecoder extends ByteToMessageDecoder {
     private void decodeHeartbeat(ByteBuf in, List<Object> out) {
         while (in.isReadable()) {
             if (in.readByte() == Packet.HB_PACKET_BYTE) {
-                out.add(new Packet(Command.HEARTBEAT));
+                out.add(Packet.HB_PACKE);
             } else {
                 in.readerIndex(in.readerIndex() - 1);
                 break;
@@ -65,7 +84,7 @@ public final class PacketDecoder extends ByteToMessageDecoder {
         byte lrc = in.readByte();
         byte[] body = null;
         if (bodyLength > 0) {
-            if (bodyLength > ConfigCenter.I.maxPacketSize()) {
+            if (bodyLength > maxPacketSize) {
                 throw new RuntimeException("ERROR PACKET_SIZE：" + bodyLength);
             }
             body = new byte[bodyLength];

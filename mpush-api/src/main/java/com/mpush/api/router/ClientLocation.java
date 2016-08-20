@@ -1,5 +1,25 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *   ohun@live.cn (夜色)
+ */
+
 package com.mpush.api.router;
 
+import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 
 /**
@@ -29,16 +49,15 @@ public final class ClientLocation {
      */
     private String deviceId;
 
+    /**
+     * 链接ID
+     */
+    private String connId;
 
-    public String getDeviceId() {
-        return deviceId;
-    }
-
-    public ClientLocation setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-        return this;
-    }
-
+    /**
+     * 客户端类型
+     */
+    private transient int clientType;
 
     public String getHost() {
         return host;
@@ -53,26 +72,64 @@ public final class ClientLocation {
         return osName;
     }
 
-    public ClientLocation setOsName(String osName) {
+    public void setOsName(String osName) {
         this.osName = osName;
-        return this;
     }
 
     public String getClientVersion() {
         return clientVersion;
     }
 
-    public ClientLocation setClientVersion(String clientVersion) {
+    public void setClientVersion(String clientVersion) {
         this.clientVersion = clientVersion;
-        return this;
     }
 
-    public static ClientLocation from(SessionContext context) {
-        ClientLocation config = new ClientLocation();
-        config.osName = context.osName;
-        config.clientVersion = context.clientVersion;
-        config.deviceId = context.deviceId;
-        return config;
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public String getConnId() {
+        return connId;
+    }
+
+    public void setConnId(String connId) {
+        this.connId = connId;
+    }
+
+    public int getClientType() {
+        if (clientType == 0) {
+            clientType = ClientType.find(osName).type;
+        }
+        return clientType;
+    }
+
+    public static ClientLocation from(Connection connection) {
+        SessionContext context = connection.getSessionContext();
+        ClientLocation location = new ClientLocation();
+        location.osName = context.osName;
+        location.clientVersion = context.clientVersion;
+        location.deviceId = context.deviceId;
+        location.connId = connection.getId();
+        return location;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ClientLocation location = (ClientLocation) o;
+
+        return clientType == location.clientType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(clientType);
     }
 
     @Override
@@ -82,6 +139,7 @@ public final class ClientLocation {
                 ", osName='" + osName + '\'' +
                 ", clientVersion='" + clientVersion + '\'' +
                 ", deviceId='" + deviceId + '\'' +
+                ", connId='" + connId + '\'' +
                 '}';
     }
 }

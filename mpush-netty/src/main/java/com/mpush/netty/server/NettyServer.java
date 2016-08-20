@@ -1,9 +1,32 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *   ohun@live.cn (夜色)
+ */
+
 package com.mpush.netty.server;
 
-import com.mpush.api.Server;
+import com.mpush.api.service.BaseService;
+import com.mpush.api.service.Listener;
+import com.mpush.api.service.Server;
+import com.mpush.api.service.ServiceException;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
-import com.mpush.tools.thread.threadpool.ThreadPoolManager;
+import com.mpush.tools.config.CC;
+import com.mpush.tools.log.Logs;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -15,6 +38,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -22,7 +47,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author ohun@live.cn
  */
-public abstract class NettyServer implements Server {
+public abstract class NettyServer extends BaseService implements Server {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -54,11 +79,13 @@ public abstract class NettyServer implements Server {
         if (!serverState.compareAndSet(State.Started, State.Shutdown)) {
             IllegalStateException e = new IllegalStateException("server was already shutdown.");
             if (listener != null) listener.onFailure(e);
-            throw e;
+            Logs.Console.error("{} was already shutdown.", this.getClass().getSimpleName());
+            return;
         }
+        Logs.Console.error("try shutdown {}...", this.getClass().getSimpleName());
         if (workerGroup != null) workerGroup.shutdownGracefully().syncUninterruptibly();
         if (bossGroup != null) bossGroup.shutdownGracefully().syncUninterruptibly();
-        logger.error("netty server stop now");
+        Logs.Console.error("{} shutdown success.", this.getClass().getSimpleName());
         if (listener != null) {
             listener.onSuccess(port);
         }
@@ -69,7 +96,11 @@ public abstract class NettyServer implements Server {
         if (!serverState.compareAndSet(State.Initialized, State.Starting)) {
             throw new IllegalStateException("Server already started or have not init");
         }
-        createNioServer(listener);
+        if (useNettyEpoll()) {
+            createEpollServer(listener);
+        } else {
+            createNioServer(listener);
+        }
     }
 
     private void createServer(final Listener listener, EventLoopGroup boss, EventLoopGroup work, Class<? extends ServerChannel> clazz) {
@@ -130,10 +161,10 @@ public abstract class NettyServer implements Server {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (future.isSuccess()) {
-                        logger.error("server start success on:" + port);
+                        Logs.Console.error("server start success on:{}", port);
                         if (listener != null) listener.onSuccess(port);
                     } else {
-                        logger.error("server start failure on:" + port, future.cause());
+                        Logs.Console.error("server start failure on:{}", port, future.cause());
                         if (listener != null) listener.onFailure(future.cause());
                     }
                 }
@@ -149,7 +180,7 @@ public abstract class NettyServer implements Server {
         } catch (Exception e) {
             logger.error("server start exception", e);
             if (listener != null) listener.onFailure(e);
-            throw new RuntimeException("server start exception, port=" + port, e);
+            throw new ServiceException("server start exception, port=" + port, e);
         } finally {
             /***
              * 优雅关闭
@@ -158,17 +189,16 @@ public abstract class NettyServer implements Server {
         }
     }
 
-    private void createNioServer(final Listener listener) {
-        NioEventLoopGroup bossGroup = new NioEventLoopGroup(1, ThreadPoolManager.bossExecutor);
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup(0, ThreadPoolManager.workExecutor);
+    private void createNioServer(Listener listener) {
+        NioEventLoopGroup bossGroup = new NioEventLoopGroup(1, getBossExecutor());
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup(0, getWorkExecutor());
         createServer(listener, bossGroup, workerGroup, NioServerSocketChannel.class);
     }
 
-
     @SuppressWarnings("unused")
-    private void createEpollServer(final Listener listener) {
-        EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1, ThreadPoolManager.bossExecutor);
-        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(0, ThreadPoolManager.workExecutor);
+    private void createEpollServer(Listener listener) {
+        EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1, getBossExecutor());
+        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(0, getWorkExecutor());
         createServer(listener, bossGroup, workerGroup, EpollServerSocketChannel.class);
     }
 
@@ -207,5 +237,29 @@ public abstract class NettyServer implements Server {
         pipeline.addLast("decoder", getDecoder());
         pipeline.addLast("encoder", getEncoder());
         pipeline.addLast("handler", getChannelHandler());
+    }
+
+    protected Executor getBossExecutor() {
+        return null;
+    }
+
+    protected Executor getWorkExecutor() {
+        return null;
+    }
+
+    private boolean useNettyEpoll() {
+        if (!"netty".equals(CC.mp.core.epoll_provider)) return false;
+        String name = CC.cfg.getString("os.name").toLowerCase(Locale.UK).trim();
+        return name.startsWith("linux");
+    }
+
+    @Override
+    protected void doStart(Listener listener) throws Throwable {
+
+    }
+
+    @Override
+    protected void doStop(Listener listener) throws Throwable {
+
     }
 }

@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>${mpush.groupId}</groupId>
     <artifactId>mpush-client</artifactId>
-    <version>${mpush-client-version}</version>
+    <version>${mpush.version}</version>
     <name>mpush-client</name>
     <packaging>jar</packaging>
     <dependencies>
@@ -25,39 +25,11 @@
         </dependency>
         <dependency>
             <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-zk</artifactId>
+            <artifactId>mpush-common</artifactId>
         </dependency>
         <dependency>
             <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-common</artifactId>
+            <artifactId>mpush-cache</artifactId>
         </dependency>
     </dependencies>
-
-    <!-- 编译配置 -->
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <createSourcesJar>true</createSourcesJar>
-                            <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
-                            <artifactSet>
-                                <includes>
-                                    <include>com.shinemo.mpush:mpush-client</include>
-                                </includes>
-                            </artifactSet>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

@@ -1,3 +1,22 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *   ohun@live.cn (夜色)
+ */
+
 package com.mpush.api.protocol;
 
 import io.netty.buffer.ByteBuf;
@@ -16,6 +35,7 @@ public final class Packet {
 
     public static final byte HB_PACKET_BYTE = -33;
     public static final byte[] HB_PACKET_BYTES = new byte[]{HB_PACKET_BYTE};
+    public static final Packet HB_PACKE = new Packet(Command.HEARTBEAT);
 
     public byte cmd; //命令
     public short cc; //校验码 暂时没有用到
@@ -46,7 +66,7 @@ public final class Packet {
         return body == null ? 0 : body.length;
     }
 
-    public void setFlag(byte flag) {
+    public void addFlag(byte flag) {
         this.flags |= flag;
     }
 

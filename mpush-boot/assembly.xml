@@ -1,27 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<assembly
-        xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
-    <id>release</id>
-    <baseDirectory>mpush</baseDirectory>
+<assembly>
+    <id>release-${mpush.version}</id>
+    <baseDirectory>mpush-${mpush.version}</baseDirectory>
     <includeBaseDirectory>true</includeBaseDirectory>
     <formats>
         <format>tar.gz</format>
     </formats>
     <fileSets>
         <fileSet>
-            <directory>target/classes/</directory>
+            <directory>../</directory>
             <outputDirectory/>
             <includes>
-                <include>config.properties</include>
+                <include>LICENSE</include>
+                <include>README.md</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>../bin/</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>*.sh</include>
+                <include>*.cmd</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>../conf/</directory>
+            <outputDirectory>conf</outputDirectory>
+            <includes>
+                <include>reference.conf</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>target/classes/</directory>
+            <outputDirectory>conf</outputDirectory>
+            <includes>
+                <include>mpush.conf</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>target/</directory>
-            <outputDirectory/>
+            <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>boot.jar</include>
+                <include>bootstrap.jar</include>
             </includes>
         </fileSet>
     </fileSets>
