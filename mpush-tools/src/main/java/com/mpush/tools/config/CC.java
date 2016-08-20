@@ -39,6 +39,7 @@ import static com.typesafe.config.ConfigBeanFactory.create;
 import static java.util.stream.Collectors.toCollection;
 
 /**
+ * mpush 配置中心
  * Created by yxx on 2016/5/20.
  *
  * @author ohun@live.cn
@@ -48,7 +49,7 @@ public interface CC {
 
     static Config load() {
         Config config = ConfigFactory.load();
-        String custom_conf = "mp.conf";
+        String custom_conf = "mp.conf";//值来自jvm启动参数指定
         if (config.hasPath(custom_conf)) {
             File file = new File(config.getString(custom_conf));
             if (file.exists()) {
@@ -94,9 +95,8 @@ public interface CC {
                 Map<String, Object> mappings = net.cfg.getObject("public-host-mapping").unwrapped();
 
                 static String getString(String localIp) {
-                    return (String) mappings.getOrDefault(localIp, localIp);
+                    return (String) mappings.get(localIp);
                 }
-
             }
 
             interface traffic_shaping {
