@@ -15,7 +15,7 @@ REM See the License for the specific language governing permissions and
 REM limitations under the License.
 
 setlocal
-call "%~dp0mpEnv.cmd"
+call "%~dp0env-mp.cmd"
 
 set MPMAIN="-jar ../boot.jar"
 echo on

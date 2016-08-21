@@ -29,12 +29,21 @@ import com.mpush.tools.log.Logs;
 public abstract class BootJob {
     private BootJob next;
 
-    abstract void run();
+    protected abstract void start();
 
-    public void next() {
+    protected abstract void stop();
+
+    public void startNext() {
         if (next != null) {
-            Logs.Console.error("run next bootstrap job [" + next.getClass().getSimpleName() + "]");
-            next.run();
+            Logs.Console.error("start next bootstrap job [" + next.getClass().getSimpleName() + "]");
+            next.start();
+        }
+    }
+
+    public void stopNext() {
+        if (next != null) {
+            Logs.Console.error("stop next bootstrap job [" + next.getClass().getSimpleName() + "]");
+            next.stop();
         }
     }
 

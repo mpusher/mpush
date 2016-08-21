@@ -24,14 +24,14 @@
 
 
 # use POSTIX interface, symlink is followed automatically
-MPBIN="${BASH_SOURCE-$0}"
-MPBIN="$(dirname "${MPBIN}")"
-MPBINDIR="$(cd "${MPBIN}"; pwd)"
+MP_BIN="${BASH_SOURCE-$0}"
+MP_BIN="$(dirname "${MP_BIN}")"
+MP_BIN_DIR="$(cd "${MP_BIN}"; pwd)"
 
-if [ -e "$MPBIN/../libexec/mp-env.sh" ]; then
-  . "$MPBINDIR/../libexec/mp-env.sh"
+if [ -e "$MP_BIN/../libexec/env-mp.sh" ]; then
+  . "$MP_BIN_DIR/../libexec/env-mp.sh"
 else
-  . "$MPBINDIR/mp-env.sh"
+  . "$MP_BIN_DIR/env-mp.sh"
 fi
 
 # See the following page for extensive details on setting
@@ -51,7 +51,7 @@ then
     # for some reason these two options are necessary on jdk6 on Ubuntu
     #   accord to the docs they are not necessary, but otw jconsole cannot
     #   do a local attach
-    MPMAIN="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.local.only=$JMXLOCALONLY"
+    MP_MAIN="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.local.only=$JMXLOCALONLY"
   else
     if [ "x$JMXAUTH" = "x" ]
     then
@@ -69,41 +69,41 @@ then
     echo "MPush remote JMX authenticate set to $JMXAUTH" >&2
     echo "MPush remote JMX ssl set to $JMXSSL" >&2
     echo "MPush remote JMX log4j set to $JMXLOG4J" >&2
-    MPMAIN="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=$JMXPORT -Dcom.sun.management.jmxremote.authenticate=$JMXAUTH -Dcom.sun.management.jmxremote.ssl=$JMXSSL -Dmpush.jmx.log4j.disable=$JMXLOG4J"
+    MP_MAIN="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=$JMXPORT -Dcom.sun.management.jmxremote.authenticate=$JMXAUTH -Dcom.sun.management.jmxremote.ssl=$JMXSSL -Dmpush.jmx.log4j.disable=$JMXLOG4J"
   fi
 else
     echo "JMX disabled by user request" >&2
-    MPMAIN=""
+    MP_MAIN=""
 fi
 
-MPMAIN="$MPMAIN -jar $MPBINDIR/bootstrap.jar"
+MP_MAIN="$MP_MAIN -jar $MP_BIN_DIR/bootstrap.jar"
 
-if [ "x$SERVER_JVMFLAGS"  != "x" ]
+if [ "x$SERVER_JVM_FLAGS"  != "x" ]
 then
-    JVMFLAGS="$SERVER_JVMFLAGS $JVMFLAGS"
+    JVM_FLAGS="$SERVER_JVM_FLAGS $JVM_FLAGS"
 fi
 
 if [ "x$2" != "x" ]
 then
-    MPCFG="$MPCFGDIR/$2"
+    MP_CFG="$MP_CFG_DIR/$2"
 fi
 
-# if we give a more complicated path to the config, don't screw around in $MPCFGDIR
-if [ "x$(dirname "$MPCFG")" != "x$MPCFGDIR" ]
+# if we give a more complicated path to the config, don't screw around in $MP_CFG_DIR
+if [ "x$(dirname "$MP_CFG")" != "x$MP_CFG_DIR" ]
 then
-    MPCFG="$2"
+    MP_CFG="$2"
 fi
 
 if $cygwin
 then
-    MPCFG=`cygpath -wp "$MPCFG"`
+    MP_CFG=`cygpath -wp "$MP_CFG"`
     # cygwin has a "kill" in the shell itself, gets confused
     KILL=/bin/kill
 else
     KILL=kill
 fi
 
-echo "Using config: $MPCFG" >&2
+echo "Using config: $MP_CFG" >&2
 
 case "$OSTYPE" in
 *solaris*)
@@ -113,15 +113,15 @@ case "$OSTYPE" in
   GREP=grep
   ;;
 esac
-if [ -z "$MPPIDFILE" ]; then
-#    MP_DATADIR="$($GREP "^[[:space:]]*dataDir" "$MPCFG" | sed -e 's/.*=//')"
-    if [ ! -d "$MP_DATADIR" ]; then
-        mkdir -p "$MP_DATADIR"
+if [ -z "$MP_PID_FILE" ]; then
+#    MP_DATA_DIR="$($GREP "^[[:space:]]*dataDir" "$MP_CFG" | sed -e 's/.*=//')"
+    if [ ! -d "$MP_DATA_DIR" ]; then
+        mkdir -p "$MP_DATA_DIR"
     fi
-    MPPIDFILE="$MP_DATADIR/mpush_server.pid"
+    MP_PID_FILE="$MP_DATA_DIR/mpush_server.pid"
 else
     # ensure it exists, otw stop will fail
-    mkdir -p "$(dirname "$MPPIDFILE")"
+    mkdir -p "$(dirname "$MP_PID_FILE")"
 fi
 
 if [ ! -w "$MP_LOG_DIR" ] ; then
@@ -134,22 +134,22 @@ _MP_DAEMON_OUT="$MP_LOG_DIR/mpush.out"
 case $1 in
 start)
     echo  -n "Starting mpush ... "
-    if [ -f "$MPPIDFILE" ]; then
-      if kill -0 `cat "$MPPIDFILE"` > /dev/null 2>&1; then
-         echo $command already running as process `cat "$MPPIDFILE"`. 
+    if [ -f "$MP_PID_FILE" ]; then
+      if kill -0 `cat "$MP_PID_FILE"` > /dev/null 2>&1; then
+         echo $command already running as process `cat "$MP_PID_FILE"`.
          exit 0
       fi
     fi
-    nohup "$JAVA" "-Dmp.conf=$MPCFG" "-Dmp.log.dir=${MP_LOG_DIR}" "-Dmp.root.logger=${MP_LOG4J_PROP}" \
-    -cp "$CLASSPATH" $JVMFLAGS $MPMAIN > "$_MP_DAEMON_OUT" 2>&1 < /dev/null &
+    nohup "$JAVA" "-Dmp.conf=$MP_CFG" "-Dmp.log.dir=${MP_LOG_DIR}" "-Dmp.root.logger=${MP_LOG4J_PROP}" \
+    -cp "$CLASSPATH" $JVM_FLAGS $MP_MAIN > "$_MP_DAEMON_OUT" 2>&1 < /dev/null &
     if [ $? -eq 0 ]
     then
       case "$OSTYPE" in
       *solaris*)
-        /bin/echo "${!}\\c" > "$MPPIDFILE"
+        /bin/echo "${!}\\c" > "$MP_PID_FILE"
         ;;
       *)
-        /bin/echo -n $! > "$MPPIDFILE"
+        /bin/echo -n $! > "$MP_PID_FILE"
         ;;
       esac
       if [ $? -eq 0 ];
@@ -171,24 +171,53 @@ start-foreground)
       MP_CMD=("$JAVA")
     fi
     "${MP_CMD[@]}" "-Dmp.log.dir=${MP_LOG_DIR}" "-Dmp.root.logger=${MP_LOG4J_PROP}" \
-    -cp "$CLASSPATH" $JVMFLAGS $MPMAIN "-Dmp.conf=$MPCFG"
+    -cp "$CLASSPATH" $JVM_FLAGS $MP_MAIN "-Dmp.conf=$MP_CFG"
     ;;
 print-cmd)
-    echo "\"$JAVA\" $MPMAIN "
-    echo "\"-Dmp.conf=$MPCFG\" -Dmp.log.dir=\"${MP_LOG_DIR}\" -Dmp.root.logger=\"${MP_LOG4J_PROP}\" "
-    echo "$JVMFLAGS "
+    echo "\"$JAVA\" $MP_MAIN "
+    echo "\"-Dmp.conf=$MP_CFG\" -Dmp.log.dir=\"${MP_LOG_DIR}\" -Dmp.root.logger=\"${MP_LOG4J_PROP}\" "
+    echo "$JVM_FLAGS "
     echo "-cp \"$CLASSPATH\" "
     echo "> \"$_MP_DAEMON_OUT\" 2>&1 < /dev/null"
     ;;
 stop)
-    echo -n "Stopping mpush ... "
-    if [ ! -f "$MPPIDFILE" ]
+    echo "Stopping mpush ... "
+    if [ ! -f "$MP_PID_FILE" ]
     then
-      echo "no mpush to stop (could not find file $MPPIDFILE)"
+      echo "no mpush to stop (could not find file $MP_PID_FILE)"
     else
-      $KILL -9 $(cat "$MPPIDFILE")
-      rm "$MPPIDFILE"
-      echo STOPPED
+      $KILL -15 $(cat "$MP_PID_FILE")
+      SLEEP=30
+      SLEEP_COUNT=1
+      while [ $SLEEP -ge 0 ]; do
+        kill -0 $(cat "$MP_PID_FILE") >/dev/null 2>&1
+        if [ $? -gt 0 ]; then
+          rm -f "$MP_PID_FILE" >/dev/null 2>&1
+          if [ $? != 0 ]; then
+            if [ -w "$MP_PID_FILE" ]; then
+              cat /dev/null > "$MP_PID_FILE"
+            else
+              echo "The PID file could not be removed or cleared."
+            fi
+          fi
+          echo STOPPED
+          break
+        fi
+        if [ $SLEEP -gt 0 ]; then
+          echo "waiting ... $SLEEP_COUNT"
+          sleep 1
+        fi
+        if [ $SLEEP -eq 0 ]; then
+          echo "MPUSH did not stop in time."
+          echo "To aid diagnostics a thread dump has been written to standard out."
+          kill -3 `cat "$MP_PID_FILE"`
+          echo "force stop MPUSH."
+          kill -9 `cat "$MP_PID_FILE"`
+          echo STOPPED
+        fi
+        SLEEP=`expr $SLEEP - 1`
+        SLEEP_COUNT=`expr $SLEEP_COUNT + 1`
+      done
     fi
     exit 0
     ;;
@@ -196,7 +225,7 @@ upgrade)
     shift
     echo "upgrading the servers to 3.*"
     "$JAVA" "-Dmpush.log.dir=${MP_LOG_DIR}" "-Dmpush.root.logger=${MP_LOG4J_PROP}" \
-    -cp "$CLASSPATH" $JVMFLAGS com.mpush.tools.upgrade.UpgradeMain ${@}
+    -cp "$CLASSPATH" $JVM_FLAGS com.mpush.tools.upgrade.UpgradeMain ${@}
     echo "Upgrading ... "
     ;;
 restart)
@@ -207,14 +236,14 @@ restart)
     ;;
 status)
     # -q is necessary on some versions of linux where nc returns too quickly, and no stat result is output
-    clientPortAddress=`$GREP "^[[:space:]]*clientPortAddress[^[:alpha:]]" "$MPCFG" | sed -e 's/.*=//'`
+    clientPortAddress=`$GREP "^[[:space:]]*clientPortAddress[^[:alpha:]]" "$MP_CFG" | sed -e 's/.*=//'`
     if ! [ $clientPortAddress ]
     then
-	clientPortAddress="localhost"
+       	clientPortAddress="localhost"
     fi
-    clientPort=`$GREP "^[[:space:]]*clientPort[^[:alpha:]]" "$MPCFG" | sed -e 's/.*=//'`
+    clientPort=`$GREP "^[[:space:]]*connect-server-port[^[:alpha:]]" "$MP_CFG" | sed -e 's/.*=//'`
     STAT=`"$JAVA" "-Dmp.log.dir=${MP_LOG_DIR}" "-Dmp.root.logger=${MP_LOG4J_PROP}" \
-             -cp "$CLASSPATH" $JVMFLAGS org.apache.mpush.client.FourLetterWordMain \
+             -cp "$CLASSPATH" $JVM_FLAGS org.apache.mpush.client.FourLetterWordMain \
              $clientPortAddress $clientPort srvr 2> /dev/null    \
           | $GREP Mode`
     if [ "x$STAT" = "x" ]

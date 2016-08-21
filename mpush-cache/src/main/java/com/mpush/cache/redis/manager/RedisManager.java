@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * redis 对外封装接口
  */
-public class RedisManager {
+public final class RedisManager {
     public static final RedisManager I = new RedisManager();
 
     private final RedisClusterManager clusterManager = ZKRedisClusterManager.I;
@@ -314,5 +314,9 @@ public class RedisManager {
                 jedis.close();
             }
         }
+    }
+
+    public void close() {
+        RedisClient.destroy();
     }
 }

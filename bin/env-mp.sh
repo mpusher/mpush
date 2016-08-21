@@ -18,42 +18,42 @@
 # This script should be sourced into other mpush
 # scripts to setup the env variables
 
-# We use MPCFGDIR if defined,
+# We use MP_CFG_DIR if defined,
 # otherwise we use /etc/mp
 # or the conf directory that is
 # a sibling of this script's directory
 
-MPBINDIR="${MPBINDIR:-/usr/bin}"
-MPUSH_PREFIX="${MPBINDIR}/.."
+MP_BIN_DIR="${MP_BIN_DIR:-/usr/bin}"
+MPUSH_PREFIX="${MP_BIN_DIR}/.."
 
-if [ "x$MPCFGDIR" = "x" ]
+if [ "x$MP_CFG_DIR" = "x" ]
 then
   if [ -e "${MPUSH_PREFIX}/conf" ]; then
-    MPCFGDIR="$MPBINDIR/../conf"
+    MP_CFG_DIR="$MP_BIN_DIR/../conf"
   else
-    MPCFGDIR="$MPBINDIR/../etc/mpush"
+    MP_CFG_DIR="$MP_BIN_DIR/../etc/mpush"
   fi
 fi
 
-if [ -f "${MPBINDIR}/set-env.sh" ]; then
-  . "${MPBINDIR}/set-env.sh"
+if [ -f "${MP_BIN_DIR}/set-env.sh" ]; then
+  . "${MP_BIN_DIR}/set-env.sh"
 fi
 
-if [ "x$MPCFG" = "x" ]
+if [ "x$MP_CFG" = "x" ]
 then
-    MPCFG="mpush.conf"
+    MP_CFG="mpush.conf"
 fi
 
-MPCFG="$MPCFGDIR/$MPCFG"
+MP_CFG="$MP_CFG_DIR/$MP_CFG"
 
-if [ -f "$MPBINDIR/java.env" ]
+if [ -f "$MP_BIN_DIR/java.env" ]
 then
-    . "$MPBINDIR/java.env"
+    . "$MP_BIN_DIR/java.env"
 fi
 
-if [ "x${MP_DATADIR}" = "x" ]
+if [ "x${MP_DATA_DIR}" = "x" ]
 then
-    MP_DATADIR="${MPUSH_PREFIX}/tmp"
+    MP_DATA_DIR="${MPUSH_PREFIX}/tmp"
 fi
 
 if [ "x${MP_LOG_DIR}" = "x" ]
@@ -74,39 +74,39 @@ fi
 
 
 #add the conf dir to classpath
-CLASSPATH="$MPCFGDIR:$CLASSPATH"
+CLASSPATH="$MP_CFG_DIR:$CLASSPATH"
 
-for i in "$MPBINDIR"/../src/java/lib/*.jar
+for i in "$MP_BIN_DIR"/../src/java/lib/*.jar
 do
     CLASSPATH="$i:$CLASSPATH"
 done
 
 #make it work in the binary package
-#(use array for LIBPATH to account for spaces within wildcard expansion)
+#(use array for LIB_PATH to account for spaces within wildcard expansion)
 if [ -e "${MPUSH_PREFIX}"/share/mpush/mpush-*.jar ]; then
-  LIBPATH=("${MPUSH_PREFIX}"/share/mpush/*.jar)
+  LIB_PATH=("${MPUSH_PREFIX}"/share/mpush/*.jar)
 else
   #release tarball format
-  for i in "$MPBINDIR"/../mpush-*.jar
+  for i in "$MP_BIN_DIR"/../mpush-*.jar
   do
     CLASSPATH="$i:$CLASSPATH"
   done
-  LIBPATH=("${MPBINDIR}"/../lib/*.jar)
+  LIB_PATH=("${MP_BIN_DIR}"/../lib/*.jar)
 fi
 
-for i in "${LIBPATH[@]}"
+for i in "${LIB_PATH[@]}"
 do
     CLASSPATH="$i:$CLASSPATH"
 done
 
 #make it work for developers
-for d in "$MPBINDIR"/../build/lib/*.jar
+for d in "$MP_BIN_DIR"/../build/lib/*.jar
 do
    CLASSPATH="$d:$CLASSPATH"
 done
 
 #make it work for developers
-CLASSPATH="$MPBINDIR/../build/classes:$CLASSPATH"
+CLASSPATH="$MP_BIN_DIR/../build/classes:$CLASSPATH"
 
 
 case "`uname`" in

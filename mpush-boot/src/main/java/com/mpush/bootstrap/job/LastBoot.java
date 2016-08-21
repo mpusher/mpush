@@ -27,13 +27,21 @@ import com.mpush.tools.log.Logs;
  *
  * @author ohun@live.cn
  */
-public class LastBoot extends BootJob {
+public final class LastBoot extends BootJob {
     @Override
-    public void run() {
+    protected void start() {
         UserManager.I.clearUserOnlineData();
-        Logs.Console.error("end run bootstrap chain...");
+        Logs.Console.error("end start bootstrap chain...");
         Logs.Console.error("===================================================================");
         Logs.Console.error("====================MPUSH SERVER START SUCCESS=====================");
+        Logs.Console.error("===================================================================");
+    }
+
+    @Override
+    protected void stop() {
+        Logs.Console.error("end stop bootstrap chain...");
+        Logs.Console.error("===================================================================");
+        Logs.Console.error("====================MPUSH SERVER STOPPED SUCCESS=====================");
         Logs.Console.error("===================================================================");
     }
 }
