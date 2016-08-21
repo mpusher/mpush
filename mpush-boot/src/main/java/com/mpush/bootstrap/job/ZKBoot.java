@@ -28,14 +28,14 @@ import com.mpush.zk.ZKClient;
  *
  * @author ohun@live.cn
  */
-public class ZKBoot extends BootJob {
+public final class ZKBoot extends BootJob {
 
     @Override
-    public void run() {
+    protected void start() {
         ZKClient.I.start(new Listener() {
             @Override
             public void onSuccess(Object... args) {
-                next();
+                startNext();
             }
 
             @Override
@@ -43,5 +43,11 @@ public class ZKBoot extends BootJob {
                 throw new BootException("init zk client failure", cause);
             }
         });
+    }
+
+    @Override
+    protected void stop() {
+        ZKClient.I.stop();
+        stopNext();
     }
 }

@@ -20,7 +20,6 @@
 package com.mpush.bootstrap;
 
 
-import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Service;
 import com.mpush.bootstrap.job.*;
 import com.mpush.core.server.AdminServer;
@@ -33,25 +32,24 @@ import com.mpush.zk.node.ZKServerNode;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.mpush.tools.config.CC.mp.net.admin_server_port;
+
 /**
  * Created by yxx on 2016/5/14.
  *
  * @author ohun@live.cn
  */
-public class ServerLauncher {
-    private final ZKServerNode csNode = ZKServerNode.csNode();
+public final class ServerLauncher {
 
-    private final ZKServerNode gsNode = ZKServerNode.gsNode();
+    private final BootChain chain = BootChain.chain();
 
-    private final ConnectionServer connectServer = new ConnectionServer(csNode.getPort());
+    public ServerLauncher() {
+        ZKServerNode csNode = ZKServerNode.csNode();
+        ZKServerNode gsNode = ZKServerNode.gsNode();
+        ConnectionServer connectServer = new ConnectionServer(csNode.getPort());
+        GatewayServer gatewayServer = new GatewayServer(gsNode.getPort());
+        AdminServer adminServer = new AdminServer(admin_server_port, connectServer, gatewayServer);
 
-    private final GatewayServer gatewayServer = new GatewayServer(gsNode.getPort());
-
-    private final AdminServer adminServer = new AdminServer(CC.mp.net.admin_server_port, connectServer, gatewayServer);
-
-
-    public void start() {
-        BootChain chain = BootChain.chain();
         chain.boot()
                 .setNext(new ZKBoot())//1.启动ZK节点数据变化监听
                 .setNext(new RedisBoot())//2.注册redis sever 到ZK
@@ -61,20 +59,13 @@ public class ServerLauncher {
                 .setNext(new HttpProxyBoot())//6.启动http代理服务，解析dns
                 .setNext(new MonitorBoot())//7.启动监控
                 .setNext(new LastBoot());//8.启动结束
-        chain.run();
     }
 
-    public void stop() throws Exception {
-        stopService(connectServer);
-        stopService(gatewayServer);
-        stopService(adminServer);
-        stopService(ZKClient.I);
-        stopService(MonitorService.I);
+    public void start() {
+        chain.start();
     }
 
-    private void stopService(Service service) throws Exception {
-        if (service != null) {
-            service.stop().get(1, TimeUnit.MINUTES);
-        }
+    public void stop() {
+        chain.stop();
     }
 }

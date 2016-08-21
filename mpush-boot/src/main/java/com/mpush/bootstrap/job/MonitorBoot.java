@@ -26,10 +26,16 @@ import com.mpush.monitor.service.MonitorService;
  *
  * @author ohun@live.cn
  */
-public class MonitorBoot extends BootJob {
+public final class MonitorBoot extends BootJob {
     @Override
-    void run() {
+    protected void start() {
         MonitorService.I.start();
-        next();
+        startNext();
+    }
+
+    @Override
+    protected void stop() {
+        MonitorService.I.stop();
+        stopNext();
     }
 }

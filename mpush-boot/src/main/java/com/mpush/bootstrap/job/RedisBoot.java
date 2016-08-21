@@ -26,11 +26,17 @@ import com.mpush.cache.redis.manager.RedisManager;
  *
  * @author ohun@live.cn
  */
-public class RedisBoot extends BootJob {
+public final class RedisBoot extends BootJob {
 
     @Override
-    public void run() {
+    protected void start() {
         RedisManager.I.init();
-        next();
+        startNext();
+    }
+
+    @Override
+    protected void stop() {
+        RedisManager.I.close();
+        stopNext();
     }
 }

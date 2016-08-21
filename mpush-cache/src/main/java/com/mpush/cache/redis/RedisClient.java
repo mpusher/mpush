@@ -25,12 +25,13 @@ import com.mpush.tools.Jsons;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
 import redis.clients.jedis.*;
+import redis.clients.util.Pool;
 
 import java.util.*;
 
 import static redis.clients.jedis.Protocol.DEFAULT_TIMEOUT;
 
-public class RedisClient {
+public final class RedisClient {
     public static final JedisPoolConfig CONFIG = buildConfig();
     private static final Map<RedisServer, JedisPool> POOL_MAP = Maps.newConcurrentMap();
 
@@ -763,4 +764,7 @@ public class RedisClient {
         return null;
     }
 
+    public static void destroy() {
+        POOL_MAP.values().forEach(Pool::close);
+    }
 }

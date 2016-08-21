@@ -26,11 +26,15 @@ import com.mpush.tools.log.Logs;
  *
  * @author ohun@live.cn
  */
-public class BootChain {
-    private BootJob first = first();
+public final class BootChain {
+    private final BootJob first = first();
 
-    public void run() {
-        first.run();
+    public void start() {
+        first.start();
+    }
+
+    public void stop() {
+        first.stop();
     }
 
     public static BootChain chain() {
@@ -40,9 +44,15 @@ public class BootChain {
     private BootJob first() {
         return new BootJob() {
             @Override
-            public void run() {
-                Logs.Console.error("begin run bootstrap chain...");
-                next();
+            public void start() {
+                Logs.Console.error("begin start bootstrap chain...");
+                startNext();
+            }
+
+            @Override
+            protected void stop() {
+                Logs.Console.error("begin stop bootstrap chain...");
+                stopNext();
             }
         };
     }
