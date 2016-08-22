@@ -49,11 +49,11 @@
 
 7. 给bin目录下的脚本增加执行权限```chmod u+x *.sh```
 
-8. 执行``` ./mp.sh start``` 启动服务, 查看帮助```./mp.sh``` 目前支持的命令：
+8. 执行```./mp.sh start``` 启动服务, 查看帮助```./mp.sh``` 目前支持的命令：
 
    ```Usage: ./mp.sh {start|start-foreground|stop|restart|status|upgrade|print-cmd}```
 
-   ```set-env.sh```用于增加和修改jvm启动参数，比如堆内存、开启远程调试端口、开启jmx等
+   ```set-env.sh``` 用于增加和修改jvm启动参数，比如堆内存、开启远程调试端口、开启jmx等
 
 9. ```cd logs```目录，```cat mpush.out```查看服务是否启动成功 
 
