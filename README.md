@@ -10,6 +10,7 @@
 5. 运行```com.mpush.test.sever.ServerTestMain.java```启动长链接服务
 6. 运行```com.mpush.test.client.ConnClientTestMain.java``` 模拟一个客户端
 7. 运行```com.mpush.test.push.PushClientTestMain``` 模拟给用户下发消息
+8. 可以在控制台观察日志看服务是否正常运行，消息是否下发成功
 
 ## 服务部署
 
