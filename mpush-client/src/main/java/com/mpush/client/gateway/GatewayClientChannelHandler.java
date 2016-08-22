@@ -31,6 +31,7 @@ import com.mpush.netty.connection.NettyConnection;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ import static com.mpush.common.ErrorCode.*;
  * @author ohun@live.cn
  */
 @ChannelHandler.Sharable
-public final class GatewayClientChannelHandler extends ChannelHandlerAdapter {
+public final class GatewayClientChannelHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GatewayClientChannelHandler.class);
 

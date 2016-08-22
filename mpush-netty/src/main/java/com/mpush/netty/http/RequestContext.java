@@ -48,8 +48,9 @@ public class RequestContext implements TimerTask, HttpCallback {
     }
 
     private int parseTimeout() {
-        String timeout = request.headers().getAndRemoveAndConvert(Constants.HTTP_HEAD_READ_TIMEOUT);
+        String timeout = request.headers().get(Constants.HTTP_HEAD_READ_TIMEOUT);
         if (timeout != null) {
+            request.headers().remove(Constants.HTTP_HEAD_READ_TIMEOUT);
             Integer integer = Ints.tryParse(timeout);
             if (integer != null && integer > 0) {
                 return integer;

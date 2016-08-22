@@ -62,7 +62,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
     }
 
     @Override
-    protected void messageReceived(ChannelHandlerContext ctx, String request) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, String request) throws Exception {
         Command command = Command.help;
         String arg = null;
         String[] args = null;

@@ -30,8 +30,8 @@ import com.mpush.tools.common.Profiler;
 import com.mpush.tools.event.EventBus;
 import com.mpush.tools.log.Logs;
 import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * @author ohun@live.cn
  */
 @ChannelHandler.Sharable
-public final class ServerChannelHandler extends ChannelHandlerAdapter {
+public final class ServerChannelHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerChannelHandler.class);
 

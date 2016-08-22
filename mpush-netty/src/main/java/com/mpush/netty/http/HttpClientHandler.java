@@ -1,8 +1,8 @@
 package com.mpush.netty.http;
 
 import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
 import io.netty.util.IllegalReferenceCountException;
 import io.netty.util.ReferenceCountUtil;
@@ -13,7 +13,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 
 @ChannelHandler.Sharable
-public class HttpClientHandler extends ChannelHandlerAdapter {
+public class HttpClientHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyHttpClient.class);
     private final NettyHttpClient client;
 

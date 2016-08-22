@@ -119,7 +119,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                     .from(request)
                     .setStatusCode(httpResponse.status().code())
                     .setReasonPhrase(httpResponse.status().reasonPhrase().toString());
-            for (Map.Entry<CharSequence, CharSequence> entry : httpResponse.headers()) {
+            for (Map.Entry<String, String> entry : httpResponse.headers()) {
                 response.addHeader(entry.getKey().toString(), entry.getValue().toString());
             }
 
