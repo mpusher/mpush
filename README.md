@@ -24,21 +24,14 @@
 
 4. 下载mpush server正式包[https://github.com/mpusher/mpush/releases/download/0.0.1/mpush-release-0.0.1.tar.gz](https://github.com/mpusher/mpush/releases/download/0.0.1/mpush-release-0.0.1.tar.gz)
 
-5. 解压下载的tar包```tar -zvxf mpush-release-0.0.1.tar.gz``` 到 mpush 目录, 结构如下
-
-   ```drwxrwxr-x 2 shinemo shinemo  4096 Aug 20 09:30 bin```启动脚本
-
-   ```drwxrwxr-x 2 shinemo shinemo  4096 Aug 20 09:52 conf```配置文件
-
-   ```drwxrwxr-x 2 shinemo shinemo  4096 Aug 20 09:29 lib``` 核心类库
-
-   ```-rw-rw-r-- 1 shinemo shinemo 11357 May 31 11:07 LICENSE```
-
-   ```drwxrwxr-x 2 shinemo shinemo  4096 Aug 20 09:32 logs``` 日志目录
-
-   ```-rw-rw-r-- 1 shinemo shinemo    21 May 31 11:07 README.md```
-
-   ```drwxrwxr-x 2 shinemo shinemo  4096 Aug 20 09:52 tmp``` 
+5. 解压下载的tar包`tar -zvxf mpush-release-0.0.1.tar.gz`到 mpush 目录, 结构如下
+   > * drwxrwxr-x 2 shinemo shinemo  4096 Aug 20 09:30 bin             **启动脚本**  
+   > * drwxrwxr-x 2 shinemo shinemo  4096 Aug 20 09:52 conf           **配置文件**
+   > * drwxrwxr-x 2 shinemo shinemo  4096 Aug 20 09:29 lib              **核心类库**
+   > * -rw-rw-r-- 1 shinemo shinemo 11357 May 31 11:07 LICENSE
+   > * drwxrwxr-x 2 shinemo shinemo  4096 Aug 20 09:32 logs           **日志目录**
+   > * -rw-rw-r-- 1 shinemo shinemo    21 May 31 11:07 README.md
+   > * drwxrwxr-x 2 shinemo shinemo  4096 Aug 20 09:52 tmp
 
 6. 修改 conf 目录下的 ```vi mpush.conf```文件, ```mpush.conf```里的配置项会覆盖同目录下的```reference.conf```文件
    ```java
