@@ -1,16 +1,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <artifactId>mpush</artifactId>
-        <groupId>com.mpush</groupId>
+        <groupId>com.github.mpusher</groupId>
         <version>1.0</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>${mpush.groupId}</groupId>
+
     <artifactId>mpush-boot</artifactId>
     <version>${mpush-boot-version}</version>
-    <name>mpush-boot</name>
     <packaging>jar</packaging>
+    <name>mpush-boot</name>
+    <description>MPUSH消息推送系统启动模块</description>
+    <url>https://github.com/mpusher/mpush</url>
 
     <dependencies>
         <dependency>
@@ -41,48 +45,55 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        <plugins>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <!--生成的jar中，不要包含pom.xml和pom.properties这两个文件-->
-                        <addMavenDescriptor>false</addMavenDescriptor>
-
-                        <manifest>
-                            <!--是否要把第三方jar放到manifest的classpath中-->
-                            <addClasspath>true</addClasspath>
-                            <!--生成的manifest中classpath的前缀，因为要把第三方jar放到lib目录下，所以classpath的前缀是lib/-->
-                            <classpathPrefix>../lib/</classpathPrefix>
-                            <!--应用的main class-->
-                            <mainClass>com.mpush.bootstrap.Main</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <finalName>mpush</finalName>
-                    <descriptors>
-                        <descriptor>assembly.xml</descriptor>
-                    </descriptors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>zip</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <configuration>
+                            <archive>
+                                <!--生成的jar中，不要包含pom.xml和pom.properties这两个文件-->
+                                <addMavenDescriptor>false</addMavenDescriptor>
+
+                                <manifest>
+                                    <!--是否要把第三方jar放到manifest的classpath中-->
+                                    <addClasspath>true</addClasspath>
+                                    <!--生成的manifest中classpath的前缀，因为要把第三方jar放到lib目录下，所以classpath的前缀是lib/-->
+                                    <classpathPrefix>../lib/</classpathPrefix>
+                                    <!--应用的main class-->
+                                    <mainClass>com.mpush.bootstrap.Main</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <version>2.6</version>
+                        <configuration>
+                            <finalName>mpush</finalName>
+                            <descriptors>
+                                <descriptor>assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

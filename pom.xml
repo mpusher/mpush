@@ -4,10 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.mpush</groupId>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>9</version>
+    </parent>
+
+    <groupId>com.github.mpusher</groupId>
     <artifactId>mpush</artifactId>
     <packaging>pom</packaging>
     <version>1.0</version>
+    <name>mpush</name>
+    <description>MPUSH消息推送系统</description>
+    <url>https://github.com/mpusher/mpush</url>
 
     <licenses>
         <license>
@@ -16,12 +25,14 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
     <scm>
         <tag>master</tag>
         <url>git@github.com:mpusher/mpush.git</url>
         <connection>scm:git@github.com:mpusher/mpush.git</connection>
-        <developerConnection>scm:ggit@github.com:mpusher/mpush.git</developerConnection>
+        <developerConnection>scm:git@github.com:mpusher/mpush.git</developerConnection>
     </scm>
+
     <developers>
         <developer>
             <name>ohun</name>
@@ -49,8 +60,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.encoding>UTF-8</java.encoding>
         <java.version>1.8</java.version>
-        <mpush.groupId>com.mpush</mpush.groupId>
-        <mpush.version>0.0.1</mpush.version>
+        <mpush.groupId>com.github.mpusher</mpush.groupId>
+        <mpush.version>0.0.2</mpush.version>
         <mpush-api-version>${mpush.version}</mpush-api-version>
         <mpush-tools-version>${mpush.version}</mpush-tools-version>
         <mpush-common-version>${mpush.version}</mpush-common-version>
@@ -285,6 +296,7 @@
     </build>
 
     <profiles>
+
         <profile>
             <id>dev</id>
             <activation>
@@ -299,6 +311,56 @@
             <properties>
                 <deploy.env>pub</deploy.env>
             </properties>
+        </profile>
+        <profile>
+            <id>release</id>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+                </snapshotRepository>
+            </distributionManagement>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

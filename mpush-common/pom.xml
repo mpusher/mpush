@@ -4,16 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>mpush</artifactId>
-        <groupId>com.mpush</groupId>
+        <groupId>com.github.mpusher</groupId>
         <version>1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>${mpush.groupId}</groupId>
     <artifactId>mpush-common</artifactId>
     <version>${mpush.version}</version>
-    <name>mpush-common</name>
     <packaging>jar</packaging>
+    <name>mpush-common</name>
+    <description>MPUSH消息推送系统基础模块</description>
+    <url>https://github.com/mpusher/mpush</url>
 
     <dependencies>
         <dependency>

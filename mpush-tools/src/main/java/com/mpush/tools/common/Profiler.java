@@ -64,7 +64,6 @@ public class Profiler {
 
     /**
      * 清除计时器。
-     * <p/>
      * <p>
      * 清除以后必须再次调用<code>start</code>方可重新计时。
      * </p>
@@ -217,9 +216,6 @@ public class Profiler {
                     : firstEntry.startTime;
         }
 
-        /**
-         * 取得entry的信息。
-         */
         public String getMessage() {
             String messageString = null;
 

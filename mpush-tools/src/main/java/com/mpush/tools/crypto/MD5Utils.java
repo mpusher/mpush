@@ -86,14 +86,6 @@ public final class MD5Utils {
         return buffer.toString();
     }
 
-
-    /**
-     * HmacSHA1 加密
-     *
-     * @param data
-     * @param encryptKey
-     * @return
-     */
     public static String hmacSha1(String data, String encryptKey) {
         final String HMAC_SHA1 = "HmacSHA1";
         SecretKeySpec signingKey = new SecretKeySpec(encryptKey.getBytes(Constants.UTF_8), HMAC_SHA1);
@@ -107,12 +99,7 @@ public final class MD5Utils {
         }
     }
 
-    /**
-     * HmacSHA1 加密
-     *
-     * @param data
-     * @return
-     */
+
     public static String sha1(String data) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-1");

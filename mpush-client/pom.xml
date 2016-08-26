@@ -2,18 +2,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <artifactId>mpush</artifactId>
-        <groupId>com.mpush</groupId>
+        <groupId>com.github.mpusher</groupId>
         <version>1.0</version>
     </parent>
 
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>${mpush.groupId}</groupId>
     <artifactId>mpush-client</artifactId>
     <version>${mpush.version}</version>
-    <name>mpush-client</name>
     <packaging>jar</packaging>
+    <name>mpush-client</name>
+    <description>MPUSH消息推送系统服务端SDK</description>
+    <url>https://github.com/mpusher/mpush</url>
+
     <dependencies>
         <dependency>
             <groupId>${mpush.groupId}</groupId>

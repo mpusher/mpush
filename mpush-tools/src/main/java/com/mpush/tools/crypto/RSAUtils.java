@@ -39,9 +39,8 @@ import java.security.spec.X509EncodedKeySpec;
 
 /**
  * RSA公钥/私钥/签名工具包
- * <p>
- * 字符串格式的密钥在未在特殊说明情况下都为BASE64编码格式<br/>
- * 由于非对称加密速度极其缓慢，一般文件不使用它来加密而是使用对称加密，<br/>
+ * 字符串格式的密钥在未在特殊说明情况下都为BASE64编码格式
+ * 由于非对称加密速度极其缓慢，一般文件不使用它来加密而是使用对称加密
  * 非对称加密算法可以用来对对称加密的密钥加密，这样保证密钥的安全也就保证了数据的安全
  */
 public final class RSAUtils {
@@ -81,7 +80,7 @@ public final class RSAUtils {
     /**
      * 生成公钥和私钥
      *
-     * @throws NoSuchAlgorithmException
+     * @return 公钥和私钥
      */
     public static Pair<RSAPublicKey, RSAPrivateKey> genKeyPair() {
         try {
@@ -100,9 +99,9 @@ public final class RSAUtils {
     /**
      * 编码密钥，便于存储
      *
-     * @param key
-     * @return
-     * @throws Exception
+     * @param key 密钥
+     * @return base64后的字符串
+     * @throws Exception Exception
      */
     public static String encodeBase64(Key key) throws Exception {
         return Base64Utils.encode(key.getEncoded());
@@ -111,9 +110,9 @@ public final class RSAUtils {
     /**
      * 从字符串解码私钥
      *
-     * @param key
-     * @return
-     * @throws Exception
+     * @param key 密钥
+     * @return base64后的字符串
+     * @throws Exception Exception
      */
     public static PrivateKey decodePrivateKey(String key) throws Exception {
         byte[] keyBytes = Base64Utils.decode(key);
@@ -125,9 +124,9 @@ public final class RSAUtils {
     /**
      * 从字符串解码公钥
      *
-     * @param publicKey
-     * @return
-     * @throws Exception
+     * @param publicKey 公钥
+     * @return 公钥
+     * @throws Exception Exception
      */
     public static PublicKey decodePublicKey(String publicKey) throws Exception {
         byte[] keyBytes = Base64Utils.decode(publicKey);
@@ -142,8 +141,8 @@ public final class RSAUtils {
      *
      * @param data       已加密数据
      * @param privateKey 私钥(BASE64编码)
-     * @return
-     * @throws Exception
+     * @return 私钥
+     * @throws Exception Exception
      */
     public static String sign(byte[] data, String privateKey) throws Exception {
         Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
@@ -158,8 +157,8 @@ public final class RSAUtils {
      * @param data      已加密数据
      * @param publicKey 公钥(BASE64编码)
      * @param sign      数字签名
-     * @return
-     * @throws Exception
+     * @return 是否通过校验
+     * @throws Exception Exception
      */
     public static boolean verify(byte[] data, String publicKey, String sign) throws Exception {
         Signature signature = Signature.getInstance(SIGNATURE_ALGORITHM);
@@ -177,7 +176,7 @@ public final class RSAUtils {
      *
      * @param modulus  模
      * @param exponent 指数
-     * @return
+     * @return 公钥
      */
     public static RSAPublicKey getPublicKey(String modulus, String exponent) {
         try {
@@ -200,7 +199,7 @@ public final class RSAUtils {
      *
      * @param modulus  模
      * @param exponent 指数
-     * @return
+     * @return 私钥
      */
     public static RSAPrivateKey getPrivateKey(String modulus, String exponent) {
         try {
@@ -218,10 +217,9 @@ public final class RSAUtils {
     /**
      * 公钥加密
      *
-     * @param data
-     * @param publicKey
-     * @return
-     * @throws Exception
+     * @param data      待加密数据
+     * @param publicKey 公钥
+     * @return 加密后的值
      */
     public static byte[] encryptByPublicKey(byte[] data, RSAPublicKey publicKey) {
         try {
@@ -241,10 +239,9 @@ public final class RSAUtils {
     /**
      * 私钥解密
      *
-     * @param data
-     * @param privateKey
-     * @return
-     * @throws Exception
+     * @param data       待加密数据
+     * @param privateKey 私钥
+     * @return 解密后的值
      */
     public static byte[] decryptByPrivateKey(byte[] data, RSAPrivateKey privateKey) {
         try {
@@ -265,9 +262,9 @@ public final class RSAUtils {
      * 解密要求密文最大长度为128字节，
      * 所以在加密和解密的过程中需要分块进行。
      *
-     * @param cipher
-     * @param data
-     * @return
+     * @param cipher 密钥
+     * @param data   待处理的数据
+     * @return 处理后的值
      * @throws BadPaddingException
      * @throws IllegalBlockSizeException
      */
@@ -295,8 +292,8 @@ public final class RSAUtils {
      *
      * @param data       已加密数据
      * @param privateKey 私钥(BASE64编码)
-     * @return
-     * @throws Exception
+     * @return 解密后的值
+     * @throws Exception Exception
      */
     public static byte[] decryptByPrivateKey(byte[] data, String privateKey) throws Exception {
         PrivateKey key = decodePrivateKey(privateKey);
@@ -310,8 +307,8 @@ public final class RSAUtils {
      *
      * @param data      已加密数据
      * @param publicKey 公钥(BASE64编码)
-     * @return
-     * @throws Exception
+     * @return 解密后的值
+     * @throws Exception Exception
      */
     public static byte[] decryptByPublicKey(byte[] data, String publicKey) throws Exception {
         PublicKey key = decodePublicKey(publicKey);
@@ -325,8 +322,8 @@ public final class RSAUtils {
      *
      * @param data      源数据
      * @param publicKey 公钥(BASE64编码)
-     * @return
-     * @throws Exception
+     * @return 加密后的值
+     * @throws Exception Exception
      */
     public static byte[] encryptByPublicKey(byte[] data, String publicKey) throws Exception {
         PublicKey key = decodePublicKey(publicKey);
@@ -341,8 +338,8 @@ public final class RSAUtils {
      *
      * @param data       源数据
      * @param privateKey 私钥(BASE64编码)
-     * @return
-     * @throws Exception
+     * @return 加密后的值
+     * @throws Exception Exception
      */
     public static byte[] encryptByPrivateKey(byte[] data, String privateKey) throws Exception {
         PrivateKey key = decodePrivateKey(privateKey);

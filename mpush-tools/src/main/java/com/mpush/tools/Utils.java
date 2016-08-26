@@ -66,7 +66,7 @@ public final class Utils {
      * 获取本机ip
      * 只获取第一块网卡绑定的ip地址
      *
-     * @return
+     * @return 本机ip
      */
     public static String getInetAddress() {
         try {
@@ -105,7 +105,7 @@ public final class Utils {
     /**
      * 获取外网IP
      *
-     * @return
+     * @return 外网IP
      */
     public static String getExtranetAddress() {
         try {

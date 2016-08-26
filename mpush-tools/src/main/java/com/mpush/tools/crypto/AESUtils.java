@@ -40,15 +40,7 @@ public final class AESUtils {
     public static final String KEY_ALGORITHM = "AES";
     public static final String KEY_ALGORITHM_PADDING = "AES/CBC/PKCS5Padding";
 
-    /**
-     * <p>
-     * 生成密钥
-     * </p>
-     *
-     * @param seed 密钥种子
-     * @return
-     * @throws Exception
-     */
+
     public static SecretKey getSecretKey(byte[] seed) throws Exception {
         SecureRandom secureRandom = new SecureRandom(seed);
         KeyGenerator keyGenerator = KeyGenerator.getInstance(KEY_ALGORITHM);

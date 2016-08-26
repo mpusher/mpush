@@ -43,7 +43,7 @@ public class ConfigManager {
     /**
      * 获取内网IP地址
      *
-     * @return
+     * @return 内网IP地址
      */
     public String getLocalIp() {
         return Utils.getLocalIp();
@@ -52,7 +52,7 @@ public class ConfigManager {
     /**
      * 获取外网IP地址
      *
-     * @return
+     * @return 外网IP地址
      */
     public String getPublicIp() {
 
