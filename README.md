@@ -65,8 +65,18 @@
 
    ```set-env.sh``` 用于增加和修改jvm启动参数，比如堆内存、开启远程调试端口、开启jmx等
 
-9. ```cd logs```目录，```cat mpush.out```查看服务是否启动成功 
-
+9. ```cd logs```目录，```cat mpush.out```查看服务是否启动成功
+10. 集成部署，比如集成到现有web工程一起部署到tomcat,可以添加如下依赖
+   
+   ```xml
+   <dependency>
+      <groupId>com.github.mpusher</groupId>
+      <artifactId>mpush-boot</artifactId>
+      <version>0.0.2</version>
+   </dependency>
+   ```
+   启动入口`com.mpush.bootstrap.ServerLauncher.java` 
+   
 ## 配置文件详解
    ```java
 ##################################################################################################################
