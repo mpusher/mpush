@@ -70,7 +70,6 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         connection.updateLastReadTime();
-        //加密
         if (msg instanceof Packet) {
             Packet packet = (Packet) msg;
             Command command = Command.toCMD(packet.cmd);
@@ -80,7 +79,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 byte[] sessionKey = CipherBox.I.mixKey(clientConfig.getClientKey(), message.serverKey);
                 connection.getSessionContext().changeCipher(new AesCipher(sessionKey, clientConfig.getIv()));
                 startHeartBeat(message.heartbeat);
-                LOGGER.warn("会话密钥：{}，message={}", sessionKey, message);
+                LOGGER.warn(">>> handshake success, message={}, sessionKey={}", message, sessionKey);
                 bindUser(clientConfig);
                 saveToRedisForFastConnection(clientConfig, message.sessionId, message.expireTime, sessionKey);
             } else if (command == Command.FAST_CONNECT) {
@@ -93,32 +92,32 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 FastConnectOkMessage message = new FastConnectOkMessage(packet, connection);
                 startHeartBeat(message.heartbeat);
                 bindUser(clientConfig);
-                LOGGER.warn("fast connect success, message=" + message);
+                LOGGER.warn(">>> fast connect success, message=" + message);
             } else if (command == Command.KICK) {
                 KickUserMessage message = new KickUserMessage(packet, connection);
-                LOGGER.error("receive kick user userId={}, deviceId={}, message={},", clientConfig.getUserId(), clientConfig.getDeviceId(), message);
+                LOGGER.error(">>> receive kick user userId={}, deviceId={}, message={},", clientConfig.getUserId(), clientConfig.getDeviceId(), message);
                 ctx.close();
             } else if (command == Command.ERROR) {
                 ErrorMessage errorMessage = new ErrorMessage(packet, connection);
-                LOGGER.error("receive an error packet=" + errorMessage);
+                LOGGER.error(">>> receive an error packet=" + errorMessage);
             } else if (command == Command.BIND) {
                 OkMessage okMessage = new OkMessage(packet, connection);
-                LOGGER.warn("receive an success packet=" + okMessage);
+                LOGGER.warn(">>> receive an success packet=" + okMessage);
                 HttpRequestMessage message = new HttpRequestMessage(connection);
                 message.uri = "http://baidu.com";
                 message.send();
             } else if (command == Command.PUSH) {
                 PushMessage message = new PushMessage(packet, connection);
-                LOGGER.warn("receive an push message, content=" + new String(message.content, Constants.UTF_8));
+                LOGGER.warn(">>> receive an push message, content=" + new String(message.content, Constants.UTF_8));
             } else if (command == Command.HEARTBEAT) {
-                LOGGER.warn("receive a heartbeat pong...");
+                LOGGER.warn(">>> receive a heartbeat pong...");
             } else {
-                LOGGER.warn("receive a message, type=" + command + "," + packet);
+                LOGGER.warn(">>> receive a message, type=" + command + "," + packet);
             }
         }
 
 
-        LOGGER.warn("update currentTime:" + ctx.channel() + "," + msg);
+        LOGGER.debug("update currentTime:" + ctx.channel() + "," + msg);
     }
 
     @Override
@@ -131,7 +130,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.info("client connect channel={}", ctx.channel());
         connection.init(ctx.channel(), true);
-        handshake(clientConfig);
+        tryFastConnect();
     }
 
     @Override
@@ -176,12 +175,14 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 handshake(clientConfig);
             }
         });
+        LOGGER.debug("<<< send fast connect message={}", message);
     }
 
     private void bindUser(ClientConfig client) {
         BindUserMessage message = new BindUserMessage(connection);
         message.userId = client.getUserId();
         message.send();
+        LOGGER.debug("<<< send bind user message={}", message);
     }
 
     private void saveToRedisForFastConnection(ClientConfig client, String sessionId, Long expireTime, byte[] sessionKey) {
@@ -193,6 +194,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
         RedisManager.I.set(key, map, 60 * 5); //5分钟
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, String> getFastConnectionInfo(String deviceId) {
         String key = RedisKey.getDeviceIdKey(deviceId);
         return RedisManager.I.get(key, Map.class);
@@ -208,9 +210,10 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
         message.osVersion = client.getOsVersion();
         message.timestamp = System.currentTimeMillis();
         message.send();
+        LOGGER.debug("<<< send handshake message={}", message);
     }
 
-    public void startHeartBeat(final int heartbeat) throws Exception {
+    private void startHeartBeat(final int heartbeat) throws Exception {
         HASHED_WHEEL_TIMER.newTimeout(new TimerTask() {
             @Override
             public void run(Timeout timeout) throws Exception {
@@ -219,8 +222,8 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 if (channel.isActive()) {
                     ChannelFuture channelFuture = channel.writeAndFlush(Packet.getHBPacket());
                     channelFuture.addListener((ChannelFutureListener) future -> {
-                        if (future.isSuccess()) {
-                            LOGGER.debug("client send msg hb success:" + channel.remoteAddress().toString());
+                        if (!future.isSuccess()) {
+                            LOGGER.debug("<<< send heartbeat ping... " + channel.remoteAddress().toString());
                         } else {
                             LOGGER.warn("client send msg hb false:" + channel.remoteAddress().toString(), future.cause());
                         }
