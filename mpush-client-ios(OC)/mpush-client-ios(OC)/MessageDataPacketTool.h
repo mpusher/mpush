@@ -117,9 +117,8 @@ typedef NS_ENUM(NSInteger, MpushMessageBodyCMD) {
 
 
 
-//static NSString *const pubkey = @"-------BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCghPCWCobG8nTD24juwSVataW7\niViRxcTkey/B792VZEhuHjQvA3cAJgx2Lv8GnX8NIoShZtoCg3Cx6ecs+VEPD2f\nBcg2L4JK7xldGpOJ3ONEAyVsLOttXZtNXvyDZRijiErQALMTorcgi79M5uVX9/j\nMv2Ggb2XAeZhlLD28fHwIDAQAB\n-----END PUBLIC KEY-----";
+static NSString *const pubkey = @"-------BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCghPCWCobG8nTD24juwSVataW7\niViRxcTkey/B792VZEhuHjQvA3cAJgx2Lv8GnX8NIoShZtoCg3Cx6ecs+VEPD2f\nBcg2L4JK7xldGpOJ3ONEAyVsLOttXZtNXvyDZRijiErQALMTorcgi79M5uVX9/j\nMv2Ggb2XAeZhlLD28fHwIDAQAB\n-----END PUBLIC KEY-----";
 
-static NSString *const pubkey = @"-------BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCdIyULaS9da19R+tKuCS/LRU9a\nXfAzV8ek4FvhxgG5Az9B2eAoKHsjddwzACt9b1CtkLTnzub/SEToZEhnrq2HKhX\n2zKtHVmhwAIpYobIlYm5Lq0fWOWGR1+FqFMXoHa99DV8wm/+FS+34DS3uvoMgN5\nKYOntT9KTt+WFNH2tLhwIDAQAB\n-----END PUBLIC KEY-----";
 
 @interface MessageDataPacketTool : NSObject
 

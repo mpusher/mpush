@@ -150,8 +150,6 @@
 		0D591C371D741B900064A90C /* mpush-client-ios(OC) */ = {
 			isa = PBXGroup;
 			children = (
-				0D591C3B1D741B900064A90C /* AppDelegate.h */,
-				0D591C3C1D741B900064A90C /* AppDelegate.m */,
 				0D591C3E1D741B900064A90C /* ViewController.h */,
 				0D591C3F1D741B900064A90C /* ViewController.m */,
 				0D591C9C1D74264A0064A90C /* MessageDataPacketTool.h */,
@@ -170,6 +168,8 @@
 		0D591C381D741B900064A90C /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				0D591C3B1D741B900064A90C /* AppDelegate.h */,
+				0D591C3C1D741B900064A90C /* AppDelegate.m */,
 				0D591C391D741B900064A90C /* main.m */,
 			);
 			name = "Supporting Files";
@@ -654,6 +654,7 @@
 				0D591C641D741B910064A90C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0D591C651D741B910064A90C /* Build configuration list for PBXNativeTarget "mpush-client-ios(OC)Tests" */ = {
 			isa = XCConfigurationList;
@@ -662,6 +663,7 @@
 				0D591C671D741B910064A90C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0D591C681D741B910064A90C /* Build configuration list for PBXNativeTarget "mpush-client-ios(OC)UITests" */ = {
 			isa = XCConfigurationList;
@@ -670,6 +672,7 @@
 				0D591C6A1D741B910064A90C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
