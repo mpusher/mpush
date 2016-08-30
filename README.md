@@ -43,7 +43,7 @@
       mp.zk.server-address="127.0.0.1:2181"//zk 机器的地址
       mp.redis={//redis 相关配置
             #redis 集群配置，group 是个二维数组，第一层表示有多少组集群，每个集群下面可以有多台机器
-            cluster-group:[["127.0.0.1:6379"]]//格式是ip:port:password可以不设置密码
+            cluster-group:[["127.0.0.1:6379"]]//格式ip:port:password,密码可以不设置ip:port
       }
       //还有用于安全加密的RSA mp.security.private-key 和 mp.security.public-key 等...
    ```
