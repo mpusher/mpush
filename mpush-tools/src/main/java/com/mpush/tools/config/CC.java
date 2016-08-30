@@ -249,11 +249,12 @@ public interface CC {
             boolean write_to_zk = cfg.getBoolean("write-to-zk");
 
             List<RedisGroup> cluster_group = cfg.getList("cluster-group")
-                    .stream()
-                    .map(v -> new RedisGroup(ConfigList.class.cast(v)
-                                    .stream()
-                                    .map(cv -> create(ConfigObject.class.cast(cv).toConfig(), RedisServer.class))
-                                    .collect(toCollection(ArrayList::new))
+                    .stream()//第一纬度数组
+                    .map(v -> new RedisGroup(
+                                    ConfigList.class.cast(v)//第二纬度数组
+                                            .stream()
+                                            .map(cv -> RedisServer.from(cv.unwrapped().toString()))//把字符串转换成 RedisServer
+                                            .collect(toCollection(ArrayList::new))
                             )
                     )
                     .collect(toCollection(ArrayList::new));

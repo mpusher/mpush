@@ -60,6 +60,15 @@ public class RedisServer {
         this.password = password;
     }
 
+    public static RedisServer from(String config) {
+        String[] array = config.split(":");
+        if (array.length == 2) {
+            return new RedisServer(array[0], Integer.parseInt(array[1]), null);
+        } else {
+            return new RedisServer(array[0], Integer.parseInt(array[1]), array[2]);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

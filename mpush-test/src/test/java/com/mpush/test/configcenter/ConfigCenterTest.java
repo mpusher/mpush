@@ -36,8 +36,7 @@ public class ConfigCenterTest {
     @Test
     public void testKey() {
         //String t = ConfigKey.app_env.getString();
-        System.out.println(CC.mp.security.aes_key_length);
-        System.out.println(CC.mp.redis.cluster_group);
+        System.out.println(CC.mp.redis.cluster_group.size());
     }
 
     @Test
