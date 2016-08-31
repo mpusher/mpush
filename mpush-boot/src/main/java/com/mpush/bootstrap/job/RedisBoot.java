@@ -20,6 +20,7 @@
 package com.mpush.bootstrap.job;
 
 import com.mpush.cache.redis.manager.RedisManager;
+import com.mpush.common.user.UserManager;
 
 /**
  * Created by yxx on 2016/5/14.
@@ -31,6 +32,7 @@ public final class RedisBoot extends BootJob {
     @Override
     protected void start() {
         RedisManager.I.init();
+        UserManager.I.clearUserOnlineData();
         startNext();
     }
 

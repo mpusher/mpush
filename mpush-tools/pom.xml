@@ -37,6 +37,10 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>${mpush.groupId}</groupId>
+            <artifactId>mpush-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>
@@ -51,10 +55,6 @@
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -34,11 +34,7 @@ public final class UserManager {
 
     private final String ONLINE_KEY = RedisKey.getUserOnlineKey(ConfigManager.I.getPublicIp());
 
-    public UserManager() {
-        clearUserOnlineData();
-    }
-
-    public void clearUserOnlineData() {
+    public void clearUserOnlineData()  {
         RedisManager.I.del(ONLINE_KEY);
     }
 
@@ -52,8 +48,15 @@ public final class UserManager {
         LOGGER.info("user offline {}", userId);
     }
 
-    //在线用户
+    //在线用户数量
     public long getOnlineUserNum() {
+        Long value = RedisManager.I.zCard(ONLINE_KEY);
+        return value == null ? 0 : value;
+    }
+
+    //在线用户数量
+    public long getOnlineUserNum(String publicIP) {
+        String ONLINE_KEY = RedisKey.getUserOnlineKey(publicIP);
         Long value = RedisManager.I.zCard(ONLINE_KEY);
         return value == null ? 0 : value;
     }

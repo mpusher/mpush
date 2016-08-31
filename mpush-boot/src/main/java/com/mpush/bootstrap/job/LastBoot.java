@@ -30,7 +30,6 @@ import com.mpush.tools.log.Logs;
 public final class LastBoot extends BootJob {
     @Override
     protected void start() {
-        UserManager.I.clearUserOnlineData();
         Logs.Console.error("end start bootstrap chain...");
         Logs.Console.error("===================================================================");
         Logs.Console.error("====================MPUSH SERVER START SUCCESS=====================");
