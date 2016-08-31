@@ -1,6 +1,8 @@
 ## [详细教程](https://mpusher.github.io/docs)
 
-[https://mpusher.github.io/docs](https://mpusher.github.io/docs)
+* 官网：[https://mpusher.github.io](https://mpusher.github.io)
+* 文档：[https://mpusher.github.io/docs](https://mpusher.github.io/docs)
+* QQ群：__114583699__
 
 ## 源码测试
 1. ```git clone https://github.com/mpusher/mpush.git```
