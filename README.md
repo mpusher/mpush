@@ -24,9 +24,9 @@
 
 3. 安装```Redis``` (安装配置步骤略)
 
-4. 下载mpush server正式包[https://github.com/mpusher/mpush/releases/download/0.0.1/mpush-release-0.0.1.tar.gz](https://github.com/mpusher/mpush/releases/download/0.0.1/mpush-release-0.0.1.tar.gz)
+4. 下载mpush server 最新的正式包[https://github.com/mpusher/mpush/releases](https://github.com/mpusher/mpush/releases)
 
-5. 解压下载的tar包`tar -zvxf mpush-release-0.0.1.tar.gz`到 mpush 目录, 结构如下
+5. 解压下载的tar包`tar -zvxf mpush-release-0.0.2.tar.gz`到 mpush 目录, 结构如下
 
    ><pre class="md-fences">
    >drwxrwxr-x 2 shinemo shinemo  4096 Aug 20 09:30 bin —> 启动脚本
