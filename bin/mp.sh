@@ -242,18 +242,7 @@ status)
        	clientPortAddress="localhost"
     fi
     clientPort=`$GREP "^[[:space:]]*connect-server-port[^[:alpha:]]" "$MP_CFG" | sed -e 's/.*=//'`
-    STAT=`"$JAVA" "-Dmp.log.dir=${MP_LOG_DIR}" "-Dmp.root.logger=${MP_LOG4J_PROP}" \
-             -cp "$CLASSPATH" $JVM_FLAGS org.apache.mpush.client.FourLetterWordMain \
-             $clientPortAddress $clientPort srvr 2> /dev/null    \
-          | $GREP Mode`
-    if [ "x$STAT" = "x" ]
-    then
-        echo "Error contacting service. It is probably not running."
-        exit 1
-    else
-        echo $STAT
-        exit 0
-    fi
+    telnet 127.0.0.1 3002
     ;;
 *)
     echo "Usage: $0 {start|start-foreground|stop|restart|status|upgrade|print-cmd}" >&2

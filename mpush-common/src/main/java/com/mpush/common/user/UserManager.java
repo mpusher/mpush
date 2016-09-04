@@ -56,8 +56,8 @@ public final class UserManager {
 
     //在线用户数量
     public long getOnlineUserNum(String publicIP) {
-        String ONLINE_KEY = RedisKey.getUserOnlineKey(publicIP);
-        Long value = RedisManager.I.zCard(ONLINE_KEY);
+        String online_key = RedisKey.getUserOnlineKey(publicIP);
+        Long value = RedisManager.I.zCard(online_key);
         return value == null ? 0 : value;
     }
 
