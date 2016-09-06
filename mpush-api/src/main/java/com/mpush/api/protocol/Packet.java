@@ -30,12 +30,15 @@ import io.netty.buffer.Unpooled;
  */
 public final class Packet {
     public static final int HEADER_LEN = 13;
+
     public static final byte FLAG_CRYPTO = 0x01;
     public static final byte FLAG_COMPRESS = 0x02;
+    public static final byte FLAG_BIZ_ACK = 0x04;
+    public static final byte FLAG_AUTO_ACK = 0x08;
 
     public static final byte HB_PACKET_BYTE = -33;
     public static final byte[] HB_PACKET_BYTES = new byte[]{HB_PACKET_BYTE};
-    public static final Packet HB_PACKE = new Packet(Command.HEARTBEAT);
+    public static final Packet HB_PACKET = new Packet(Command.HEARTBEAT);
 
     public byte cmd; //命令
     public short cc; //校验码 暂时没有用到

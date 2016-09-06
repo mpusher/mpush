@@ -82,10 +82,10 @@ public abstract class NettyServer extends BaseService implements Server {
             Logs.Console.error("{} was already shutdown.", this.getClass().getSimpleName());
             return;
         }
-        Logs.Console.error("try shutdown {}...", this.getClass().getSimpleName());
+        Logs.Console.info("try shutdown {}...", this.getClass().getSimpleName());
         if (workerGroup != null) workerGroup.shutdownGracefully().syncUninterruptibly();
         if (bossGroup != null) bossGroup.shutdownGracefully().syncUninterruptibly();
-        Logs.Console.error("{} shutdown success.", this.getClass().getSimpleName());
+        Logs.Console.info("{} shutdown success.", this.getClass().getSimpleName());
         if (listener != null) {
             listener.onSuccess(port);
         }
@@ -159,10 +159,10 @@ public abstract class NettyServer extends BaseService implements Server {
              */
             ChannelFuture f = b.bind(port).sync().addListener((ChannelFutureListener) future -> {
                 if (future.isSuccess()) {
-                    Logs.Console.error("server start success on:{}", port);
+                    Logs.Console.info("server start success on:{}", port);
                     if (listener != null) listener.onSuccess(port);
                 } else {
-                    Logs.Console.error("server start failure on:{}", port, future.cause());
+                    Logs.Console.info("server start failure on:{}", port, future.cause());
                     if (listener != null) listener.onFailure(future.cause());
                 }
             });

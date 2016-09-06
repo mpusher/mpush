@@ -44,6 +44,7 @@ public final class ThreadNames {
     public static final String T_BIZ = NS + "-biz-";
     public static final String T_PUSH_CALLBACK = NS + "-push-cb-";
     public static final String T_PUSH_REQ_TIMER = NS + "-push-timer-";
+    public static final String T_ARK_REQ_TIMER = NS + "-ack-timer-";
 
     /**
      * connection 定期检测线程

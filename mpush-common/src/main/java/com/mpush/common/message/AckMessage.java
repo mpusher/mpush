@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,53 +14,43 @@
  * limitations under the License.
  *
  * Contributors:
- *   ohun@live.cn (夜色)
+ *     ohun@live.cn (夜色)
  */
 
 package com.mpush.common.message;
 
 import com.mpush.api.connection.Connection;
+import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
-
-import static com.mpush.api.protocol.Command.PUSH;
+import io.netty.buffer.ByteBuf;
 
 /**
- * Created by ohun on 2015/12/30.
+ * Created by ohun on 16/9/5.
  *
- * @author ohun@live.cn
+ * @author ohun@live.cn (夜色)
  */
-public final class PushMessage extends BaseMessage {
+public class AckMessage extends ByteBufMessage {
 
-    public byte[] content;
-
-    public PushMessage(Packet packet, Connection connection) {
+    public AckMessage(Packet packet, Connection connection) {
         super(packet, connection);
     }
 
-    public PushMessage(byte[] content, Connection connection) {
-        super(new Packet(PUSH, genSessionId()), connection);
-        this.content = content;
+    @Override
+    public void decode(ByteBuf body) {
     }
 
     @Override
-    public void decode(byte[] body) {
-        content = body;
+    public void encode(ByteBuf body) {
     }
 
-    @Override
-    public byte[] encode() {
-        return content;
-    }
-
-    public boolean needAck() {
-        return packet.hasFlag(Packet.FLAG_BIZ_ACK) || packet.hasFlag(Packet.FLAG_AUTO_ACK);
+    public static AckMessage from(BaseMessage src) {
+        return new AckMessage(new Packet(Command.ACK, src.getSessionId()), src.connection);
     }
 
     @Override
     public String toString() {
-        return "PushMessage{" +
-                "content='" + content.length + '\'' +
-                ", packet=" + packet +
+        return "AckMessage{" +
+                "packet=" + packet +
                 '}';
     }
 }
