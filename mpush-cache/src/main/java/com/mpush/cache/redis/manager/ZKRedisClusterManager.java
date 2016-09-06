@@ -19,7 +19,6 @@
 
 package com.mpush.cache.redis.manager;
 
-import com.google.common.collect.Lists;
 import com.mpush.cache.redis.RedisException;
 import com.mpush.cache.redis.RedisGroup;
 import com.mpush.cache.redis.RedisServer;
@@ -29,11 +28,13 @@ import com.mpush.tools.log.Logs;
 import com.mpush.zk.ZKClient;
 import com.mpush.zk.listener.ZKRedisNodeWatcher;
 import com.mpush.zk.node.ZKRedisNode;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.mpush.zk.ZKPath.REDIS_SERVER;
 
@@ -54,20 +55,20 @@ public class ZKRedisClusterManager implements RedisClusterManager {
         if (!ZKClient.I.isRunning()) throw new RedisException("init redis cluster ex, ZK client not running.");
         List<com.mpush.tools.config.data.RedisGroup> groupList = CC.mp.redis.cluster_group;
 
-        if (groupList.size() > 0) {
+        if (CollectionUtils.isNotEmpty(groupList)) {
             register(groupList);
         }
 
         ZKRedisNodeWatcher watcher = new ZKRedisNodeWatcher();
         watcher.beginWatch();
         Collection<ZKRedisNode> nodes = watcher.getCache().values();
-        if (nodes == null || nodes.isEmpty()) {
-            Logs.REDIS.info("init redis client error, redis server is none.");
+        if (CollectionUtils.isEmpty(nodes)) {
+            Logs.REDIS.error("init redis client error, redis server is none.");
             throw new RedisException("init redis client error, redis server is none.");
         }
-        for (ZKRedisNode node : nodes) {
-            groups.add(RedisGroup.from(node));
-        }
+
+        nodes.stream().map(RedisGroup::from).forEach(groups::add);
+
         if (groups.isEmpty()) throw new RedisException("init redis sever fail groupList is null");
         Logs.Console.info("init redis cluster success...");
     }
@@ -104,12 +105,7 @@ public class ZKRedisClusterManager implements RedisClusterManager {
      */
     @Override
     public List<RedisServer> hashSet(String key) {
-        List<RedisServer> nodeList = Lists.newArrayList();
-        for (RedisGroup group : groups) {
-            RedisServer node = group.get(key);
-            nodeList.add(node);
-        }
-        return nodeList;
+        return groups.stream().map(g -> g.get(key)).collect(Collectors.toList());
     }
 
     private void register(List<com.mpush.tools.config.data.RedisGroup> groupList) {
