@@ -20,17 +20,11 @@
 package com.mpush.bootstrap;
 
 
-import com.mpush.api.service.Service;
 import com.mpush.bootstrap.job.*;
 import com.mpush.core.server.AdminServer;
 import com.mpush.core.server.ConnectionServer;
 import com.mpush.core.server.GatewayServer;
-import com.mpush.monitor.service.MonitorService;
-import com.mpush.tools.config.CC;
-import com.mpush.zk.ZKClient;
 import com.mpush.zk.node.ZKServerNode;
-
-import java.util.concurrent.TimeUnit;
 
 import static com.mpush.tools.config.CC.mp.net.admin_server_port;
 
@@ -56,7 +50,7 @@ public final class ServerLauncher {
                 .setNext(new ServerBoot(connectServer, csNode))//3.启动长连接服务
                 .setNext(new ServerBoot(gatewayServer, gsNode))//4.启动网关服务
                 .setNext(new ServerBoot(adminServer, null))//5.启动控制台服务
-                .setNext(new HttpProxyBoot())//6.启动http代理服务，解析dns
+                .setNext(new HttpProxyBoot())//6.启动http代理服务，解析dnsgit
                 .setNext(new MonitorBoot())//7.启动监控
                 .setNext(new LastBoot());//8.启动结束
     }

@@ -47,7 +47,7 @@ public abstract class BaseService implements Service {
             try {
                 init();
                 function.apply(listener);
-                listener.onSuccess("service " + this.getClass().getSimpleName() + " start success");
+                listener.onSuccess(String.format("service %s start success", this.getClass().getSimpleName()));
             } catch (Throwable e) {
                 listener.onFailure(e);
                 throw new ServiceException(e);
@@ -62,7 +62,7 @@ public abstract class BaseService implements Service {
         if (started.compareAndSet(true, false)) {
             try {
                 function.apply(listener);
-                listener.onSuccess("service " + this.getClass().getSimpleName() + " stop success");
+                listener.onSuccess(String.format("service %s stop success", this.getClass().getSimpleName()));
             } catch (Throwable e) {
                 listener.onFailure(e);
                 throw new ServiceException(e);
