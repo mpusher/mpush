@@ -63,7 +63,7 @@ public class GatewayPushMessage extends ByteBufMessage {
     }
 
     public boolean needAck() {
-        return packet.hasFlag(Packet.FLAG_ACK) || packet.hasFlag(Packet.FLAG_AUTO_ACK);
+        return packet.hasFlag(Packet.FLAG_BIZ_ACK) || packet.hasFlag(Packet.FLAG_AUTO_ACK);
     }
 
     @Override
