@@ -50,12 +50,6 @@ public class AckHandler extends BaseMessageHandler<AckMessage> {
             return;
         }
 
-        Connection connection = context.connection;
-        if (!connection.isConnected()) {
-            Logs.PUSH.info("receive client ack, gateway connection is closed, message={}, context={}", message, context);
-            return;
-        }
-
         context.success();
     }
 }

@@ -183,6 +183,11 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
                 .setCallback(new AckCallback() {
                     @Override
                     public void onSuccess(AckContext ctx) {
+                        if (!gatewayConnection.isConnected()) {
+                            Logs.PUSH.info("receive client ack, gateway connection is closed, context={}", ctx);
+                            return;
+                        }
+
                         OkMessage okMessage = new OkMessage(ctx.cmd, new Packet(OK, ctx.gatewayMessageId), gatewayConnection);
                         okMessage.setData(userId + ',' + clientType);
                         okMessage.sendRaw();
@@ -191,6 +196,10 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
 
                     @Override
                     public void onTimeout(AckContext ctx) {
+                        if (!gatewayConnection.isConnected()) {
+                            Logs.PUSH.info("receive client ack, gateway connection is closed, context={}", ctx);
+                            return;
+                        }
                         ErrorMessage errorMessage = new ErrorMessage(ctx.cmd, new Packet(ERROR, ctx.gatewayMessageId), gatewayConnection);
                         errorMessage.setData(userId + ',' + clientType);
                         errorMessage.setErrorCode(ErrorCode.ACK_TIMEOUT);
