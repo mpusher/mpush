@@ -21,6 +21,8 @@ package com.mpush.client.push;
 
 import com.mpush.api.Constants;
 import com.mpush.api.connection.Connection;
+import com.mpush.api.push.AckModel;
+import com.mpush.api.push.PushCallback;
 import com.mpush.api.push.PushSender;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
@@ -43,28 +45,41 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
     private final GatewayClientFactory factory = GatewayClientFactory.I;
     private final ConnectionRouterManager routerManager = ConnectionRouterManager.I;
 
-    public void send(String content, Collection<String> userIds, Callback callback) {
+    public void send(String content, Collection<String> userIds, PushCallback callback) {
         send(content.getBytes(Constants.UTF_8), userIds, callback);
     }
 
     @Override
-    public FutureTask<Boolean> send(String content, String userId, Callback callback) {
+    public FutureTask<Boolean> send(String content, String userId, PushCallback callback) {
         return send(content.getBytes(Constants.UTF_8), userId, callback);
     }
 
     @Override
-    public void send(byte[] content, Collection<String> userIds, Callback callback) {
+    public void send(byte[] content, Collection<String> userIds, PushCallback callback) {
         for (String userId : userIds) {
             send(content, userId, callback);
         }
     }
 
     @Override
-    public FutureTask<Boolean> send(byte[] content, String userId, Callback callback) {
+    public FutureTask<Boolean> send(byte[] content, String userId, PushCallback callback) {
+        return send(content, userId, AckModel.NO_ACK, callback);
+    }
+
+    @Override
+    public void send(byte[] content, Collection<String> userIds, AckModel ackModel, PushCallback callback) {
+        for (String userId : userIds) {
+            send(content, userId, ackModel, callback);
+        }
+    }
+
+    @Override
+    public FutureTask<Boolean> send(byte[] content, String userId, AckModel ackModel, PushCallback callback) {
         Set<RemoteRouter> routers = routerManager.lookupAll(userId);
         if (routers == null || routers.isEmpty()) {
             return PushRequest
                     .build(this)
+                    .setAckModel(ackModel)
                     .setCallback(callback)
                     .setUserId(userId)
                     .setContent(content)
@@ -76,6 +91,7 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
         for (RemoteRouter router : routers) {
             task = PushRequest
                     .build(this)
+                    .setAckModel(ackModel)
                     .setCallback(callback)
                     .setUserId(userId)
                     .setContent(content)

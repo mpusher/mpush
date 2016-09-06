@@ -50,7 +50,7 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
         if (session == null) {
             //1.没查到说明session已经失效了
             ErrorMessage.from(message).setReason("session expired").send();
-            Logs.Conn.info("fast connect failure, session is expired, sessionId={}, deviceId={}"
+            Logs.Conn.info("fast connect failure, session is expired, gatewayMessageId={}, deviceId={}"
                     , message.sessionId, message.deviceId);
         } else if (!session.context.deviceId.equals(message.deviceId)) {
             //2.非法的设备, 当前设备不是上次生成session时的设备

@@ -19,6 +19,9 @@
 
 package com.mpush.test.push;
 
+import com.mpush.api.Constants;
+import com.mpush.api.push.AckModel;
+import com.mpush.api.push.PushCallback;
 import com.mpush.api.push.PushContent;
 import com.mpush.api.push.PushContent.PushType;
 import com.mpush.api.push.PushSender;
@@ -42,28 +45,32 @@ public class PushClientTestMain {
         for (int i = 0; i < 1; i++) {
             PushContent content = PushContent.build(PushType.MESSAGE, "this a first push." + i);
             content.setMsgId("msgId_" + (i % 2));
+
             Thread.sleep(1000);
-            sender.send(Jsons.toJson(content), Arrays.asList("user-0","doctor43test"), new PushSender.Callback() {
-                @Override
-                public void onSuccess(String userId, ClientLocation location) {
-                    System.err.println("push onSuccess userId=" + userId);
-                }
+            sender.send(Jsons.toJson(content).getBytes(Constants.UTF_8),
+                    Arrays.asList("user-0", "doctor43test"),
+                    AckModel.AUTO_ACK,
+                    new PushCallback() {
+                        @Override
+                        public void onSuccess(String userId, ClientLocation location) {
+                            System.err.println("push onSuccess userId=" + userId);
+                        }
 
-                @Override
-                public void onFailure(String userId, ClientLocation location) {
-                    System.err.println("push onFailure userId=" + userId);
-                }
+                        @Override
+                        public void onFailure(String userId, ClientLocation location) {
+                            System.err.println("push onFailure userId=" + userId);
+                        }
 
-                @Override
-                public void onOffline(String userId, ClientLocation location) {
-                    System.err.println("push onOffline userId=" + userId);
-                }
+                        @Override
+                        public void onOffline(String userId, ClientLocation location) {
+                            System.err.println("push onOffline userId=" + userId);
+                        }
 
-                @Override
-                public void onTimeout(String userId, ClientLocation location) {
-                    System.err.println("push onTimeout userId=" + userId);
-                }
-            });
+                        @Override
+                        public void onTimeout(String userId, ClientLocation location) {
+                            System.err.println("push onTimeout userId=" + userId);
+                        }
+                    });
         }
         LockSupport.park();
     }

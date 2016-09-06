@@ -109,6 +109,12 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
             } else if (command == Command.PUSH) {
                 PushMessage message = new PushMessage(packet, connection);
                 LOGGER.warn(">>> receive an push message, content=" + new String(message.content, Constants.UTF_8));
+
+                if (message.needAck()) {
+                    AckMessage.from(message).sendRaw();
+                    LOGGER.warn(">>> send ack success for sessionId={}", message.getSessionId());
+                }
+
             } else if (command == Command.HEARTBEAT) {
                 LOGGER.warn(">>> receive a heartbeat pong...");
             } else {

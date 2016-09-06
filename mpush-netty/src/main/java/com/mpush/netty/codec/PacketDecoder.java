@@ -19,7 +19,6 @@
 
 package com.mpush.netty.codec;
 
-import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.tools.config.CC;
 import io.netty.buffer.ByteBuf;
@@ -46,7 +45,7 @@ public final class PacketDecoder extends ByteToMessageDecoder {
     private void decodeHeartbeat(ByteBuf in, List<Object> out) {
         while (in.isReadable()) {
             if (in.readByte() == Packet.HB_PACKET_BYTE) {
-                out.add(Packet.HB_PACKE);
+                out.add(Packet.HB_PACKET);
             } else {
                 in.readerIndex(in.readerIndex() - 1);
                 break;

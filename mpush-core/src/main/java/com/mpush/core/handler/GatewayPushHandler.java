@@ -21,17 +21,23 @@ package com.mpush.core.handler;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
+import com.mpush.common.ErrorCode;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.ErrorMessage;
 import com.mpush.common.message.OkMessage;
 import com.mpush.common.message.PushMessage;
 import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.common.router.RemoteRouter;
+import com.mpush.core.ack.AckCallback;
+import com.mpush.core.ack.AckContext;
+import com.mpush.core.ack.AckMessageQueue;
 import com.mpush.core.router.LocalRouter;
 import com.mpush.core.router.RouterCenter;
 import com.mpush.tools.Utils;
 import com.mpush.tools.log.Logs;
 
+import static com.mpush.api.protocol.Command.ERROR;
+import static com.mpush.api.protocol.Command.OK;
 import static com.mpush.common.ErrorCode.*;
 
 /**
@@ -80,8 +86,8 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
      */
     private boolean checkLocal(final GatewayPushMessage message) {
         String userId = message.userId;
-        int deviceId = message.clientType;
-        LocalRouter router = RouterCenter.I.getLocalRouterManager().lookup(userId, deviceId);
+        int clientType = message.clientType;
+        LocalRouter router = RouterCenter.I.getLocalRouterManager().lookup(userId, clientType);
 
         //1.如果本机不存在，再查下远程，看用户是否登陆到其他机器
         if (router == null) return false;
@@ -94,24 +100,29 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
             Logs.PUSH.info("gateway push, router in local but disconnect, message={}", message, connection);
 
             //删除已经失效的本地路由
-            RouterCenter.I.getLocalRouterManager().unRegister(userId, deviceId);
+            RouterCenter.I.getLocalRouterManager().unRegister(userId, clientType);
 
             return false;
         }
 
         //3.链接可用，直接下发消息到手机客户端
         PushMessage pushMessage = new PushMessage(message.content, connection);
+        pushMessage.getPacket().flags = message.getPacket().flags;
 
         pushMessage.send(future -> {
-            if (future.isSuccess()) {
-                //推送成功
-                OkMessage.from(message).setData(userId + ',' + deviceId).send();
+            if (future.isSuccess()) {//推送成功
+
+                if (message.needAck()) {//需要客户端ACK
+                    AckMessageQueue.I.put(pushMessage.getSessionId(), buildAckContext(message));
+                } else {
+                    OkMessage.from(message).setData(userId + ',' + clientType).sendRaw();
+                }
 
                 Logs.PUSH.info("gateway push message to client success, message={}", message);
 
-            } else {
-                //推送失败
-                ErrorMessage.from(message).setErrorCode(PUSH_CLIENT_FAILURE).setData(userId + ',' + deviceId).send();
+            } else {//推送失败
+
+                ErrorMessage.from(message).setErrorCode(PUSH_CLIENT_FAILURE).setData(userId + ',' + clientType).sendRaw();
 
                 Logs.PUSH.info("gateway push message to client failure, message={}", message);
             }
@@ -135,7 +146,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
         // 1.如果远程路由信息也不存在, 说明用户此时不在线，
         if (router == null) {
 
-            ErrorMessage.from(message).setErrorCode(OFFLINE).setData(userId + ',' + clientType).send();
+            ErrorMessage.from(message).setErrorCode(OFFLINE).setData(userId + ',' + clientType).sendRaw();
 
             Logs.PUSH.info("gateway push, router not exists user offline, message={}", message);
 
@@ -145,7 +156,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
         //2.如果查出的远程机器是当前机器，说明路由已经失效，此时用户已下线，需要删除失效的缓存
         if (Utils.getLocalIp().equals(router.getRouteValue().getHost())) {
 
-            ErrorMessage.from(message).setErrorCode(OFFLINE).setData(userId + ',' + clientType).send();
+            ErrorMessage.from(message).setErrorCode(OFFLINE).setData(userId + ',' + clientType).sendRaw();
 
             //删除失效的远程缓存
             RouterCenter.I.getRemoteRouterManager().unRegister(userId, clientType);
@@ -156,9 +167,36 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
         }
 
         //3.否则说明用户已经跑到另外一台机器上了；路由信息发生更改，让PushClient重推
-        ErrorMessage.from(message).setErrorCode(ROUTER_CHANGE).setData(userId + ',' + clientType).send();
+        ErrorMessage.from(message).setErrorCode(ROUTER_CHANGE).setData(userId + ',' + clientType).sendRaw();
 
         Logs.PUSH.info("gateway push, router in remote userId={}, clientType={}, router={}", userId, clientType, router);
 
+    }
+
+
+    private AckContext buildAckContext(GatewayPushMessage message) {
+        Connection gatewayConnection = message.getConnection();
+        String userId = message.userId;
+        int clientType = message.clientType;
+
+        return AckContext.from(message)
+                .setCallback(new AckCallback() {
+                    @Override
+                    public void onSuccess(AckContext ctx) {
+                        OkMessage okMessage = new OkMessage(ctx.cmd, new Packet(OK, ctx.gatewayMessageId), gatewayConnection);
+                        okMessage.setData(userId + ',' + clientType);
+                        okMessage.sendRaw();
+                        Logs.PUSH.info("receive client ack and response gateway client success, context={}", ctx);
+                    }
+
+                    @Override
+                    public void onTimeout(AckContext ctx) {
+                        ErrorMessage errorMessage = new ErrorMessage(ctx.cmd, new Packet(ERROR, ctx.gatewayMessageId), gatewayConnection);
+                        errorMessage.setData(userId + ',' + clientType);
+                        errorMessage.setErrorCode(ErrorCode.ACK_TIMEOUT);
+                        errorMessage.sendRaw();
+                        Logs.PUSH.info("push message success but client not ack, context={}", ctx);
+                    }
+                });
     }
 }
