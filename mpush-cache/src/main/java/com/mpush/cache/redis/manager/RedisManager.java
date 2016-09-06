@@ -40,7 +40,7 @@ public final class RedisManager {
     private final RedisClusterManager clusterManager = ZKRedisClusterManager.I;
 
     public void init() {
-        ZKRedisClusterManager.I.init();
+        clusterManager.init();
         test(clusterManager.getGroupList());
     }
 
