@@ -71,7 +71,7 @@ public final class AckContext implements Runnable {
     public String toString() {
         return "AckContext{" +
                 "gatewayMessageId=" + gatewayMessageId +
-                "pushMessageId=" + pushMessageId +
+                ", pushMessageId=" + pushMessageId +
                 '}';
     }
 
