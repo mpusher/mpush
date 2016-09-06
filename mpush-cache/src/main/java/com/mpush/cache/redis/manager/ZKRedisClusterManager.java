@@ -19,7 +19,6 @@
 
 package com.mpush.cache.redis.manager;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mpush.cache.redis.RedisException;
 import com.mpush.cache.redis.RedisGroup;
@@ -51,7 +50,7 @@ public class ZKRedisClusterManager implements RedisClusterManager {
      */
     @Override
     public void init() {
-        Logs.Console.error("begin init redis cluster");
+        Logs.Console.info("begin init redis cluster");
         if (!ZKClient.I.isRunning()) throw new RedisException("init redis cluster ex, ZK client not running.");
         List<com.mpush.tools.config.data.RedisGroup> groupList = CC.mp.redis.cluster_group;
 
@@ -70,7 +69,7 @@ public class ZKRedisClusterManager implements RedisClusterManager {
             groups.add(RedisGroup.from(node));
         }
         if (groups.isEmpty()) throw new RedisException("init redis sever fail groupList is null");
-        Logs.Console.error("init redis cluster success...");
+        Logs.Console.info("init redis cluster success...");
     }
 
     @Override
@@ -119,7 +118,7 @@ public class ZKRedisClusterManager implements RedisClusterManager {
                 || !ZKClient.I.isExisted(REDIS_SERVER.getRootPath())//redis节点不存在
                 || !ZKClient.I.get(REDIS_SERVER.getRootPath()).equals(data)) {//数据有变更
             ZKClient.I.registerPersist(REDIS_SERVER.getRootPath(), data);
-            Logs.Console.error("register redis server group success, group=" + data);
+            Logs.Console.info("register redis server group success, group={}", data);
         }
     }
 

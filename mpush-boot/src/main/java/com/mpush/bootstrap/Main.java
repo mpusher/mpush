@@ -26,7 +26,7 @@ import sun.misc.SignalHandler;
 public class Main {
     public static void main(String[] args) {
         Logs.init();
-        Logs.Console.error("launch mpush server...");
+        Logs.Console.info("launch mpush server...");
         ServerLauncher launcher = new ServerLauncher();
         launcher.start();
         addHook(launcher);

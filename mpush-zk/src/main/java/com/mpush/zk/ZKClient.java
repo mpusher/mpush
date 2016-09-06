@@ -55,7 +55,7 @@ public class ZKClient extends BaseService {
     @Override
     protected void doStart(Listener listener) throws Throwable {
         client.start();
-        Logs.Console.error("init zk client waiting for connected...");
+        Logs.Console.info("init zk client waiting for connected...");
         if (!client.blockUntilConnected(1, TimeUnit.MINUTES)) {
             throw new ZKException("init zk error, config=" + zkConfig);
         }
@@ -63,7 +63,7 @@ public class ZKClient extends BaseService {
         addConnectionStateListener();
         listener.onSuccess(zkConfig.getHosts());
         Logs.ZK.info("zk client start success, server lists is:{}", zkConfig.getHosts());
-        Logs.Console.error("init zk client success...");
+        Logs.Console.info("init zk client success...");
     }
 
     @Override
@@ -109,7 +109,7 @@ public class ZKClient extends BaseService {
                     });
         }
         client = builder.build();
-        Logs.Console.error("init zk client, config=" + zkConfig);
+        Logs.Console.info("init zk client, config={}", zkConfig.toString());
     }
 
     // 注册连接状态监听器

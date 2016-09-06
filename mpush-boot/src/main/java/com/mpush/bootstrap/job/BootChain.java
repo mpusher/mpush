@@ -45,13 +45,13 @@ public final class BootChain {
         return new BootJob() {
             @Override
             public void start() {
-                Logs.Console.error("begin start bootstrap chain...");
+                Logs.Console.info("begin start bootstrap chain...");
                 startNext();
             }
 
             @Override
             protected void stop() {
-                Logs.Console.error("begin stop bootstrap chain...");
+                Logs.Console.info("begin stop bootstrap chain...");
                 stopNext();
             }
         };
