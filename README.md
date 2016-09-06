@@ -1,6 +1,8 @@
 ## [详细教程](https://mpusher.github.io/docs)
 
-[https://mpusher.github.io/docs](https://mpusher.github.io/docs)
+* 官网：[https://mpusher.github.io](https://mpusher.github.io)
+* 文档：[https://mpusher.github.io/docs](https://mpusher.github.io/docs)
+* QQ群：__114583699__ <a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=1de86266c76d00c246c3c7f29cc002667d1c26fcc2f14d2a7b75b3126708e2e1"><img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="MPUSH开源消息推送系统" title="MPUSH开源消息推送系统"></a>
 
 ## 源码测试
 1. ```git clone https://github.com/mpusher/mpush.git```
@@ -22,9 +24,9 @@
 
 3. 安装```Redis``` (安装配置步骤略)
 
-4. 下载mpush server正式包[https://github.com/mpusher/mpush/releases/download/0.0.1/mpush-release-0.0.1.tar.gz](https://github.com/mpusher/mpush/releases/download/0.0.1/mpush-release-0.0.1.tar.gz)
+4. 下载mpush server 最新的正式包[https://github.com/mpusher/mpush/releases](https://github.com/mpusher/mpush/releases)
 
-5. 解压下载的tar包`tar -zvxf mpush-release-0.0.1.tar.gz`到 mpush 目录, 结构如下
+5. 解压下载的tar包`tar -zvxf mpush-release-0.0.2.tar.gz`到 mpush 目录, 结构如下
 
    ><pre class="md-fences">
    >drwxrwxr-x 2 shinemo shinemo  4096 Aug 20 09:30 bin —> 启动脚本

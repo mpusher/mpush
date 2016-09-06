@@ -28,11 +28,11 @@ import com.mpush.api.router.ClientType;
 import com.mpush.api.router.RouterManager;
 import com.mpush.tools.event.EventBus;
 import com.mpush.tools.event.EventConsumer;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by ohun on 2015/12/23.
@@ -46,7 +46,7 @@ public final class LocalRouterManager extends EventConsumer implements RouterMan
     /**
      * 本地路由表
      */
-    private final Map<String, Map<Integer, LocalRouter>> routers = new ConcurrentHashMapV8<>();
+    private final Map<String, Map<Integer, LocalRouter>> routers = new ConcurrentHashMap<>();
 
     @Override
     public LocalRouter register(String userId, LocalRouter router) {

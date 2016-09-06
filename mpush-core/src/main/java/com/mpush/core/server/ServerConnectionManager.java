@@ -33,9 +33,9 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
  * @author ohun@live.cn
  */
 public final class ServerConnectionManager implements ConnectionManager {
-    private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMapV8<>();
+    private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMap<>();
 
     private Timer timer;
 
@@ -62,9 +62,7 @@ public final class ServerConnectionManager implements ConnectionManager {
     @Override
     public void destroy() {
         if (timer != null) timer.stop();
-        for (Connection connection : connections.values()) {
-            connection.close();
-        }
+        connections.values().forEach(Connection::close);
         connections.clear();
     }
 
@@ -103,11 +101,11 @@ public final class ServerConnectionManager implements ConnectionManager {
         private int timeoutTimes = 0;
         private final Connection connection;
 
-        public HeartbeatCheckTask(Connection connection) {
+        HeartbeatCheckTask(Connection connection) {
             this.connection = connection;
         }
 
-        public void startTimeout() {
+        void startTimeout() {
             int timeout = connection.getSessionContext().heartbeat;
             timer.newTimeout(this, timeout > 0 ? timeout : CC.mp.core.min_heartbeat, TimeUnit.MILLISECONDS);
         }
