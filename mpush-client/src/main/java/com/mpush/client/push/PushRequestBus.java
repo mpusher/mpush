@@ -22,7 +22,6 @@ package com.mpush.client.push;
 import com.mpush.api.push.PushException;
 import com.mpush.tools.thread.PoolThreadFactory;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,7 @@ import static com.mpush.tools.thread.ThreadNames.T_PUSH_REQ_TIMER;
 public class PushRequestBus {
     public static final PushRequestBus I = new PushRequestBus();
     private final Logger logger = LoggerFactory.getLogger(PushRequestBus.class);
-    private final Map<Integer, PushRequest> reqQueue = new ConcurrentHashMapV8<>(1024);
+    private final Map<Integer, PushRequest> reqQueue = new ConcurrentHashMap<>(1024);
     private final Executor executor = ThreadPoolManager.I.getPushCallbackExecutor();
     private final ScheduledExecutorService scheduledExecutor;
 
