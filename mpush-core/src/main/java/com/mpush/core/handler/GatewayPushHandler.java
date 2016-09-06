@@ -112,7 +112,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
         pushMessage.send(future -> {
             if (future.isSuccess()) {//推送成功
 
-                if (message.needAck()) {//需要客户端ACK
+                if (message.needAck()) {//需要客户端ACK, 消息进队列等待客户端响应ACK
                     AckMessageQueue.I.put(pushMessage.getSessionId(), buildAckContext(message));
                 } else {
                     OkMessage.from(message).setData(userId + ',' + clientType).sendRaw();
