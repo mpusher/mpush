@@ -30,7 +30,7 @@ SET CLASSPATH=%~dp0..\*;%~dp0..\lib\*;%CLASSPATH%
 REM make it work for developers
 SET CLASSPATH=%~dp0..\build\classes;%~dp0..\build\lib\*;%CLASSPATH%
 
-set MPCFG=%MPCFGDIR%\zoo.cfg
+set MPCFG=%MPCFGDIR%\mpush.cfg
 
 @REM setup java environment variables
 

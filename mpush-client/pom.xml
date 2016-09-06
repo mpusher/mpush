@@ -21,19 +21,11 @@
     <dependencies>
         <dependency>
             <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-netty</artifactId>
         </dependency>
         <dependency>
             <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-cache</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -19,7 +19,7 @@
 
 package com.mpush.api.push;
 
-import com.mpush.api.router.ClientLocation;
+import com.mpush.api.protocol.Packet;
 import com.mpush.api.service.Service;
 import com.mpush.api.spi.SpiLoader;
 import com.mpush.api.spi.client.PusherFactory;
@@ -38,21 +38,16 @@ public interface PushSender extends Service {
         return SpiLoader.load(PusherFactory.class).get();
     }
 
-    void send(String content, Collection<String> userIds, Callback callback);
+    void send(String content, Collection<String> userIds, PushCallback callback);
 
-    FutureTask<Boolean> send(String content, String userId, Callback callback);
+    FutureTask<Boolean> send(String content, String userId, PushCallback callback);
 
-    void send(byte[] content, Collection<String> userIds, Callback callback);
+    void send(byte[] content, Collection<String> userIds, PushCallback callback);
 
-    FutureTask<Boolean> send(byte[] content, String userId, Callback callback);
+    FutureTask<Boolean> send(byte[] content, String userId, PushCallback callback);
 
-    interface Callback {
-        void onSuccess(String userId, ClientLocation location);
+    void send(byte[] content, Collection<String> userIds, AckModel ackModel, PushCallback callback);
 
-        void onFailure(String userId, ClientLocation location);
+    FutureTask<Boolean> send(byte[] content, String userId, AckModel ackModel, PushCallback callback);
 
-        void onOffline(String userId, ClientLocation location);
-
-        void onTimeout(String userId, ClientLocation location);
-    }
 }

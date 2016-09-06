@@ -54,14 +54,9 @@ public class ZKRedisClusterManager implements RedisClusterManager {
         Logs.Console.error("begin init redis cluster");
         if (!ZKClient.I.isRunning()) throw new RedisException("init redis cluster ex, ZK client not running.");
         List<com.mpush.tools.config.data.RedisGroup> groupList = CC.mp.redis.cluster_group;
+
         if (groupList.size() > 0) {
-            if (CC.mp.redis.write_to_zk) {
-                register(groupList);
-            } else if (!ZKClient.I.isExisted(REDIS_SERVER.getRootPath())) {
-                register(groupList);
-            } else if (Strings.isNullOrEmpty(ZKClient.I.get(REDIS_SERVER.getRootPath()))) {
-                register(groupList);
-            }
+            register(groupList);
         }
 
         ZKRedisNodeWatcher watcher = new ZKRedisNodeWatcher();
@@ -120,8 +115,12 @@ public class ZKRedisClusterManager implements RedisClusterManager {
 
     private void register(List<com.mpush.tools.config.data.RedisGroup> groupList) {
         String data = Jsons.toJson(groupList);
-        ZKClient.I.registerPersist(REDIS_SERVER.getRootPath(), data);
-        Logs.Console.error("register redis server group success, group=" + data);
+        if (CC.mp.redis.write_to_zk //强制刷新ZK
+                || !ZKClient.I.isExisted(REDIS_SERVER.getRootPath())//redis节点不存在
+                || !ZKClient.I.get(REDIS_SERVER.getRootPath()).equals(data)) {//数据有变更
+            ZKClient.I.registerPersist(REDIS_SERVER.getRootPath(), data);
+            Logs.Console.error("register redis server group success, group=" + data);
+        }
     }
 
     public void addGroup(RedisGroup group) {

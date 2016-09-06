@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,25 +14,18 @@
  * limitations under the License.
  *
  * Contributors:
- *   ohun@live.cn (夜色)
+ *     ohun@live.cn (夜色)
  */
 
-package com.mpush.test.connection.mpns;
+package com.mpush.core.ack;
 
-import com.google.common.collect.Lists;
-import com.mpush.zk.listener.ZKServerNodeWatcher;
-import com.mpush.zk.node.ZKServerNode;
+/**
+ * Created by ohun on 16/9/6.
+ *
+ * @author ohun@live.cn (夜色)
+ */
+public interface AckCallback {
+    void onSuccess(AckContext context);
 
-import java.util.List;
-
-public class ConnectTestClientBoot {
-    private final ZKServerNodeWatcher listener = ZKServerNodeWatcher.buildConnect();
-
-    public void start() {
-        listener.beginWatch();
-    }
-
-    public List<ZKServerNode> getServers() {
-        return Lists.newArrayList(listener.getCache().values());
-    }
+    void onTimeout(AckContext context);
 }

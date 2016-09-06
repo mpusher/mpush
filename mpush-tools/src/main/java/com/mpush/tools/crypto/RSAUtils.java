@@ -49,7 +49,7 @@ public final class RSAUtils {
     /**
      * 密钥位数
      */
-    private static final int RAS_KEY_SIZE = 1024;
+    public static final int RAS_KEY_SIZE = 1024;
 
     /**
      * 加密算法RSA
@@ -82,10 +82,10 @@ public final class RSAUtils {
      *
      * @return 公钥和私钥
      */
-    public static Pair<RSAPublicKey, RSAPrivateKey> genKeyPair() {
+    public static Pair<RSAPublicKey, RSAPrivateKey> genKeyPair(int rsaKeySize) {
         try {
             KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(KEY_ALGORITHM);
-            keyPairGen.initialize(RAS_KEY_SIZE);
+            keyPairGen.initialize(rsaKeySize);
             KeyPair keyPair = keyPairGen.generateKeyPair();
             RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
             RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
@@ -348,8 +348,8 @@ public final class RSAUtils {
         return doFinal(cipher, data, MAX_ENCRYPT_BLOCK);
     }
 
-    public static void main(String[] args) throws Exception {
-        Pair<RSAPublicKey, RSAPrivateKey> pair = RSAUtils.genKeyPair();
+    private static void test() {
+        Pair<RSAPublicKey, RSAPrivateKey> pair = RSAUtils.genKeyPair(RAS_KEY_SIZE);
         //生成公钥和私钥
         RSAPublicKey publicKey = pair.key;
         RSAPrivateKey privateKey = pair.value;
@@ -367,13 +367,37 @@ public final class RSAUtils {
         RSAPublicKey pubKey = RSAUtils.getPublicKey(modulus, public_exponent);
         System.out.println("privateKey=" + priKey);
         System.out.println("publicKey=" + pubKey);
-        System.out.println("privateKey=" + priKey);
-        System.out.println("publicKey=" + pubKey);
         //加密后的密文
         byte[] mi = RSAUtils.encryptByPublicKey(ming, pubKey);
         System.out.println("密文：" + new String(mi, Constants.UTF_8));
         //解密后的明文
         ming = RSAUtils.decryptByPrivateKey(mi, priKey);
         System.out.println("解密：" + new String(ming, Constants.UTF_8));
+    }
+
+    public static void main(String[] args) throws Exception {
+        int keySize = RAS_KEY_SIZE;
+        if (args.length > 0) keySize = Integer.parseInt(args[0]);
+        if (keySize < RAS_KEY_SIZE) keySize = RAS_KEY_SIZE;
+        Pair<RSAPublicKey, RSAPrivateKey> pair = RSAUtils.genKeyPair(keySize);
+        //生成公钥和私钥
+        RSAPublicKey publicKey = pair.key;
+        RSAPrivateKey privateKey = pair.value;
+
+        System.out.println("key generate success!");
+
+        System.out.println("privateKey=" + RSAUtils.encodeBase64(privateKey));
+        System.out.println("publicKey=" + RSAUtils.encodeBase64(publicKey));
+
+        //明文
+        byte[] ming = "这是一段测试文字。。。。".getBytes(Constants.UTF_8);
+        System.out.println("明文:" + new String(ming, Constants.UTF_8));
+
+        //加密后的密文
+        byte[] mi = RSAUtils.encryptByPublicKey(ming, publicKey);
+        System.out.println("密文:" + new String(mi, Constants.UTF_8));
+        //解密后的明文
+        ming = RSAUtils.decryptByPrivateKey(mi, privateKey);
+        System.out.println("解密:" + new String(ming, Constants.UTF_8));
     }
 }

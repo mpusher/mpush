@@ -22,6 +22,7 @@ package com.mpush.common.message;
 import com.mpush.api.Constants;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
+import com.mpush.common.message.gateway.GatewayPushMessage;
 
 import java.util.Arrays;
 
@@ -54,6 +55,12 @@ public final class PushMessage extends BaseMessage {
     public byte[] encode() {
         return content;
     }
+
+
+    public boolean needAck() {
+        return packet.hasFlag(Packet.FLAG_ACK) || packet.hasFlag(Packet.FLAG_AUTO_ACK);
+    }
+
 
     @Override
     public String toString() {

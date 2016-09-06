@@ -20,6 +20,8 @@
 package com.mpush.client.push;
 
 import com.mpush.api.connection.Connection;
+import com.mpush.api.push.AckModel;
+import com.mpush.api.push.PushCallback;
 import com.mpush.api.push.PushSender;
 import com.mpush.api.router.ClientLocation;
 import com.mpush.common.message.gateway.GatewayPushMessage;
@@ -52,7 +54,8 @@ public class PushRequest extends FutureTask<Boolean> {
 
     private final PushClient client;
 
-    private PushSender.Callback callback;
+    private AckModel ackModel;
+    private PushCallback callback;
     private String userId;
     private byte[] content;
     private long timeout;
@@ -83,6 +86,8 @@ public class PushRequest extends FutureTask<Boolean> {
         timeLine.addTimePoint("send-to-gateway-begin");
 
         GatewayPushMessage pushMessage = new GatewayPushMessage(userId, location.getClientType(), content, gatewayConn);
+        pushMessage.getPacket().addFlag(ackModel.flag);
+
         timeLine.addTimePoint("put-request-bus");
         future = PushRequestBus.I.put(pushMessage.getSessionId(), this);
 
@@ -183,7 +188,7 @@ public class PushRequest extends FutureTask<Boolean> {
         return new PushRequest(client);
     }
 
-    public PushRequest setCallback(PushSender.Callback callback) {
+    public PushRequest setCallback(PushCallback callback) {
         this.callback = callback;
         return this;
     }
@@ -200,6 +205,11 @@ public class PushRequest extends FutureTask<Boolean> {
 
     public PushRequest setTimeout(long timeout) {
         this.timeout = timeout;
+        return this;
+    }
+
+    public PushRequest setAckModel(AckModel ackModel) {
+        this.ackModel = ackModel;
         return this;
     }
 

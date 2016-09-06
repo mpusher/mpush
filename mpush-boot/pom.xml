@@ -25,10 +25,6 @@
             <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-monitor</artifactId>
         </dependency>
-        <dependency>
-            <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-zk</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
