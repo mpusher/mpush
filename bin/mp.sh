@@ -204,7 +204,7 @@ stop)
           break
         fi
         if [ $SLEEP -gt 0 ]; then
-          echo "waiting ... $SLEEP_COUNT"
+          echo "stopping ... $SLEEP_COUNT"
           sleep 1
         fi
         if [ $SLEEP -eq 0 ]; then

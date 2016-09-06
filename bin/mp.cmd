@@ -19,6 +19,6 @@ call "%~dp0env-mp.cmd"
 
 set MPMAIN="-jar ../boot.jar"
 echo on
-call %JAVA% "-Dmp.log.dir=%MP_LOG_DIR%" -cp "%CLASSPATH%" %MPMAIN% "%MPCFG%" %*
+call %JAVA% "-Dmp.conf=%MPCFG%" "-Dmp.log.dir=%MP_LOG_DIR%" -cp "%CLASSPATH%" %MPMAIN% %*
 
 endlocal

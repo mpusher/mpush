@@ -48,8 +48,8 @@ public interface CC {
     Config cfg = load();
 
     static Config load() {
-        Config config = ConfigFactory.load();
-        String custom_conf = "mp.conf";//值来自jvm启动参数指定
+        Config config = ConfigFactory.load();//扫描加载所有可用的配置文件
+        String custom_conf = "mp.conf";//加载自定义配置, 值来自jvm启动参数指定-Dmp.conf
         if (config.hasPath(custom_conf)) {
             File file = new File(config.getString(custom_conf));
             if (file.exists()) {
@@ -143,8 +143,6 @@ public interface CC {
             String public_key = cfg.getString("public-key");
 
             String private_key = cfg.getString("private-key");
-
-            int ras_key_length = cfg.getInt("ras-key-length");
 
         }
 
