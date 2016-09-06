@@ -46,8 +46,7 @@ public class ZKClient extends BaseService {
     private TreeCache cache;
 
     private synchronized static ZKClient I() {
-        if (I == null) return new ZKClient();
-        else return I;
+        return I == null ? new ZKClient() : I;
     }
 
     private ZKClient() {
