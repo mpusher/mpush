@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public abstract class NettyServer extends BaseService implements Server {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final  Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
     public enum State {Created, Initialized, Starting, Started, Shutdown}
 
@@ -157,12 +157,12 @@ public abstract class NettyServer extends BaseService implements Server {
             /***
              * 绑定端口并启动去接收进来的连接
              */
-            ChannelFuture f = b.bind(port).sync().addListener((ChannelFutureListener) future -> {
+            ChannelFuture f = b.bind(port).sync().addListener(future -> {
                 if (future.isSuccess()) {
                     Logs.Console.info("server start success on:{}", port);
                     if (listener != null) listener.onSuccess(port);
                 } else {
-                    Logs.Console.info("server start failure on:{}", port, future.cause());
+                    Logs.Console.error("server start failure on:{}", port, future.cause());
                     if (listener != null) listener.onFailure(future.cause());
                 }
             });
