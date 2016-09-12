@@ -21,15 +21,14 @@ package com.mpush.client.push;
 
 import com.mpush.api.Constants;
 import com.mpush.api.connection.Connection;
-import com.mpush.api.push.AckModel;
-import com.mpush.api.push.PushCallback;
-import com.mpush.api.push.PushSender;
+import com.mpush.api.push.*;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.client.gateway.GatewayClientFactory;
 import com.mpush.common.router.ConnectionRouterManager;
 import com.mpush.common.router.RemoteRouter;
+import com.mpush.tools.Jsons;
 import com.mpush.zk.ZKClient;
 import com.mpush.zk.listener.ZKServerNodeWatcher;
 
@@ -40,69 +39,50 @@ import java.util.concurrent.FutureTask;
 
 import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
 
-/*package*/ class PushClient extends BaseService implements PushSender {
+/*package*/ final class PushClient extends BaseService implements PushSender {
     private static final int DEFAULT_TIMEOUT = 3000;
     private final GatewayClientFactory factory = GatewayClientFactory.I;
     private final ConnectionRouterManager routerManager = ConnectionRouterManager.I;
 
-    public void send(String content, Collection<String> userIds, PushCallback callback) {
-        send(content.getBytes(Constants.UTF_8), userIds, callback);
-    }
-
-    @Override
-    public FutureTask<Boolean> send(String content, String userId, PushCallback callback) {
-        return send(content.getBytes(Constants.UTF_8), userId, callback);
-    }
-
-    @Override
-    public void send(byte[] content, Collection<String> userIds, PushCallback callback) {
-        for (String userId : userIds) {
-            send(content, userId, callback);
+    private FutureTask<Boolean> send0(PushContext ctx) {
+        if (ctx.isBroadcast()) {
+            return PushRequest.build(this, ctx).broadcast();
+        } else {
+            Set<RemoteRouter> routers = routerManager.lookupAll(ctx.getUserId());
+            if (routers == null || routers.isEmpty()) {
+                return PushRequest.build(this, ctx).offline();
+            }
+            FutureTask<Boolean> task = null;
+            for (RemoteRouter router : routers) {
+                task = PushRequest.build(this, ctx).send(router);
+            }
+            return task;
         }
     }
 
     @Override
-    public FutureTask<Boolean> send(byte[] content, String userId, PushCallback callback) {
-        return send(content, userId, AckModel.NO_ACK, callback);
-    }
-
-    @Override
-    public void send(byte[] content, Collection<String> userIds, AckModel ackModel, PushCallback callback) {
-        for (String userId : userIds) {
-            send(content, userId, ackModel, callback);
+    public FutureTask<Boolean> send(PushContext ctx) {
+        if (ctx.getUserId() != null) {
+            return send0(ctx);
+        } else if (ctx.getUserIds() != null) {
+            FutureTask<Boolean> task = null;
+            for (String userId : ctx.getUserIds()) {
+                task = send0(ctx.setUserId(userId));
+            }
+            return task;
+        } else if (ctx.isBroadcast()) {
+            return send0(ctx.setUserId(null));
+        } else {
+            throw new PushException("param error.");
         }
     }
 
-    @Override
-    public FutureTask<Boolean> send(byte[] content, String userId, AckModel ackModel, PushCallback callback) {
-        Set<RemoteRouter> routers = routerManager.lookupAll(userId);
-        if (routers == null || routers.isEmpty()) {
-            return PushRequest
-                    .build(this)
-                    .setAckModel(ackModel)
-                    .setCallback(callback)
-                    .setUserId(userId)
-                    .setContent(content)
-                    .setTimeout(DEFAULT_TIMEOUT)
-                    .offline();
-
-        }
-        FutureTask<Boolean> task = null;
-        for (RemoteRouter router : routers) {
-            task = PushRequest
-                    .build(this)
-                    .setAckModel(ackModel)
-                    .setCallback(callback)
-                    .setUserId(userId)
-                    .setContent(content)
-                    .setTimeout(DEFAULT_TIMEOUT)
-                    .send(router);
-        }
-        return task;
-    }
-
-    public Connection getGatewayConnection(String host) {
+    Connection getGatewayConnection(String host) {
         return factory.getConnection(host);
+    }
+
+    Collection<Connection> getAllConnections() {
+        return factory.getAllConnections();
     }
 
     @Override

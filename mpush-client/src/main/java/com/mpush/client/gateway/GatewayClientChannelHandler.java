@@ -83,7 +83,7 @@ public final class GatewayClientChannelHandler extends ChannelInboundHandlerAdap
         }
 
         if (ok != null) {//推送成功
-            request.success();
+            request.success(ok.data);
         } else if (error != null) {//推送失败
             LOGGER.warn("receive an error gateway response, message={}", error);
             if (error.code == OFFLINE.errorCode) {//用户离线

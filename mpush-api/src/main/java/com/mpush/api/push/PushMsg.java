@@ -19,8 +19,6 @@
 
 package com.mpush.api.push;
 
-import java.io.Serializable;
-
 
 /**
  * msgId、msgType 必填
@@ -33,20 +31,19 @@ import java.io.Serializable;
  * msgType=3 :消息+提醒
  * 作为一个push消息过去。和jpush不一样。jpush的消息和提醒是分开发送的。
  */
-public final class PushContent implements Serializable {
-    private static final long serialVersionUID = -1805329333995385960L;
+public final class PushMsg {
+    private final MsgType msgType; //type
     private String msgId; //返回使用
     private String content; //content
-    private int msgType; //type
 
-    public PushContent(int msgType) {
+    public PushMsg(MsgType msgType) {
         this.msgType = msgType;
     }
 
-    public static PushContent build(PushType msgType, String content) {
-        PushContent pushContent = new PushContent(msgType.getValue());
-        pushContent.setContent(content);
-        return pushContent;
+    public static PushMsg build(MsgType msgType, String content) {
+        PushMsg pushMessage = new PushMsg(msgType);
+        pushMessage.setContent(content);
+        return pushMessage;
     }
 
     public String getMsgId() {
@@ -54,7 +51,7 @@ public final class PushContent implements Serializable {
     }
 
     public int getMsgType() {
-        return msgType;
+        return msgType.getValue();
     }
 
     public void setMsgId(String msgId) {
@@ -69,26 +66,5 @@ public final class PushContent implements Serializable {
         this.content = content;
     }
 
-    public enum PushType {
-        NOTIFICATION("提醒", 1),
-        MESSAGE("消息", 2),
-        NOTIFICATIONANDMESSAGE("提醒+消息", 3);
-
-        PushType(String desc, int value) {
-            this.desc = desc;
-            this.value = value;
-        }
-
-        private final String desc;
-        private final int value;
-
-        public String getDesc() {
-            return desc;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
 
 }

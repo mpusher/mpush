@@ -19,11 +19,15 @@
 
 package com.mpush.common.message.gateway;
 
+import com.google.gson.reflect.TypeToken;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 import com.mpush.common.message.ByteBufMessage;
+import com.mpush.tools.Jsons;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
+
+import java.util.Set;
 
 import static com.mpush.api.protocol.Command.GATEWAY_PUSH;
 
@@ -34,13 +38,13 @@ import static com.mpush.api.protocol.Command.GATEWAY_PUSH;
  */
 public class GatewayPushMessage extends ByteBufMessage {
     public String userId;
+    public Set<String> tags;
     public int clientType;
     public byte[] content;
 
-    public GatewayPushMessage(String userId, int clientType, byte[] content, Connection connection) {
+    public GatewayPushMessage(String userId, byte[] content, Connection connection) {
         super(new Packet(GATEWAY_PUSH, genSessionId()), connection);
         this.userId = userId;
-        this.clientType = clientType;
         this.content = content;
     }
 
@@ -51,6 +55,7 @@ public class GatewayPushMessage extends ByteBufMessage {
     @Override
     public void decode(ByteBuf body) {
         userId = decodeString(body);
+        tags = decodeSet(body);
         clientType = decodeInt(body);
         content = decodeBytes(body);
     }
@@ -58,8 +63,35 @@ public class GatewayPushMessage extends ByteBufMessage {
     @Override
     public void encode(ByteBuf body) {
         encodeString(body, userId);
+        encodeSet(body, tags);
         encodeInt(body, clientType);
         encodeBytes(body, content);
+    }
+
+    private Set<String> decodeSet(ByteBuf body) {
+        String json = decodeString(body);
+        if (json == null) return null;
+        return Jsons.fromJson(json, new TypeToken<Set<String>>() {
+        }.getType());
+    }
+
+    private void encodeSet(ByteBuf body, Set<String> field) {
+        String json = field == null ? null : Jsons.toJson(field);
+        encodeString(body, json);
+    }
+
+    public GatewayPushMessage setClientType(int clientType) {
+        this.clientType = clientType;
+        return this;
+    }
+
+    public GatewayPushMessage addFlag(byte flag) {
+        packet.addFlag(flag);
+        return this;
+    }
+
+    public boolean isBroadcast() {
+        return userId == null;
     }
 
     public boolean needAck() {
@@ -80,7 +112,7 @@ public class GatewayPushMessage extends ByteBufMessage {
     public String toString() {
         return "GatewayPushMessage{" +
                 "userId='" + userId + '\'' +
-                "clientType='" + clientType + '\'' +
+                ", clientType='" + clientType + '\'' +
                 ", content='" + content.length + '\'' +
                 '}';
     }

@@ -19,14 +19,14 @@
 
 package com.mpush.client.push;
 
+import com.mpush.api.Constants;
 import com.mpush.api.connection.Connection;
-import com.mpush.api.push.AckModel;
-import com.mpush.api.push.PushCallback;
-import com.mpush.api.push.PushSender;
+import com.mpush.api.push.*;
 import com.mpush.api.router.ClientLocation;
 import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.common.router.ConnectionRouterManager;
 import com.mpush.common.router.RemoteRouter;
+import com.mpush.tools.Jsons;
 import com.mpush.tools.common.TimeLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +61,7 @@ public class PushRequest extends FutureTask<Boolean> {
     private long timeout;
     private ClientLocation location;
     private Future<?> future;
+    private String result;
 
     private void sendToConnServer(RemoteRouter router) {
         timeLine.addTimePoint("lookup-remote");
@@ -85,19 +86,18 @@ public class PushRequest extends FutureTask<Boolean> {
 
         timeLine.addTimePoint("send-to-gateway-begin");
 
-        GatewayPushMessage pushMessage = new GatewayPushMessage(userId, location.getClientType(), content, gatewayConn);
-        pushMessage.getPacket().addFlag(ackModel.flag);
-
-        timeLine.addTimePoint("put-request-bus");
-        future = PushRequestBus.I.put(pushMessage.getSessionId(), this);
+        GatewayPushMessage pushMessage =
+                new GatewayPushMessage(userId, content, gatewayConn)
+                        .setClientType(location.getClientType())
+                        .addFlag(ackModel.flag);
 
         pushMessage.sendRaw(f -> {
             timeLine.addTimePoint("send-to-gateway-end");
-            if (f.isSuccess()) {
-            } else {
-                failure();
-            }
+            if (!f.isSuccess()) failure();
         });
+
+        timeLine.addTimePoint("put-request-bus");
+        future = PushRequestBus.I.put(pushMessage.getSessionId(), this);
     }
 
     private void submit(Status status) {
@@ -119,7 +119,11 @@ public class PushRequest extends FutureTask<Boolean> {
     public void run() {
         switch (status.get()) {
             case success:
-                callback.onSuccess(userId, location);
+                if (userId == null) {
+                    callback.onSuccess(Jsons.fromJsonToList(result, String[].class));
+                } else {
+                    callback.onSuccess(userId, location);
+                }
                 break;
             case failure:
                 callback.onFailure(userId, location);
@@ -163,11 +167,27 @@ public class PushRequest extends FutureTask<Boolean> {
         return this;
     }
 
+    public FutureTask<Boolean> broadcast() {
+        timeLine.begin();
+        client.getAllConnections().forEach(conn -> {
+            GatewayPushMessage pushMessage = new GatewayPushMessage(userId, content, conn)
+                    .addFlag(ackModel.flag);
+
+            pushMessage.sendRaw(f -> {
+                if (!f.isSuccess()) failure();
+            });
+
+            future = PushRequestBus.I.put(pushMessage.getSessionId(), this);
+        });
+        return this;
+    }
+
     public void timeout() {
         submit(Status.timeout);
     }
 
-    public void success() {
+    public void success(String data) {
+        this.result = data;
         submit(Status.success);
     }
 
@@ -184,8 +204,22 @@ public class PushRequest extends FutureTask<Boolean> {
         this.client = client;
     }
 
-    public static PushRequest build(PushClient client) {
-        return new PushRequest(client);
+    public static PushRequest build(PushClient client, PushContext ctx) {
+        byte[] content = ctx.getContext();
+        PushMsg msg = ctx.getPushMsg();
+        if (msg != null) {
+            String json = Jsons.toJson(msg);
+            if (json != null) {
+                content = json.getBytes(Constants.UTF_8);
+            }
+        }
+        return new PushRequest(client)
+                .setAckModel(ctx.getAckModel())
+                .setUserId(ctx.getUserId())
+                .setContent(content)
+                .setTimeout(ctx.getTimeout())
+                .setCallback(ctx.getCallback());
+
     }
 
     public PushRequest setCallback(PushCallback callback) {

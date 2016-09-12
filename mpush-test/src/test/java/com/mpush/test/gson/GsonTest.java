@@ -20,8 +20,8 @@
 package com.mpush.test.gson;
 
 import com.google.common.collect.Maps;
-import com.mpush.api.push.PushContent;
-import com.mpush.api.push.PushContent.PushType;
+import com.mpush.api.push.MsgType;
+import com.mpush.api.push.PushMsg;
 import com.mpush.tools.Jsons;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class GsonTest {
         map.put("key1", 1121 + "");
         map.put("key2", "value2");
 
-        PushContent content = PushContent.build(PushType.MESSAGE, Jsons.toJson(map));
+        PushMsg content = PushMsg.build(MsgType.MESSAGE, Jsons.toJson(map));
 
 
         System.out.println(Jsons.toJson(content));
@@ -46,12 +46,12 @@ public class GsonTest {
     public void test2() {
         ValueMap map = new ValueMap("1122", "value2");
 
-        PushContent content = PushContent.build(PushType.MESSAGE, Jsons.toJson(map));
+        PushMsg content = PushMsg.build(MsgType.MESSAGE, Jsons.toJson(map));
 
 
         System.out.println(Jsons.toJson(content));
 
-        PushContent newContetn = Jsons.fromJson(Jsons.toJson(content), PushContent.class);
+        PushMsg newContetn = Jsons.fromJson(Jsons.toJson(content), PushMsg.class);
 
         System.out.println(newContetn.getContent());
 

@@ -91,7 +91,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.write("welcome to " + Utils.getInetAddress() + "!" + EOL);
+        ctx.write("welcome to " + Utils.getLocalIp() + "!" + EOL);
         ctx.write("It is " + new Date() + " now." + EOL + EOL);
         ctx.flush();
     }
@@ -236,7 +236,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
                         LOGGER.info("delete connection server success:{}", data);
                         removeSuccess = true;
                     } else {
-                        LOGGER.info("delete connection server failed: required host:{}, but:{}", serverNode.getIp(), Utils.getInetAddress());
+                        LOGGER.info("delete connection server failed: required host:{}, but:{}", serverNode.getIp(), Utils.getLocalIp());
                     }
                 }
                 if (removeSuccess) {

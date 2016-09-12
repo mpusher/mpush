@@ -34,20 +34,37 @@ import java.util.concurrent.FutureTask;
  */
 public interface PushSender extends Service {
 
+    /**
+     * 创建PushSender实例
+     *
+     * @return PushSender
+     */
     static PushSender create() {
         return SpiLoader.load(PusherFactory.class).get();
     }
 
-    void send(String content, Collection<String> userIds, PushCallback callback);
+    /**
+     * 推送push消息
+     *
+     * @param context 推送参数
+     * @return FutureTask 可用于同步调用
+     */
+    FutureTask<Boolean> send(PushContext context);
 
-    FutureTask<Boolean> send(String content, String userId, PushCallback callback);
+    default FutureTask<Boolean> send(String context, String userId, PushCallback callback) {
+        return send(PushContext
+                .build(context)
+                .setUserId(userId)
+                .setCallback(callback)
+        );
+    }
 
-    void send(byte[] content, Collection<String> userIds, PushCallback callback);
-
-    FutureTask<Boolean> send(byte[] content, String userId, PushCallback callback);
-
-    void send(byte[] content, Collection<String> userIds, AckModel ackModel, PushCallback callback);
-
-    FutureTask<Boolean> send(byte[] content, String userId, AckModel ackModel, PushCallback callback);
-
+    default FutureTask<Boolean> send(String context, String userId, AckModel ackModel, PushCallback callback) {
+        return send(PushContext
+                .build(context)
+                .setAckModel(ackModel)
+                .setUserId(userId)
+                .setCallback(callback)
+        );
+    }
 }

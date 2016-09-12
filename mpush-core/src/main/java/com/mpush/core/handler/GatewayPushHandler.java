@@ -28,13 +28,25 @@ import com.mpush.common.message.OkMessage;
 import com.mpush.common.message.PushMessage;
 import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.common.router.RemoteRouter;
+import com.mpush.common.user.UserManager;
 import com.mpush.core.ack.AckCallback;
 import com.mpush.core.ack.AckContext;
 import com.mpush.core.ack.AckMessageQueue;
 import com.mpush.core.router.LocalRouter;
+import com.mpush.core.router.LocalRouterManager;
 import com.mpush.core.router.RouterCenter;
+import com.mpush.tools.Jsons;
 import com.mpush.tools.Utils;
+import com.mpush.tools.common.Pair;
 import com.mpush.tools.log.Logs;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.mpush.api.protocol.Command.ERROR;
 import static com.mpush.api.protocol.Command.OK;
@@ -68,12 +80,79 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
      * 2.如果用户真在另一台机器，让PushClient清理下本地缓存后，重新推送 (解决场景1,3)
      * <p>
      *
-     * @param message
+     * @param message message
      */
     @Override
     public void handle(GatewayPushMessage message) {
-        if (!checkLocal(message)) {
-            checkRemote(message);
+        if (message.isBroadcast()) {
+            sendBroadcast(message);
+        } else {
+            if (!checkLocal(message)) {
+                checkRemote(message);
+            }
+        }
+    }
+
+    /**
+     * 广播所有在线用户
+     *
+     * @param message message
+     */
+    private void sendBroadcast(GatewayPushMessage message) {
+        Set<String> sendUserIds = new CopyOnWriteArraySet<>();
+        LocalRouterManager routerManager = RouterCenter.I.getLocalRouterManager();
+        AtomicInteger tasks = new AtomicInteger();//总任务数, 0表示任务全部结束
+        long begin = System.currentTimeMillis();
+        for (int start = 0, limit = 1000; ; start += limit) {
+            List<String> userIds = UserManager.I.getOnlineUserList(start, limit);
+            tasks.addAndGet(userIds.size());//增加任务数
+
+            userIds.forEach(userId -> routerManager.lookupAll(userId).forEach(router -> {
+                Connection connection = router.getRouteValue();
+                int clientType = router.getClientType();
+
+                if (connection.isConnected()) {
+                    //TODO check tags sessionContext ?
+
+                    //3.链接可用，直接下发消息到手机客户端
+                    PushMessage pushMessage = new PushMessage(message.content, connection);
+                    pushMessage.getPacket().flags = message.getPacket().flags;
+
+                    pushMessage.send(future -> {
+
+                        if (!sendUserIds.contains(userId)) {
+                            tasks.decrementAndGet();//完成一个任务
+                        }
+
+                        if (future.isSuccess()) {//推送成功
+                            sendUserIds.add(userId);
+                            Logs.PUSH.info("gateway broadcast client success, userId={}, message={}", userId, message);
+
+                        } else {//推送失败
+                            Logs.PUSH.info("gateway broadcast client failure, userId={}, message={}", userId, message);
+                        }
+
+                        if (tasks.get() == 0) {//任务全部结束
+                            Logs.PUSH.info("gateway broadcast finished, cost={}, message={}", (System.currentTimeMillis() - begin), message);
+                            OkMessage.from(message).setData(Jsons.toJson(sendUserIds)).sendRaw();
+                        }
+                    });
+                } else { //2.如果链接失效，先删除本地失效的路由，再查下远程路由，看用户是否登陆到其他机器
+                    Logs.PUSH.info("gateway broadcast, router in local but disconnect, message={}", message);
+
+                    tasks.decrementAndGet();//完成一个任务
+
+                    //删除已经失效的本地路由
+                    RouterCenter.I.getLocalRouterManager().unRegister(userId, clientType);
+
+                    if (tasks.get() == 0) {//任务全部结束
+                        Logs.PUSH.info("gateway broadcast finished, cost={}, message={}", (System.currentTimeMillis() - begin), message);
+                        OkMessage.from(message).setData(Jsons.toJson(sendUserIds)).sendRaw();
+                    }
+                }
+            }));
+
+            if (userIds.size() != limit) break;//查询完毕
         }
     }
 
@@ -81,8 +160,8 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
      * 检查本地路由，如果存在并且链接可用直接推送
      * 否则要检查下远程路由
      *
-     * @param message
-     * @return
+     * @param message message
+     * @return true/false true:success
      */
     private boolean checkLocal(final GatewayPushMessage message) {
         String userId = message.userId;
@@ -136,7 +215,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
      * 如果是本机直接删除路由信息
      * 如果是其他机器让PushClient重推
      *
-     * @param message
+     * @param message message
      */
     private void checkRemote(GatewayPushMessage message) {
         String userId = message.userId;

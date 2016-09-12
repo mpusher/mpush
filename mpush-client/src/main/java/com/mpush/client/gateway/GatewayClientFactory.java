@@ -28,7 +28,9 @@ import com.mpush.zk.node.ZKServerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by yxx on 2016/5/17.
@@ -122,5 +124,9 @@ public class GatewayClientFactory extends ZKServerNodeCache {
                 logger.error("create gateway client ex, client={}", client, cause);
             }
         });
+    }
+
+    public Collection<Connection> getAllConnections() {
+        return ip_client.values().stream().map(GatewayClient::getConnection).collect(Collectors.toList());
     }
 }

@@ -19,18 +19,12 @@
 
 package com.mpush.test.push;
 
-import com.mpush.api.Constants;
-import com.mpush.api.push.AckModel;
-import com.mpush.api.push.PushCallback;
-import com.mpush.api.push.PushContent;
-import com.mpush.api.push.PushContent.PushType;
-import com.mpush.api.push.PushSender;
+import com.mpush.api.push.*;
 import com.mpush.api.router.ClientLocation;
-import com.mpush.tools.Jsons;
 import com.mpush.tools.log.Logs;
 
-import java.util.Arrays;
-import java.util.concurrent.locks.LockSupport;
+import java.util.List;
+import java.util.concurrent.FutureTask;
 
 /**
  * Created by ohun on 2016/1/7.
@@ -42,37 +36,42 @@ public class PushClientTestMain {
         Logs.init();
         PushSender sender = PushSender.create();
         sender.start().get();
-        for (int i = 0; i < 1; i++) {
-            PushContent content = PushContent.build(PushType.MESSAGE, "this a first push." + i);
-            content.setMsgId("msgId_" + (i % 2));
+        PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
+        msg.setMsgId("msgId_0");
 
-            Thread.sleep(1000);
-            sender.send(Jsons.toJson(content).getBytes(Constants.UTF_8),
-                    Arrays.asList("user-0", "doctor43test"),
-                    AckModel.AUTO_ACK,
-                    new PushCallback() {
-                        @Override
-                        public void onSuccess(String userId, ClientLocation location) {
-                            System.err.println("push onSuccess userId=" + userId);
-                        }
+        PushContext context = PushContext.build(msg)
+                .setBroadcast(true)
+                .setTimeout(100000)
+                .setCallback(new PushCallback() {
 
-                        @Override
-                        public void onFailure(String userId, ClientLocation location) {
-                            System.err.println("push onFailure userId=" + userId);
-                        }
+                    @Override
+                    public void onSuccess(List<String> userIds) {
+                        System.err.println("push onSuccess userId=" + userIds);
+                    }
 
-                        @Override
-                        public void onOffline(String userId, ClientLocation location) {
-                            System.err.println("push onOffline userId=" + userId);
-                        }
+                    @Override
+                    public void onSuccess(String userId, ClientLocation location) {
+                        System.err.println("push onSuccess userId=" + userId);
+                    }
 
-                        @Override
-                        public void onTimeout(String userId, ClientLocation location) {
-                            System.err.println("push onTimeout userId=" + userId);
-                        }
-                    });
-        }
-        LockSupport.park();
+                    @Override
+                    public void onFailure(String userId, ClientLocation location) {
+                        System.err.println("push onFailure userId=" + userId);
+                    }
+
+                    @Override
+                    public void onOffline(String userId, ClientLocation location) {
+                        System.err.println("push onOffline userId=" + userId);
+                    }
+
+                    @Override
+                    public void onTimeout(String userId, ClientLocation location) {
+                        System.err.println("push onTimeout userId=" + userId);
+                    }
+                });
+        Thread.sleep(1000);
+        FutureTask<Boolean> future = sender.send(context);
+        future.get();
     }
 
 }
