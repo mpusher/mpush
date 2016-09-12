@@ -34,12 +34,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.mpush.zk.ZKPath.REDIS_SERVER;
 
 public class ZKRedisClusterManager implements RedisClusterManager {
     public static final ZKRedisClusterManager I = new ZKRedisClusterManager();
+    private AtomicBoolean init = new AtomicBoolean(false);
 
     private ZKRedisClusterManager() {
     }
@@ -51,26 +53,28 @@ public class ZKRedisClusterManager implements RedisClusterManager {
      */
     @Override
     public void init() {
-        Logs.Console.info("begin init redis cluster");
-        if (!ZKClient.I.isRunning()) throw new RedisException("init redis cluster ex, ZK client not running.");
-        List<com.mpush.tools.config.data.RedisGroup> groupList = CC.mp.redis.cluster_group;
+        if (init.compareAndSet(false, true)) {
+            Logs.Console.info("begin init redis cluster");
+            if (!ZKClient.I.isRunning()) throw new RedisException("init redis cluster ex, ZK client not running.");
+            List<com.mpush.tools.config.data.RedisGroup> groupList = CC.mp.redis.cluster_group;
 
-        if (CollectionUtils.isNotEmpty(groupList)) {
-            register(groupList);
+            if (CollectionUtils.isNotEmpty(groupList)) {
+                register(groupList);
+            }
+
+            ZKRedisNodeWatcher watcher = new ZKRedisNodeWatcher();
+            watcher.beginWatch();
+            Collection<ZKRedisNode> nodes = watcher.getCache().values();
+            if (CollectionUtils.isEmpty(nodes)) {
+                Logs.REDIS.error("init redis client error, redis server is none.");
+                throw new RedisException("init redis client error, redis server is none.");
+            }
+
+            nodes.stream().map(RedisGroup::from).forEach(groups::add);
+
+            if (groups.isEmpty()) throw new RedisException("init redis sever fail groupList is null");
+            Logs.Console.info("init redis cluster success...");
         }
-
-        ZKRedisNodeWatcher watcher = new ZKRedisNodeWatcher();
-        watcher.beginWatch();
-        Collection<ZKRedisNode> nodes = watcher.getCache().values();
-        if (CollectionUtils.isEmpty(nodes)) {
-            Logs.REDIS.error("init redis client error, redis server is none.");
-            throw new RedisException("init redis client error, redis server is none.");
-        }
-
-        nodes.stream().map(RedisGroup::from).forEach(groups::add);
-
-        if (groups.isEmpty()) throw new RedisException("init redis sever fail groupList is null");
-        Logs.Console.info("init redis cluster success...");
     }
 
     @Override

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,19 +14,25 @@
  * limitations under the License.
  *
  * Contributors:
- *   ohun@live.cn (夜色)
+ *     ohun@live.cn (夜色)
  */
 
-package com.mpush.test.redis;
+package com.mpush.test.util;
 
 import com.mpush.tools.Utils;
 import org.junit.Test;
 
-public class MPushUtilTest {
-
+/**
+ * Created by ohun on 16/9/8.
+ *
+ * @author ohun@live.cn (夜色)
+ */
+public class IPTest {
     @Test
-    public void getIp() throws Exception {
-        System.out.println(Utils.getExtranetAddress());
-    }
+    public void getLocalIP() throws Exception {
+        System.out.println(Utils.getLocalIp());
+        System.out.println(Utils.getExtranetIp());
 
+    }
 }
+

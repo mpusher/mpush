@@ -53,6 +53,12 @@ public class ZKClient extends BaseService {
     }
 
     @Override
+    public void start(Listener listener) {
+        if (isRunning()) return;
+        super.start(listener);
+    }
+
+    @Override
     protected void doStart(Listener listener) throws Throwable {
         client.start();
         Logs.Console.info("init zk client waiting for connected...");

@@ -118,9 +118,9 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
             HttpResponseMessage response = HttpResponseMessage
                     .from(request)
                     .setStatusCode(httpResponse.status().code())
-                    .setReasonPhrase(httpResponse.status().reasonPhrase().toString());
+                    .setReasonPhrase(httpResponse.status().reasonPhrase());
             for (Map.Entry<String, String> entry : httpResponse.headers()) {
-                response.addHeader(entry.getKey().toString(), entry.getValue().toString());
+                response.addHeader(entry.getKey(), entry.getValue());
             }
 
             if (httpResponse instanceof FullHttpResponse) {
