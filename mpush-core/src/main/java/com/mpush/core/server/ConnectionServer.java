@@ -43,6 +43,8 @@ import static com.mpush.tools.config.CC.mp.net.traffic_shaping.connect_server.*;
 
 /**
  * Created by ohun on 2015/12/30.
+ *
+ * @author ohun@live.cn (夜色)
  */
 public final class ConnectionServer extends NettyServer {
     private ServerChannelHandler channelHandler;
@@ -88,7 +90,9 @@ public final class ConnectionServer extends NettyServer {
             trafficShapingHandler.release();
         }
         super.stop(listener);
-        if (httpClient != null) httpClient.stop();
+        if (httpClient != null && httpClient.isRunning()) {
+            httpClient.stop();
+        }
         connectionManager.destroy();
     }
 

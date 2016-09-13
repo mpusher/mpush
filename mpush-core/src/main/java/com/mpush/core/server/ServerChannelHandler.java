@@ -97,4 +97,9 @@ public final class ServerChannelHandler extends ChannelInboundHandlerAdapter {
         EventBus.I.post(new ConnectionCloseEvent(connection));
         Logs.Conn.info("client disconnect channel={}, connection={}", ctx.channel(), connection);
     }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        super.userEventTriggered(ctx, evt);
+    }
 }
