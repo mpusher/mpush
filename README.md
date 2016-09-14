@@ -4,7 +4,7 @@
 * 文档：[https://mpusher.github.io/docs](https://mpusher.github.io/docs)
 * QQ群：__114583699__ <a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=1de86266c76d00c246c3c7f29cc002667d1c26fcc2f14d2a7b75b3126708e2e1"><img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="MPUSH开源消息推送系统" title="MPUSH开源消息推送系统"></a>
 
-## 各服务依赖关系图
+## 服务调用关系
 ![](https://mpusher.github.io/docs/服务依赖关系.png)
 
 ## 源码测试
