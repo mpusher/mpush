@@ -63,8 +63,13 @@ public final class RedisClient {
     public static Jedis getClient(RedisServer node) {
         JedisPool pool = POOL_MAP.get(node);
         if (pool == null) {
-            pool = new JedisPool(CONFIG, node.getHost(), node.getPort(), DEFAULT_TIMEOUT, node.getPassword());
-            POOL_MAP.put(node, pool);
+            synchronized (POOL_MAP) {
+                pool = POOL_MAP.get(node);
+                if (pool == null) {
+                    pool = new JedisPool(CONFIG, node.getHost(), node.getPort(), DEFAULT_TIMEOUT, node.getPassword());
+                    POOL_MAP.put(node, pool);
+                }
+            }
         }
         return pool.getResource();
     }

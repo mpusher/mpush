@@ -34,6 +34,14 @@ public final class RemoteRouter implements Router<ClientLocation> {
         this.clientLocation = clientLocation;
     }
 
+    public boolean isOnline(){
+        return clientLocation.isOnline();
+    }
+
+    public boolean isOffline(){
+        return clientLocation.isOffline();
+    }
+
     @Override
     public ClientLocation getRouteValue() {
         return clientLocation;

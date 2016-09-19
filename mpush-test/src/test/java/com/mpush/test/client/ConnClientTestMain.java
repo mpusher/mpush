@@ -26,6 +26,7 @@ import com.mpush.common.security.CipherBox;
 import com.mpush.tools.log.Logs;
 import com.mpush.zk.node.ZKServerNode;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
@@ -41,8 +42,7 @@ public class ConnClientTestMain {
 
         int index = (int) ((Math.random() % serverList.size()) * serverList.size());
         ZKServerNode server = serverList.get(index);
-        //server = new ZKServerNode("127.0.0.1", 3000, "127.0.0.1", null);
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1; i++) {
             String clientVersion = "1.0." + i;
             String osName = "android";
             String osVersion = "1.0.1";

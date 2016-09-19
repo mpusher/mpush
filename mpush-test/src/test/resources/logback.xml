@@ -23,7 +23,7 @@
     </appender>
 
     <root>
-        <level value="info"/>
+        <level value="debug"/>
         <appender-ref ref="STDOUT"/>
     </root>
     <logger name="org.apache.zookeeper.ClientCnxn" level="error"/>

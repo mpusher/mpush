@@ -24,14 +24,13 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.push.*;
 import com.mpush.api.router.ClientLocation;
 import com.mpush.common.message.gateway.GatewayPushMessage;
-import com.mpush.common.router.ConnectionRouterManager;
+import com.mpush.common.router.CachedRemoteRouterManager;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.common.TimeLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -63,10 +62,10 @@ public class PushRequest extends FutureTask<Boolean> {
     private Future<?> future;
     private String result;
 
-    private void sendToConnServer(RemoteRouter router) {
+    private void sendToConnServer(RemoteRouter remoteRouter) {
         timeLine.addTimePoint("lookup-remote");
 
-        if (router == null) {
+        if (remoteRouter == null || remoteRouter.isOffline()) {
             //1.1没有查到说明用户已经下线
             offline();
             return;
@@ -76,7 +75,7 @@ public class PushRequest extends FutureTask<Boolean> {
 
 
         //2.通过网关连接，把消息发送到所在机器
-        location = router.getRouteValue();
+        location = remoteRouter.getRouteValue();
         Connection gatewayConn = client.getGatewayConnection(location.getHost());
         if (gatewayConn == null) {
             LOGGER.error("get gateway connection failure, location={}", location);
@@ -154,15 +153,15 @@ public class PushRequest extends FutureTask<Boolean> {
     public void redirect() {
         timeLine.addTimePoint("redirect");
         LOGGER.warn("user route has changed, userId={}, location={}", userId, location);
-        ConnectionRouterManager.I.invalidateLocalCache(userId);
+        CachedRemoteRouterManager.I.invalidateLocalCache(userId);
         if (status.get() == Status.init) {//表示任务还没有完成，还可以重新发送
-            RemoteRouter route = ConnectionRouterManager.I.lookup(userId, location.getClientType());
-            send(route);
+            RemoteRouter remoteRouter = CachedRemoteRouterManager.I.lookup(userId, location.getClientType());
+            send(remoteRouter);
         }
     }
 
     public FutureTask<Boolean> offline() {
-        ConnectionRouterManager.I.invalidateLocalCache(userId);
+        CachedRemoteRouterManager.I.invalidateLocalCache(userId);
         submit(Status.offline);
         return this;
     }

@@ -55,6 +55,7 @@ public class RedisGroup {
     }
 
     public RedisServer get(String key) {
+        if (redisServerList.size() == 1) return redisServerList.get(0);
         int i = key.hashCode() % redisServerList.size();
         return redisServerList.get(i);
     }

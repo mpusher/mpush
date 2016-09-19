@@ -47,23 +47,30 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
 
     @Override
     public RemoteRouter register(String userId, RemoteRouter router) {
-        LOGGER.info("register remote router success userId={}, router={}", userId, router);
         String key = RedisKey.getUserKey(userId);
         String field = Integer.toString(router.getRouteValue().getClientType());
         ClientLocation old = RedisManager.I.hget(key, field, ClientLocation.class);
-        if (old != null) {
-            RedisManager.I.hdel(key, field);
-        }
         RedisManager.I.hset(key, field, router.getRouteValue());
+        LOGGER.info("register remote router success userId={}, newRouter={}, oldRoute={}", userId, router, old);
         return old == null ? null : new RemoteRouter(old);
     }
 
+    /**
+     * 目前的实现方式是非原子操作(get->set)，可能会有并发问题，虽然概率很低
+     * 后续考虑采用lua脚本，实现原子操作
+     *
+     * @param userId     用户ID
+     * @param clientType 客户端类型
+     * @return 删除路由是否成功
+     */
     @Override
     public boolean unRegister(String userId, int clientType) {
         String key = RedisKey.getUserKey(userId);
         String field = Integer.toString(clientType);
-        RedisManager.I.hdel(key, field);
-        LOGGER.info("unRegister remote router success userId={}, clientType={}", userId, clientType);
+        ClientLocation location = RedisManager.I.hget(key, field, ClientLocation.class);
+        if (location == null || location.isOffline()) return true;
+        RedisManager.I.hset(key, field, location.offline());
+        LOGGER.info("unRegister remote router success userId={}, route={}", userId, location);
         return true;
     }
 
@@ -99,12 +106,12 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
         String key = RedisKey.getUserKey(userId);
         String field = Integer.toString(context.getClientType());
         ClientLocation location = RedisManager.I.hget(key, field, ClientLocation.class);
-        if (location == null) return;
+        if (location == null || location.isOffline()) return;
 
         String connId = connection.getId();
         //2.检测下，是否是同一个链接, 如果客户端重连，老的路由会被新的链接覆盖
         if (connId.equals(location.getConnId())) {
-            RedisManager.I.hdel(key, field);
+            RedisManager.I.hset(key, field, location.offline());
             LOGGER.info("clean disconnected remote route, userId={}, route={}", userId, location);
         } else {
             LOGGER.info("clean disconnected remote route, not clean:userId={}, route={}", userId, location);

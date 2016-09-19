@@ -19,21 +19,18 @@
 
 package com.mpush.client.push;
 
-import com.mpush.api.Constants;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.push.*;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.client.gateway.GatewayClientFactory;
-import com.mpush.common.router.ConnectionRouterManager;
+import com.mpush.common.router.CachedRemoteRouterManager;
 import com.mpush.common.router.RemoteRouter;
-import com.mpush.tools.Jsons;
 import com.mpush.zk.ZKClient;
 import com.mpush.zk.listener.ZKServerNodeWatcher;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.FutureTask;
 
@@ -42,19 +39,19 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
 /*package*/ final class PushClient extends BaseService implements PushSender {
     private static final int DEFAULT_TIMEOUT = 3000;
     private final GatewayClientFactory factory = GatewayClientFactory.I;
-    private final ConnectionRouterManager routerManager = ConnectionRouterManager.I;
+    private final CachedRemoteRouterManager routerManager = CachedRemoteRouterManager.I;
 
     private FutureTask<Boolean> send0(PushContext ctx) {
         if (ctx.isBroadcast()) {
             return PushRequest.build(this, ctx).broadcast();
         } else {
-            Set<RemoteRouter> routers = routerManager.lookupAll(ctx.getUserId());
-            if (routers == null || routers.isEmpty()) {
+            Set<RemoteRouter> remoteRouters = routerManager.lookupAll(ctx.getUserId());
+            if (remoteRouters == null || remoteRouters.isEmpty()) {
                 return PushRequest.build(this, ctx).offline();
             }
             FutureTask<Boolean> task = null;
-            for (RemoteRouter router : routers) {
-                task = PushRequest.build(this, ctx).send(router);
+            for (RemoteRouter remoteRouter : remoteRouters) {
+                task = PushRequest.build(this, ctx).send(remoteRouter);
             }
             return task;
         }

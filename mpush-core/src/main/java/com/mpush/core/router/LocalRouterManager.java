@@ -90,17 +90,17 @@ public final class LocalRouterManager extends EventConsumer implements RouterMan
 
         EventBus.I.post(new UserOfflineEvent(event.connection, userId));
         int clientType = context.getClientType();
-        LocalRouter router = routers.getOrDefault(userId, EMPTY).get(clientType);
-        if (router == null) return;
+        LocalRouter localRouter = routers.getOrDefault(userId, EMPTY).get(clientType);
+        if (localRouter == null) return;
 
         String connId = connection.getId();
         //2.检测下，是否是同一个链接, 如果客户端重连，老的路由会被新的链接覆盖
-        if (connId.equals(router.getRouteValue().getId())) {
+        if (connId.equals(localRouter.getRouteValue().getId())) {
             //3.删除路由
             routers.getOrDefault(userId, EMPTY).remove(clientType);
-            LOGGER.info("clean disconnected local route, userId={}, route={}", userId, router);
+            LOGGER.info("clean disconnected local route, userId={}, route={}", userId, localRouter);
         } else { //如果不相等，则log一下
-            LOGGER.info("clean disconnected local route, not clean:userId={}, route={}", userId, router);
+            LOGGER.info("clean disconnected local route, not clean:userId={}, route={}", userId, localRouter);
         }
     }
 }

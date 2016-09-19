@@ -22,7 +22,6 @@ package com.mpush.core.router;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.event.RouterChangeEvent;
 import com.mpush.api.router.ClientLocation;
-import com.mpush.api.router.ClientType;
 import com.mpush.api.router.Router;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.router.RemoteRouterManager;
@@ -30,8 +29,6 @@ import com.mpush.tools.Utils;
 import com.mpush.tools.event.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Set;
 
 /**
  * Created by ohun on 2015/12/23.
@@ -45,7 +42,7 @@ public final class RouterCenter {
     private final LocalRouterManager localRouterManager = new LocalRouterManager();
     private final RemoteRouterManager remoteRouterManager = new RemoteRouterManager();
     private final RouterChangeListener routerChangeListener = new RouterChangeListener();
-    private final UserOnlineOfflineListener userOnlineOfflineListener = new UserOnlineOfflineListener();
+    private final UserEventConsumer userEventConsumer = new UserEventConsumer();
 
 
     /**
@@ -77,7 +74,7 @@ public final class RouterCenter {
             LOGGER.info("register router success, find old local router={}, userId={}", oldLocalRouter, userId);
         }
 
-        if (oldRemoteRouter != null) {
+        if (oldRemoteRouter != null && oldRemoteRouter.isOnline()) {
             EventBus.I.post(new RouterChangeEvent(userId, oldRemoteRouter));
             LOGGER.info("register router success, find old remote router={}, userId={}", oldRemoteRouter, userId);
         }
@@ -95,13 +92,6 @@ public final class RouterCenter {
         if (local != null) return local;
         RemoteRouter remote = remoteRouterManager.lookup(userId, clientType);
         return remote;
-    }
-
-    public Set<? extends Router<?>> lookupAll(String userId) {
-        Set<LocalRouter> locals = localRouterManager.lookupAll(userId);
-        if (locals != null) return locals;
-        Set<RemoteRouter> remotes = remoteRouterManager.lookupAll(userId);
-        return remotes;
     }
 
     public LocalRouterManager getLocalRouterManager() {

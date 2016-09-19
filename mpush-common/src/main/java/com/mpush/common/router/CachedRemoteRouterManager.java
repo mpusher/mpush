@@ -21,17 +21,17 @@ package com.mpush.common.router;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.mpush.api.router.ClientType;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ohun on 2016/1/4.
+ *
+ * @author ohun@live.cn (夜色)
  */
-public final class ConnectionRouterManager extends RemoteRouterManager {
-    public static final ConnectionRouterManager I = new ConnectionRouterManager();
-    // TODO: 2015/12/30 可以增加一层本地缓存，防止疯狂查询redis, 但是要注意失效问题及数据不一致问题
+public final class CachedRemoteRouterManager extends RemoteRouterManager {
+    public static final CachedRemoteRouterManager I = new CachedRemoteRouterManager();
     private final Cache<String, Set<RemoteRouter>> cache = CacheBuilder
             .newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
@@ -42,19 +42,19 @@ public final class ConnectionRouterManager extends RemoteRouterManager {
     public Set<RemoteRouter> lookupAll(String userId) {
         Set<RemoteRouter> cached = cache.getIfPresent(userId);
         if (cached != null) return cached;
-        Set<RemoteRouter> router = super.lookupAll(userId);
-        if (router != null) {
-            cache.put(userId, router);
+        Set<RemoteRouter> remoteRouters = super.lookupAll(userId);
+        if (remoteRouters != null) {
+            cache.put(userId, remoteRouters);
         }
-        return router;
+        return remoteRouters;
     }
 
     @Override
     public RemoteRouter lookup(String userId, int clientType) {
         Set<RemoteRouter> cached = this.lookupAll(userId);
-        for (RemoteRouter router : cached) {
-            if (router.getRouteValue().getClientType() == clientType) {
-                return router;
+        for (RemoteRouter remoteRouter : cached) {
+            if (remoteRouter.getRouteValue().getClientType() == clientType) {
+                return remoteRouter;
             }
         }
         return null;

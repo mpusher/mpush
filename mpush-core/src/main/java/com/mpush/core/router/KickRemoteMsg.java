@@ -29,6 +29,7 @@ import com.mpush.api.router.ClientType;
 public final class KickRemoteMsg {
     public String userId;
     public String deviceId;
+    public String connId;
     public int clientType;
     public String targetServer;
 
@@ -37,6 +38,7 @@ public final class KickRemoteMsg {
         return "KickRemoteMsg{"
                 + "userId='" + userId + '\''
                 + ", deviceId='" + deviceId + '\''
+                + ", connId='" + connId + '\''
                 + ", clientType='" + clientType + '\''
                 + ", targetServer='" + targetServer + '\''
                 + '}';

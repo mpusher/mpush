@@ -166,12 +166,12 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
     private boolean checkLocal(final GatewayPushMessage message) {
         String userId = message.userId;
         int clientType = message.clientType;
-        LocalRouter router = RouterCenter.I.getLocalRouterManager().lookup(userId, clientType);
+        LocalRouter localRouter = RouterCenter.I.getLocalRouterManager().lookup(userId, clientType);
 
         //1.如果本机不存在，再查下远程，看用户是否登陆到其他机器
-        if (router == null) return false;
+        if (localRouter == null) return false;
 
-        Connection connection = router.getRouteValue();
+        Connection connection = localRouter.getRouteValue();
 
         //2.如果链接失效，先删除本地失效的路由，再查下远程路由，看用户是否登陆到其他机器
         if (!connection.isConnected()) {
@@ -220,10 +220,10 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
     private void checkRemote(GatewayPushMessage message) {
         String userId = message.userId;
         int clientType = message.clientType;
-        RemoteRouter router = RouterCenter.I.getRemoteRouterManager().lookup(userId, clientType);
+        RemoteRouter remoteRouter = RouterCenter.I.getRemoteRouterManager().lookup(userId, clientType);
 
         // 1.如果远程路由信息也不存在, 说明用户此时不在线，
-        if (router == null) {
+        if (remoteRouter == null || remoteRouter.isOffline()) {
 
             ErrorMessage.from(message).setErrorCode(OFFLINE).setData(userId + ',' + clientType).sendRaw();
 
@@ -233,14 +233,14 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
         }
 
         //2.如果查出的远程机器是当前机器，说明路由已经失效，此时用户已下线，需要删除失效的缓存
-        if (Utils.getLocalIp().equals(router.getRouteValue().getHost())) {
+        if (Utils.getLocalIp().equals(remoteRouter.getRouteValue().getHost())) {
 
             ErrorMessage.from(message).setErrorCode(OFFLINE).setData(userId + ',' + clientType).sendRaw();
 
             //删除失效的远程缓存
             RouterCenter.I.getRemoteRouterManager().unRegister(userId, clientType);
 
-            Logs.PUSH.info("gateway push error remote is local, userId={}, clientType={}, router={}", userId, clientType, router);
+            Logs.PUSH.info("gateway push error remote is local, userId={}, clientType={}, router={}", userId, clientType, remoteRouter);
 
             return;
         }
@@ -248,7 +248,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
         //3.否则说明用户已经跑到另外一台机器上了；路由信息发生更改，让PushClient重推
         ErrorMessage.from(message).setErrorCode(ROUTER_CHANGE).setData(userId + ',' + clientType).sendRaw();
 
-        Logs.PUSH.info("gateway push, router in remote userId={}, clientType={}, router={}", userId, clientType, router);
+        Logs.PUSH.info("gateway push, router in remote userId={}, clientType={}, router={}", userId, clientType, remoteRouter);
 
     }
 

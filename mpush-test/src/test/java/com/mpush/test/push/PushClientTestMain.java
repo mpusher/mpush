@@ -40,7 +40,8 @@ public class PushClientTestMain {
         msg.setMsgId("msgId_0");
 
         PushContext context = PushContext.build(msg)
-                .setBroadcast(true)
+                .setBroadcast(false)
+                .setUserId("user-0")
                 .setTimeout(100000)
                 .setCallback(new PushCallback() {
 

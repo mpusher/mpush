@@ -107,6 +107,19 @@ public final class ClientLocation {
         return clientType;
     }
 
+    public boolean isOnline() {
+        return connId != null;
+    }
+
+    public boolean isOffline() {
+        return connId == null;
+    }
+
+    public ClientLocation offline() {
+        this.connId = null;
+        return this;
+    }
+
     public static ClientLocation from(Connection connection) {
         SessionContext context = connection.getSessionContext();
         ClientLocation location = new ClientLocation();

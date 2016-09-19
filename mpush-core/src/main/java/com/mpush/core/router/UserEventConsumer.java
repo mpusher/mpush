@@ -24,32 +24,27 @@ import com.mpush.api.event.UserOfflineEvent;
 import com.mpush.api.event.UserOnlineEvent;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.common.user.UserManager;
-import com.mpush.tools.event.EventBus;
+import com.mpush.tools.event.EventConsumer;
+
+import static com.mpush.api.event.Topics.OFFLINE_CHANNEL;
+import static com.mpush.api.event.Topics.ONLINE_CHANNEL;
 
 /**
  * Created by ohun on 2015/12/23.
  *
  * @author ohun@live.cn
  */
-public final class UserOnlineOfflineListener {
-
-    public static final String ONLINE_CHANNEL = "/mpush/online/";
-
-    public static final String OFFLINE_CHANNEL = "/mpush/offline/";
-
-    public UserOnlineOfflineListener() {
-        EventBus.I.register(this);
-    }
+/*package*/ final class UserEventConsumer extends EventConsumer {
 
     @Subscribe
     void on(UserOnlineEvent event) {
-        UserManager.I.recordUserOnline(event.getUserId());
+        UserManager.I.addToOnlineList(event.getUserId());
         RedisManager.I.publish(ONLINE_CHANNEL, event.getUserId());
     }
 
     @Subscribe
     void on(UserOfflineEvent event) {
-        UserManager.I.recordUserOffline(event.getUserId());
+        UserManager.I.remFormOnlineList(event.getUserId());
         RedisManager.I.publish(OFFLINE_CHANNEL, event.getUserId());
     }
 }

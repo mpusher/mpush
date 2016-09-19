@@ -38,12 +38,12 @@ public final class UserManager {
         RedisManager.I.del(ONLINE_KEY);
     }
 
-    public void recordUserOnline(String userId) {
+    public void addToOnlineList(String userId) {
         RedisManager.I.zAdd(ONLINE_KEY, userId);
         LOGGER.info("user online {}", userId);
     }
 
-    public void recordUserOffline(String userId) {
+    public void remFormOnlineList(String userId) {
         RedisManager.I.zRem(ONLINE_KEY, userId);
         LOGGER.info("user offline {}", userId);
     }
