@@ -46,6 +46,10 @@ public class ZKClient extends BaseService {
     private TreeCache cache;
     private Map<String, String> ephemeralNodes = new LinkedHashMap<>();
 
+    public static ZKClient get() {
+        return I;
+    }
+
     private synchronized static ZKClient I() {
         return I == null ? new ZKClient() : I;
     }
