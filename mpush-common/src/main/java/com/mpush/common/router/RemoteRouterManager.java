@@ -56,7 +56,7 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
     }
 
     /**
-     * 目前的实现方式是非原子操作(get->set)，可能会有并发问题，虽然概率很低
+     * 目前的实现方式是非原子操作(get:set)，可能会有并发问题，虽然概率很低
      * 后续考虑采用lua脚本，实现原子操作
      *
      * @param userId     用户ID
