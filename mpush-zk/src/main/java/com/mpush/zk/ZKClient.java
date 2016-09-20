@@ -30,13 +30,13 @@ import org.apache.curator.framework.CuratorFrameworkFactory.Builder;
 import org.apache.curator.framework.api.ACLProvider;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class ZKClient extends BaseService {
@@ -44,6 +44,7 @@ public class ZKClient extends BaseService {
     private ZKConfig zkConfig;
     private CuratorFramework client;
     private TreeCache cache;
+    private Map<String, String> ephemeralNodes = new LinkedHashMap<>();
 
     private synchronized static ZKClient I() {
         return I == null ? new ZKClient() : I;
@@ -120,10 +121,12 @@ public class ZKClient extends BaseService {
 
     // 注册连接状态监听器
     private void addConnectionStateListener() {
-        client.getConnectionStateListenable()
-                .addListener((cli, newState)
-                        -> Logs.ZK.warn("zk connection state changed new state={}, isConnected={}",
-                        newState, newState.isConnected()));
+        client.getConnectionStateListenable().addListener((cli, newState) -> {
+            if (newState == ConnectionState.RECONNECTED) {
+                ephemeralNodes.forEach(this::registerEphemeralSequential);
+            }
+            Logs.ZK.warn("zk connection state changed new state={}, isConnected={}", newState, newState.isConnected());
+        });
     }
 
     // 本地缓存
@@ -261,6 +264,7 @@ public class ZKClient extends BaseService {
     public void registerEphemeralSequential(final String key, final String value) {
         try {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key, value.getBytes());
+            ephemeralNodes.put(key, value);
         } catch (Exception ex) {
             Logs.ZK.error("persistEphemeralSequential:{},{}", key, value, ex);
             throw new ZKException(ex);
