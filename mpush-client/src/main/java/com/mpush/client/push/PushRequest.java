@@ -65,6 +65,10 @@ public class PushRequest extends FutureTask<Boolean> {
     private void sendToConnServer(RemoteRouter remoteRouter) {
         timeLine.addTimePoint("lookup-remote");
 
+        if (remoteRouter != null) {
+            location = remoteRouter.getRouteValue();
+        }
+
         if (remoteRouter == null || remoteRouter.isOffline()) {
             //1.1没有查到说明用户已经下线
             offline();
@@ -75,7 +79,6 @@ public class PushRequest extends FutureTask<Boolean> {
 
 
         //2.通过网关连接，把消息发送到所在机器
-        location = remoteRouter.getRouteValue();
         Connection gatewayConn = client.getGatewayConnection(location.getHost());
         if (gatewayConn == null) {
             LOGGER.error("get gateway connection failure, location={}", location);
@@ -116,26 +119,15 @@ public class PushRequest extends FutureTask<Boolean> {
 
     @Override
     public void run() {
-        switch (status.get()) {
-            case success:
-                if (userId == null) {
-                    callback.onSuccess(Jsons.fromJsonToList(result, String[].class));
-                } else {
-                    callback.onSuccess(userId, location);
-                }
-                break;
-            case failure:
-                callback.onFailure(userId, location);
-                break;
-            case offline:
-                callback.onOffline(userId, location);
-                break;
-            case timeout:
-                callback.onTimeout(userId, location);
-                break;
-            case init://从定时任务过来的，超时时间到了
-                submit(Status.timeout);
-                break;
+        if (status.get() == Status.init) {//从定时任务过来的，超时时间到了
+            submit(Status.timeout);
+        } else {
+            callback.onResult(new PushResult(status.get().ordinal())
+                    .setUserId(userId)
+                    .setUserIds(userId == null ? Jsons.fromJson(result, String[].class) : null)
+                    .setLocation(location)
+                    .setTimeLine(timeLine.getTimePoints())
+            );
         }
     }
 

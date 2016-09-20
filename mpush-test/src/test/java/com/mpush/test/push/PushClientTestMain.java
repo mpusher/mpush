@@ -23,6 +23,7 @@ import com.mpush.api.push.*;
 import com.mpush.api.router.ClientLocation;
 import com.mpush.tools.log.Logs;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.FutureTask;
 
@@ -41,33 +42,12 @@ public class PushClientTestMain {
 
         PushContext context = PushContext.build(msg)
                 .setBroadcast(false)
-                .setUserId("user-0")
+                .setUserIds(Arrays.asList("user-0", "user-1"))
                 .setTimeout(100000)
                 .setCallback(new PushCallback() {
-
                     @Override
-                    public void onSuccess(List<String> userIds) {
-                        System.err.println("push onSuccess userId=" + userIds);
-                    }
-
-                    @Override
-                    public void onSuccess(String userId, ClientLocation location) {
-                        System.err.println("push onSuccess userId=" + userId);
-                    }
-
-                    @Override
-                    public void onFailure(String userId, ClientLocation location) {
-                        System.err.println("push onFailure userId=" + userId);
-                    }
-
-                    @Override
-                    public void onOffline(String userId, ClientLocation location) {
-                        System.err.println("push onOffline userId=" + userId);
-                    }
-
-                    @Override
-                    public void onTimeout(String userId, ClientLocation location) {
-                        System.err.println("push onTimeout userId=" + userId);
+                    public void onResult(PushResult result) {
+                        System.err.println(result);
                     }
                 });
         Thread.sleep(1000);

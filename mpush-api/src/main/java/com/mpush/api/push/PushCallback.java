@@ -11,6 +11,27 @@ import java.util.List;
  */
 public interface PushCallback {
 
+    default void onResult(PushResult result) {
+        switch (result.resultCode) {
+            case PushResult.CODE_SUCCESS:
+                if (result.userId != null) {
+                    onSuccess(result.userId, result.location);
+                } else {
+                    onSuccess(result.userIds);
+                }
+                break;
+            case PushResult.CODE_FAILURE:
+                onFailure(result.userId, result.location);
+                break;
+            case PushResult.CODE_OFFLINE:
+                onOffline(result.userId, result.location);
+                break;
+            case PushResult.CODE_TIMEOUT:
+                onTimeout(result.userId, result.location);
+                break;
+        }
+    }
+
     /**
      * 推送成功, 指定用户推送时重写此方法
      *
@@ -18,7 +39,6 @@ public interface PushCallback {
      * @param location 用户所在机器
      */
     default void onSuccess(String userId, ClientLocation location) {
-
     }
 
     /**
@@ -27,7 +47,8 @@ public interface PushCallback {
      * @param userId   推送用户
      * @param location 用户所在机器
      */
-    void onFailure(String userId, ClientLocation location);
+    default void onFailure(String userId, ClientLocation location) {
+    }
 
     /**
      * 推送用户不在线
@@ -35,7 +56,8 @@ public interface PushCallback {
      * @param userId   推送用户
      * @param location 用户所在机器
      */
-    void onOffline(String userId, ClientLocation location);
+    default void onOffline(String userId, ClientLocation location) {
+    }
 
     /**
      * 推送超时
@@ -43,14 +65,14 @@ public interface PushCallback {
      * @param userId   推送用户
      * @param location 用户所在机器
      */
-    void onTimeout(String userId, ClientLocation location);
+    default void onTimeout(String userId, ClientLocation location) {
+    }
 
     /**
      * 推送成功, 广播时重写此方法
      *
      * @param userIds 推送成功的用户列表
      */
-    default void onSuccess(List<String> userIds) {
-
+    default void onSuccess(String[] userIds) {
     }
 }

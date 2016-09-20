@@ -21,12 +21,95 @@ package com.mpush.api.push;
 
 import com.mpush.api.router.ClientLocation;
 
+import java.util.Arrays;
+
 /**
  * Created by ohun on 16/9/17.
  *
  * @author ohun@live.cn (夜色)
  */
 public class PushResult {
-    private Object[] timeLine;
-    private ClientLocation location;
+    public static final int CODE_SUCCESS = 1;
+    public static final int CODE_FAILURE = 2;
+    public static final int CODE_OFFLINE = 3;
+    public static final int CODE_TIMEOUT = 4;
+    public int resultCode;
+    public String userId;
+    public String[] userIds;
+    public Object[] timeLine;
+    public ClientLocation location;
+
+    public PushResult(int resultCode) {
+        this.resultCode = resultCode;
+    }
+
+    public int getResultCode() {
+        return resultCode;
+    }
+
+    public PushResult setResultCode(int resultCode) {
+        this.resultCode = resultCode;
+        return this;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public PushResult setUserId(String userId) {
+        this.userId = userId;
+        return this;
+    }
+
+    public String[] getUserIds() {
+        return userIds;
+    }
+
+    public PushResult setUserIds(String[] userIds) {
+        this.userIds = userIds;
+        return this;
+    }
+
+    public Object[] getTimeLine() {
+        return timeLine;
+    }
+
+    public PushResult setTimeLine(Object[] timeLine) {
+        this.timeLine = timeLine;
+        return this;
+    }
+
+    public ClientLocation getLocation() {
+        return location;
+    }
+
+    public PushResult setLocation(ClientLocation location) {
+        this.location = location;
+        return this;
+    }
+
+    public String getResultDesc() {
+        switch (resultCode) {
+            case CODE_SUCCESS:
+                return "success";
+            case CODE_FAILURE:
+                return "failure";
+            case CODE_OFFLINE:
+                return "offline";
+            case CODE_TIMEOUT:
+                return "timeout";
+        }
+        return Integer.toString(CODE_TIMEOUT);
+    }
+
+    @Override
+    public String toString() {
+        return "PushResult{" +
+                "resultCode=" + getResultDesc() +
+                ", userId='" + userId + '\'' +
+                ", userIds=" + Arrays.toString(userIds) +
+                ", timeLine=" + Arrays.toString(timeLine) +
+                ", location=" + location +
+                '}';
+    }
 }
