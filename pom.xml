@@ -13,7 +13,7 @@
     <groupId>com.github.mpusher</groupId>
     <artifactId>mpush</artifactId>
     <packaging>pom</packaging>
-    <version>1.0</version>
+    <version>0.0.4</version>
     <name>mpush</name>
     <description>MPUSH消息推送系统</description>
     <url>https://github.com/mpusher/mpush</url>
@@ -138,7 +138,7 @@
                 <version>${mpush.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-core</artifactId>
                 <version>${mpush.version}</version>
             </dependency>
