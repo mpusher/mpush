@@ -27,6 +27,12 @@ import com.mpush.api.spi.net.DnsMapping;
 import com.mpush.api.spi.net.DnsMappingManager;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.config.CC;
+import com.mpush.zk.ZKPath;
+import com.mpush.zk.ZKRegister;
+import com.mpush.zk.cache.ZKDnsNodeCache;
+import com.mpush.zk.listener.ZKDnsNodeWatcher;
+import com.mpush.zk.node.ZKDnsNode;
+import com.mpush.zk.node.ZKRedisNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,17 +46,20 @@ import static com.mpush.tools.Utils.checkHealth;
 
 public class HttpProxyDnsMappingManager extends BaseService implements DnsMappingManager, Runnable {
     private final Logger logger = LoggerFactory.getLogger(HttpProxyDnsMappingManager.class);
-
-    public HttpProxyDnsMappingManager() {
-    }
+    private final ZKDnsNodeWatcher watcher = new ZKDnsNodeWatcher();
+    private final ZKDnsNodeCache cache = watcher.getCache();
 
     private final Map<String, List<DnsMapping>> all = Maps.newConcurrentMap();
     private Map<String, List<DnsMapping>> available = Maps.newConcurrentMap();
 
     private ScheduledExecutorService executorService;
 
+    public HttpProxyDnsMappingManager() {
+    }
+
     @Override
     protected void doStart(Listener listener) throws Throwable {
+        watcher.startWatch();
         if (all.size() > 0) {
             executorService = Executors.newSingleThreadScheduledExecutor();
             executorService.scheduleAtFixedRate(this, 1, 20, TimeUnit.SECONDS); //20秒 定时扫描dns
@@ -86,8 +95,13 @@ public class HttpProxyDnsMappingManager extends BaseService implements DnsMappin
     }
 
     public DnsMapping lookup(String origin) {
-        if (available.isEmpty()) return null;
-        List<DnsMapping> list = available.get(origin);
+        List<? extends DnsMapping> list = cache.get(origin);
+
+        if (list == null || list.isEmpty()) {
+            if (available.isEmpty()) return null;
+            list = available.get(origin);
+        }
+
         if (list == null || list.isEmpty()) return null;
         int L = list.size();
         if (L == 1) return list.get(0);

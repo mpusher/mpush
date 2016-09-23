@@ -43,6 +43,7 @@ import io.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -101,11 +102,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 ErrorMessage errorMessage = new ErrorMessage(packet, connection);
                 LOGGER.error(">>> receive an error packet=" + errorMessage);
             } else if (command == Command.BIND) {
-                OkMessage okMessage = new OkMessage(packet, connection);
-                LOGGER.warn(">>> receive an success packet=" + okMessage);
-                HttpRequestMessage message = new HttpRequestMessage(connection);
-                message.uri = "http://baidu.com";
-                message.send();
+
             } else if (command == Command.PUSH) {
                 PushMessage message = new PushMessage(packet, connection);
                 LOGGER.warn(">>> receive an push message, content=" + new String(message.content, Constants.UTF_8));
@@ -117,8 +114,19 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
 
             } else if (command == Command.HEARTBEAT) {
                 LOGGER.warn(">>> receive a heartbeat pong...");
-            } else {
-                LOGGER.warn(">>> receive a message, type=" + command + "," + packet);
+            } else if (command == Command.OK) {
+                OkMessage okMessage = new OkMessage(packet, connection);
+                LOGGER.warn(">>> receive an success packet=" + okMessage);
+                Map<String, String> headers = new HashMap<>();
+                headers.put(Constants.HTTP_HEAD_READ_TIMEOUT, "10000");
+                HttpRequestMessage message = new HttpRequestMessage(connection);
+                message.headers = headers;
+                message.uri = "http://baidu.com";
+                message.send();
+            } else if (command == Command.HTTP_PROXY) {
+                HttpResponseMessage message = new HttpResponseMessage(packet, connection);
+                LOGGER.warn(">>> receive a http response, message={}, body={}",
+                        message, message.body == null ? null : new String(message.body, Constants.UTF_8));
             }
         }
 

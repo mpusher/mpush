@@ -93,7 +93,8 @@ public class ZKServerNode implements ZKNode {
         return this;
     }
 
-    public String getZkPath() {
+    @Override
+    public String getNodePath() {
         return zkPath;
     }
 

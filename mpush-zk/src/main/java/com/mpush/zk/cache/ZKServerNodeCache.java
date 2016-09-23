@@ -39,7 +39,7 @@ public class ZKServerNodeCache implements ZKNodeCache<ZKServerNode> {
 
     private final Logger logger = LoggerFactory.getLogger(ZKServerNodeCache.class);
 
-    protected final Map<String, ZKServerNode> cache = Maps.newConcurrentMap();
+    protected final Map<String, ZKServerNode> nodes = Maps.newConcurrentMap();
 
     @Override
     public void addAll(List<ZKServerNode> list) {
@@ -49,32 +49,37 @@ public class ZKServerNodeCache implements ZKNodeCache<ZKServerNode> {
     @Override
     public void put(String fullPath, ZKServerNode node) {
         if (StringUtils.isNotBlank(fullPath) && node != null) {
-            cache.put(fullPath, node);
+            nodes.put(fullPath, node);
         } else {
             logger.error("fullPath is null or application is null");
         }
-        printList();
+        printCache();
     }
 
     @Override
     public ZKServerNode remove(String fullPath) {
-        ZKServerNode node = cache.remove(fullPath);
-        printList();
+        ZKServerNode node = nodes.remove(fullPath);
+        printCache();
         return node;
     }
 
     @Override
     public Collection<ZKServerNode> values() {
-        return Collections.unmodifiableCollection(cache.values());
+        return Collections.unmodifiableCollection(nodes.values());
     }
 
     @Override
     public void clear() {
-        cache.clear();
+        nodes.clear();
     }
 
-    private void printList() {
-        for (ZKServerNode app : cache.values()) {
+    @Override
+    public int size() {
+        return nodes.size();
+    }
+
+    private void printCache() {
+        for (ZKServerNode app : nodes.values()) {
             logger.warn(app.toString());
         }
     }

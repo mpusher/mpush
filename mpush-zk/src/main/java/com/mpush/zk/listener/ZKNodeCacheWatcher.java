@@ -53,13 +53,19 @@ public abstract class ZKNodeCacheWatcher implements TreeCacheListener {
                     onNodeUpdated(path, data.getData());
                     break;
             }
+            Logs.ZK.info("ZK node data change={}, nodePath={}, watchPath={}, ns={}", event.getType(), path, watchPath(), client.getNamespace());
         }
-        Logs.ZK.info("ZK node data change={}, name={}, listener={}, ns={}", event.getType(), path, watchPath(), client.getNamespace());
     }
 
-    public final void beginWatch() {
+    public final ZKNodeCacheWatcher startWatch() {
         beforeWatch();
         ZKClient.I.registerListener(this);
+        return this;
+    }
+
+    @Deprecated
+    public final void beginWatch() {
+        startWatch();
     }
 
     public abstract String watchPath();

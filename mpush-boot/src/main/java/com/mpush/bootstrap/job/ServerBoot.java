@@ -25,6 +25,7 @@ import com.mpush.tools.Jsons;
 import com.mpush.tools.log.Logs;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import com.mpush.zk.ZKClient;
+import com.mpush.zk.ZKRegister;
 import com.mpush.zk.node.ZKServerNode;
 
 import java.util.concurrent.TimeUnit;
@@ -52,8 +53,9 @@ public final class ServerBoot extends BootJob {
                 @Override
                 public void onSuccess(Object... args) {
                     Logs.Console.info("start {} success listen:{}", serverName, args[0]);
-                    if (node != null) {
-                        registerServerToZk(node.getZkPath(), Jsons.toJson(node));
+                    if (node != null) {//注册应用到zk
+                        ZKRegister.build().setEphemeral(true).setNode(node).register();
+                        Logs.Console.info("register server node={} to zk path={}", node, node.getNodePath());
                     }
                     startNext();
                 }
@@ -75,11 +77,5 @@ public final class ServerBoot extends BootJob {
             Logs.Console.error("stop server error:", e);
         }
         stopNext();
-    }
-
-    //注册应用到zk
-    private void registerServerToZk(String path, String value) {
-        ZKClient.I.registerEphemeralSequential(path, value);
-        Logs.Console.info("register server node={} to zk name={}", value, path);
     }
 }

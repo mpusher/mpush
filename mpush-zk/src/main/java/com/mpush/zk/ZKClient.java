@@ -89,8 +89,10 @@ public class ZKClient extends BaseService {
      */
     @Override
     public void init() {
-        if (zkConfig != null) return;
-        zkConfig = ZKConfig.build();
+        if (client != null) return;
+        if (zkConfig == null) {
+            zkConfig = ZKConfig.build();
+        }
         Builder builder = CuratorFrameworkFactory
                 .builder()
                 .connectString(zkConfig.getHosts())
@@ -163,12 +165,14 @@ public class ZKClient extends BaseService {
      * @return
      */
     public String getFromRemote(final String key) {
-        try {
-            return new String(client.getData().forPath(key), Constants.UTF_8);
-        } catch (Exception ex) {
-            Logs.ZK.error("getFromRemote:{}", key, ex);
-            return null;
+        if (isExisted(key)) {
+            try {
+                return new String(client.getData().forPath(key), Constants.UTF_8);
+            } catch (Exception ex) {
+                Logs.ZK.error("getFromRemote:{}", key, ex);
+            }
         }
+        return null;
     }
 
     /**
@@ -309,5 +313,10 @@ public class ZKClient extends BaseService {
 
     public ZKConfig getZKConfig() {
         return zkConfig;
+    }
+
+    public ZKClient setZKConfig(ZKConfig zkConfig) {
+        this.zkConfig = zkConfig;
+        return this;
     }
 }

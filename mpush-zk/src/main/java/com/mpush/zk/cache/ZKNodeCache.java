@@ -43,4 +43,6 @@ public interface ZKNodeCache<T extends ZKNode> {
 
     void clear();
 
+    int size();
+
 }
