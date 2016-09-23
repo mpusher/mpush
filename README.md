@@ -5,7 +5,7 @@
 * QQ群：__114583699__ <a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=1de86266c76d00c246c3c7f29cc002667d1c26fcc2f14d2a7b75b3126708e2e1"><img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="MPUSH开源消息推送系统" title="MPUSH开源消息推送系统"></a>
 
 ## 源码
-* 总目录 [https://github.com/mpusher/](https://github.com/mpusher/) 
+* group [https://github.com/mpusher/](https://github.com/mpusher/) 源代码空间
 * server [https://github.com/mpusher/mpush](https://github.com/mpusher/mpush) 服务端源码
 * alloc [https://github.com/mpusher/alloc](https://github.com/mpusher/alloc)  调度器源码
 * mpns [https://github.com/mpusher/mpns](https://github.com/mpusher/mpns)     个性化推送中心源码
