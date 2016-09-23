@@ -11,8 +11,8 @@
 * mpns https://github.com/mpusher/alloc
 * java-client https://github.com/mpusher/mpush-client-java
 * android sdk&demo https://github.com/mpusher/mpush-android
-* IOS sdk(swift)https://github.com/mpusher/mpush-client-swift
-* IOS sdk(OC)https://github.com/mpusher/mpush-client-oc
+* IOS sdk(swift) https://github.com/mpusher/mpush-client-swift
+* IOS sdk(OC) https://github.com/mpusher/mpush-client-oc
 
 ps:由于源码分别在github和码云有两份，最新的代码以github为主
 
