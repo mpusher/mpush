@@ -65,7 +65,7 @@ public final class ConnectionServer extends NettyServer {
         receiver.register(Command.HEARTBEAT, new HeartBeatHandler());
         receiver.register(Command.HANDSHAKE, new HandshakeHandler());
         receiver.register(Command.BIND, new BindUserHandler());
-        receiver.register(Command.UNBIND, new UnbindUserHandler());
+        receiver.register(Command.UNBIND, new BindUserHandler());
         receiver.register(Command.FAST_CONNECT, new FastConnectHandler());
         receiver.register(Command.ACK, new AckHandler());
 
