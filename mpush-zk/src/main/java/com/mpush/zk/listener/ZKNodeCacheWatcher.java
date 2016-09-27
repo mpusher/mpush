@@ -57,7 +57,7 @@ public abstract class ZKNodeCacheWatcher implements TreeCacheListener {
         }
     }
 
-    public final ZKNodeCacheWatcher startWatch() {
+    public ZKNodeCacheWatcher watch() {
         beforeWatch();
         ZKClient.I.registerListener(this);
         return this;
@@ -65,7 +65,7 @@ public abstract class ZKNodeCacheWatcher implements TreeCacheListener {
 
     @Deprecated
     public final void beginWatch() {
-        startWatch();
+        watch();
     }
 
     public abstract String watchPath();

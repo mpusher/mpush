@@ -19,10 +19,10 @@
 
 package com.mpush.test.redis;
 
-import com.mpush.cache.redis.RedisClient;
 import com.mpush.tools.Jsons;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.junit.Before;
 import org.junit.Test;
 import redis.clients.jedis.HostAndPort;
@@ -46,7 +46,7 @@ public class RedisClusterTest {
         jedisClusterNodes.add(new HostAndPort("127.0.0.1", 7003));
         jedisClusterNodes.add(new HostAndPort("127.0.0.1", 7004));
         jedisClusterNodes.add(new HostAndPort("127.0.0.1", 7005));
-        cluster = new JedisCluster(jedisClusterNodes, RedisClient.CONFIG);
+        cluster = new JedisCluster(jedisClusterNodes, new GenericObjectPoolConfig());
     }
 
     @Test

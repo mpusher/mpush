@@ -20,12 +20,8 @@
 package com.mpush.tools.config;
 
 import com.mpush.api.spi.net.DnsMapping;
-import com.mpush.tools.config.data.RedisGroup;
-import com.mpush.tools.config.data.RedisServer;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigList;
-import com.typesafe.config.ConfigObject;
+import com.mpush.tools.config.data.RedisNode;
+import com.typesafe.config.*;
 
 import java.io.File;
 import java.time.Duration;
@@ -35,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.typesafe.config.ConfigBeanFactory.create;
 import static java.util.stream.Collectors.toCollection;
 
 /**
@@ -238,67 +233,27 @@ public interface CC {
 
                 int maxSleepMs = (int) cfg.getDuration("maxSleepMs", TimeUnit.MILLISECONDS);
             }
-
         }
 
         interface redis {
             Config cfg = mp.cfg.getObject("redis").toConfig();
 
             boolean write_to_zk = cfg.getBoolean("write-to-zk");
+            String password = cfg.getString("password");
+            String clusterModel = cfg.getString("cluster-model");
 
-            List<RedisGroup> cluster_group = cfg.getList("cluster-group")
+            List<RedisNode> nodes = cfg.getList("nodes")
                     .stream()//第一纬度数组
-                    .map(v -> new RedisGroup(
-                                    ConfigList.class.cast(v)//第二纬度数组
-                                            .stream()
-                                            .map(cv -> RedisServer.from(cv.unwrapped().toString()))//把字符串转换成 RedisServer
-                                            .collect(toCollection(ArrayList::new))
-                            )
-                    )
+                    .map(v -> RedisNode.from(v.unwrapped().toString()))
                     .collect(toCollection(ArrayList::new));
 
-            interface config {
-
-                Config cfg = redis.cfg.getObject("config").toConfig();
-
-                boolean jmxEnabled = cfg.getBoolean("jmxEnabled");
-
-                int minIdle = cfg.getInt("minIdle");
-
-                boolean testOnReturn = cfg.getBoolean("testOnReturn");
-
-                long softMinEvictableIdleTimeMillis = cfg.getDuration("softMinEvictableIdleTimeMillis", TimeUnit.MILLISECONDS);
-
-                boolean testOnBorrow = cfg.getBoolean("testOnBorrow");
-
-                boolean testWhileIdle = cfg.getBoolean("testWhileIdle");
-
-                long maxWaitMillis = cfg.getDuration("maxWaitMillis", TimeUnit.MILLISECONDS);
-
-                String jmxNameBase = cfg.getString("jmxNameBase");
-
-                int numTestsPerEvictionRun = (int) cfg.getDuration("numTestsPerEvictionRun", TimeUnit.MILLISECONDS);
-
-                String jmxNamePrefix = cfg.getString("jmxNamePrefix");
-
-                long minEvictableIdleTimeMillis = cfg.getDuration("minEvictableIdleTimeMillis", TimeUnit.MILLISECONDS);
-
-                boolean blockWhenExhausted = cfg.getBoolean("blockWhenExhausted");
-
-                boolean fairness = cfg.getBoolean("fairness");
-
-                long timeBetweenEvictionRunsMillis = cfg.getDuration("timeBetweenEvictionRunsMillis", TimeUnit.MILLISECONDS);
-
-                boolean testOnCreate = cfg.getBoolean("testOnCreate");
-
-                int maxIdle = cfg.getInt("maxIdle");
-
-                boolean lifo = cfg.getBoolean("lifo");
-
-                int maxTotal = cfg.getInt("maxTotal");
-
+            static boolean isCluster() {
+                return "cluster".equals(clusterModel);
             }
 
+            static <T> T getPoolConfig(Class<T> clazz) {
+                return ConfigBeanImpl.createInternal(cfg.getObject("config").toConfig(), clazz);
+            }
         }
 
         interface http {
@@ -324,7 +279,6 @@ public interface CC {
                 );
                 return map;
             }
-
         }
 
         interface monitor {

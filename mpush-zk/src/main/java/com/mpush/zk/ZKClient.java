@@ -183,6 +183,7 @@ public class ZKClient extends BaseService {
      */
     public List<String> getChildrenKeys(final String key) {
         try {
+            if (!isExisted(key)) return Collections.emptyList();
             List<String> result = client.getChildren().forPath(key);
             Collections.sort(result, (o1, o2) -> o2.compareTo(o1));
             return result;

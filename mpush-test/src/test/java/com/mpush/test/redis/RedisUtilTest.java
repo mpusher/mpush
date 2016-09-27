@@ -15,12 +15,13 @@
  *
  * Contributors:
  *   ohun@live.cn (夜色)
- */
+ *//*
+
 
 package com.mpush.test.redis;
 
 import com.google.common.collect.Lists;
-import com.mpush.cache.redis.RedisClient;
+import com.mpush.cache.redis.client.RedisClient;
 import com.mpush.cache.redis.RedisServer;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Test;
@@ -34,7 +35,7 @@ import java.util.Map;
 public class RedisUtilTest {
 
 
-    RedisServer node = new RedisServer("127.0.0.1", 6379, "shinemoIpo");
+    RedisServer node = new RedisServer("127.0.0.1", 6379);
 
     List<RedisServer> nodeList = Lists.newArrayList(node);
 
@@ -213,3 +214,4 @@ public class RedisUtilTest {
     }
 
 }
+*/

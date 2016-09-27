@@ -37,6 +37,7 @@ public class PushClientTestMain {
         Logs.init();
         PushSender sender = PushSender.create();
         sender.start().get();
+        Thread.sleep(5000);
         PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
         msg.setMsgId("msgId_0");
 
@@ -50,9 +51,10 @@ public class PushClientTestMain {
                         System.err.println(result);
                     }
                 });
-        Thread.sleep(1000);
-        FutureTask<Boolean> future = sender.send(context);
-        future.get();
+        /*FutureTask<Boolean> future = sender.send(context);
+        future.get();*/
+        sender.stop().get();
+        System.out.println("stop");
     }
 
 }

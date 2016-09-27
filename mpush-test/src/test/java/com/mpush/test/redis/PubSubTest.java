@@ -19,10 +19,7 @@
 
 package com.mpush.test.redis;
 
-import com.mpush.cache.redis.RedisGroup;
-import com.mpush.cache.redis.RedisServer;
 import com.mpush.cache.redis.manager.RedisManager;
-import com.mpush.cache.redis.manager.ZKRedisClusterManager;
 import com.mpush.cache.redis.mq.Subscriber;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,14 +28,8 @@ import java.util.concurrent.locks.LockSupport;
 
 public class PubSubTest {
 
-    private ZKRedisClusterManager redisClusterManager = ZKRedisClusterManager.I;
-
     @Before
     public void init() {
-        RedisServer node = new RedisServer("127.0.0.1", 6379, "shinemoIpo");
-        RedisGroup group = new RedisGroup();
-        group.addRedisNode(node);
-        redisClusterManager.addGroup(group);
     }
 
     @Test

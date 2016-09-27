@@ -29,7 +29,8 @@ public final class RedisKey {
 
     private static final String USER_ONLINE_KEY = "mp_u_ol_";
 
-    private static final String CONN_NUM_ = "mp_cn_";
+    public static final String SESSION_AES_KEY = "mp_s_a_k";
+    public static final String SESSION_AES_SEQ_KEY = "mp_s_a_s_k";
 
     public static final String getUserKey(String userId) {
         return USER_PREFIX + userId;
@@ -47,10 +48,6 @@ public final class RedisKey {
     public static final String getUserOnlineKey(String extranetAddress) {
         return USER_ONLINE_KEY + extranetAddress;
     }
-
-//    public static final String getConnNum(String extranetAddress) {
-//        return CONN_NUM_ + extranetAddress;
-//    }
 
 
 }

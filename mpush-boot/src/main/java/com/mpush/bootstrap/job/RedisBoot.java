@@ -38,7 +38,7 @@ public final class RedisBoot extends BootJob {
 
     @Override
     protected void stop() {
-        RedisManager.I.close();
+        RedisManager.I.destroy();
         stopNext();
     }
 }

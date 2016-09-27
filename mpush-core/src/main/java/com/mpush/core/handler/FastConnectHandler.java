@@ -45,7 +45,7 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
     @Override
     public void handle(FastConnectMessage message) {
         //从缓存中心查询session
-        ReusableSession session = ReusableSessionManager.INSTANCE.querySession(message.sessionId);
+        ReusableSession session = ReusableSessionManager.I.querySession(message.sessionId);
 
         if (session == null) {
             //1.没查到说明session已经失效了

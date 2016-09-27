@@ -20,6 +20,8 @@
 package com.mpush.client.push;
 
 import com.mpush.api.push.PushException;
+import com.mpush.api.service.BaseService;
+import com.mpush.api.service.Listener;
 import com.mpush.tools.thread.PoolThreadFactory;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import org.slf4j.Logger;
@@ -35,18 +37,14 @@ import static com.mpush.tools.thread.ThreadNames.T_PUSH_REQ_TIMER;
  *
  * @author ohun@live.cn
  */
-public class PushRequestBus {
+public class PushRequestBus extends BaseService {
     public static final PushRequestBus I = new PushRequestBus();
     private final Logger logger = LoggerFactory.getLogger(PushRequestBus.class);
     private final Map<Integer, PushRequest> reqQueue = new ConcurrentHashMap<>(1024);
-    private final Executor executor = ThreadPoolManager.I.getPushCallbackExecutor();
-    private final ScheduledExecutorService scheduledExecutor;
+    private Executor executor;
+    private ScheduledExecutorService scheduledExecutor;
 
     private PushRequestBus() {
-        scheduledExecutor = new ScheduledThreadPoolExecutor(1, new PoolThreadFactory(T_PUSH_REQ_TIMER), (r, e) -> {
-            logger.error("one push request was rejected, request=" + r);
-            throw new PushException("one push request was rejected. request=" + r);
-        });
     }
 
     public Future<?> put(int sessionId, PushRequest request) {
@@ -60,5 +58,20 @@ public class PushRequestBus {
 
     public void asyncCall(Runnable runnable) {
         executor.execute(runnable);
+    }
+
+    @Override
+    protected void doStart(Listener listener) throws Throwable {
+        executor = ThreadPoolManager.I.getPushCallbackExecutor();
+        scheduledExecutor = new ScheduledThreadPoolExecutor(1, new PoolThreadFactory(T_PUSH_REQ_TIMER), (r, e) -> {
+            logger.error("one push request was rejected, request=" + r);
+            throw new PushException("one push request was rejected. request=" + r);
+        });
+    }
+
+    @Override
+    protected void doStop(Listener listener) throws Throwable {
+        scheduledExecutor.shutdown();
+        ((ExecutorService)executor).shutdown();
     }
 }

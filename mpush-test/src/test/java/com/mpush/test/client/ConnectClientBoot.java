@@ -33,7 +33,7 @@ public class ConnectClientBoot {
     public void run() {
         ZKClient.I.start();
         RedisManager.I.init();
-        listener.beginWatch();
+        listener.watch();
     }
 
     public List<ZKServerNode> getServers() {

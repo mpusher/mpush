@@ -76,7 +76,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
         context.changeCipher(new AesCipher(clientKey, iv));
 
         //4.生成可复用session, 用于快速重连
-        ReusableSession session = ReusableSessionManager.INSTANCE.genSession(context);
+        ReusableSession session = ReusableSessionManager.I.genSession(context);
 
         //5.计算心跳时间
         int heartbeat = ConfigManager.I.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
@@ -101,7 +101,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
                 .setHeartbeat(heartbeat);
 
         //9.保存可复用session到Redis, 用于快速重连
-        ReusableSessionManager.INSTANCE.cacheSession(session);
+        ReusableSessionManager.I.cacheSession(session);
 
         //10.触发握手成功事件
         EventBus.I.post(new HandshakeEvent(message.getConnection(), heartbeat));

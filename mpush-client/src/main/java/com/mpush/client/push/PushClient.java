@@ -86,13 +86,16 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
     protected void doStart(Listener listener) throws Throwable {
         ZKClient.I.start(listener);
         RedisManager.I.init();
-        ZKServerNodeWatcher.build(GATEWAY_SERVER, factory).beginWatch();
+        ZKServerNodeWatcher.build(GATEWAY_SERVER, factory).watch();
+        PushRequestBus.I.start(listener);
     }
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
         factory.clear();
         ZKClient.I.stop(listener);
+        RedisManager.I.destroy();
+        PushRequestBus.I.stop(listener);
     }
 
     @Override

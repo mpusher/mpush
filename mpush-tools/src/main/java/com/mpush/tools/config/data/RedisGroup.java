@@ -27,12 +27,12 @@ import java.util.List;
  * redis 组
  */
 public class RedisGroup {
-    public List<RedisServer> redisNodeList = Collections.emptyList();
+    public List<RedisNode> redisNodeList = Collections.emptyList();
 
     public RedisGroup() {
     }
 
-    public RedisGroup(List<RedisServer> redisNodeList) {
+    public RedisGroup(List<RedisNode> redisNodeList) {
         this.redisNodeList = redisNodeList;
     }
 

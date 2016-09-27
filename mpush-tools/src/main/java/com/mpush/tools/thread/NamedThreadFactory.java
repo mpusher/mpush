@@ -26,6 +26,8 @@ import static com.mpush.tools.thread.ThreadNames.THREAD_NAME_PREFIX;
 
 /**
  * Created by xiaoxu.yxx on 2015/7/19.
+ *
+ * @author ohun@live.cn (夜色)
  */
 public final class NamedThreadFactory implements ThreadFactory {
     protected final AtomicInteger threadNumber = new AtomicInteger(1);

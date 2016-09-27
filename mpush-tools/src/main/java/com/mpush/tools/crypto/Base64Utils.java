@@ -33,9 +33,8 @@ public class Base64Utils {
      *
      * @param base64 base64
      * @return 源二进制数据
-     * @throws Exception Exception
      */
-    public static byte[] decode(String base64) throws Exception {
+    public static byte[] decode(String base64) {
         return Base64.getDecoder().decode(base64.getBytes(Constants.UTF_8));
     }
 
@@ -46,9 +45,8 @@ public class Base64Utils {
      *
      * @param bytes base64
      * @return BASE64后的二进制数据
-     * @throws Exception Exception
      */
-    public static String encode(byte[] bytes) throws Exception {
+    public static String encode(byte[] bytes) {
         return new String(Base64.getEncoder().encode(bytes), Constants.UTF_8);
     }
 

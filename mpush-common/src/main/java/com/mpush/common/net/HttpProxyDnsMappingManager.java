@@ -27,12 +27,8 @@ import com.mpush.api.spi.net.DnsMapping;
 import com.mpush.api.spi.net.DnsMappingManager;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.config.CC;
-import com.mpush.zk.ZKPath;
-import com.mpush.zk.ZKRegister;
 import com.mpush.zk.cache.ZKDnsNodeCache;
 import com.mpush.zk.listener.ZKDnsNodeWatcher;
-import com.mpush.zk.node.ZKDnsNode;
-import com.mpush.zk.node.ZKRedisNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +55,7 @@ public class HttpProxyDnsMappingManager extends BaseService implements DnsMappin
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        watcher.startWatch();
+        watcher.watch();
         if (all.size() > 0) {
             executorService = Executors.newSingleThreadScheduledExecutor();
             executorService.scheduleAtFixedRate(this, 1, 20, TimeUnit.SECONDS); //20秒 定时扫描dns

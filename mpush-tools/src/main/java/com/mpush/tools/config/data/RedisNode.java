@@ -22,18 +22,16 @@ package com.mpush.tools.config.data;
 /**
  * redis 相关的配置信息
  */
-public class RedisServer {
+public class RedisNode {
     public String host;
     public int port;
-    public String password;
 
-    public RedisServer() {
+    public RedisNode() {
     }
 
-    public RedisServer(String host, int port, String password) {
+    public RedisNode(String host, int port) {
         this.host = host;
         this.port = port;
-        this.password = password;
     }
 
     public String getHost() {
@@ -52,20 +50,13 @@ public class RedisServer {
         this.port = port;
     }
 
-    public String getPassword() {
-        return password;
-    }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public static RedisServer from(String config) {
+    public static RedisNode from(String config) {
         String[] array = config.split(":");
         if (array.length == 2) {
-            return new RedisServer(array[0], Integer.parseInt(array[1]), null);
+            return new RedisNode(array[0], Integer.parseInt(array[1]));
         } else {
-            return new RedisServer(array[0], Integer.parseInt(array[1]), array[2]);
+            return new RedisNode(array[0], Integer.parseInt(array[1]));
         }
     }
 
@@ -74,7 +65,7 @@ public class RedisServer {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        RedisServer server = (RedisServer) o;
+        RedisNode server = (RedisNode) o;
 
         if (port != server.port) return false;
         return host.equals(server.host);
@@ -93,7 +84,6 @@ public class RedisServer {
         return "RedisServer{" +
                 "host='" + host + '\'' +
                 ", port=" + port +
-                ", password='" + password + '\'' +
                 '}';
     }
 }

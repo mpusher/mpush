@@ -19,7 +19,7 @@
 
 package com.mpush.zk.node;
 
-import com.mpush.tools.config.data.RedisGroup;
+import com.mpush.tools.config.data.RedisNode;
 
 /**
  * Redis 节点配置
@@ -27,7 +27,7 @@ import com.mpush.tools.config.data.RedisGroup;
  *
  * @author ohun@live.cn
  */
-public class ZKRedisNode extends RedisGroup implements ZKNode {
+public class ZKRedisNode extends RedisNode implements ZKNode {
     private transient String zkPath;
 
     public String getZkPath() {
