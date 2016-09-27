@@ -166,12 +166,8 @@ start)
     fi
     ;;
 start-foreground)
-    MP_CMD=(exec "$JAVA")
-    if [ "${MP_NOEXEC}" != "" ]; then
-      MP_CMD=("$JAVA")
-    fi
-    "${MP_CMD[@]}" "-Dmp.log.dir=${MP_LOG_DIR}" "-Dmp.root.logger=${MP_LOG4J_PROP}" \
-    -cp "$CLASSPATH" $JVM_FLAGS $MP_MAIN "-Dmp.conf=$MP_CFG"
+    "$JAVA" "-Dmp.conf=$MP_CFG" "-Dmp.log.dir=${MP_LOG_DIR}" "-Dmp.root.logger=${MP_LOG4J_PROP}" \
+    -cp "$CLASSPATH" $JVM_FLAGS $MP_MAIN
     ;;
 print-cmd)
     echo "\"$JAVA\" $MP_MAIN "
