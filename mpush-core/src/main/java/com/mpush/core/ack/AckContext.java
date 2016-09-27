@@ -77,8 +77,6 @@ public final class AckContext implements Runnable {
 
     @Override
     public void run() {
-        if (tryDone()) {
-            callback.onTimeout(this);
-        }
+        timeout();
     }
 }
