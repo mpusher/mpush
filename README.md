@@ -4,6 +4,18 @@
 * 文档：[https://mpusher.github.io/docs](https://mpusher.github.io/docs)
 * QQ群：__114583699__ <a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=1de86266c76d00c246c3c7f29cc002667d1c26fcc2f14d2a7b75b3126708e2e1"><img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="MPUSH开源消息推送系统" title="MPUSH开源消息推送系统"></a>
 
+## 源码
+* group [https://github.com/mpusher/](https://github.com/mpusher/) 源代码空间
+* server [https://github.com/mpusher/mpush](https://github.com/mpusher/mpush) 服务端源码
+* alloc [https://github.com/mpusher/alloc](https://github.com/mpusher/alloc)  调度器源码
+* mpns [https://github.com/mpusher/mpns](https://github.com/mpusher/mpns)     个性化推送中心源码
+* java-client [https://github.com/mpusher/mpush-client-java](https://github.com/mpusher/mpush-client-java) 纯java客户端源码
+* android sdk&demo [https://github.com/mpusher/mpush-android](https://github.com/mpusher/mpush-android)    安卓SDK和DEMO源码
+* IOS sdk(swift) [https://github.com/mpusher/mpush-client-swift](https://github.com/mpusher/mpush-client-swift) swift版客户端源码
+* IOS sdk(OC) [https://github.com/mpusher/mpush-client-oc](https://github.com/mpusher/mpush-client-oc)  Object C 客户端源码
+
+ps:由于源码分别在github和码云有两份，最新的代码以github为主
+
 ## 服务调用关系
 ![](https://mpusher.github.io/docs/服务依赖关系.png)
 
