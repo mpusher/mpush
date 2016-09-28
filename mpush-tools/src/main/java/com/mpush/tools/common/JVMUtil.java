@@ -27,6 +27,9 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import java.io.*;
 import java.lang.management.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.Iterator;
@@ -108,22 +111,14 @@ public class JVMUtil {
 
     public static void dumpJstack(final String jvmPath) {
         new Thread((() -> {
-            String logPath = jvmPath;
-            FileOutputStream jstackStream = null;
-            try {
-                jstackStream = new FileOutputStream(new File(logPath, System.currentTimeMillis() + "-jstack.LOGGER"));
-                JVMUtil.jstack(jstackStream);
+            File file = new File(jvmPath, System.currentTimeMillis() + "-jstack.log");
+            file.mkdirs();
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                JVMUtil.jstack(out);
             } catch (Throwable t) {
                 LOGGER.error("Dump JVM cache Error!", t);
-            } finally {
-                if (jstackStream != null) {
-                    try {
-                        jstackStream.close();
-                    } catch (IOException e) {
-                    }
-                }
             }
-        }),"mp-monitor-dump-jstack-thread").start();
+        }), "mp-monitor-dump-jstack-t").start();
     }
 
     private static HotSpotDiagnosticMXBean getHotSpotMXBean() {
@@ -160,7 +155,7 @@ public class JVMUtil {
     }
 
     public static void jMap(String fileName, boolean live) {
-        File f = new File(fileName, System.currentTimeMillis() + "-jmap.LOGGER");
+        File f = new File(fileName, System.currentTimeMillis() + "-jmap.log");
         String currentFileName = f.getPath();
         try {
             initHotSpotMBean();
@@ -174,6 +169,6 @@ public class JVMUtil {
     }
 
     public static void dumpJmap(final String jvmPath) {
-        new Thread(() -> jMap(jvmPath, false), "mp-monitor-dump-jmap-thread").start();
+        new Thread(() -> jMap(jvmPath, false), "mp-monitor-dump-jmap-t").start();
     }
 }

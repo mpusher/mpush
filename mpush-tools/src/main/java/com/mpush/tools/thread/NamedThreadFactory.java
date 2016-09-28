@@ -50,7 +50,7 @@ public final class NamedThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
-        Thread t = newThread(namePrefix + threadNumber.getAndIncrement(), r);
+        Thread t = newThread(namePrefix + "_" + threadNumber.getAndIncrement(), r);
         if (t.isDaemon())
             t.setDaemon(false);
         return t;

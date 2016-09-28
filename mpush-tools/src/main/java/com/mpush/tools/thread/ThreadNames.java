@@ -21,34 +21,34 @@ package com.mpush.tools.thread;
 
 public final class ThreadNames {
     public static final String NS = "mp";
-    public static final String THREAD_NAME_PREFIX = NS + "-t-";
+    public static final String THREAD_NAME_PREFIX = NS + "-t";
 
     /**
      * netty boss 线程
      */
-    public static final String T_SERVER_BOSS = NS + "-boss-";
+    public static final String T_SERVER_BOSS = NS + "-boss";
 
     /**
      * netty worker 线程
      */
-    public static final String T_SERVER_WORKER = NS + "-worker-";
+    public static final String T_SERVER_WORKER = NS + "-worker";
 
-    public static final String T_HTTP_CLIENT = NS + "-http-";
+    public static final String T_HTTP_CLIENT = NS + "-http";
 
-    public static final String T_EVENT_BUS = NS + "-event-";
+    public static final String T_EVENT_BUS = NS + "-event";
 
-    public static final String T_MQ = NS + "-mq-";
+    public static final String T_MQ = NS + "-mq";
 
-    public static final String T_ZK = NS + "-zk-";
+    public static final String T_ZK = NS + "-zk";
 
-    public static final String T_BIZ = NS + "-biz-";
-    public static final String T_PUSH_CALLBACK = NS + "-push-cb-";
-    public static final String T_PUSH_REQ_TIMER = NS + "-push-timer-";
-    public static final String T_ARK_REQ_TIMER = NS + "-ack-timer-";
+    public static final String T_BIZ = NS + "-biz";
+    public static final String T_PUSH_CALLBACK = NS + "-push-cb";
+    public static final String T_PUSH_REQ_TIMER = NS + "-push-timer";
+    public static final String T_ARK_REQ_TIMER = NS + "-ack-timer";
 
     /**
      * connection 定期检测线程
      */
-    public static final String T_NETTY_TIMER = NS + "-timer-";
+    public static final String T_NETTY_TIMER = NS + "-timer";
 
 }

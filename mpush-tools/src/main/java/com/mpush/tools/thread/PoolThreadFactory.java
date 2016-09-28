@@ -43,7 +43,7 @@ public class PoolThreadFactory implements ThreadFactory {
             group = Thread.currentThread().getThreadGroup();
         }
         isDaemon = daemon;
-        namePre = prefix + "p-" + poolNum.getAndIncrement() + "-t-";
+        namePre = prefix + "-p-" + poolNum.getAndIncrement() + "-t-";
     }
 
     /**
