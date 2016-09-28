@@ -20,6 +20,8 @@
 package com.mpush.test.client;
 
 import com.google.common.collect.Lists;
+import com.mpush.api.service.BaseService;
+import com.mpush.api.service.Listener;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.zk.ZKClient;
 import com.mpush.zk.listener.ZKServerNodeWatcher;
@@ -27,16 +29,23 @@ import com.mpush.zk.node.ZKServerNode;
 
 import java.util.List;
 
-public class ConnectClientBoot {
-    private final ZKServerNodeWatcher listener = ZKServerNodeWatcher.buildConnect();
-
-    public void run() {
-        ZKClient.I.start();
-        RedisManager.I.init();
-        listener.watch();
-    }
+public final class ConnClientBoot extends BaseService {
+    private final ZKServerNodeWatcher watcher = ZKServerNodeWatcher.buildConnect();
 
     public List<ZKServerNode> getServers() {
-        return Lists.newArrayList(listener.getCache().values());
+        return Lists.newArrayList(watcher.getCache().values());
+    }
+
+    @Override
+    protected void doStart(Listener listener) throws Throwable {
+        ZKClient.I.start(listener);
+        RedisManager.I.init();
+        watcher.watch();
+    }
+
+    @Override
+    protected void doStop(Listener listener) throws Throwable {
+        ZKClient.I.stop();
+        RedisManager.I.destroy();
     }
 }

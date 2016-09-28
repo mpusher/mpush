@@ -20,11 +20,16 @@
 package com.mpush.test.client;
 
 import com.mpush.api.service.Client;
+import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.client.connect.ClientConfig;
 import com.mpush.client.connect.ConnectClient;
 import com.mpush.common.security.CipherBox;
 import com.mpush.tools.log.Logs;
+import com.mpush.zk.ZKClient;
+import com.mpush.zk.listener.ZKServerNodeWatcher;
 import com.mpush.zk.node.ZKServerNode;
+import org.junit.After;
+import org.junit.Before;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +39,10 @@ import java.util.concurrent.locks.LockSupport;
 public class ConnClientTestMain {
 
     public static void main(String[] args) throws Exception {
-        Logs.init();
-        ConnectClientBoot main = new ConnectClientBoot();
-        main.run();
+        ConnClientBoot boot = new ConnClientBoot();
+        boot.start().get();
 
-        List<ZKServerNode> serverList = main.getServers();
+        List<ZKServerNode> serverList = boot.getServers();
 
         int index = (int) ((Math.random() % serverList.size()) * serverList.size());
         ZKServerNode server = serverList.get(index);
@@ -62,9 +66,5 @@ public class ConnClientTestMain {
             Client client = new ConnectClient(server.getExtranetIp(), server.getPort(), config);
             client.start().get(10, TimeUnit.SECONDS);
         }
-
-        LockSupport.park();
-
     }
-
 }
