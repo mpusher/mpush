@@ -17,7 +17,7 @@ REM limitations under the License.
 setlocal
 call "%~dp0env-mp.cmd"
 
-set MPMAIN="-jar ../boot.jar"
+set MPMAIN="-jar %~dp0bootstrap.jar"
 echo on
 call %JAVA% "-Dmp.conf=%MPCFG%" "-Dmp.log.dir=%MP_LOG_DIR%" -cp "%CLASSPATH%" %MPMAIN% %*
 
