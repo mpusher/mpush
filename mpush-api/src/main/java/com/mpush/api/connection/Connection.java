@@ -26,6 +26,8 @@ import io.netty.channel.ChannelFutureListener;
 
 /**
  * Created by ohun on 2015/12/22.
+ *
+ * @author ohun@live.cn (夜色)
  */
 public interface Connection {
     int STATUS_NEW = 0;

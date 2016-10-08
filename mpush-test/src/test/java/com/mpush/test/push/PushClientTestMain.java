@@ -36,23 +36,23 @@ public class PushClientTestMain {
     public static void main(String[] args) throws Exception {
         Logs.init();
         PushSender sender = PushSender.create();
-        sender.start().get();
-        PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
-        msg.setMsgId("msgId_0");
+        sender.start().whenComplete((success, throwable) -> {
 
-        PushContext context = PushContext.build(msg)
-                .setBroadcast(false)
-                .setUserIds(Arrays.asList("user-0", "user-1"))
-                .setTimeout(100000)
-                .setCallback(new PushCallback() {
-                    @Override
-                    public void onResult(PushResult result) {
-                        System.err.println(result);
-                    }
-                });
-        FutureTask<Boolean> future = sender.send(context);
-        future.get();
-        //sender.stop().get();
+            PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
+            msg.setMsgId("msgId_0");
+
+            PushContext context = PushContext.build(msg)
+                    .setBroadcast(false)
+                    .setUserIds(Arrays.asList("user-0", "user-1"))
+                    .setTimeout(100000)
+                    .setCallback(new PushCallback() {
+                        @Override
+                        public void onResult(PushResult result) {
+                            System.err.println(result);
+                        }
+                    });
+            FutureTask<Boolean> future = sender.send(context);
+        });
     }
 
 }

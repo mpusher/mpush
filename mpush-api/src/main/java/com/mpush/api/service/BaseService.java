@@ -19,8 +19,7 @@
 
 package com.mpush.api.service;
 
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -72,13 +71,13 @@ public abstract class BaseService implements Service {
         }
     }
 
-    public final Future<Boolean> start() {
+    public final CompletableFuture<Boolean> start() {
         FutureListener listener = new FutureListener();
         start(listener);
         return listener;
     }
 
-    public final Future<Boolean> stop() {
+    public final CompletableFuture<Boolean> stop() {
         FutureListener listener = new FutureListener();
         stop(listener);
         return listener;
@@ -114,31 +113,28 @@ public abstract class BaseService implements Service {
         return new FutureListener(l);
     }
 
-    protected class FutureListener extends FutureTask<Boolean> implements Listener {
+    protected class FutureListener extends CompletableFuture<Boolean> implements Listener {
         private final Listener l;// 防止Listener被重复执行
 
         public FutureListener() {
-            super(BaseService.this::isRunning);
             this.l = null;
         }
 
         public FutureListener(Listener l) {
-            super(BaseService.this::isRunning);
             this.l = l;
         }
 
         @Override
         public void onSuccess(Object... args) {
             if (isDone()) return;// 防止Listener被重复执行
-            set(started.get());
+            complete(started.get());
             if (l != null) l.onSuccess(args);
         }
 
         @Override
         public void onFailure(Throwable cause) {
             if (isDone()) return;// 防止Listener被重复执行
-            set(started.get());
-            setException(cause);
+            completeExceptionally(cause);
             if (l != null) l.onFailure(cause);
             throw new ServiceException(cause);
         }
