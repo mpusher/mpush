@@ -54,47 +54,42 @@ public final class PacketDecoder extends ByteToMessageDecoder {
     }
 
     private void decodeFrames(ByteBuf in, List<Object> out) throws Exception {
-        try {
-            while (in.readableBytes() >= Packet.HEADER_LEN) {
-                //1.记录当前读取位置位置.如果读取到非完整的frame,要恢复到该位置,便于下次读取
-                in.markReaderIndex();
-                out.add(decodeFrame(in));
+        while (in.readableBytes() >= Packet.HEADER_LEN) {
+            //1.记录当前读取位置位置.如果读取到非完整的frame,要恢复到该位置,便于下次读取
+            in.markReaderIndex();
+            Packet packet = decodeFrame(in);
+            if (packet != null) {
+                out.add(packet);
+            } else {
+                //2.读取到不完整的frame,恢复到最近一次正常读取的位置,便于下次读取
+                in.resetReaderIndex();
             }
-        } catch (DecodeException e) {
-            //2.读取到不完整的frame,恢复到最近一次正常读取的位置,便于下次读取
-            in.resetReaderIndex();
         }
     }
 
     private Packet decodeFrame(ByteBuf in) throws Exception {
-        int bufferSize = in.readableBytes();
+        int readableBytes = in.readableBytes();
         int bodyLength = in.readInt();
-        if (bufferSize < (bodyLength + Packet.HEADER_LEN)) {
-            throw new DecodeException("invalid frame");
+        if (readableBytes < (bodyLength + Packet.HEADER_LEN)) {
+            return null;
         }
         return readPacket(in, bodyLength);
     }
 
     private Packet readPacket(ByteBuf in, int bodyLength) {
-        byte command = in.readByte();
-        short cc = in.readShort();
-        byte flags = in.readByte();
-        int sessionId = in.readInt();
-        byte lrc = in.readByte();
-        byte[] body = null;
+        Packet packet = new Packet(in.readByte());//read cmd
+        packet.cc = in.readShort();//read cc
+        packet.flags = in.readByte();//read flags
+        packet.sessionId = in.readInt();//read sessionId
+        packet.lrc = in.readByte();//read lrc
+
+        //read body
         if (bodyLength > 0) {
             if (bodyLength > maxPacketSize) {
-                throw new RuntimeException("ERROR PACKET_SIZE：" + bodyLength);
+                throw new RuntimeException("error packet body length over limit:" + bodyLength);
             }
-            body = new byte[bodyLength];
-            in.readBytes(body);
+            in.readBytes(packet.body = new byte[bodyLength]);
         }
-        Packet packet = new Packet(command);
-        packet.cc = cc;
-        packet.flags = flags;
-        packet.sessionId = sessionId;
-        packet.lrc = lrc;
-        packet.body = body;
         return packet;
     }
 }
