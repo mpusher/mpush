@@ -270,7 +270,7 @@ public class ZKClient extends BaseService {
      *
      * @param key
      * @param value
-     * @param cacheNode
+     * @param cacheNode 第一次注册时设置为true, 连接断开重新注册时设置为false
      */
     private void registerEphemeralSequential(final String key, final String value, boolean cacheNode) {
         try {
