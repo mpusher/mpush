@@ -48,15 +48,25 @@ import java.util.concurrent.TimeUnit;
 public final class ServerConnectionManager implements ConnectionManager {
     private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMap<>();
 
-    private Timer timer;
+    private HashedWheelTimer timer;
+    private final boolean heartbeatCheck;
+
+    public ServerConnectionManager() {
+        this.heartbeatCheck = true;
+    }
+
+    public ServerConnectionManager(boolean heartbeatCheck) {
+        this.heartbeatCheck = heartbeatCheck;
+    }
 
     @Override
     public void init() {
-        //每秒钟走一步，一个心跳周期内走一圈
-        long tickDuration = 1000;//1s
-        int ticksPerWheel = (int) (CC.mp.core.max_heartbeat / tickDuration);
-        this.timer = new HashedWheelTimer(tickDuration, TimeUnit.MILLISECONDS, ticksPerWheel);
-        EventBus.I.register(this);
+        if (heartbeatCheck) {
+            EventBus.I.register(this);
+            long tickDuration = TimeUnit.SECONDS.toMillis(1);//1s 每秒钟走一步，一个心跳周期内大致走一圈
+            int ticksPerWheel = (int) (CC.mp.core.max_heartbeat / tickDuration);
+            this.timer = new HashedWheelTimer(tickDuration, TimeUnit.MILLISECONDS, ticksPerWheel);
+        }
     }
 
     @Override
@@ -74,6 +84,7 @@ public final class ServerConnectionManager implements ConnectionManager {
     @Override
     public void add(Connection connection) {
         connections.putIfAbsent(connection.getChannel().id().asShortText(), connection);
+        if (heartbeatCheck) new HeartbeatCheckTask(connection).startTimeout();
     }
 
     @Override
@@ -90,10 +101,9 @@ public final class ServerConnectionManager implements ConnectionManager {
         return Lists.newArrayList(connections.values());
     }
 
-    @Subscribe
+    //@Subscribe
     void on(HandshakeEvent event) {
-        HeartbeatCheckTask task = new HeartbeatCheckTask(event.connection);
-        task.startTimeout();
+        new HeartbeatCheckTask(event.connection).startTimeout();
     }
 
     private class HeartbeatCheckTask implements TimerTask {
@@ -126,7 +136,6 @@ public final class ServerConnectionManager implements ConnectionManager {
                 }
             } else {
                 timeoutTimes = 0;
-                //Logs.HB.info("client heartbeat timeout times reset 0, connection={}", connection);
             }
             startTimeout();
         }

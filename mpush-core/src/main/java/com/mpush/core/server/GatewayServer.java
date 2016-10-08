@@ -52,7 +52,7 @@ public final class GatewayServer extends NettyServer {
         super.init();
         MessageDispatcher receiver = new MessageDispatcher();
         receiver.register(Command.GATEWAY_PUSH, new GatewayPushHandler());
-        connectionManager = new ServerConnectionManager();
+        connectionManager = new ServerConnectionManager(false);
         channelHandler = new ServerChannelHandler(false, connectionManager, receiver);
         if (enabled) {
             trafficShapingHandler = new GlobalChannelTrafficShapingHandler(

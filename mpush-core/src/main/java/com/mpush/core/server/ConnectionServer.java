@@ -50,7 +50,7 @@ public final class ConnectionServer extends NettyServer {
     private ServerChannelHandler channelHandler;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
 
-    private ConnectionManager connectionManager = new ServerConnectionManager();
+    private ConnectionManager connectionManager = new ServerConnectionManager(true);
     private HttpClient httpClient;
 
     public ConnectionServer(int port) {
