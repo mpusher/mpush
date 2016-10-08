@@ -396,11 +396,13 @@ public final class RedisManager {
     }
 
     public void test() {
-        JedisCluster cluster = factory.getClusterConnection();
-        Jedis jedis = factory.getJedisConnection();
-        if (cluster == null && jedis == null) {
-            throw new RuntimeException("init redis sever error.");
+        if (factory.isCluster()) {
+            JedisCluster cluster = factory.getClusterConnection();
+            if (cluster == null) throw new RuntimeException("init redis cluster error.");
+        } else {
+            Jedis jedis = factory.getJedisConnection();
+            if (jedis == null) throw new RuntimeException("init redis error, can not get connection.");
+            jedis.close();
         }
-        if (jedis != null) jedis.close();
     }
 }

@@ -24,6 +24,7 @@ import redis.clients.jedis.*;
 import redis.clients.util.Pool;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -94,10 +95,10 @@ public class RedisConnectionFactory {
             }
         }
 
-        if (redisServers.size() == 1) {
-            this.pool = createPool();
-        } else {
+        if (isCluster) {
             this.cluster = createCluster();
+        } else {
+            this.pool = createPool();
         }
     }
 
@@ -318,7 +319,10 @@ public class RedisConnectionFactory {
     }
 
     public void setRedisServers(List<RedisServer> redisServers) {
+        Objects.requireNonNull(redisServers);
         this.redisServers = redisServers;
+        this.hostName = redisServers.get(0).getHost();
+        this.port = redisServers.get(0).getPort();
     }
 
 
