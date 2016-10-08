@@ -129,7 +129,7 @@ public class ZKClient extends BaseService {
     private void addConnectionStateListener() {
         client.getConnectionStateListenable().addListener((cli, newState) -> {
             if (newState == ConnectionState.RECONNECTED) {
-                ephemeralNodes.forEach(this::registerEphemeralSequential);
+                ephemeralNodes.forEach(this::reRegisterEphemeralSequential);
             }
             Logs.ZK.warn("zk connection state changed new state={}, isConnected={}", newState, newState.isConnected());
         });
@@ -269,16 +269,27 @@ public class ZKClient extends BaseService {
      * 注册临时顺序数据
      *
      * @param key
+     * @param value
+     * @param cacheNode
      */
-    public void registerEphemeralSequential(final String key, final String value) {
+    private void registerEphemeralSequential(final String key, final String value, boolean cacheNode) {
         try {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key, value.getBytes());
-            ephemeralNodes.put(key, value);
+            if (cacheNode) ephemeralNodes.put(key, value);
         } catch (Exception ex) {
             Logs.ZK.error("persistEphemeralSequential:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
     }
+
+    private void reRegisterEphemeralSequential(final String key, final String value) {
+        registerEphemeralSequential(key, value, false);
+    }
+
+    public void registerEphemeralSequential(final String key, final String value) {
+        registerEphemeralSequential(key, value, true);
+    }
+
 
     /**
      * 注册临时顺序数据
