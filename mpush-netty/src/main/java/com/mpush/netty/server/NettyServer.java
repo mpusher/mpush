@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public abstract class NettyServer extends BaseService implements Server {
 
-    private static final  Logger logger = LoggerFactory.getLogger(NettyServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
     public enum State {Created, Initialized, Starting, Started, Shutdown}
 
@@ -103,7 +103,7 @@ public abstract class NettyServer extends BaseService implements Server {
         }
     }
 
-    private void createServer(final Listener listener, EventLoopGroup boss, EventLoopGroup work, Class<? extends ServerChannel> clazz) {
+    private void createServer(Listener listener, EventLoopGroup boss, EventLoopGroup work, Class<? extends ServerChannel> clazz) {
         /***
          * NioEventLoopGroup 是用来处理I/O操作的多线程事件循环器，
          * Netty提供了许多不同的EventLoopGroup的实现用来处理不同传输协议。
@@ -189,6 +189,7 @@ public abstract class NettyServer extends BaseService implements Server {
     private void createNioServer(Listener listener) {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(1, getBossExecutor());
         NioEventLoopGroup workerGroup = new NioEventLoopGroup(0, getWorkExecutor());
+        workerGroup.setIoRatio(getIoRate());
         createServer(listener, bossGroup, workerGroup, NioServerSocketChannel.class);
     }
 
@@ -196,6 +197,7 @@ public abstract class NettyServer extends BaseService implements Server {
     private void createEpollServer(Listener listener) {
         EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1, getBossExecutor());
         EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(0, getWorkExecutor());
+        workerGroup.setIoRatio(getIoRate());
         createServer(listener, bossGroup, workerGroup, EpollServerSocketChannel.class);
     }
 
@@ -244,10 +246,8 @@ public abstract class NettyServer extends BaseService implements Server {
         return null;
     }
 
-    private boolean useNettyEpoll() {
-        if (!"netty".equals(CC.mp.core.epoll_provider)) return false;
-        String name = CC.cfg.getString("os.name").toLowerCase(Locale.UK).trim();
-        return name.startsWith("linux");
+    protected int getIoRate() {
+        return 70;
     }
 
     @Override
@@ -258,5 +258,11 @@ public abstract class NettyServer extends BaseService implements Server {
     @Override
     protected void doStop(Listener listener) throws Throwable {
 
+    }
+
+    private boolean useNettyEpoll() {
+        if (!"netty".equals(CC.mp.core.epoll_provider)) return false;
+        String name = CC.cfg.getString("os.name").toLowerCase(Locale.UK).trim();
+        return name.startsWith("linux");
     }
 }
