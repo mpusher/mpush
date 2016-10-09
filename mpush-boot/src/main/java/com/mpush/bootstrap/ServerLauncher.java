@@ -50,7 +50,7 @@ public final class ServerLauncher {
                 .setNext(new ServerBoot(connectServer, csNode))//3.启动长连接服务
                 .setNext(new ServerBoot(gatewayServer, gsNode))//4.启动网关服务
                 .setNext(new ServerBoot(adminServer, null))//5.启动控制台服务
-                .setNext(new HttpProxyBoot())//6.启动http代理服务，解析dnsgit
+                .setNext(new HttpProxyBoot())//6.启动http代理服务，解析dns
                 .setNext(new MonitorBoot())//7.启动监控
                 .setNext(new LastBoot());//8.启动结束
     }
