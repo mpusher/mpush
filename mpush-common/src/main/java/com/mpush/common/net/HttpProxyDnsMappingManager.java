@@ -109,20 +109,17 @@ public class HttpProxyDnsMappingManager extends BaseService implements DnsMappin
         logger.debug("start dns mapping checkHealth");
         Map<String, List<DnsMapping>> all = this.getAll();
         Map<String, List<DnsMapping>> available = Maps.newConcurrentMap();
-        for (Map.Entry<String, List<DnsMapping>> entry : all.entrySet()) {
-            String key = entry.getKey();
-            List<DnsMapping> value = entry.getValue();
+        all.forEach((key, dnsMappings) -> {
             List<DnsMapping> nowValue = Lists.newArrayList();
-            for (DnsMapping temp : value) {
-                boolean isOk = checkHealth(temp.getIp(), temp.getPort());
-                if (isOk) {
-                    nowValue.add(temp);
+            dnsMappings.forEach(dnsMapping -> {
+                if (checkHealth(dnsMapping.getIp(), dnsMapping.getPort())) {
+                    nowValue.add(dnsMapping);
                 } else {
-                    logger.error("dns can not reachable:" + Jsons.toJson(temp));
+                    logger.error("dns can not reachable:" + Jsons.toJson(dnsMapping));
                 }
-            }
+            });
             available.put(key, nowValue);
-        }
+        });
         this.update(available);
     }
 }

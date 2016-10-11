@@ -82,6 +82,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             boolean success = RouterCenter.I.register(message.userId, message.getConnection());
             if (success) {
                 context.userId = message.userId;
+                context.tags = message.tags;
                 EventBus.I.post(new UserOnlineEvent(message.getConnection(), message.userId));
                 OkMessage.from(message).setData("bind success").send();
                 Logs.Conn.info("bind user success, userId={}, session={}", message.userId, context);
@@ -138,6 +139,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             //4.路由删除成功，广播用户下线事件
             if (unRegisterSuccess) {
                 context.userId = null;
+                context.tags = null;
                 EventBus.I.post(new UserOfflineEvent(message.getConnection(), userId));
                 OkMessage.from(message).setData("unbind success").send();
                 Logs.Conn.info("unbind user success, userId={}, session={}", userId, context);

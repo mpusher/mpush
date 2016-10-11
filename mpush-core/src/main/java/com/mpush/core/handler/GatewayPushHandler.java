@@ -100,57 +100,63 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
      */
     private void sendBroadcast(GatewayPushMessage message) {
         Set<String> sendUserIds = new CopyOnWriteArraySet<>();
+        Set<String> tagList = message.tags;
         LocalRouterManager routerManager = RouterCenter.I.getLocalRouterManager();
         AtomicInteger tasks = new AtomicInteger();//总任务数, 0表示任务全部结束
         long begin = System.currentTimeMillis();
         for (int start = 0, limit = 1000; ; start += limit) {
             List<String> userIds = UserManager.I.getOnlineUserList(start, limit);
             tasks.addAndGet(userIds.size());//增加任务数
+            userIds.forEach(userId -> {
+                for (LocalRouter router : routerManager.lookupAll(userId)) {
+                    Connection connection = router.getRouteValue();
+                    int clientType = router.getClientType();
 
-            userIds.forEach(userId -> routerManager.lookupAll(userId).forEach(router -> {
-                Connection connection = router.getRouteValue();
-                int clientType = router.getClientType();
+                    //2.按标签过滤,
+                    String tags = connection.getSessionContext().tags;
+                    if (tagList != null && tags != null) {
+                        if (tagList.stream().noneMatch(tags::contains)) break;
+                    }
 
-                if (connection.isConnected()) {
-                    //TODO check tags sessionContext ?
+                    if (connection.isConnected()) {
+                        //3.链接可用，直接下发消息到手机客户端
+                        PushMessage pushMessage = new PushMessage(message.content, connection);
+                        pushMessage.getPacket().flags = message.getPacket().flags;
 
-                    //3.链接可用，直接下发消息到手机客户端
-                    PushMessage pushMessage = new PushMessage(message.content, connection);
-                    pushMessage.getPacket().flags = message.getPacket().flags;
+                        pushMessage.send(future -> {
 
-                    pushMessage.send(future -> {
+                            if (!sendUserIds.contains(userId)) {
+                                tasks.decrementAndGet();//完成一个任务
+                            }
 
-                        if (!sendUserIds.contains(userId)) {
-                            tasks.decrementAndGet();//完成一个任务
-                        }
+                            if (future.isSuccess()) {//推送成功
+                                sendUserIds.add(userId);
+                                Logs.PUSH.info("gateway broadcast client success, userId={}, message={}", userId, message);
 
-                        if (future.isSuccess()) {//推送成功
-                            sendUserIds.add(userId);
-                            Logs.PUSH.info("gateway broadcast client success, userId={}, message={}", userId, message);
+                            } else {//推送失败
+                                Logs.PUSH.info("gateway broadcast client failure, userId={}, message={}", userId, message);
+                            }
 
-                        } else {//推送失败
-                            Logs.PUSH.info("gateway broadcast client failure, userId={}, message={}", userId, message);
-                        }
+                            if (tasks.get() == 0) {//任务全部结束
+                                Logs.PUSH.info("gateway broadcast finished, cost={}, message={}", (System.currentTimeMillis() - begin), message);
+                                OkMessage.from(message).setData(Jsons.toJson(sendUserIds)).sendRaw();
+                            }
+                        });
+                    } else { //2.如果链接失效，先删除本地失效的路由，再查下远程路由，看用户是否登陆到其他机器
+                        Logs.PUSH.info("gateway broadcast, router in local but disconnect, message={}", message);
+
+                        tasks.decrementAndGet();//完成一个任务
+
+                        //删除已经失效的本地路由
+                        RouterCenter.I.getLocalRouterManager().unRegister(userId, clientType);
 
                         if (tasks.get() == 0) {//任务全部结束
                             Logs.PUSH.info("gateway broadcast finished, cost={}, message={}", (System.currentTimeMillis() - begin), message);
                             OkMessage.from(message).setData(Jsons.toJson(sendUserIds)).sendRaw();
                         }
-                    });
-                } else { //2.如果链接失效，先删除本地失效的路由，再查下远程路由，看用户是否登陆到其他机器
-                    Logs.PUSH.info("gateway broadcast, router in local but disconnect, message={}", message);
-
-                    tasks.decrementAndGet();//完成一个任务
-
-                    //删除已经失效的本地路由
-                    RouterCenter.I.getLocalRouterManager().unRegister(userId, clientType);
-
-                    if (tasks.get() == 0) {//任务全部结束
-                        Logs.PUSH.info("gateway broadcast finished, cost={}, message={}", (System.currentTimeMillis() - begin), message);
-                        OkMessage.from(message).setData(Jsons.toJson(sendUserIds)).sendRaw();
                     }
                 }
-            }));
+            });
 
             if (userIds.size() != limit) break;//查询完毕
         }
@@ -163,6 +169,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
      * @param message message
      * @return true/false true:success
      */
+
     private boolean checkLocal(final GatewayPushMessage message) {
         String userId = message.userId;
         int clientType = message.clientType;

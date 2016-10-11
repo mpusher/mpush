@@ -32,6 +32,7 @@ public final class SessionContext {
     public String clientVersion;
     public String deviceId;
     public String userId;
+    public String tags;
     public int heartbeat;
     public Cipher cipher;
     private int clientType;
