@@ -112,7 +112,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
                     Connection connection = router.getRouteValue();
                     int clientType = router.getClientType();
 
-                    //2.按标签过滤,
+                    //2.按标签过滤,目前只有include,后续会增加exclude
                     String tags = connection.getSessionContext().tags;
                     if (tagList != null && tags != null) {
                         if (tagList.stream().noneMatch(tags::contains)) break;

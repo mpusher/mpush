@@ -51,7 +51,7 @@ public class PushContext {
     private List<String> userIds;
 
     /**
-     * 用户标签过滤
+     * 用户标签过滤,目前只有include, 后续会增加exclude
      */
     private Set<String> tags;
 
