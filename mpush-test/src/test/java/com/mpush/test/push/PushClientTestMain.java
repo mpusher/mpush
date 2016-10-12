@@ -43,8 +43,9 @@ public class PushClientTestMain {
 
             PushContext context = PushContext.build(msg)
                     .setBroadcast(false)
+                    .setAckModel(AckModel.AUTO_ACK)
                     .setUserIds(Arrays.asList("user-0", "user-1"))
-                    .setTimeout(100000)
+                    .setTimeout(2000)
                     .setCallback(new PushCallback() {
                         @Override
                         public void onResult(PushResult result) {
