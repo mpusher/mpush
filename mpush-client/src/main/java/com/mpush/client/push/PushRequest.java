@@ -57,7 +57,7 @@ public class PushRequest extends FutureTask<Boolean> {
     private PushCallback callback;
     private String userId;
     private byte[] content;
-    private long timeout;
+    private int timeout;
     private ClientLocation location;
     private Future<?> future;
     private String result;
@@ -91,6 +91,7 @@ public class PushRequest extends FutureTask<Boolean> {
         GatewayPushMessage pushMessage =
                 new GatewayPushMessage(userId, content, gatewayConn)
                         .setClientType(location.getClientType())
+                        .setTimeout(timeout - 500)
                         .addFlag(ackModel.flag);
 
         pushMessage.sendRaw(f -> {
@@ -228,7 +229,7 @@ public class PushRequest extends FutureTask<Boolean> {
         return this;
     }
 
-    public PushRequest setTimeout(long timeout) {
+    public PushRequest setTimeout(int timeout) {
         this.timeout = timeout;
         return this;
     }

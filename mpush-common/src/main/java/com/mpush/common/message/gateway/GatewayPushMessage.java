@@ -40,6 +40,7 @@ public class GatewayPushMessage extends ByteBufMessage {
     public String userId;
     public Set<String> tags;
     public int clientType;
+    public int timeout;
     public byte[] content;
 
     public GatewayPushMessage(String userId, byte[] content, Connection connection) {
@@ -57,6 +58,7 @@ public class GatewayPushMessage extends ByteBufMessage {
         userId = decodeString(body);
         tags = decodeSet(body);
         clientType = decodeInt(body);
+        timeout = decodeInt(body);
         content = decodeBytes(body);
     }
 
@@ -65,6 +67,7 @@ public class GatewayPushMessage extends ByteBufMessage {
         encodeString(body, userId);
         encodeSet(body, tags);
         encodeInt(body, clientType);
+        encodeInt(body, timeout);
         encodeBytes(body, content);
     }
 
@@ -87,6 +90,11 @@ public class GatewayPushMessage extends ByteBufMessage {
 
     public GatewayPushMessage addFlag(byte flag) {
         packet.addFlag(flag);
+        return this;
+    }
+
+    public GatewayPushMessage setTimeout(int timeout) {
+        this.timeout = timeout;
         return this;
     }
 
@@ -113,6 +121,7 @@ public class GatewayPushMessage extends ByteBufMessage {
         return "GatewayPushMessage{" +
                 "userId='" + userId + '\'' +
                 ", clientType='" + clientType + '\'' +
+                ", timeout='" + timeout + '\'' +
                 ", content='" + content.length + '\'' +
                 '}';
     }

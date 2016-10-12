@@ -42,7 +42,9 @@ import static com.mpush.tools.thread.ThreadNames.T_ARK_REQ_TIMER;
  */
 public final class AckMessageQueue {
     private final Logger logger = LoggerFactory.getLogger(AckMessageQueue.class);
+    private static final int DEFAULT_TIMEOUT = 3000;
     public static final AckMessageQueue I = new AckMessageQueue();
+
     private final ConcurrentMap<Integer, AckContext> queue = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduledExecutor;
 
@@ -52,10 +54,10 @@ public final class AckMessageQueue {
         });
     }
 
-    public void put(int sessionId, AckContext context) {
+    public void put(int sessionId, AckContext context, int timeout) {
         queue.put(sessionId, context);
         context.pushMessageId = sessionId;
-        scheduledExecutor.schedule(context, 3, TimeUnit.SECONDS);
+        scheduledExecutor.schedule(context, timeout > 0 ? timeout : DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
     public AckContext getAndRemove(int sessionId) {

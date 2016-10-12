@@ -73,7 +73,7 @@ public class PushContext {
     /**
      * 推送超时时间
      */
-    private long timeout = 3000;
+    private int timeout = 3000;
 
     public PushContext(byte[] context) {
         this.context = context;
@@ -144,11 +144,11 @@ public class PushContext {
         return this;
     }
 
-    public long getTimeout() {
+    public int getTimeout() {
         return timeout;
     }
 
-    public PushContext setTimeout(long timeout) {
+    public PushContext setTimeout(int timeout) {
         this.timeout = timeout;
         return this;
     }
