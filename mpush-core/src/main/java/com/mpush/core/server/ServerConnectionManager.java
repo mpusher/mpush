@@ -84,7 +84,7 @@ public final class ServerConnectionManager implements ConnectionManager {
     @Override
     public void add(Connection connection) {
         connections.putIfAbsent(connection.getChannel().id().asShortText(), connection);
-        if (heartbeatCheck) new HeartbeatCheckTask(connection).startTimeout();
+        //if (heartbeatCheck) new HeartbeatCheckTask(connection).startTimeout();
     }
 
     @Override

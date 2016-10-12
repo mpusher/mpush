@@ -77,12 +77,19 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
 
     @Override
     public ChannelFuture send(Packet packet, final ChannelFutureListener listener) {
-        if (channel.isActive() && channel.isWritable()) {
+        if (channel.isActive()) {
+            ChannelFuture future = channel.writeAndFlush(packet).addListener(this);
+
             if (listener != null) {
-                return channel.writeAndFlush(packet).addListener(listener).addListener(this);
-            } else {
-                return channel.writeAndFlush(packet).addListener(this);
+                future.addListener(listener);
             }
+
+            if (channel.isWritable()) {
+                return future;
+            }
+
+            //阻塞调用线程？
+            return future.awaitUninterruptibly();
         } else {
             return this.close();
         }

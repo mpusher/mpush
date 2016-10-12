@@ -119,29 +119,35 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
                     }
 
                     if (connection.isConnected()) {
-                        //3.链接可用，直接下发消息到手机客户端
-                        PushMessage pushMessage = new PushMessage(message.content, connection);
-                        pushMessage.getPacket().flags = message.getPacket().flags;
 
-                        pushMessage.send(future -> {
+                        if (connection.getChannel().isWritable()) {//检测TCP缓冲区是否已满且写队列超过最高阀值
+                            //3.链接可用，直接下发消息到手机客户端
+                            PushMessage pushMessage = new PushMessage(message.content, connection);
+                            pushMessage.getPacket().flags = message.getPacket().flags;
 
-                            if (!sendUserIds.contains(userId)) {
-                                tasks.decrementAndGet();//完成一个任务
-                            }
+                            pushMessage.send(future -> {
 
-                            if (future.isSuccess()) {//推送成功
-                                sendUserIds.add(userId);
-                                Logs.PUSH.info("gateway broadcast client success, userId={}, message={}", userId, message);
+                                if (!sendUserIds.contains(userId)) {
+                                    tasks.decrementAndGet();//完成一个任务
+                                }
 
-                            } else {//推送失败
-                                Logs.PUSH.info("gateway broadcast client failure, userId={}, message={}", userId, message);
-                            }
+                                if (future.isSuccess()) {//推送成功
+                                    sendUserIds.add(userId);
+                                    Logs.PUSH.info("gateway broadcast client success, userId={}, message={}", userId, message);
 
-                            if (tasks.get() == 0) {//任务全部结束
-                                Logs.PUSH.info("gateway broadcast finished, cost={}, message={}", (System.currentTimeMillis() - begin), message);
-                                OkMessage.from(message).setData(Jsons.toJson(sendUserIds)).sendRaw();
-                            }
-                        });
+                                } else {//推送失败
+                                    Logs.PUSH.info("gateway broadcast client failure, userId={}, message={}", userId, message);
+                                }
+
+                                if (tasks.get() == 0) {//任务全部结束
+                                    Logs.PUSH.info("gateway broadcast finished, cost={}, message={}", (System.currentTimeMillis() - begin), message);
+                                    OkMessage.from(message).setData(Jsons.toJson(sendUserIds)).sendRaw();
+                                }
+                            });
+                        } else {
+                            tasks.decrementAndGet();//完成一个任务
+                            Logs.PUSH.info("gateway broadcast client failure, send too busy, userId={}, message={}", userId, message);
+                        }
                     } else { //2.如果链接失效，先删除本地失效的路由，再查下远程路由，看用户是否登陆到其他机器
                         Logs.PUSH.info("gateway broadcast, router in local but disconnect, message={}", message);
 
@@ -191,7 +197,15 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
             return false;
         }
 
-        //3.链接可用，直接下发消息到手机客户端
+        //3.检测TCP缓冲区是否已满且写队列超过最高阀值
+        if (!connection.getChannel().isWritable()) {
+            ErrorMessage.from(message).setErrorCode(PUSH_CLIENT_FAILURE).setData(userId + ',' + clientType).sendRaw();
+
+            Logs.PUSH.info("gateway push message to client failure, send too busy, message={}", message);
+            return true;
+        }
+
+        //4.链接可用，直接下发消息到手机客户端
         PushMessage pushMessage = new PushMessage(message.content, connection);
         pushMessage.getPacket().flags = message.getPacket().flags;
 
@@ -199,7 +213,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
             if (future.isSuccess()) {//推送成功
 
                 if (message.needAck()) {//需要客户端ACK, 消息进队列等待客户端响应ACK
-                    AckMessageQueue.I.put(pushMessage.getSessionId(), buildAckContext(message));
+                    AckMessageQueue.I.put(pushMessage.getSessionId(), buildAckContext(message), message.timeout);
                 } else {
                     OkMessage.from(message).setData(userId + ',' + clientType).sendRaw();
                 }
