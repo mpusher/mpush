@@ -21,33 +21,31 @@ package com.mpush.cache.redis;
 
 public final class RedisKey {
 
-    private static final String USER_PREFIX = "mp_uc_";
+    private static final String USER_PREFIX = "mp:ur:";//用户路由
 
-    private static final String SESSION_PREFIX = "mp_s_";
+    private static final String SESSION_PREFIX = "mp:rs:";//可复用session
 
-    private static final String FAST_CONNECTION_DEVICE_PREFIX = "mp_f_c_d_";
+    private static final String FAST_CONNECTION_DEVICE_PREFIX = "mp:fcd:";
 
-    private static final String USER_ONLINE_KEY = "mp_u_ol_";
+    private static final String ONLINE_USER_LIST_KEY_PREFIX = "mp:oul:";//在线用户列表
 
-    public static final String SESSION_AES_KEY = "mp_s_a_k";
-    public static final String SESSION_AES_SEQ_KEY = "mp_s_a_s_k";
+    public static final String SESSION_AES_KEY = "mp:sa";
+    public static final String SESSION_AES_SEQ_KEY = "mp:sas";
 
-    public static final String getUserKey(String userId) {
+    public static String getUserRouteKey(String userId) {
         return USER_PREFIX + userId;
     }
 
-    public static final String getSessionKey(String sessionId) {
+    public static String getSessionKey(String sessionId) {
         return SESSION_PREFIX + sessionId;
     }
 
-    //for fast connection test
-    public static final String getDeviceIdKey(String deviceId) {
+    public static String getDeviceIdKey(String deviceId) {
         return FAST_CONNECTION_DEVICE_PREFIX + deviceId;
     }
 
-    public static final String getUserOnlineKey(String extranetAddress) {
-        return USER_ONLINE_KEY + extranetAddress;
+    public static String getOnlineUserListKey(String publicIP) {
+        return ONLINE_USER_LIST_KEY_PREFIX + publicIP;
     }
-
 
 }

@@ -24,7 +24,6 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.event.ConnectionCloseEvent;
 import com.mpush.api.router.ClientLocation;
-import com.mpush.api.router.ClientType;
 import com.mpush.api.router.RouterManager;
 import com.mpush.cache.redis.RedisKey;
 import com.mpush.cache.redis.manager.RedisManager;
@@ -47,7 +46,7 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
 
     @Override
     public RemoteRouter register(String userId, RemoteRouter router) {
-        String key = RedisKey.getUserKey(userId);
+        String key = RedisKey.getUserRouteKey(userId);
         String field = Integer.toString(router.getRouteValue().getClientType());
         ClientLocation old = RedisManager.I.hget(key, field, ClientLocation.class);
         RedisManager.I.hset(key, field, router.getRouteValue());
@@ -65,7 +64,7 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
      */
     @Override
     public boolean unRegister(String userId, int clientType) {
-        String key = RedisKey.getUserKey(userId);
+        String key = RedisKey.getUserRouteKey(userId);
         String field = Integer.toString(clientType);
         ClientLocation location = RedisManager.I.hget(key, field, ClientLocation.class);
         if (location == null || location.isOffline()) return true;
@@ -76,7 +75,7 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
 
     @Override
     public Set<RemoteRouter> lookupAll(String userId) {
-        String key = RedisKey.getUserKey(userId);
+        String key = RedisKey.getUserRouteKey(userId);
         Map<String, ClientLocation> values = RedisManager.I.hgetAll(key, ClientLocation.class);
         if (values == null || values.isEmpty()) return Collections.emptySet();
         return values.values().stream().map(RemoteRouter::new).collect(Collectors.toSet());
@@ -84,7 +83,7 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
 
     @Override
     public RemoteRouter lookup(String userId, int clientType) {
-        String key = RedisKey.getUserKey(userId);
+        String key = RedisKey.getUserRouteKey(userId);
         String field = Integer.toString(clientType);
         ClientLocation location = RedisManager.I.hget(key, field, ClientLocation.class);
         LOGGER.info("lookup remote router userId={}, router={}", userId, location);
@@ -103,7 +102,7 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
         SessionContext context = connection.getSessionContext();
         String userId = context.userId;
         if (userId == null) return;
-        String key = RedisKey.getUserKey(userId);
+        String key = RedisKey.getUserRouteKey(userId);
         String field = Integer.toString(context.getClientType());
         ClientLocation location = RedisManager.I.hget(key, field, ClientLocation.class);
         if (location == null || location.isOffline()) return;
