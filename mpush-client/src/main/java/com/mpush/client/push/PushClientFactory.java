@@ -20,6 +20,7 @@
 package com.mpush.client.push;
 
 import com.mpush.api.push.PushSender;
+import com.mpush.api.spi.Spi;
 import com.mpush.api.spi.client.PusherFactory;
 
 /**
@@ -27,6 +28,7 @@ import com.mpush.api.spi.client.PusherFactory;
  *
  * @author ohun@live.cn
  */
+@Spi
 public class PushClientFactory implements PusherFactory {
     private static PushClient CLIENT;
 

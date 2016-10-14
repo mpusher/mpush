@@ -19,13 +19,15 @@
 
 package com.mpush.api.spi;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class SpiLoader {
     private static final Map<String, Object> CACHE = new ConcurrentHashMap<>();
+
+    public static void clear() {
+        CACHE.clear();
+    }
 
     public static <T> T load(Class<T> clazz) {
         return load(clazz, null);
@@ -65,9 +67,20 @@ public final class SpiLoader {
     private static <T> T filterByName(ServiceLoader<T> factories, String name) {
         Iterator<T> it = factories.iterator();
         if (name == null) {
-            if (it.hasNext()) {
-                return it.next();
+            List<T> list = new ArrayList<T>(2);
+            while (it.hasNext()) {
+                list.add(it.next());
             }
+            if (list.size() > 1) {
+                list.sort((o1, o2) -> {
+                    Spi spi1 = o1.getClass().getAnnotation(Spi.class);
+                    Spi spi2 = o2.getClass().getAnnotation(Spi.class);
+                    int order1 = spi1 == null ? 0 : spi1.order();
+                    int order2 = spi2 == null ? 0 : spi2.order();
+                    return order1 - order2;
+                });
+            }
+            if (list.size() > 0) return list.get(0);
         } else {
             while (it.hasNext()) {
                 T t = it.next();

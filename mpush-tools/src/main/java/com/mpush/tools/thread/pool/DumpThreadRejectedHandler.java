@@ -66,9 +66,9 @@ public class DumpThreadRejectedHandler implements RejectedExecutionHandler {
     }
 
     private void dumpJVMInfo() {
-        LOGGER.error("start dump jvm info");
+        LOGGER.info("start dump jvm info");
         JVMUtil.dumpJstack(DUMP_DIR + "/" + poolConfig.getName());
-        LOGGER.error("end dump jvm info");
+        LOGGER.info("end dump jvm info");
     }
 }
 

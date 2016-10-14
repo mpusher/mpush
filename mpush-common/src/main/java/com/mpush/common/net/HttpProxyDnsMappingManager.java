@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
+import com.mpush.api.spi.Spi;
 import com.mpush.api.spi.net.DnsMapping;
 import com.mpush.api.spi.net.DnsMappingManager;
 import com.mpush.tools.Jsons;
@@ -40,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.mpush.tools.Utils.checkHealth;
 
+@Spi(order = 1)
 public class HttpProxyDnsMappingManager extends BaseService implements DnsMappingManager, Runnable {
     private final Logger logger = LoggerFactory.getLogger(HttpProxyDnsMappingManager.class);
     private final ZKDnsNodeWatcher watcher = new ZKDnsNodeWatcher();
@@ -71,10 +73,8 @@ public class HttpProxyDnsMappingManager extends BaseService implements DnsMappin
 
     @Override
     public void init() {
-        logger.error("start init dnsMapping");
         all.putAll(CC.mp.http.dns_mapping);
         available.putAll(CC.mp.http.dns_mapping);
-        logger.error("end init dnsMapping");
     }
 
     @Override
@@ -115,7 +115,7 @@ public class HttpProxyDnsMappingManager extends BaseService implements DnsMappin
                 if (checkHealth(dnsMapping.getIp(), dnsMapping.getPort())) {
                     nowValue.add(dnsMapping);
                 } else {
-                    logger.error("dns can not reachable:" + Jsons.toJson(dnsMapping));
+                    logger.warn("dns can not reachable:" + Jsons.toJson(dnsMapping));
                 }
             });
             available.put(key, nowValue);
