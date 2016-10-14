@@ -1,30 +1,184 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="false">
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+
+    <!-- app log -->
+    <appender name="MPUSH_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <append>true</append>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- info log -->
+    <appender name="MPUSH_INFO_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>info</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <target>System.out</target>
+        <append>true</append>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- debug log -->
+    <appender name="MPUSH_DEBUG_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>debug</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <target>System.out</target>
+        <append>true</append>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- monitor log -->
+    <appender name="MONITOR_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <encoding>UTF-8</encoding>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
         </filter>
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
-        </layout>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
     </appender>
 
-    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- connection log -->
+    <appender name="CONNECTION_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoding>UTF-8</encoding>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- push log -->
+    <appender name="PUSH_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoding>UTF-8</encoding>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- heartbeat log -->
+    <appender name="HEARTBEAT_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoding>UTF-8</encoding>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- redis log -->
+    <appender name="REDIS_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoding>UTF-8</encoding>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- http log -->
+    <appender name="HTTP_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoding>UTF-8</encoding>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- zk log -->
+    <appender name="ZK_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoding>UTF-8</encoding>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder charset="UTF-8">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.err</target>
         <encoding>UTF-8</encoding>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>debug</level>
+            <level>DEBUG</level>
         </filter>
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} - %msg%n</pattern>
         </layout>
     </appender>
 
     <root>
         <level value="debug"/>
-        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="MPUSH_APPENDER"/>
+        <appender-ref ref="MPUSH_INFO_APPENDER"/>
+        <appender-ref ref="MPUSH_DEBUG_APPENDER"/>
     </root>
-    <logger name="org.apache.zookeeper.ClientCnxn" level="error"/>
+
+    <logger name="console" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <logger name="mpush.conn.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="CONNECTION_APPENDER"/>
+    </logger>
+    <logger name="mpush.heartbeat.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="HEARTBEAT_APPENDER"/>
+    </logger>
+    <logger name="mpush.http.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="HTTP_APPENDER"/>
+    </logger>
+    <logger name="mpush.monitor.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="MONITOR_APPENDER"/>
+    </logger>
+    <logger name="mpush.push.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="PUSH_APPENDER"/>
+    </logger>
+    <logger name="mpush.redis.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="REDIS_APPENDER"/>
+    </logger>
+    <logger name="mpush.zk.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="ZK_APPENDER"/>
+    </logger>
+
+    <logger name="org.apache.zookeeper.ClientCnxn" additivity="false">
+        <level value="warn"/>
+        <appender-ref ref="MPUSH_ERROR_APPENDER"/>
+    </logger>
 </configuration>
+

@@ -41,7 +41,7 @@ public class ZKRedisNodeWatcher extends ZKNodeCacheWatcher {
 
     private void refresh() {
         String rawGroup = ZKClient.I.get(ZKPath.REDIS_SERVER.getRootPath());
-        logger.warn("refresh zk redis node cache, data=" + rawGroup);
+        logger.info("refresh zk redis node cache, data=" + rawGroup);
         if (Strings.isNullOrEmpty(rawGroup)) return;
         ZKRedisNode[] group = Jsons.fromJson(rawGroup, ZKRedisNode[].class);
         if (group == null) return;

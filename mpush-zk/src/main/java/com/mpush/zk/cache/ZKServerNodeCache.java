@@ -51,7 +51,7 @@ public class ZKServerNodeCache implements ZKNodeCache<ZKServerNode> {
         if (StringUtils.isNotBlank(fullPath) && node != null) {
             nodes.put(fullPath, node);
         } else {
-            logger.error("fullPath is null or application is null");
+            logger.error("fullPath is null or zkNode is null");
         }
         printCache();
     }
