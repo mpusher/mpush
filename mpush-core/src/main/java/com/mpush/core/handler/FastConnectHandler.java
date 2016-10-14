@@ -68,7 +68,7 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
                     .from(message)
                     .setHeartbeat(heartbeat)
                     .send();
-            Logs.Conn.info("fast connect success, session={}", session.context);
+            Logs.Conn.info(">>> fast connect success, session={}", session.context);
         }
     }
 }

@@ -46,7 +46,7 @@ public class AckHandler extends BaseMessageHandler<AckMessage> {
     public void handle(AckMessage message) {
         AckContext context = AckMessageQueue.I.getAndRemove(message.getSessionId());
         if (context == null) {
-            Logs.PUSH.info("receive client ack, but timeout message={}", message);
+            Logs.PUSH.info(">>> receive client ack, but timeout message={}", message);
             return;
         }
 

@@ -133,7 +133,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
 
                                 if (future.isSuccess()) {//推送成功
                                     sendUserIds.add(userId);
-                                    Logs.PUSH.info("gateway broadcast client success, userId={}, message={}", userId, message);
+                                    Logs.PUSH.info("<<< gateway broadcast client success, userId={}, message={}", userId, message);
 
                                 } else {//推送失败
                                     Logs.PUSH.info("gateway broadcast client failure, userId={}, message={}", userId, message);
@@ -218,7 +218,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
                     OkMessage.from(message).setData(userId + ',' + clientType).sendRaw();
                 }
 
-                Logs.PUSH.info("gateway push message to client success, message={}", message);
+                Logs.PUSH.info("<<< gateway push message to client success, message={}", message);
 
             } else {//推送失败
 
@@ -284,27 +284,27 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
                     @Override
                     public void onSuccess(AckContext ctx) {
                         if (!gatewayConnection.isConnected()) {
-                            Logs.PUSH.info("receive client ack, gateway connection is closed, context={}", ctx);
+                            Logs.PUSH.info(">>> receive client ack, gateway connection is closed, context={}", ctx);
                             return;
                         }
 
                         OkMessage okMessage = new OkMessage(ctx.cmd, new Packet(OK, ctx.gatewayMessageId), gatewayConnection);
                         okMessage.setData(userId + ',' + clientType);
                         okMessage.sendRaw();
-                        Logs.PUSH.info("receive client ack and response gateway client success, context={}", ctx);
+                        Logs.PUSH.info(">>> receive client ack and response gateway client success, context={}", ctx);
                     }
 
                     @Override
                     public void onTimeout(AckContext ctx) {
                         if (!gatewayConnection.isConnected()) {
-                            Logs.PUSH.info("receive client ack, gateway connection is closed, context={}", ctx);
+                            Logs.PUSH.info("push message timeout client not ack, gateway connection is closed, context={}", ctx);
                             return;
                         }
                         ErrorMessage errorMessage = new ErrorMessage(ctx.cmd, new Packet(ERROR, ctx.gatewayMessageId), gatewayConnection);
                         errorMessage.setData(userId + ',' + clientType);
                         errorMessage.setErrorCode(ErrorCode.ACK_TIMEOUT);
                         errorMessage.sendRaw();
-                        Logs.PUSH.info("push message success but client not ack, context={}", ctx);
+                        Logs.PUSH.info("push message timeout client not ack, context={}", ctx);
                     }
                 });
     }

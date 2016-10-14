@@ -85,7 +85,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 context.tags = message.tags;
                 EventBus.I.post(new UserOnlineEvent(message.getConnection(), message.userId));
                 OkMessage.from(message).setData("bind success").send();
-                Logs.Conn.info("bind user success, userId={}, session={}", message.userId, context);
+                Logs.Conn.info(">>> bind user success, userId={}, session={}", message.userId, context);
             } else {
                 //3.注册失败再处理下，防止本地注册成功，远程注册失败的情况，只有都成功了才叫成功
                 RouterCenter.I.unRegister(message.userId, context.getClientType());
@@ -142,7 +142,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 context.tags = null;
                 EventBus.I.post(new UserOfflineEvent(message.getConnection(), userId));
                 OkMessage.from(message).setData("unbind success").send();
-                Logs.Conn.info("unbind user success, userId={}, session={}", userId, context);
+                Logs.Conn.info(">>> unbind user success, userId={}, session={}", userId, context);
             } else {
                 ErrorMessage.from(message).setReason("unbind failed").send();
                 Logs.Conn.info("unbind user failure, register router failure, userId={}, session={}", userId, context);

@@ -133,7 +133,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                 }
             }
             response.send();
-            LOGGER.debug("callback success request={}, response={}", request, response);
+            LOGGER.debug("<<< callback success request={}, response={}", request, response);
         }
 
         @Override

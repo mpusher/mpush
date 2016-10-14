@@ -105,6 +105,6 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
 
         //10.触发握手成功事件
         EventBus.I.post(new HandshakeEvent(message.getConnection(), heartbeat));
-        Logs.Conn.info("handshake success, session={}", context);
+        Logs.Conn.info(">>> handshake success, session={}", context);
     }
 }
