@@ -20,8 +20,11 @@
 package com.mpush.core.handler;
 
 
+import com.mpush.api.MessageHandler;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
+import com.mpush.api.spi.Spi;
+import com.mpush.api.spi.handler.PushHandlerFactory;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.AckMessage;
 import com.mpush.common.message.PushMessage;
@@ -32,7 +35,8 @@ import com.mpush.tools.log.Logs;
  *
  * @author ohun@live.cn (夜色)
  */
-public final class ClientPushHandler extends BaseMessageHandler<PushMessage> {
+@Spi(order = 1)
+public final class ClientPushHandler extends BaseMessageHandler<PushMessage> implements PushHandlerFactory {
 
     @Override
     public PushMessage decode(Packet packet, Connection connection) {
@@ -48,5 +52,10 @@ public final class ClientPushHandler extends BaseMessageHandler<PushMessage> {
             Logs.PUSH.info("<<< send ack for push message={}", message);
         }
         //biz code write here
+    }
+
+    @Override
+    public MessageHandler get() {
+        return this;
     }
 }
