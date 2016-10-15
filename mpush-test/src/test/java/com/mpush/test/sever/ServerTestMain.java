@@ -28,6 +28,8 @@ import com.mpush.bootstrap.Main;
  */
 public class ServerTestMain {
     public static void main(String[] args) {
+        System.setProperty("io.netty.leakDetection.level", "PARANOID");
+        System.setProperty("io.netty.noKeySetOptimization", "false");
         Main.main(args);
     }
 }
