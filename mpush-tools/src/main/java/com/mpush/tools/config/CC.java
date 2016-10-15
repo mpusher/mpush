@@ -20,6 +20,7 @@
 package com.mpush.tools.config;
 
 import com.mpush.api.spi.net.DnsMapping;
+import com.mpush.tools.common.Profiler;
 import com.mpush.tools.config.data.RedisNode;
 import com.typesafe.config.*;
 
@@ -287,6 +288,8 @@ public interface CC {
             boolean dump_stack = cfg.getBoolean("dump-stack");
             boolean print_log = cfg.getBoolean("print-log");
             Duration dump_period = cfg.getDuration("dump-period");
+            boolean profile_enabled = cfg.getBoolean("profile-enabled");
+            Duration profile_slowly_duration = cfg.getDuration("profile-slowly-duration");
         }
 
         interface spi {
