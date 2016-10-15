@@ -35,6 +35,7 @@ import com.mpush.common.router.RemoteRouterManager;
 import com.mpush.core.router.LocalRouter;
 import com.mpush.core.router.LocalRouterManager;
 import com.mpush.core.router.RouterCenter;
+import com.mpush.tools.common.Profiler;
 import com.mpush.tools.event.EventBus;
 import com.mpush.tools.log.Logs;
 
@@ -71,7 +72,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             //处理重复绑定问题
             if (context.userId != null) {
                 if (message.userId.equals(context.userId)) {
-                    OkMessage.from(message).setData("bind success").send();
+                    OkMessage.from(message).setData("bind success").sendRaw();
                     return;
                 } else {
                     unbind(message);
@@ -84,7 +85,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 context.userId = message.userId;
                 context.tags = message.tags;
                 EventBus.I.post(new UserOnlineEvent(message.getConnection(), message.userId));
-                OkMessage.from(message).setData("bind success").send();
+                OkMessage.from(message).setData("bind success").sendRaw();
                 Logs.Conn.info(">>> bind user success, userId={}, session={}", message.userId, context);
             } else {
                 //3.注册失败再处理下，防止本地注册成功，远程注册失败的情况，只有都成功了才叫成功
@@ -125,7 +126,6 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                     unRegisterSuccess = remoteRouterManager.unRegister(userId, clientType);
                 }
             }
-
             //3.删除本地路由信息
             LocalRouterManager localRouterManager = RouterCenter.I.getLocalRouterManager();
             LocalRouter localRouter = localRouterManager.lookup(userId, clientType);
@@ -141,10 +141,10 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 context.userId = null;
                 context.tags = null;
                 EventBus.I.post(new UserOfflineEvent(message.getConnection(), userId));
-                OkMessage.from(message).setData("unbind success").send();
+                OkMessage.from(message).setData("unbind success").sendRaw();
                 Logs.Conn.info(">>> unbind user success, userId={}, session={}", userId, context);
             } else {
-                ErrorMessage.from(message).setReason("unbind failed").send();
+                ErrorMessage.from(message).setReason("unbind failed").sendRaw();
                 Logs.Conn.info("unbind user failure, register router failure, userId={}, session={}", userId, context);
             }
         } else {

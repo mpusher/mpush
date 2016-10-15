@@ -28,6 +28,7 @@ import com.mpush.core.router.RouterCenter;
 import com.mpush.core.server.AdminServer;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.Utils;
+import com.mpush.tools.common.Profiler;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.config.ConfigManager;
 import com.mpush.zk.ZKClient;
@@ -118,6 +119,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
                 buf.append("push:<uid>, <msg>                    push test msg to client" + EOL);
                 buf.append("conf:[key]                           show config info" + EOL);
                 buf.append("monitor:[mxBean]                     show system monitor" + EOL);
+                buf.append("profile:<1,0>                        enable/disable profile" + EOL);
                 return buf.toString();
             }
         },
@@ -203,9 +205,9 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
         push {
             @Override
             public String handler(ChannelHandlerContext ctx, String... args) throws Exception {
-                Boolean success = PushSender.create().send(args[1], args[0], null).get(5, TimeUnit.SECONDS);
+                //Boolean success = PushSender.create().send(args[1], args[0], null).get(5, TimeUnit.SECONDS);
 
-                return success.toString();
+                return "unsupported";
             }
         },
         conf {
@@ -218,6 +220,18 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
                     return CC.cfg.getAnyRef(args).toString();
                 }
                 return "key [" + args + "] not find in config";
+            }
+        },
+        profile {
+            @Override
+            public String handler(ChannelHandlerContext ctx, String args) throws Exception {
+                if (args == null || "0".equals(args)) {
+                    Profiler.enable(false);
+                    return "Profiler disabled";
+                } else {
+                    Profiler.enable(true);
+                    return "Profiler enabled";
+                }
             }
         },
         rcs {

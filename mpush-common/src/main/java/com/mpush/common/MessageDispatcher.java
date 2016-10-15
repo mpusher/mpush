@@ -53,8 +53,8 @@ public final class MessageDispatcher implements PacketReceiver {
     public void onReceive(Packet packet, Connection connection) {
         MessageHandler handler = handlers.get(packet.cmd);
         if (handler != null) {
+            Profiler.enter("time cost on [dispatch]");
             try {
-                Profiler.enter("start handle:" + handler.getClass().getSimpleName());
                 handler.handle(packet, connection);
             } catch (Throwable throwable) {
                 LOGGER.error("dispatch message ex, packet={}, connect={}, body={}"

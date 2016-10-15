@@ -24,6 +24,7 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.protocol.Packet;
 import com.mpush.tools.common.IOUtils;
+import com.mpush.tools.common.Profiler;
 import com.mpush.tools.config.CC;
 import io.netty.channel.ChannelFutureListener;
 
@@ -65,12 +66,16 @@ public abstract class BaseMessage implements Message {
             }
 
             packet.body = tmp;
+            Profiler.enter("time cost on [body decode]");
             decode(packet.body);
+            Profiler.release();
         }
     }
 
     protected void encodeBody() {
+        Profiler.enter("time cost on [body encode]");
         byte[] tmp = encode();
+        Profiler.release();
         if (tmp != null && tmp.length > 0) {
             //1.压缩
             if (tmp.length > CC.mp.core.compress_threshold) {

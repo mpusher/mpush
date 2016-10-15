@@ -104,6 +104,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
         LocalRouterManager routerManager = RouterCenter.I.getLocalRouterManager();
         AtomicInteger tasks = new AtomicInteger();//总任务数, 0表示任务全部结束
         long begin = System.currentTimeMillis();
+        //TODO 考虑使用线程池批量推送
         for (int start = 0, limit = 1000; ; start += limit) {
             List<String> userIds = UserManager.I.getOnlineUserList(start, limit);
             tasks.addAndGet(userIds.size());//增加任务数

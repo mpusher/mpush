@@ -70,7 +70,6 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     @Override
     public void handle(HttpRequestMessage message) {
         try {
-            Profiler.enter("start http proxy handler");
             //1.参数校验
             String method = message.getMethod();
             String uri = message.uri;
@@ -91,6 +90,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
             setHeaders(request, message);//处理header
             setBody(request, message);//处理body
 
+            Profiler.enter("time cost on [HttpClient]");
             //4.发送请求
             httpClient.request(new RequestContext(request, new DefaultHttpCallback(message)));
         } catch (Exception e) {
