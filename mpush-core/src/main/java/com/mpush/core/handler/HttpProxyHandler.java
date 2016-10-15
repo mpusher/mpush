@@ -85,12 +85,13 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
             //2.url转换
             uri = doDnsMapping(uri);
 
+            Profiler.enter("time cost on [create FullHttpRequest]");
             //3.包装成HTTP request
             FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.valueOf(method), uri);
             setHeaders(request, message);//处理header
             setBody(request, message);//处理body
 
-            Profiler.enter("time cost on [HttpClient]");
+            Profiler.enter("time cost on [HttpClient.request]");
             //4.发送请求
             httpClient.request(new RequestContext(request, new DefaultHttpCallback(message)));
         } catch (Exception e) {
