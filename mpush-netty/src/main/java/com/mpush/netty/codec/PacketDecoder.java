@@ -54,7 +54,7 @@ public final class PacketDecoder extends ByteToMessageDecoder {
     }
 
     private void decodeFrames(ByteBuf in, List<Object> out) throws Exception {
-        while (in.readableBytes() >= Packet.HEADER_LEN) {
+        if (in.readableBytes() >= Packet.HEADER_LEN) {
             //1.记录当前读取位置位置.如果读取到非完整的frame,要恢复到该位置,便于下次读取
             in.markReaderIndex();
 
@@ -62,7 +62,6 @@ public final class PacketDecoder extends ByteToMessageDecoder {
             if (packet == null) {
                 //2.读取到不完整的frame,恢复到最近一次正常读取的位置,便于下次读取
                 in.resetReaderIndex();
-                break;
             }
 
             out.add(packet);
