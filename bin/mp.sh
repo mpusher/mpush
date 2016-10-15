@@ -227,7 +227,7 @@ upgrade)
 restart)
     shift
     "$0" stop ${@}
-    sleep 5
+    sleep 1
     "$0" start ${@}
     ;;
 status)
