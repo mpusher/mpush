@@ -51,16 +51,6 @@ public final class AdminServer extends NettyServer {
     }
 
     @Override
-    protected Executor getBossExecutor() {
-        return ThreadPoolManager.I.getWorkExecutor();
-    }
-
-    @Override
-    protected Executor getWorkExecutor() {
-        return ThreadPoolManager.I.getWorkExecutor();
-    }
-
-    @Override
     public ChannelHandler getChannelHandler() {
         return adminHandler;
     }

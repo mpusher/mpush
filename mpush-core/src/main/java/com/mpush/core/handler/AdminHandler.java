@@ -53,13 +53,12 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminHandler.class);
 
-
     private static final String EOL = "\r\n";
 
     private static AdminServer adminServer;
 
     public AdminHandler(AdminServer adminServer) {
-        this.adminServer = adminServer;
+        AdminHandler.adminServer = adminServer;
     }
 
     @Override
@@ -106,21 +105,19 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
         help {
             @Override
             public String handler(ChannelHandlerContext ctx, String args) {
-                StringBuilder buf = new StringBuilder();
-                buf.append("Option                               Description" + EOL);
-                buf.append("------                               -----------" + EOL);
-                buf.append("help                                 show help" + EOL);
-                buf.append("quit                                 exit console mode" + EOL);
-                buf.append("shutdown                             stop mpush server" + EOL);
-                buf.append("restart                              restart mpush server" + EOL);
-                buf.append("zk:<redis, cs ,gs>                   query zk node" + EOL);
-                buf.append("count:<conn, online>                 count conn num or online user count" + EOL);
-                buf.append("route:<uid>                          show user route info" + EOL);
-                buf.append("push:<uid>, <msg>                    push test msg to client" + EOL);
-                buf.append("conf:[key]                           show config info" + EOL);
-                buf.append("monitor:[mxBean]                     show system monitor" + EOL);
-                buf.append("profile:<1,0>                        enable/disable profile" + EOL);
-                return buf.toString();
+                return "Option                               Description" + EOL +
+                        "------                               -----------" + EOL +
+                        "help                                 show help" + EOL +
+                        "quit                                 exit console mode" + EOL +
+                        "shutdown                             stop mpush server" + EOL +
+                        "restart                              restart mpush server" + EOL +
+                        "zk:<redis, cs ,gs>                   query zk node" + EOL +
+                        "count:<conn, online>                 count conn num or online user count" + EOL +
+                        "route:<uid>                          show user route info" + EOL +
+                        "push:<uid>, <msg>                    push test msg to client" + EOL +
+                        "conf:[key]                           show config info" + EOL +
+                        "monitor:[mxBean]                     show system monitor" + EOL +
+                        "profile:<1,0>                        enable/disable profile" + EOL;
             }
         },
         quit {
@@ -132,21 +129,8 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
         shutdown {
             @Override
             public String handler(ChannelHandlerContext ctx, String args) {
-                ctx.writeAndFlush("try close connect server...");
-                adminServer.getConnectionServer().stop(new Listener() {
-                    @Override
-                    public void onSuccess(Object... args) {
-                        ctx.writeAndFlush("connect server close success" + EOL);
-                        adminServer.stop(null);//这个一定要在System.exit之前调用，不然jvm 会卡死 @see com.mpush.bootstrap.Main#addHook
-                        System.exit(0);
-                    }
-
-                    @Override
-                    public void onFailure(Throwable cause) {
-                        ctx.writeAndFlush("connect server close failure, msg=" + cause.getLocalizedMessage());
-                    }
-                });
-                return null;
+                new Thread(() -> System.exit(0)).start();
+                return "try close connect server...";
             }
         },
         restart {
