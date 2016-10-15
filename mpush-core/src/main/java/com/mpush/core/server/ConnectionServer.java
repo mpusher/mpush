@@ -23,6 +23,8 @@ package com.mpush.core.server;
 import com.mpush.api.connection.ConnectionManager;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.service.Listener;
+import com.mpush.api.spi.SpiLoader;
+import com.mpush.api.spi.handler.PushHandlerFactory;
 import com.mpush.common.MessageDispatcher;
 import com.mpush.core.handler.*;
 import com.mpush.netty.http.HttpClient;
@@ -68,7 +70,7 @@ public final class ConnectionServer extends NettyServer {
         receiver.register(Command.BIND, new BindUserHandler());
         receiver.register(Command.UNBIND, new BindUserHandler());
         receiver.register(Command.FAST_CONNECT, new FastConnectHandler());
-        receiver.register(Command.PUSH, new ClientPushHandler());
+        receiver.register(Command.PUSH, SpiLoader.load(PushHandlerFactory.class).get());
         receiver.register(Command.ACK, new AckHandler());
 
         if (CC.mp.http.proxy_enabled) {
