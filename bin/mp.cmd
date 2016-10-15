@@ -15,10 +15,11 @@ REM See the License for the specific language governing permissions and
 REM limitations under the License.
 
 setlocal
+
 call "%~dp0env-mp.cmd"
 
-set MPMAIN="-jar %~dp0bootstrap.jar"
-echo on
+set  MPMAIN=-jar %~dp0bootstrap.jar
+
 call %JAVA% "-Dmp.conf=%MPCFG%" "-Dmp.log.dir=%MP_LOG_DIR%" -cp "%CLASSPATH%" %MPMAIN% %*
 
 endlocal
