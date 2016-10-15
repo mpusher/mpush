@@ -77,14 +77,13 @@ public abstract class NettyServer extends BaseService implements Server {
     @Override
     public void stop(Listener listener) {
         if (!serverState.compareAndSet(State.Started, State.Shutdown)) {
-            IllegalStateException e = new IllegalStateException("server was already shutdown.");
-            if (listener != null) listener.onFailure(e);
+            if (listener != null) listener.onFailure(new IllegalStateException("server was already shutdown."));
             Logs.Console.error("{} was already shutdown.", this.getClass().getSimpleName());
             return;
         }
         Logs.Console.info("try shutdown {}...", this.getClass().getSimpleName());
-        if (workerGroup != null) workerGroup.shutdownGracefully().syncUninterruptibly();
-        if (bossGroup != null) bossGroup.shutdownGracefully().syncUninterruptibly();
+        if (bossGroup != null) bossGroup.shutdownGracefully().syncUninterruptibly();//要先关闭接收连接的main reactor
+        if (workerGroup != null) workerGroup.shutdownGracefully().syncUninterruptibly();//再关闭处理业务的sub reactor
         Logs.Console.info("{} shutdown success.", this.getClass().getSimpleName());
         if (listener != null) {
             listener.onSuccess(port);
