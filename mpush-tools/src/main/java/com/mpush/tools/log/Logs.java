@@ -56,5 +56,7 @@ public interface Logs {
 
     ZK = LoggerFactory.getLogger("mpush.zk.log"),
 
-    HTTP = LoggerFactory.getLogger("mpush.http.log");
+    HTTP = LoggerFactory.getLogger("mpush.http.log"),
+
+    PROFILE = LoggerFactory.getLogger("mpush.profile.log");
 }
