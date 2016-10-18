@@ -72,6 +72,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             //处理重复绑定问题
             if (context.userId != null) {
                 if (message.userId.equals(context.userId)) {
+                    context.tags = message.tags;
                     OkMessage.from(message).setData("bind success").sendRaw();
                     return;
                 } else {

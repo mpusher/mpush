@@ -31,6 +31,7 @@ import com.mpush.tools.common.TimeLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -54,6 +55,7 @@ public class PushRequest extends FutureTask<Boolean> {
     private final PushClient client;
 
     private AckModel ackModel;
+    private Set<String> tags;
     private PushCallback callback;
     private String userId;
     private byte[] content;
@@ -92,6 +94,7 @@ public class PushRequest extends FutureTask<Boolean> {
                 new GatewayPushMessage(userId, content, gatewayConn)
                         .setClientType(location.getClientType())
                         .setTimeout(timeout - 500)
+                        .setTags(tags)
                         .addFlag(ackModel.flag);
 
         pushMessage.sendRaw(f -> {
@@ -163,6 +166,7 @@ public class PushRequest extends FutureTask<Boolean> {
         timeLine.begin();
         client.getAllConnections().forEach(conn -> {
             GatewayPushMessage pushMessage = new GatewayPushMessage(userId, content, conn)
+                    .setTags(tags)
                     .addFlag(ackModel.flag);
 
             pushMessage.sendRaw(f -> {
@@ -208,6 +212,7 @@ public class PushRequest extends FutureTask<Boolean> {
         return new PushRequest(client)
                 .setAckModel(ctx.getAckModel())
                 .setUserId(ctx.getUserId())
+                .setTags(ctx.getTags())
                 .setContent(content)
                 .setTimeout(ctx.getTimeout())
                 .setCallback(ctx.getCallback());
@@ -236,6 +241,11 @@ public class PushRequest extends FutureTask<Boolean> {
 
     public PushRequest setAckModel(AckModel ackModel) {
         this.ackModel = ackModel;
+        return this;
+    }
+
+    public PushRequest setTags(Set<String> tags) {
+        this.tags = tags;
         return this;
     }
 

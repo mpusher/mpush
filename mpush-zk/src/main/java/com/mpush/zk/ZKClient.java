@@ -72,9 +72,9 @@ public class ZKClient extends BaseService {
         }
         initLocalCache(zkConfig.getLocalCachePath());
         addConnectionStateListener();
-        listener.onSuccess(zkConfig.getHosts());
         Logs.ZK.info("zk client start success, server lists is:{}", zkConfig.getHosts());
         Logs.Console.info("init zk client success...");
+        listener.onSuccess(zkConfig.getHosts());
     }
 
     @Override

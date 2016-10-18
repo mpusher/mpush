@@ -116,7 +116,14 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
                     //2.按标签过滤,目前只有include,后续会增加exclude
                     String tags = connection.getSessionContext().tags;
                     if (tagList != null && tags != null) {
-                        if (tagList.stream().noneMatch(tags::contains)) break;
+                        if (tagList.stream().noneMatch(tags::contains)) {
+                            tasks.decrementAndGet();
+                            if (tasks.get() == 0) {//任务全部结束
+                                Logs.PUSH.info("gateway broadcast finished, cost={}, message={}", (System.currentTimeMillis() - begin), message);
+                                OkMessage.from(message).setData(Jsons.toJson(sendUserIds)).sendRaw();
+                            }
+                            continue;
+                        }
                     }
 
                     if (connection.isConnected()) {
@@ -124,7 +131,7 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
                         if (connection.getChannel().isWritable()) {//检测TCP缓冲区是否已满且写队列超过最高阀值
                             //3.链接可用，直接下发消息到手机客户端
                             PushMessage pushMessage = new PushMessage(message.content, connection);
-                            pushMessage.getPacket().flags = message.getPacket().flags;
+                            //pushMessage.getPacket().flags = message.getPacket().flags;
 
                             pushMessage.send(future -> {
 

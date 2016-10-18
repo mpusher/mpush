@@ -98,6 +98,11 @@ public class GatewayPushMessage extends ByteBufMessage {
         return this;
     }
 
+    public GatewayPushMessage setTags(Set<String> tags) {
+        this.tags = tags;
+        return this;
+    }
+
     public boolean isBroadcast() {
         return userId == null;
     }
