@@ -19,6 +19,8 @@
 
 package com.mpush.api.spi.common;
 
+import com.mpush.api.spi.SpiLoader;
+
 import java.util.concurrent.Executor;
 
 /**
@@ -26,7 +28,7 @@ import java.util.concurrent.Executor;
  *
  * @author ohun@live.cn
  */
-public interface ThreadPoolFactory {
+public interface ExecutorFactory {
     String SERVER_BOSS = "sb";
     String SERVER_WORK = "sw";
     String HTTP_CLIENT_WORK = "hcw";
@@ -36,4 +38,8 @@ public interface ThreadPoolFactory {
     String BIZ = "b";
 
     Executor get(String name);
+
+    static ExecutorFactory create() {
+        return SpiLoader.load(ExecutorFactory.class);
+    }
 }

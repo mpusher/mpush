@@ -45,14 +45,22 @@ public final class NamedThreadFactory implements ThreadFactory {
     }
 
     public Thread newThread(String name, Runnable r) {
-        return new Thread(group, r, name);
+        return new Thread(group, r, namePrefix + "-" + threadNumber.getAndIncrement() + "-" + name);
     }
 
     @Override
     public Thread newThread(Runnable r) {
-        Thread t = newThread(namePrefix + "_" + threadNumber.getAndIncrement(), r);
+        Thread t = newThread(namePrefix + "-" + threadNumber.getAndIncrement(), r);
         if (t.isDaemon())
             t.setDaemon(false);
         return t;
+    }
+
+    public static NamedThreadFactory build() {
+        return new NamedThreadFactory();
+    }
+
+    public static NamedThreadFactory build(String namePrefix) {
+        return new NamedThreadFactory(namePrefix);
     }
 }

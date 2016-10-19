@@ -24,6 +24,7 @@ import com.mpush.cache.redis.connection.RedisConnectionFactory;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
+import com.mpush.tools.thread.pool.ThreadPoolManager;
 import redis.clients.jedis.*;
 
 import java.util.*;
@@ -307,9 +308,9 @@ public final class RedisManager {
     }
 
     public void subscribe(final JedisPubSub pubsub, final String... channels) {
-        new Thread(() -> call(jedis ->
+        ThreadPoolManager.I.newThread(Arrays.toString(channels), (() -> call(jedis ->
                 Arrays.stream(channels).forEach(channel -> ((MultiKeyCommands) jedis).subscribe(pubsub, channel))
-        ), Arrays.toString(channels)).start();
+        ))).start();
     }
 
     /*********************

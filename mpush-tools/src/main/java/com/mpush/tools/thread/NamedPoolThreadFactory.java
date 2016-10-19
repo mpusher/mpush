@@ -22,7 +22,7 @@ package com.mpush.tools.thread;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PoolThreadFactory implements ThreadFactory {
+public class NamedPoolThreadFactory implements ThreadFactory {
     private static final AtomicInteger poolNum = new AtomicInteger(1);
 
     private final AtomicInteger threadNum = new AtomicInteger(1);
@@ -31,11 +31,11 @@ public class PoolThreadFactory implements ThreadFactory {
     private final String namePre;
     private final boolean isDaemon;
 
-    public PoolThreadFactory(String prefix) {
+    public NamedPoolThreadFactory(String prefix) {
         this(prefix, true);
     }
 
-    public PoolThreadFactory(String prefix, boolean daemon) {
+    public NamedPoolThreadFactory(String prefix, boolean daemon) {
         SecurityManager manager = System.getSecurityManager();
         if (manager != null) {
             group = manager.getThreadGroup();
@@ -52,8 +52,8 @@ public class PoolThreadFactory implements ThreadFactory {
     @Override
     public Thread newThread(Runnable runnable) {
         Thread t = new Thread(group, runnable, namePre + threadNum.getAndIncrement(), 0);
-        t.setContextClassLoader(PoolThreadFactory.class.getClassLoader());
-        t.setPriority(Thread.MAX_PRIORITY);
+        t.setContextClassLoader(NamedPoolThreadFactory.class.getClassLoader());
+        t.setPriority(Thread.NORM_PRIORITY);
         t.setDaemon(isDaemon);
         return t;
     }

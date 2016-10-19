@@ -23,7 +23,6 @@ package com.mpush.core.server;
 import com.mpush.api.connection.ConnectionManager;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.service.Listener;
-import com.mpush.api.spi.SpiLoader;
 import com.mpush.api.spi.handler.PushHandlerFactory;
 import com.mpush.common.MessageDispatcher;
 import com.mpush.core.handler.*;
@@ -31,6 +30,7 @@ import com.mpush.netty.http.HttpClient;
 import com.mpush.netty.http.NettyHttpClient;
 import com.mpush.netty.server.NettyServer;
 import com.mpush.tools.config.CC;
+import com.mpush.tools.thread.NamedPoolThreadFactory;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
@@ -41,8 +41,10 @@ import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static com.mpush.tools.config.CC.mp.net.traffic_shaping.connect_server.*;
+import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
 
 /**
  * Created by ohun on 2015/12/30.
@@ -52,6 +54,7 @@ import static com.mpush.tools.config.CC.mp.net.traffic_shaping.connect_server.*;
 public final class ConnectionServer extends NettyServer {
     private ServerChannelHandler channelHandler;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
+    private ScheduledExecutorService trafficShapingExecutor;
 
     private ConnectionManager connectionManager = new ServerConnectionManager(true);
     private HttpClient httpClient;
@@ -70,7 +73,7 @@ public final class ConnectionServer extends NettyServer {
         receiver.register(Command.BIND, new BindUserHandler());
         receiver.register(Command.UNBIND, new BindUserHandler());
         receiver.register(Command.FAST_CONNECT, new FastConnectHandler());
-        receiver.register(Command.PUSH, SpiLoader.load(PushHandlerFactory.class).get());
+        receiver.register(Command.PUSH, PushHandlerFactory.create());
         receiver.register(Command.ACK, new AckHandler());
 
         if (CC.mp.http.proxy_enabled) {
@@ -80,8 +83,9 @@ public final class ConnectionServer extends NettyServer {
         channelHandler = new ServerChannelHandler(true, connectionManager, receiver);
 
         if (CC.mp.net.traffic_shaping.connect_server.enabled) {//启用流量整形，限流
+            trafficShapingExecutor = Executors.newSingleThreadScheduledExecutor(new NamedPoolThreadFactory(T_TRAFFIC_SHAPING));
             trafficShapingHandler = new GlobalChannelTrafficShapingHandler(
-                    Executors.newSingleThreadScheduledExecutor(),
+                    trafficShapingExecutor,
                     write_global_limit, read_global_limit,
                     write_channel_limit, read_channel_limit,
                     check_interval);
@@ -92,6 +96,7 @@ public final class ConnectionServer extends NettyServer {
     public void stop(Listener listener) {
         if (trafficShapingHandler != null) {
             trafficShapingHandler.release();
+            trafficShapingExecutor.shutdown();
         }
         super.stop(listener);
         if (httpClient != null && httpClient.isRunning()) {

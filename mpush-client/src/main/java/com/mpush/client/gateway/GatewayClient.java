@@ -22,13 +22,16 @@ package com.mpush.client.gateway;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.service.Listener;
 import com.mpush.netty.client.NettyClient;
+import com.mpush.tools.thread.NamedPoolThreadFactory;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static com.mpush.tools.config.CC.mp.net.traffic_shaping.gateway_client.*;
+import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
 
 /**
  * Created by yxx on 2016/5/17.
@@ -38,13 +41,15 @@ import static com.mpush.tools.config.CC.mp.net.traffic_shaping.gateway_client.*;
 public class GatewayClient extends NettyClient {
     private final GatewayClientChannelHandler handler = new GatewayClientChannelHandler();
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
+    private ScheduledExecutorService trafficShapingExecutor;
 
     public GatewayClient(String host, int port) {
         super(host, port);
         if (enabled) {
+            trafficShapingExecutor = Executors.newSingleThreadScheduledExecutor(new NamedPoolThreadFactory(T_TRAFFIC_SHAPING));
             trafficShapingHandler = new GlobalChannelTrafficShapingHandler(
-                    Executors.newSingleThreadScheduledExecutor()
-                    , write_global_limit, read_global_limit,
+                    trafficShapingExecutor,
+                    write_global_limit, read_global_limit,
                     write_channel_limit, read_channel_limit,
                     check_interval);
         }
@@ -71,6 +76,7 @@ public class GatewayClient extends NettyClient {
     protected void doStop(Listener listener) throws Throwable {
         if (trafficShapingHandler != null) {
             trafficShapingHandler.release();
+            trafficShapingExecutor.shutdown();
         }
         super.doStop(listener);
     }

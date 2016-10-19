@@ -32,6 +32,7 @@ public final class ThreadNames {
      * netty worker 线程
      */
     public static final String T_SERVER_WORKER = NS + "-worker";
+    public static final String T_TRAFFIC_SHAPING = NS + "-traffic-shaping";
 
     public static final String T_HTTP_CLIENT = NS + "-http";
 
@@ -42,9 +43,10 @@ public final class ThreadNames {
     public static final String T_ZK = NS + "-zk";
 
     public static final String T_BIZ = NS + "-biz";
-    public static final String T_PUSH_CALLBACK = NS + "-push-cb";
+    public static final String T_PUSH_CALLBACK = NS + "-push-callback";
     public static final String T_PUSH_REQ_TIMER = NS + "-push-timer";
     public static final String T_ARK_REQ_TIMER = NS + "-ack-timer";
+    public static final String T_MONITOR = NS + "-monitor";
 
     /**
      * connection 定期检测线程

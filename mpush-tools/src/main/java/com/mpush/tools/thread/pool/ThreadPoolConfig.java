@@ -110,7 +110,7 @@ public class ThreadPoolConfig {
     }
 
 
-    public BlockingQueue getQueue() {
+    public BlockingQueue<Runnable> getQueue() {
         BlockingQueue<Runnable> blockingQueue;
         if (queueCapacity == 0) {
             blockingQueue = new SynchronousQueue<>();

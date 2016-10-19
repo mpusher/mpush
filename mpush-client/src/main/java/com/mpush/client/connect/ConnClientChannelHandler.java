@@ -33,7 +33,7 @@ import com.mpush.common.security.AesCipher;
 import com.mpush.common.security.CipherBox;
 import com.mpush.netty.connection.NettyConnection;
 import com.mpush.tools.event.EventBus;
-import com.mpush.tools.thread.PoolThreadFactory;
+import com.mpush.tools.thread.NamedPoolThreadFactory;
 import com.mpush.tools.thread.ThreadNames;
 import io.netty.channel.*;
 import io.netty.util.HashedWheelTimer;
@@ -55,7 +55,7 @@ import java.util.concurrent.TimeUnit;
 @ChannelHandler.Sharable
 public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnClientChannelHandler.class);
-    private static final Timer HASHED_WHEEL_TIMER = new HashedWheelTimer(new PoolThreadFactory(ThreadNames.T_NETTY_TIMER));
+    private static final Timer HASHED_WHEEL_TIMER = new HashedWheelTimer(new NamedPoolThreadFactory(ThreadNames.T_NETTY_TIMER));
 
     private final Connection connection = new NettyConnection();
     private final ClientConfig clientConfig;

@@ -20,9 +20,9 @@
 package com.mpush.tools.thread.pool;
 
 import com.mpush.api.spi.Spi;
-import com.mpush.api.spi.common.ThreadPoolFactory;
+import com.mpush.api.spi.common.ExecutorFactory;
 import com.mpush.tools.config.CC;
-import com.mpush.tools.thread.PoolThreadFactory;
+import com.mpush.tools.thread.NamedPoolThreadFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -35,23 +35,21 @@ import static com.mpush.tools.thread.ThreadNames.*;
  * 此线程池可伸缩，线程空闲一定时间后回收，新请求重新创建线程
  */
 @Spi(order = 1)
-public class DefaultThreadPoolFactory implements ThreadPoolFactory {
+public class DefaultExecutorFactory implements ExecutorFactory {
 
     private Executor get(ThreadPoolConfig config) {
         String name = config.getName();
         int corePoolSize = config.getCorePoolSize();
         int maxPoolSize = config.getMaxPoolSize();
         int keepAliveSeconds = config.getKeepAliveSeconds();
-
-        BlockingQueue queue = config.getQueue();
-        ThreadFactory threadFactory = new PoolThreadFactory(name);
+        BlockingQueue<Runnable> queue = config.getQueue();
 
         return new DefaultExecutor(corePoolSize
                 , maxPoolSize
                 , keepAliveSeconds
                 , TimeUnit.SECONDS
                 , queue
-                , threadFactory
+                , new NamedPoolThreadFactory(name)
                 , new DumpThreadRejectedHandler(config));
     }
 

@@ -19,20 +19,12 @@
 
 package com.mpush.core.ack;
 
-import com.mpush.api.protocol.Packet;
-import com.mpush.api.push.PushException;
-import com.mpush.common.ErrorCode;
-import com.mpush.common.message.ErrorMessage;
-import com.mpush.common.message.OkMessage;
-import com.mpush.tools.log.Logs;
-import com.mpush.tools.thread.PoolThreadFactory;
+import com.mpush.tools.thread.NamedPoolThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.*;
 
-import static com.mpush.api.protocol.Command.ERROR;
-import static com.mpush.api.protocol.Command.OK;
 import static com.mpush.tools.thread.ThreadNames.T_ARK_REQ_TIMER;
 
 /**
@@ -49,7 +41,7 @@ public final class AckMessageQueue {
     private final ScheduledExecutorService scheduledExecutor;
 
     private AckMessageQueue() {
-        scheduledExecutor = new ScheduledThreadPoolExecutor(1, new PoolThreadFactory(T_ARK_REQ_TIMER), (r, e) -> {
+        scheduledExecutor = new ScheduledThreadPoolExecutor(1, new NamedPoolThreadFactory(T_ARK_REQ_TIMER), (r, e) -> {
             logger.error("one ack context was rejected, context=" + r);
         });
     }

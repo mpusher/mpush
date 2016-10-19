@@ -106,7 +106,7 @@ public class HttpProxyDnsMappingManager extends BaseService implements DnsMappin
 
     @Override
     public void run() {
-        logger.debug("start dns mapping checkHealth");
+        logger.debug("do dns mapping checkHealth ...");
         Map<String, List<DnsMapping>> all = this.getAll();
         Map<String, List<DnsMapping>> available = Maps.newConcurrentMap();
         all.forEach((key, dnsMappings) -> {
