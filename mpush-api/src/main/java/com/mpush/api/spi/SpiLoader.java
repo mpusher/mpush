@@ -33,6 +33,7 @@ public final class SpiLoader {
         return load(clazz, null);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T load(Class<T> clazz, String name) {
         String key = clazz.getName();
         Object o = CACHE.get(key);

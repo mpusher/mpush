@@ -19,6 +19,9 @@
 
 package com.mpush.bootstrap.job;
 
+import com.mpush.api.event.ServerShutdownEvent;
+import com.mpush.api.event.ServerStartupEvent;
+import com.mpush.tools.event.EventBus;
 import com.mpush.tools.log.Logs;
 
 /**
@@ -29,6 +32,7 @@ import com.mpush.tools.log.Logs;
 public final class LastBoot extends BootJob {
     @Override
     protected void start() {
+        EventBus.I.post(new ServerStartupEvent());
         Logs.Console.info("end start bootstrap chain...");
         Logs.Console.info("===================================================================");
         Logs.Console.info("====================MPUSH SERVER START SUCCESS=====================");
@@ -37,9 +41,10 @@ public final class LastBoot extends BootJob {
 
     @Override
     protected void stop() {
+        EventBus.I.post(new ServerShutdownEvent());
         Logs.Console.info("end stop bootstrap chain...");
         Logs.Console.info("===================================================================");
-        Logs.Console.info("====================MPUSH SERVER STOPPED SUCCESS=====================");
+        Logs.Console.info("====================MPUSH SERVER STOPPED SUCCESS===================");
         Logs.Console.info("===================================================================");
     }
 }

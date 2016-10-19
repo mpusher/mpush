@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,32 +14,16 @@
  * limitations under the License.
  *
  * Contributors:
- *   ohun@live.cn (夜色)
+ *     ohun@live.cn (夜色)
  */
 
-package com.mpush.bootstrap.job;
+package com.mpush.api.spi.handler;
 
 /**
- * Created by yxx on 2016/5/15.
+ * Created by ohun on 16/10/19.
  *
- * @author ohun@live.cn
+ * @author ohun@live.cn (夜色)
  */
-public final class BootChain {
-    private final BootJob first = new FirstJob();
-
-    public void start() {
-        first.start();
-    }
-
-    public void stop() {
-        first.stop();
-    }
-
-    public static BootChain chain() {
-        return new BootChain();
-    }
-
-    public BootJob boot() {
-        return first;
-    }
+public interface BindValidator {
+    boolean validate(String userId);
 }

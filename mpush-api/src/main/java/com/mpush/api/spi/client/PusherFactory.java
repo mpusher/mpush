@@ -21,6 +21,7 @@ package com.mpush.api.spi.client;
 
 import com.mpush.api.push.PushSender;
 import com.mpush.api.spi.Factory;
+import com.mpush.api.spi.SpiLoader;
 
 /**
  * Created by yxx on 2016/5/18.
@@ -28,5 +29,7 @@ import com.mpush.api.spi.Factory;
  * @author ohun@live.cn
  */
 public interface PusherFactory extends Factory<PushSender> {
-
+    static PushSender create() {
+        return SpiLoader.load(PusherFactory.class).get();
+    }
 }

@@ -26,6 +26,9 @@ import com.mpush.api.event.UserOfflineEvent;
 import com.mpush.api.event.UserOnlineEvent;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
+import com.mpush.api.spi.Spi;
+import com.mpush.api.spi.handler.BindValidator;
+import com.mpush.api.spi.handler.BindValidatorFactory;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.BindUserMessage;
 import com.mpush.common.message.ErrorMessage;
@@ -35,7 +38,6 @@ import com.mpush.common.router.RemoteRouterManager;
 import com.mpush.core.router.LocalRouter;
 import com.mpush.core.router.LocalRouterManager;
 import com.mpush.core.router.RouterCenter;
-import com.mpush.tools.common.Profiler;
 import com.mpush.tools.event.EventBus;
 import com.mpush.tools.log.Logs;
 
@@ -45,6 +47,7 @@ import com.mpush.tools.log.Logs;
  * @author ohun@live.cn
  */
 public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
+    private BindValidator validator = BindValidatorFactory.create();
 
     @Override
     public BindUserMessage decode(Packet packet, Connection connection) {
@@ -74,14 +77,14 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 if (message.userId.equals(context.userId)) {
                     context.tags = message.tags;
                     OkMessage.from(message).setData("bind success").sendRaw();
+                    Logs.Conn.info(">>> rebind user success, userId={}, session={}", message.userId, context);
                     return;
                 } else {
                     unbind(message);
                 }
             }
-
             //2.如果握手成功，就把用户链接信息注册到路由中心，本地和远程各一份
-            boolean success = RouterCenter.I.register(message.userId, message.getConnection());
+            boolean success = validator.validate(message.userId) && RouterCenter.I.register(message.userId, message.getConnection());
             if (success) {
                 context.userId = message.userId;
                 context.tags = message.tags;
@@ -151,6 +154,17 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
         } else {
             ErrorMessage.from(message).setReason("not handshake").close();
             Logs.Conn.info("unbind user failure not handshake, userId={}, session={}", message.userId, context);
+        }
+    }
+
+
+    @Spi(order = 1)
+    public static class DefaultBindValidatorFactory implements BindValidatorFactory {
+        private final BindValidator validator = userId -> true;
+
+        @Override
+        public BindValidator get() {
+            return validator;
         }
     }
 }

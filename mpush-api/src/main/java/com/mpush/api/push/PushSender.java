@@ -19,12 +19,9 @@
 
 package com.mpush.api.push;
 
-import com.mpush.api.protocol.Packet;
 import com.mpush.api.service.Service;
-import com.mpush.api.spi.SpiLoader;
 import com.mpush.api.spi.client.PusherFactory;
 
-import java.util.Collection;
 import java.util.concurrent.FutureTask;
 
 /**
@@ -40,7 +37,7 @@ public interface PushSender extends Service {
      * @return PushSender
      */
     static PushSender create() {
-        return SpiLoader.load(PusherFactory.class).get();
+        return PusherFactory.create();
     }
 
     /**

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,34 +14,34 @@
  * limitations under the License.
  *
  * Contributors:
- *   ohun@live.cn (夜色)
+ *     ohun@live.cn (夜色)
  */
 
 package com.mpush.bootstrap.job;
 
-import com.mpush.api.spi.net.DnsMappingManager;
-import com.mpush.tools.config.CC;
+import com.mpush.api.spi.core.ServerEventListenerFactory;
+import com.mpush.tools.log.Logs;
 
 /**
- * Created by yxx on 2016/5/15.
+ * Created by ohun on 16/10/19.
  *
- * @author ohun@live.cn
+ * @author ohun@live.cn (夜色)
  */
-public final class HttpProxyBoot extends BootJob {
+/*package*/ final class FirstJob extends BootJob {
+
+    public FirstJob() {
+        ServerEventListenerFactory.create();
+    }
 
     @Override
-    protected void start() {
-        if (CC.mp.http.proxy_enabled) {
-            DnsMappingManager.create().start();
-        }
+    public void start() {
+        Logs.Console.info("begin start bootstrap chain...");
         startNext();
     }
 
     @Override
     protected void stop() {
-        if (CC.mp.http.proxy_enabled) {
-            DnsMappingManager.create().stop();
-        }
+        Logs.Console.info("begin stop bootstrap chain...");
         stopNext();
     }
 }
