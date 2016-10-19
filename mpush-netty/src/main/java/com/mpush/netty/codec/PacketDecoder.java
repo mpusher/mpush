@@ -24,6 +24,7 @@ import com.mpush.tools.config.CC;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.TooLongFrameException;
 
 import java.util.List;
 
@@ -87,7 +88,7 @@ public final class PacketDecoder extends ByteToMessageDecoder {
         //read body
         if (bodyLength > 0) {
             if (bodyLength > maxPacketSize) {
-                throw new RuntimeException("error packet body length over limit:" + bodyLength);
+                throw new TooLongFrameException("packet body length over limit:" + bodyLength);
             }
             in.readBytes(packet.body = new byte[bodyLength]);
         }
