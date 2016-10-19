@@ -39,7 +39,7 @@ public class Main {
                     } catch (Exception e) {
                         Logs.Console.error("mpush server stop ex", e);
                     }
-                    Logs.Console.info("jvm exit, all service stopped...");
+                    Logs.Console.info("jvm exit, all service stopped.");
 
                 }, "mpush-shutdown-hook-thread")
         );
