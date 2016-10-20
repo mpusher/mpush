@@ -19,7 +19,6 @@
 
 package com.mpush.tools;
 
-import com.mpush.tools.common.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +81,7 @@ public final class Utils {
                             return address.getHostAddress();
                         }
                     } else {
-                        if (!address.isSiteLocalAddress()) {
+                        if (!address.isSiteLocalAddress() && !address.isLoopbackAddress()) {
                             return address.getHostAddress();
                         }
                     }
