@@ -60,12 +60,12 @@ public final class PacketDecoder extends ByteToMessageDecoder {
             in.markReaderIndex();
 
             Packet packet = decodeFrame(in);
-            if (packet == null) {
+            if (packet != null) {
+                out.add(packet);
+            } else {
                 //2.读取到不完整的frame,恢复到最近一次正常读取的位置,便于下次读取
                 in.resetReaderIndex();
             }
-
-            out.add(packet);
         }
     }
 
