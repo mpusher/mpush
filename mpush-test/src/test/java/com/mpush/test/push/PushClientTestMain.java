@@ -20,13 +20,10 @@
 package com.mpush.test.push;
 
 import com.mpush.api.push.*;
-import com.mpush.api.router.ClientLocation;
 import com.mpush.tools.log.Logs;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.locks.LockSupport;
 

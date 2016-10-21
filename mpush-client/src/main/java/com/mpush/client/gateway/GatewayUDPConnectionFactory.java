@@ -21,6 +21,7 @@ package com.mpush.client.gateway;
 
 import com.google.common.collect.Maps;
 import com.mpush.api.connection.Connection;
+import com.mpush.api.service.Listener;
 import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
@@ -31,6 +32,10 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static com.mpush.tools.config.CC.mp.net.gateway_server_multicast;
@@ -53,8 +58,24 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory<InetSo
 
     @Override
     public void init() {
-        super.init();
-        ThreadPoolManager.I.newThread("udp-client", connector::start).start();
+        CountDownLatch latch = new CountDownLatch(1);
+        ThreadPoolManager.I.newThread("udp-client", () -> connector.start(new Listener() {
+            @Override
+            public void onSuccess(Object... args) {
+                latch.countDown();
+            }
+
+            @Override
+            public void onFailure(Throwable cause) {
+                latch.countDown();
+            }
+        })).start();
+
+        //同步
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+        }
     }
 
     @Override

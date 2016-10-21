@@ -84,10 +84,10 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
+        factory.init();
         ZKClient.I.start(listener);
         RedisManager.I.init();
         ZKServerNodeWatcher.build(GATEWAY_SERVER, factory).watch();
-        factory.init();
         PushRequestBus.I.start(listener);
     }
 
