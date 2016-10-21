@@ -28,7 +28,7 @@ import com.mpush.common.MessageDispatcher;
 import com.mpush.core.handler.*;
 import com.mpush.netty.http.HttpClient;
 import com.mpush.netty.http.NettyHttpClient;
-import com.mpush.netty.server.NettyServer;
+import com.mpush.netty.server.NettyTCPServer;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
@@ -51,7 +51,7 @@ import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
  *
  * @author ohun@live.cn (夜色)
  */
-public final class ConnectionServer extends NettyServer {
+public final class ConnectionServer extends NettyTCPServer {
     private ServerChannelHandler channelHandler;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
     private ScheduledExecutorService trafficShapingExecutor;
@@ -94,11 +94,11 @@ public final class ConnectionServer extends NettyServer {
 
     @Override
     public void stop(Listener listener) {
+        super.stop(listener);
         if (trafficShapingHandler != null) {
             trafficShapingHandler.release();
             trafficShapingExecutor.shutdown();
         }
-        super.stop(listener);
         if (httpClient != null && httpClient.isRunning()) {
             httpClient.stop();
         }

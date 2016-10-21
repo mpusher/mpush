@@ -20,9 +20,11 @@
 package com.mpush.netty.codec;
 
 import com.mpush.api.protocol.Packet;
+import com.mpush.api.protocol.UDPPacket;
 import com.mpush.tools.config.CC;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.TooLongFrameException;
 
@@ -75,11 +77,21 @@ public final class PacketDecoder extends ByteToMessageDecoder {
         if (readableBytes < (bodyLength + Packet.HEADER_LEN)) {
             return null;
         }
-        return readPacket(in, bodyLength);
+        return readPacket(new Packet(in.readByte()), in, bodyLength);
     }
 
-    private Packet readPacket(ByteBuf in, int bodyLength) {
-        Packet packet = new Packet(in.readByte());//read cmd
+    public static Packet decodeFrame(DatagramPacket datagram) throws Exception {
+        ByteBuf in = datagram.content();
+        int readableBytes = in.readableBytes();
+        int bodyLength = in.readInt();
+        if (readableBytes < (bodyLength + Packet.HEADER_LEN)) {
+            return null;
+        }
+        return readPacket(new UDPPacket(in.readByte()
+                        , datagram.sender()), in, bodyLength);
+    }
+
+    private static Packet readPacket(Packet packet, ByteBuf in, int bodyLength) {
         packet.cc = in.readShort();//read cc
         packet.flags = in.readByte();//read flags
         packet.sessionId = in.readInt();//read sessionId

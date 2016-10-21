@@ -20,8 +20,7 @@
 package com.mpush.core.server;
 
 import com.mpush.core.handler.AdminHandler;
-import com.mpush.netty.server.NettyServer;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
+import com.mpush.netty.server.NettyTCPServer;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
@@ -29,18 +28,14 @@ import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
-import java.util.concurrent.Executor;
-
-public final class AdminServer extends NettyServer {
+public final class AdminServer extends NettyTCPServer {
     private final ConnectionServer connectionServer;
-    private final GatewayServer gatewayServer;
 
     private final AdminHandler adminHandler;
 
-    public AdminServer(int port, ConnectionServer connectionServer, GatewayServer gatewayServer) {
+    public AdminServer(int port, ConnectionServer connectionServer) {
         super(port);
         this.connectionServer = connectionServer;
-        this.gatewayServer = gatewayServer;
         this.adminHandler = new AdminHandler(this);
     }
 
@@ -69,7 +64,4 @@ public final class AdminServer extends NettyServer {
         return connectionServer;
     }
 
-    public GatewayServer getGatewayServer() {
-        return gatewayServer;
-    }
 }

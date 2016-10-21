@@ -63,19 +63,19 @@ public final class GatewayClientChannelHandler extends ChannelInboundHandlerAdap
         }
     }
 
-    private void handleOK(OkMessage message) {
+    public static void handleOK(OkMessage message) {
         if (message.cmd == Command.GATEWAY_PUSH.cmd) {
             handPush(message, null, message.getPacket());
         }
     }
 
-    private void handleError(ErrorMessage message) {
+    public static void handleError(ErrorMessage message) {
         if (message.cmd == Command.GATEWAY_PUSH.cmd) {
             handPush(null, message, message.getPacket());
         }
     }
 
-    private void handPush(OkMessage ok, ErrorMessage error, Packet packet) {
+    private static void handPush(OkMessage ok, ErrorMessage error, Packet packet) {
         PushRequest request = PushRequestBus.I.getAndRemove(packet.sessionId);
         if (request == null) {
             LOGGER.warn("receive a gateway response, but request has timeout. ok={}, error={}", ok, error);

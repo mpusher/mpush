@@ -26,10 +26,7 @@ import com.typesafe.config.*;
 
 import java.io.File;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toCollection;
@@ -77,6 +74,12 @@ public interface CC {
             int max_hb_timeout_times = cfg.getInt("max-hb-timeout-times");
 
             String epoll_provider = cfg.getString("epoll-provider");
+
+            static boolean useNettyEpoll() {
+                if (!"netty".equals(CC.mp.core.epoll_provider)) return false;
+                String name = CC.cfg.getString("os.name").toLowerCase(Locale.UK).trim();
+                return name.startsWith("linux");//只在linux下使用netty提供的epoll库
+            }
         }
 
         interface net {
@@ -85,6 +88,16 @@ public interface CC {
             int connect_server_port = cfg.getInt("connect-server-port");
             int gateway_server_port = cfg.getInt("gateway-server-port");
             int admin_server_port = cfg.getInt("admin-server-port");
+            int gateway_client_port = cfg.getInt("gateway-client-port");
+
+            String gateway_server_net = cfg.getString("gateway-server-net");
+            String gateway_server_multicast = cfg.getString("gateway-server-multicast");
+            String gateway_client_multicast = cfg.getString("gateway-client-multicast");
+
+            static boolean udpGateway() {
+                return "udp".equals(gateway_server_net);
+            }
+
 
             interface public_ip_mapping {
 

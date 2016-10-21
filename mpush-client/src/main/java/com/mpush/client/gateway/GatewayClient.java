@@ -21,7 +21,7 @@ package com.mpush.client.gateway;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.service.Listener;
-import com.mpush.netty.client.NettyClient;
+import com.mpush.netty.client.NettyTCPClient;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
@@ -38,7 +38,7 @@ import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
  *
  * @author ohun@live.cn
  */
-public class GatewayClient extends NettyClient {
+public class GatewayClient extends NettyTCPClient {
     private final GatewayClientChannelHandler handler = new GatewayClientChannelHandler();
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
     private ScheduledExecutorService trafficShapingExecutor;

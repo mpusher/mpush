@@ -22,10 +22,13 @@ package com.mpush.test.push;
 import com.mpush.api.push.*;
 import com.mpush.api.router.ClientLocation;
 import com.mpush.tools.log.Logs;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.locks.LockSupport;
 
 /**
  * Created by ohun on 2016/1/7.
@@ -33,7 +36,8 @@ import java.util.concurrent.FutureTask;
  * @author ohun@live.cn
  */
 public class PushClientTestMain {
-    public static void main(String[] args) throws Exception {
+    @Test
+    public void testPush() throws Exception {
         Logs.init();
         PushSender sender = PushSender.create();
         sender.start().whenComplete((success, throwable) -> {
@@ -54,6 +58,8 @@ public class PushClientTestMain {
                     });
             FutureTask<Boolean> future = sender.send(context);
         });
+
+        LockSupport.park();
     }
 
 }

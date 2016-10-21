@@ -87,6 +87,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
             throwable.printStackTrace(new PrintWriter(writer));
             ctx.writeAndFlush(writer.toString());
         }
+        LOGGER.info("receive admin command={}", request);
     }
 
     @Override

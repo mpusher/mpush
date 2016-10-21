@@ -20,13 +20,17 @@
 package com.mpush.bootstrap;
 
 
+import com.mpush.api.service.Server;
+import com.mpush.api.service.Service;
 import com.mpush.bootstrap.job.*;
 import com.mpush.core.server.AdminServer;
 import com.mpush.core.server.ConnectionServer;
 import com.mpush.core.server.GatewayServer;
+import com.mpush.core.server.GatewayUDPConnector;
 import com.mpush.zk.node.ZKServerNode;
 
 import static com.mpush.tools.config.CC.mp.net.admin_server_port;
+import static com.mpush.tools.config.CC.mp.net.udpGateway;
 
 /**
  * Created by yxx on 2016/5/14.
@@ -41,8 +45,8 @@ public final class ServerLauncher {
         ZKServerNode csNode = ZKServerNode.csNode();
         ZKServerNode gsNode = ZKServerNode.gsNode();
         ConnectionServer connectServer = new ConnectionServer(csNode.getPort());
-        GatewayServer gatewayServer = new GatewayServer(gsNode.getPort());
-        AdminServer adminServer = new AdminServer(admin_server_port, connectServer, gatewayServer);
+        Server gatewayServer = udpGateway() ? new GatewayUDPConnector(gsNode.getPort()) : new GatewayServer(gsNode.getPort());
+        AdminServer adminServer = new AdminServer(admin_server_port, connectServer);
 
         chain.boot()
                 .setNext(new ZKBoot())//1.启动ZK节点数据变化监听

@@ -30,6 +30,7 @@ import com.mpush.zk.listener.ZKServerNodeWatcher;
 import com.mpush.zk.node.ZKServerNode;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,8 @@ import java.util.concurrent.locks.LockSupport;
 
 public class ConnClientTestMain {
 
-    public static void main(String[] args) throws Exception {
+    @Test
+    public void testConnClient() throws Exception {
         ConnClientBoot boot = new ConnClientBoot();
         boot.start().get();
 
@@ -66,5 +68,6 @@ public class ConnClientTestMain {
             Client client = new ConnectClient(server.getExtranetIp(), server.getPort(), config);
             client.start().get(10, TimeUnit.SECONDS);
         }
+        LockSupport.park();
     }
 }

@@ -283,37 +283,34 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
 
 
     private AckContext buildAckContext(GatewayPushMessage message) {
-        Connection gatewayConnection = message.getConnection();
-        String userId = message.userId;
-        int clientType = message.clientType;
+        message.getPacket().body = null;//内存释放
+        message.content = null;//内存释放
+        return new AckContext().setCallback(new AckCallback() {
+            @Override
+            public void onSuccess(AckContext ctx) {
+                if (!message.getConnection().isConnected()) {
+                    Logs.PUSH.info(">>> receive client ack, gateway connection is closed, context={}", ctx);
+                    return;
+                }
 
-        return AckContext.from(message)
-                .setCallback(new AckCallback() {
-                    @Override
-                    public void onSuccess(AckContext ctx) {
-                        if (!gatewayConnection.isConnected()) {
-                            Logs.PUSH.info(">>> receive client ack, gateway connection is closed, context={}", ctx);
-                            return;
-                        }
+                OkMessage okMessage = OkMessage.from(message);
+                okMessage.setData(message.userId + ',' + message.clientType);
+                okMessage.sendRaw();
+                Logs.PUSH.info(">>> receive client ack and response gateway client success, context={}", ctx);
+            }
 
-                        OkMessage okMessage = new OkMessage(ctx.cmd, new Packet(OK, ctx.gatewayMessageId), gatewayConnection);
-                        okMessage.setData(userId + ',' + clientType);
-                        okMessage.sendRaw();
-                        Logs.PUSH.info(">>> receive client ack and response gateway client success, context={}", ctx);
-                    }
-
-                    @Override
-                    public void onTimeout(AckContext ctx) {
-                        if (!gatewayConnection.isConnected()) {
-                            Logs.PUSH.info("push message timeout client not ack, gateway connection is closed, context={}", ctx);
-                            return;
-                        }
-                        ErrorMessage errorMessage = new ErrorMessage(ctx.cmd, new Packet(ERROR, ctx.gatewayMessageId), gatewayConnection);
-                        errorMessage.setData(userId + ',' + clientType);
-                        errorMessage.setErrorCode(ErrorCode.ACK_TIMEOUT);
-                        errorMessage.sendRaw();
-                        Logs.PUSH.info("push message timeout client not ack, context={}", ctx);
-                    }
-                });
+            @Override
+            public void onTimeout(AckContext ctx) {
+                if (!message.getConnection().isConnected()) {
+                    Logs.PUSH.info("push message timeout client not ack, gateway connection is closed, context={}", ctx);
+                    return;
+                }
+                ErrorMessage errorMessage = ErrorMessage.from(message);
+                errorMessage.setData(message.userId + ',' + message.clientType);
+                errorMessage.setErrorCode(ErrorCode.ACK_TIMEOUT);
+                errorMessage.sendRaw();
+                Logs.PUSH.info("push message timeout client not ack, context={}", ctx);
+            }
+        });
     }
 }

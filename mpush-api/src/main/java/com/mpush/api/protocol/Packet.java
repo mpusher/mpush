@@ -22,13 +22,15 @@ package com.mpush.api.protocol;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
+import java.net.InetSocketAddress;
+
 /**
  * Created by ohun on 2015/12/19.
  * length(4)+cmd(1)+cc(2)+flags(1)+sessionId(4)+lrc(1)+body(n)
  *
  * @author ohun@live.cn
  */
-public final class Packet {
+public class Packet {
     public static final int HEADER_LEN = 13;
 
     public static final byte FLAG_CRYPTO = 0x01;
@@ -108,6 +110,14 @@ public final class Packet {
 
     public boolean validLrc() {
         return (lrc ^ calcLrc()) == 0;
+    }
+
+    public InetSocketAddress sender() {
+        return null;
+    }
+
+    public Packet response(Command command) {
+        return new Packet(command, sessionId);
     }
 
     @Override

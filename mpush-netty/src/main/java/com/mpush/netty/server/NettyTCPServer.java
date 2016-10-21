@@ -47,9 +47,9 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author ohun@live.cn
  */
-public abstract class NettyServer extends BaseService implements Server {
+public abstract class NettyTCPServer extends BaseService implements Server {
 
-    private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public enum State {Created, Initialized, Starting, Started, Shutdown}
 
@@ -59,7 +59,7 @@ public abstract class NettyServer extends BaseService implements Server {
     protected EventLoopGroup bossGroup;
     protected EventLoopGroup workerGroup;
 
-    public NettyServer(int port) {
+    public NettyTCPServer(int port) {
         this.port = port;
     }
 
@@ -95,7 +95,7 @@ public abstract class NettyServer extends BaseService implements Server {
         if (!serverState.compareAndSet(State.Initialized, State.Starting)) {
             throw new IllegalStateException("Server already started or have not init");
         }
-        if (useNettyEpoll()) {
+        if (CC.mp.core.useNettyEpoll()) {
             createEpollServer(listener);
         } else {
             createNioServer(listener);
@@ -146,7 +146,7 @@ public abstract class NettyServer extends BaseService implements Server {
              */
             b.childHandler(new ChannelInitializer<SocketChannel>() { // (4)
                 @Override
-                public void initChannel(SocketChannel ch) throws Exception {
+                public void initChannel(SocketChannel ch) throws Exception {//每连上一个链接调用一次
                     initPipeline(ch.pipeline());
                 }
             });
@@ -192,7 +192,6 @@ public abstract class NettyServer extends BaseService implements Server {
         createServer(listener, bossGroup, workerGroup, NioServerSocketChannel.class);
     }
 
-    @SuppressWarnings("unused")
     private void createEpollServer(Listener listener) {
         EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1, getBossExecutor());
         EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(0, getWorkExecutor());
@@ -228,9 +227,14 @@ public abstract class NettyServer extends BaseService implements Server {
     }
 
     protected ChannelHandler getEncoder() {
-        return PacketEncoder.INSTANCE;
+        return PacketEncoder.INSTANCE;//每连上一个链接调用一次, 所有用单利
     }
 
+    /**
+     * 每连上一个链接调用一次
+     *
+     * @param pipeline
+     */
     protected void initPipeline(ChannelPipeline pipeline) {
         pipeline.addLast("decoder", getDecoder());
         pipeline.addLast("encoder", getEncoder());
@@ -257,11 +261,5 @@ public abstract class NettyServer extends BaseService implements Server {
     @Override
     protected void doStop(Listener listener) throws Throwable {
 
-    }
-
-    private boolean useNettyEpoll() {
-        if (!"netty".equals(CC.mp.core.epoll_provider)) return false;
-        String name = CC.cfg.getString("os.name").toLowerCase(Locale.UK).trim();
-        return name.startsWith("linux");
     }
 }

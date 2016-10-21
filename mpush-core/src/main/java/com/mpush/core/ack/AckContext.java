@@ -31,18 +31,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class AckContext implements Runnable {
     private final AtomicBoolean done = new AtomicBoolean(false);
 
-    public final int gatewayMessageId;
-    public final byte cmd;
     private AckCallback callback;
     /*package*/ int pushMessageId;
 
-    public AckContext(int gatewayMessageId, byte cmd) {
-        this.gatewayMessageId = gatewayMessageId;
-        this.cmd = cmd;
-    }
-
-    public static AckContext from(BaseMessage message) {
-        return new AckContext(message.getSessionId(), message.getPacket().cmd);
+    public AckContext() {
     }
 
     public boolean tryDone() {
@@ -70,7 +62,6 @@ public final class AckContext implements Runnable {
     @Override
     public String toString() {
         return "AckContext{" +
-                "gatewayMessageId=" + gatewayMessageId +
                 ", pushMessageId=" + pushMessageId +
                 '}';
     }

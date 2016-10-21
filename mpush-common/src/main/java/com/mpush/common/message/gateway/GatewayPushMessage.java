@@ -22,11 +22,13 @@ package com.mpush.common.message.gateway;
 import com.google.gson.reflect.TypeToken;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
+import com.mpush.api.protocol.UDPPacket;
 import com.mpush.common.message.ByteBufMessage;
 import com.mpush.tools.Jsons;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 
+import java.net.InetSocketAddress;
 import java.util.Set;
 
 import static com.mpush.api.protocol.Command.GATEWAY_PUSH;
@@ -43,14 +45,18 @@ public class GatewayPushMessage extends ByteBufMessage {
     public int timeout;
     public byte[] content;
 
-    public GatewayPushMessage(String userId, byte[] content, Connection connection) {
-        super(new Packet(GATEWAY_PUSH, genSessionId()), connection);
-        this.userId = userId;
-        this.content = content;
-    }
-
     public GatewayPushMessage(Packet message, Connection connection) {
         super(message, connection);
+    }
+
+    public static GatewayPushMessage build(Connection connection, InetSocketAddress sender) {
+        Packet packet = new UDPPacket(GATEWAY_PUSH, genSessionId(), sender);
+        return new GatewayPushMessage(packet, connection);
+    }
+
+    public static GatewayPushMessage build(Connection connection) {
+        Packet packet = new Packet(GATEWAY_PUSH, genSessionId());
+        return new GatewayPushMessage(packet, connection);
     }
 
     @Override
@@ -81,6 +87,16 @@ public class GatewayPushMessage extends ByteBufMessage {
     private void encodeSet(ByteBuf body, Set<String> field) {
         String json = field == null ? null : Jsons.toJson(field);
         encodeString(body, json);
+    }
+
+    public GatewayPushMessage setUserId(String userId) {
+        this.userId = userId;
+        return this;
+    }
+
+    public GatewayPushMessage setContent(byte[] content) {
+        this.content = content;
+        return this;
     }
 
     public GatewayPushMessage setClientType(int clientType) {
@@ -127,7 +143,7 @@ public class GatewayPushMessage extends ByteBufMessage {
                 "userId='" + userId + '\'' +
                 ", clientType='" + clientType + '\'' +
                 ", timeout='" + timeout + '\'' +
-                ", content='" + content.length + '\'' +
+                ", content='" + (content == null ? 0 : content.length) + '\'' +
                 '}';
     }
 }

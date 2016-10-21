@@ -24,9 +24,11 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.protocol.Packet;
 import com.mpush.api.spi.core.CipherFactory;
+import com.mpush.netty.codec.PacketEncoder;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.socket.DatagramPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +80,10 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     @Override
     public ChannelFuture send(Packet packet, final ChannelFutureListener listener) {
         if (channel.isActive()) {
-            ChannelFuture future = channel.writeAndFlush(packet).addListener(this);
+
+            Object msg = packet.sender() == null ? packet : new DatagramPacket(PacketEncoder.encode(channel, packet), packet.sender());
+
+            ChannelFuture future = channel.writeAndFlush(msg).addListener(this);
 
             if (listener != null) {
                 future.addListener(listener);
