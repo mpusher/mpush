@@ -17,26 +17,23 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.client.gateway;
+package com.mpush.client.gateway.connection;
 
 import com.google.common.collect.Maps;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.service.Listener;
-import com.mpush.common.message.gateway.GatewayPushMessage;
-import com.mpush.tools.config.CC;
+import com.mpush.client.gateway.GatewayUDPConnector;
+import com.mpush.common.message.BaseMessage;
+import com.mpush.tools.common.Holder;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import com.mpush.zk.node.ZKServerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.Lock;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.mpush.tools.config.CC.mp.net.gateway_server_multicast;
 import static com.mpush.tools.config.CC.mp.net.gateway_server_port;
@@ -46,7 +43,7 @@ import static com.mpush.tools.config.CC.mp.net.gateway_server_port;
  *
  * @author ohun@live.cn
  */
-public class GatewayUDPConnectionFactory extends GatewayConnectionFactory<InetSocketAddress> {
+public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
 
     private final Logger logger = LoggerFactory.getLogger(GatewayUDPConnectionFactory.class);
 
@@ -57,25 +54,8 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory<InetSo
     private final InetSocketAddress multicastRecipient = new InetSocketAddress(gateway_server_multicast, gateway_server_port);
 
     @Override
-    public void init() {
-        CountDownLatch latch = new CountDownLatch(1);
-        ThreadPoolManager.I.newThread("udp-client", () -> connector.start(new Listener() {
-            @Override
-            public void onSuccess(Object... args) {
-                latch.countDown();
-            }
-
-            @Override
-            public void onFailure(Throwable cause) {
-                latch.countDown();
-            }
-        })).start();
-
-        //同步
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-        }
+    public void init(Listener listener) {
+        ThreadPoolManager.I.newThread("udp-client", () -> connector.start(listener)).start();
     }
 
     @Override
@@ -95,6 +75,7 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory<InetSo
     public void clear() {
         super.clear();
         ip_address.clear();
+        connector.stop();
     }
 
     @Override
@@ -103,25 +84,31 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory<InetSo
     }
 
     @Override
-    public InetSocketAddress getNode(String ip) {
-        return ip_address.get(ip);
+    public <T extends BaseMessage> Function<String, Void> send(Function<Connection, T> creator, Function<T, Void> sender) {
+
+        Holder<InetSocketAddress> holder = new Holder<>();
+
+        Function<String, Connection> getConn = host -> {
+            InetSocketAddress recipient = ip_address.get(host);
+            if (recipient == null) return null;
+            holder.set(recipient);
+            return connector.getConnection();
+        };
+
+        Function<T, T> setRecipientFun = message -> {
+            if (message != null) {
+                message.getPacket().sender(holder.get());
+            }
+            return message;
+        };
+
+        return creator.compose(getConn).andThen(setRecipientFun).andThen(sender);
     }
 
     @Override
-    public Collection<InetSocketAddress> getAllNode() {
-        return ip_address.values();
-    }
-
-    @Override
-    public boolean send(String host, Consumer<GatewayPushMessage> consumer) {
-        InetSocketAddress recipient = ip_address.get(host);
-        if (recipient == null) return false;
-        consumer.accept(GatewayPushMessage.build(connector.getConnection(), recipient));
-        return true;
-    }
-
-    @Override
-    public void broadcast(Consumer<GatewayPushMessage> consumer) {
-        consumer.accept(GatewayPushMessage.build(connector.getConnection(), multicastRecipient));
+    public <M extends BaseMessage> void broadcast(Function<Connection, M> creator, Consumer<M> sender) {
+        M message = creator.apply(connector.getConnection());
+        message.getPacket().sender(multicastRecipient);
+        sender.accept(message);
     }
 }

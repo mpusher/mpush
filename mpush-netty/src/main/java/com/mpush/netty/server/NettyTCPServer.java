@@ -77,7 +77,7 @@ public abstract class NettyTCPServer extends BaseService implements Server {
     @Override
     public void stop(Listener listener) {
         if (!serverState.compareAndSet(State.Started, State.Shutdown)) {
-            if (listener != null) listener.onFailure(new IllegalStateException("server was already shutdown."));
+            if (listener != null) listener.onFailure(new ServiceException("server was already shutdown."));
             Logs.Console.error("{} was already shutdown.", this.getClass().getSimpleName());
             return;
         }

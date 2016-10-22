@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -38,6 +39,10 @@ public class PushClientTestMain {
         Logs.init();
         PushSender sender = PushSender.create();
         sender.start().whenComplete((success, throwable) -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
 
             PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
             msg.setMsgId("msgId_0");
@@ -50,6 +55,7 @@ public class PushClientTestMain {
                     .setCallback(new PushCallback() {
                         @Override
                         public void onResult(PushResult result) {
+                            System.out.println();
                             System.err.println(result);
                         }
                     });

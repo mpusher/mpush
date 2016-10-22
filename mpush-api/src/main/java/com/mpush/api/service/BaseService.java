@@ -20,6 +20,7 @@
 package com.mpush.api.service;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -40,13 +41,15 @@ public abstract class BaseService implements Service {
         return started.get();
     }
 
-    protected void tryStart(Listener listener, Function function) {
-        listener = wrap(listener);
+    protected void tryStart(Listener l, Function function) {
+        FutureListener listener = wrap(l);
         if (started.compareAndSet(false, true)) {
             try {
                 init();
                 function.apply(listener);
-                listener.onSuccess(String.format("service %s start success", this.getClass().getSimpleName()));
+                if (!listener.isDone()) {
+                    listener.onSuccess(String.format("service %s start success", this.getClass().getSimpleName()));
+                }
             } catch (Throwable e) {
                 listener.onFailure(e);
                 throw new ServiceException(e);
@@ -56,12 +59,14 @@ public abstract class BaseService implements Service {
         }
     }
 
-    protected void tryStop(Listener listener, Function function) {
-        listener = wrap(listener);
+    protected void tryStop(Listener l, Function function) {
+        FutureListener listener = wrap(l);
         if (started.compareAndSet(true, false)) {
             try {
                 function.apply(listener);
-                listener.onSuccess(String.format("service %s stop success", this.getClass().getSimpleName()));
+                if (!listener.isDone()) {
+                    listener.onSuccess(String.format("service %s stop success", this.getClass().getSimpleName()));
+                }
             } catch (Throwable e) {
                 listener.onFailure(e);
                 throw new ServiceException(e);
@@ -93,9 +98,13 @@ public abstract class BaseService implements Service {
         tryStop(listener, this::doStop);
     }
 
-    protected abstract void doStart(Listener listener) throws Throwable;
+    protected void doStart(Listener listener) throws Throwable {
 
-    protected abstract void doStop(Listener listener) throws Throwable;
+    }
+
+    protected void doStop(Listener listener) throws Throwable {
+
+    }
 
     protected interface Function {
         void apply(Listener l) throws Throwable;

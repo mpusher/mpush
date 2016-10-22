@@ -23,6 +23,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 import com.mpush.api.protocol.UDPPacket;
+import com.mpush.common.memory.PacketFactory;
 import com.mpush.common.message.ByteBufMessage;
 import com.mpush.tools.Jsons;
 import io.netty.buffer.ByteBuf;
@@ -49,13 +50,9 @@ public class GatewayPushMessage extends ByteBufMessage {
         super(message, connection);
     }
 
-    public static GatewayPushMessage build(Connection connection, InetSocketAddress sender) {
-        Packet packet = new UDPPacket(GATEWAY_PUSH, genSessionId(), sender);
-        return new GatewayPushMessage(packet, connection);
-    }
-
     public static GatewayPushMessage build(Connection connection) {
-        Packet packet = new Packet(GATEWAY_PUSH, genSessionId());
+        Packet packet = PacketFactory.get(GATEWAY_PUSH);
+        packet.sessionId = genSessionId();
         return new GatewayPushMessage(packet, connection);
     }
 

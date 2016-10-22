@@ -19,13 +19,15 @@
 
 package com.mpush.client.push;
 
-import com.mpush.api.push.*;
+import com.mpush.api.push.PushContext;
+import com.mpush.api.push.PushException;
+import com.mpush.api.push.PushSender;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
 import com.mpush.cache.redis.manager.RedisManager;
-import com.mpush.client.gateway.GatewayConnectionFactory;
-import com.mpush.client.gateway.GatewayTCPConnectionFactory;
-import com.mpush.client.gateway.GatewayUDPConnectionFactory;
+import com.mpush.client.gateway.connection.GatewayConnectionFactory;
+import com.mpush.client.gateway.connection.GatewayTCPConnectionFactory;
+import com.mpush.client.gateway.connection.GatewayUDPConnectionFactory;
 import com.mpush.common.router.CachedRemoteRouterManager;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.tools.config.CC;
@@ -84,17 +86,17 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        factory.init();
-        ZKClient.I.start(listener);
+        ZKClient.I.start();
         RedisManager.I.init();
         ZKServerNodeWatcher.build(GATEWAY_SERVER, factory).watch();
-        PushRequestBus.I.start(listener);
+        PushRequestBus.I.start();
+        factory.init(listener);
     }
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
         factory.clear();
-        ZKClient.I.stop(listener);
+        ZKClient.I.stop();
         RedisManager.I.destroy();
         PushRequestBus.I.stop(listener);
     }

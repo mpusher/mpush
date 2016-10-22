@@ -27,19 +27,9 @@ import java.net.InetSocketAddress;
  * @author ohun@live.cn (夜色)
  */
 public final class UDPPacket extends Packet {
-    private final InetSocketAddress sender;
+    private InetSocketAddress sender;
 
     public UDPPacket(byte cmd, InetSocketAddress sender) {
-        super(cmd);
-        this.sender = sender;
-    }
-
-    public UDPPacket(byte cmd, int sessionId, InetSocketAddress sender) {
-        super(cmd, sessionId);
-        this.sender = sender;
-    }
-
-    public UDPPacket(Command cmd, InetSocketAddress sender) {
         super(cmd);
         this.sender = sender;
     }
@@ -49,9 +39,26 @@ public final class UDPPacket extends Packet {
         this.sender = sender;
     }
 
+    public UDPPacket(byte cmd) {
+        super(cmd);
+    }
+
+    public UDPPacket(Command cmd) {
+        super(cmd);
+    }
+
+    public UDPPacket(Command cmd, int sessionId) {
+        super(cmd, sessionId);
+    }
+
     @Override
     public InetSocketAddress sender() {
         return sender;
+    }
+
+    @Override
+    public void sender(InetSocketAddress sender) {
+        this.sender = sender;
     }
 
     @Override

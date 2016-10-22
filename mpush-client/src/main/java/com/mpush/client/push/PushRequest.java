@@ -22,7 +22,7 @@ package com.mpush.client.push;
 import com.mpush.api.Constants;
 import com.mpush.api.push.*;
 import com.mpush.api.router.ClientLocation;
-import com.mpush.client.gateway.GatewayConnectionFactory;
+import com.mpush.client.gateway.connection.GatewayConnectionFactory;
 import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.common.router.CachedRemoteRouterManager;
 import com.mpush.common.router.RemoteRouter;
@@ -36,7 +36,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 /**
  * Created by ohun on 2015/12/30.
@@ -78,38 +77,40 @@ public class PushRequest extends FutureTask<Boolean> {
             return;
         }
 
-        timeLine.addTimePoint("get-gateway-conn");
+        timeLine.addTimePoint("check-gateway-conn");
 
 
         //2.通过网关连接，把消息发送到所在机器
 
-        timeLine.addTimePoint("send-to-gateway-begin");
+        connectionFactory.send(
+                connection -> {
+                    if (connection == null) {
+                        LOGGER.error("get gateway connection failure, location={}", location);
+                        failure();
+                        return null;
+                    }
 
-        boolean success = connectionFactory.send(location.getHost(), new Consumer<GatewayPushMessage>() {
-            @Override
-            public void accept(GatewayPushMessage pushMessage) {
-                pushMessage
-                        .setUserId(userId)
-                        .setContent(content)
-                        .setClientType(location.getClientType())
-                        .setTimeout(timeout - 500)
-                        .setTags(tags)
-                        .addFlag(ackModel.flag);
-
-                pushMessage.sendRaw(f -> {
-                    timeLine.addTimePoint("send-to-gateway-end");
-                    if (!f.isSuccess()) failure();
-                });
-                PushRequest.this.content = null;//释放内存
-                timeLine.addTimePoint("put-request-bus");
-                future = PushRequestBus.I.put(pushMessage.getSessionId(), PushRequest.this);
-            }
-        });
-
-        if (!success) {
-            LOGGER.error("get gateway connection failure, location={}", location);
-            failure();
-        }
+                    return GatewayPushMessage.build(connection)
+                            .setUserId(userId)
+                            .setContent(content)
+                            .setClientType(location.getClientType())
+                            .setTimeout(timeout - 500)
+                            .setTags(tags)
+                            .addFlag(ackModel.flag);
+                },
+                pushMessage -> {
+                    if (pushMessage != null) {
+                        timeLine.addTimePoint("send-to-gateway-begin");
+                        pushMessage.sendRaw(f -> {
+                            timeLine.addTimePoint("send-to-gateway-end");
+                            if (!f.isSuccess()) failure();
+                        });
+                        PushRequest.this.content = null;//释放内存
+                        future = PushRequestBus.I.put(pushMessage.getSessionId(), PushRequest.this);
+                    }
+                    return null;
+                }
+        ).apply(location.getHost());
     }
 
     private void submit(Status status) {
@@ -171,21 +172,22 @@ public class PushRequest extends FutureTask<Boolean> {
     public FutureTask<Boolean> broadcast() {
         timeLine.begin();
 
-        Consumer<GatewayPushMessage> consumer = pushMessage -> {
-            pushMessage
-                    .setUserId(userId)
-                    .setContent(content)
-                    .setTags(tags)
-                    .addFlag(ackModel.flag);
+        connectionFactory.broadcast(
+                connection -> GatewayPushMessage
+                        .build(connection)
+                        .setUserId(userId)
+                        .setContent(content)
+                        .setTags(tags)
+                        .addFlag(ackModel.flag),
 
-            pushMessage.sendRaw(f -> {
-                if (!f.isSuccess()) failure();
-            });
+                pushMessage -> {
+                    pushMessage.sendRaw(f -> {
+                        if (!f.isSuccess()) failure();
+                    });
+                    future = PushRequestBus.I.put(pushMessage.getSessionId(), PushRequest.this);
+                }
+        );
 
-            future = PushRequestBus.I.put(pushMessage.getSessionId(), PushRequest.this);
-        };
-
-        connectionFactory.broadcast(consumer);
         return this;
     }
 

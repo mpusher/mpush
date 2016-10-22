@@ -63,9 +63,12 @@ public abstract class NettyUDPConnector extends BaseService implements Server {
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
-        Logs.Console.info("try shutdown {}...", this.getClass().getSimpleName());
-        if (eventLoopGroup != null) eventLoopGroup.shutdownGracefully().syncUninterruptibly();
-        Logs.Console.info("{} shutdown success.", this.getClass().getSimpleName());
+        if (isRunning()) {
+            Logs.Console.info("try shutdown {}...", this.getClass().getSimpleName());
+            if (eventLoopGroup != null) eventLoopGroup.shutdownGracefully().syncUninterruptibly();
+            Logs.Console.info("{} shutdown success.", this.getClass().getSimpleName());
+            listener.onSuccess(port);
+        }
     }
 
     private void createServer(Listener listener, EventLoopGroup eventLoopGroup, ChannelFactory<? extends DatagramChannel> channelFactory) {
@@ -95,7 +98,7 @@ public abstract class NettyUDPConnector extends BaseService implements Server {
             if (listener != null) listener.onFailure(e);
             throw new ServiceException("udp server start exception, port=" + port, e);
         } finally {
-            stop();
+            stop(null);
         }
     }
 

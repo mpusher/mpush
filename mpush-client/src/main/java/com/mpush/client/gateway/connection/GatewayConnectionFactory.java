@@ -17,9 +17,11 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.client.gateway;
+package com.mpush.client.gateway.connection;
 
 import com.mpush.api.connection.Connection;
+import com.mpush.api.service.Listener;
+import com.mpush.common.message.BaseMessage;
 import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.zk.cache.ZKServerNodeCache;
 import org.slf4j.Logger;
@@ -27,28 +29,24 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Created by yxx on 2016/5/17.
  *
  * @author ohun@live.cn
  */
-public abstract class GatewayConnectionFactory<T> extends ZKServerNodeCache {
+public abstract class GatewayConnectionFactory extends ZKServerNodeCache {
 
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public void init() {
-
+    public void init(Listener listener) {
     }
 
     abstract public Connection getConnection(String ip);
 
-    abstract public T getNode(String ip);
+    abstract public <M extends BaseMessage> Function<String, Void> send(Function<Connection, M> creator, Function<M, Void> sender);
 
-    abstract public Collection<T> getAllNode();
-
-    abstract public boolean send(String host, Consumer<GatewayPushMessage> consumer);
-
-    abstract public void broadcast(Consumer<GatewayPushMessage> consumer);
+    abstract public <M extends BaseMessage> void broadcast(Function<Connection, M> creator, Consumer<M> sender);
 
 }

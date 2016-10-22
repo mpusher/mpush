@@ -20,10 +20,17 @@
 package com.mpush.client.gateway.handler;
 
 import com.mpush.api.connection.Connection;
+import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
-import com.mpush.client.gateway.GatewayClientChannelHandler;
+import com.mpush.client.push.PushRequest;
+import com.mpush.client.push.PushRequestBus;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.ErrorMessage;
+import com.mpush.tools.log.Logs;
+
+import static com.mpush.common.ErrorCode.OFFLINE;
+import static com.mpush.common.ErrorCode.PUSH_CLIENT_FAILURE;
+import static com.mpush.common.ErrorCode.ROUTER_CHANGE;
 
 /**
  * Created by ohun on 16/10/21.
@@ -39,6 +46,21 @@ public final class GatewayErrorHandler extends BaseMessageHandler<ErrorMessage> 
 
     @Override
     public void handle(ErrorMessage message) {
-        GatewayClientChannelHandler.handleError(message);
+        if (message.cmd == Command.GATEWAY_PUSH.cmd) {
+            PushRequest request = PushRequestBus.I.getAndRemove(message.getSessionId());
+            if (request == null) {
+                Logs.PUSH.warn("receive a gateway response, but request has timeout. message={}", message);
+                return;
+            }
+
+            Logs.PUSH.warn("receive an error gateway response, message={}", message);
+            if (message.code == OFFLINE.errorCode) {//用户离线
+                request.offline();
+            } else if (message.code == PUSH_CLIENT_FAILURE.errorCode) {//下发到客户端失败
+                request.failure();
+            } else if (message.code == ROUTER_CHANGE.errorCode) {//用户路由信息更改
+                request.redirect();
+            }
+        }
     }
 }

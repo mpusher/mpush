@@ -20,7 +20,12 @@
 package com.mpush.client.gateway;
 
 import com.mpush.api.connection.Connection;
+import com.mpush.api.protocol.Command;
 import com.mpush.api.service.Listener;
+import com.mpush.client.gateway.handler.GatewayClientChannelHandler;
+import com.mpush.client.gateway.handler.GatewayErrorHandler;
+import com.mpush.client.gateway.handler.GatewayOKHandler;
+import com.mpush.common.MessageDispatcher;
 import com.mpush.netty.client.NettyTCPClient;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
 import io.netty.channel.ChannelHandler;
@@ -39,12 +44,16 @@ import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
  * @author ohun@live.cn
  */
 public class GatewayClient extends NettyTCPClient {
-    private final GatewayClientChannelHandler handler = new GatewayClientChannelHandler();
+    private final GatewayClientChannelHandler handler;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
     private ScheduledExecutorService trafficShapingExecutor;
 
     public GatewayClient(String host, int port) {
         super(host, port);
+        MessageDispatcher dispatcher = new MessageDispatcher();
+        dispatcher.register(Command.OK, new GatewayOKHandler());
+        dispatcher.register(Command.ERROR, new GatewayErrorHandler());
+        this.handler = new GatewayClientChannelHandler(dispatcher);
         if (enabled) {
             trafficShapingExecutor = Executors.newSingleThreadScheduledExecutor(new NamedPoolThreadFactory(T_TRAFFIC_SHAPING));
             trafficShapingHandler = new GlobalChannelTrafficShapingHandler(

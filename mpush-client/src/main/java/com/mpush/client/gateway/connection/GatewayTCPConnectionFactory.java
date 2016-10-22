@@ -17,26 +17,26 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.client.gateway;
+package com.mpush.client.gateway.connection;
 
 import com.google.common.collect.Maps;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.service.Client;
 import com.mpush.api.service.Listener;
-import com.mpush.common.message.gateway.GatewayPushMessage;
+import com.mpush.client.gateway.GatewayClient;
+import com.mpush.common.message.BaseMessage;
 import com.mpush.zk.node.ZKServerNode;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 /**
  * Created by yxx on 2016/5/17.
  *
  * @author ohun@live.cn
  */
-public class GatewayTCPConnectionFactory extends GatewayConnectionFactory<Connection> {
+public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
 
     private final Map<String, GatewayClient> ip_client = Maps.newConcurrentMap();
 
@@ -76,28 +76,16 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory<Connec
         return null;
     }
 
+
     @Override
-    public Connection getNode(String ip) {
-        return getConnection(ip);
+    public <M extends BaseMessage> Function<String, Void> send(Function<Connection, M> creator, Function<M, Void> sender) {
+        return creator.compose(this::getConnection).andThen(sender);
     }
 
     @Override
-    public Collection<Connection> getAllNode() {
-        return ip_client.values().stream().map(GatewayClient::getConnection).collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean send(String ip, Consumer<GatewayPushMessage> consumer) {
-        Connection connection = getConnection(ip);
-        if (connection == null) return false;
-        consumer.accept(GatewayPushMessage.build(connection));
-        return true;
-    }
-
-    @Override
-    public void broadcast(Consumer<GatewayPushMessage> consumer) {
+    public <M extends BaseMessage> void broadcast(Function<Connection, M> creator, Consumer<M> sender) {
         ip_client.forEach((s, client) -> {
-            consumer.accept(GatewayPushMessage.build(client.getConnection()));
+            sender.accept(creator.apply(client.getConnection()));
         });
     }
 

@@ -20,13 +20,15 @@
 package com.mpush.client.gateway.handler;
 
 import com.mpush.api.connection.Connection;
+import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
-import com.mpush.client.gateway.GatewayClientChannelHandler;
 import com.mpush.client.push.PushRequest;
 import com.mpush.client.push.PushRequestBus;
 import com.mpush.common.handler.BaseMessageHandler;
-import com.mpush.common.handler.OkMessageHandler;
 import com.mpush.common.message.OkMessage;
+import com.mpush.tools.log.Logs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by ohun on 16/10/21.
@@ -34,6 +36,7 @@ import com.mpush.common.message.OkMessage;
  * @author ohun@live.cn (夜色)
  */
 public final class GatewayOKHandler extends BaseMessageHandler<OkMessage> {
+
     @Override
     public OkMessage decode(Packet packet, Connection connection) {
         return new OkMessage(packet, connection);
@@ -41,6 +44,13 @@ public final class GatewayOKHandler extends BaseMessageHandler<OkMessage> {
 
     @Override
     public void handle(OkMessage message) {
-        GatewayClientChannelHandler.handleOK(message);
+        if (message.cmd == Command.GATEWAY_PUSH.cmd) {
+            PushRequest request = PushRequestBus.I.getAndRemove(message.getSessionId());
+            if (request == null) {
+                Logs.PUSH.warn("receive a gateway response, but request has timeout. message={}", message);
+                return;
+            }
+            request.success(message.data);//推送成功
+        }
     }
 }
