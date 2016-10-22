@@ -63,12 +63,10 @@ public abstract class NettyUDPConnector extends BaseService implements Server {
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
-        if (isRunning()) {
-            Logs.Console.info("try shutdown {}...", this.getClass().getSimpleName());
-            if (eventLoopGroup != null) eventLoopGroup.shutdownGracefully().syncUninterruptibly();
-            Logs.Console.info("{} shutdown success.", this.getClass().getSimpleName());
-            listener.onSuccess(port);
-        }
+        Logs.Console.info("try shutdown {}...", this.getClass().getSimpleName());
+        if (eventLoopGroup != null) eventLoopGroup.shutdownGracefully().syncUninterruptibly();
+        Logs.Console.info("{} shutdown success.", this.getClass().getSimpleName());
+        listener.onSuccess(port);
     }
 
     private void createServer(Listener listener, EventLoopGroup eventLoopGroup, ChannelFactory<? extends DatagramChannel> channelFactory) {
@@ -98,18 +96,18 @@ public abstract class NettyUDPConnector extends BaseService implements Server {
             if (listener != null) listener.onFailure(e);
             throw new ServiceException("udp server start exception, port=" + port, e);
         } finally {
-            stop(null);
+            if (isRunning()) stop();
         }
     }
 
     private void createNioServer(Listener listener) {
-        NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(1, getWorkExecutor());
+        NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(0, getWorkExecutor());
         createServer(listener, eventLoopGroup, () -> new NioDatagramChannel(IPv4));
     }
 
     @SuppressWarnings("unused")
     private void createEpollServer(Listener listener) {
-        EpollEventLoopGroup eventLoopGroup = new EpollEventLoopGroup(1, getWorkExecutor());
+        EpollEventLoopGroup eventLoopGroup = new EpollEventLoopGroup(0, getWorkExecutor());
         createServer(listener, eventLoopGroup, EpollDatagramChannel::new);
     }
 

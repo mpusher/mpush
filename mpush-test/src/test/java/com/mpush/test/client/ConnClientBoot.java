@@ -22,6 +22,7 @@ package com.mpush.test.client;
 import com.google.common.collect.Lists;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
+import com.mpush.api.service.ServiceException;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.zk.ZKClient;
 import com.mpush.zk.listener.ZKServerNodeWatcher;
@@ -38,14 +39,25 @@ public final class ConnClientBoot extends BaseService {
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        ZKClient.I.start(listener);
-        RedisManager.I.init();
-        watcher.watch();
+        ZKClient.I.start(new Listener() {
+            @Override
+            public void onSuccess(Object... args) {
+                RedisManager.I.init();
+                watcher.watch();
+                listener.onSuccess();
+            }
+
+            @Override
+            public void onFailure(Throwable cause) {
+                listener.onFailure(cause);
+            }
+        });
     }
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
-        ZKClient.I.stop();
+        ZKClient.I.syncStop();
         RedisManager.I.destroy();
+        listener.onSuccess();
     }
 }

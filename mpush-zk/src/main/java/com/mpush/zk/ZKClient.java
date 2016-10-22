@@ -83,6 +83,7 @@ public class ZKClient extends BaseService {
         TimeUnit.MILLISECONDS.sleep(600);
         client.close();
         Logs.Console.info("zk client closed...");
+        listener.onSuccess();
     }
 
     /**

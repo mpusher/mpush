@@ -20,7 +20,9 @@
 package com.mpush.api.service;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -47,9 +49,7 @@ public abstract class BaseService implements Service {
             try {
                 init();
                 function.apply(listener);
-                if (!listener.isDone()) {
-                    listener.onSuccess(String.format("service %s start success", this.getClass().getSimpleName()));
-                }
+                listener.monitor(this);
             } catch (Throwable e) {
                 listener.onFailure(e);
                 throw new ServiceException(e);
@@ -64,9 +64,7 @@ public abstract class BaseService implements Service {
         if (started.compareAndSet(true, false)) {
             try {
                 function.apply(listener);
-                if (!listener.isDone()) {
-                    listener.onSuccess(String.format("service %s stop success", this.getClass().getSimpleName()));
-                }
+                listener.monitor(this);
             } catch (Throwable e) {
                 listener.onFailure(e);
                 throw new ServiceException(e);
@@ -89,6 +87,16 @@ public abstract class BaseService implements Service {
     }
 
     @Override
+    public final boolean syncStart() {
+        return start().join();
+    }
+
+    @Override
+    public final boolean syncStop() {
+        return stop().join();
+    }
+
+    @Override
     public void start(Listener listener) {
         tryStart(listener, this::doStart);
     }
@@ -99,11 +107,11 @@ public abstract class BaseService implements Service {
     }
 
     protected void doStart(Listener listener) throws Throwable {
-
+        listener.onSuccess();
     }
 
     protected void doStop(Listener listener) throws Throwable {
-
+        listener.onSuccess();
     }
 
     protected interface Function {
@@ -145,7 +153,20 @@ public abstract class BaseService implements Service {
             if (isDone()) return;// 防止Listener被重复执行
             completeExceptionally(cause);
             if (l != null) l.onFailure(cause);
-            throw new ServiceException(cause);
+            throw cause instanceof ServiceException
+                    ? (ServiceException) cause
+                    : new ServiceException(cause);
+        }
+
+        public void monitor(BaseService service) {
+            if (isDone()) return;
+            runAsync(() -> {
+                try {
+                    this.get(10, TimeUnit.SECONDS);
+                } catch (Exception e) {
+                    this.onFailure(new ServiceException(String.format("service %s monitor timeout", service.getClass().getSimpleName())));
+                }
+            });
         }
 
         @Override

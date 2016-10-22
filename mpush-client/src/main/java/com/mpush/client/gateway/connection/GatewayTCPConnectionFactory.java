@@ -21,6 +21,7 @@ package com.mpush.client.gateway.connection;
 
 import com.google.common.collect.Maps;
 import com.mpush.api.connection.Connection;
+import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Client;
 import com.mpush.api.service.Listener;
 import com.mpush.client.gateway.GatewayClient;
@@ -57,9 +58,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     @Override
     public void clear() {
         super.clear();
-        for (GatewayClient client : ip_client.values()) {
-            client.stop(null);
-        }
+        ip_client.values().forEach(BaseService::stop);
     }
 
     @Override

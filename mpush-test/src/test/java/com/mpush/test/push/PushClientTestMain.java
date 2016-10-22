@@ -39,11 +39,6 @@ public class PushClientTestMain {
         Logs.init();
         PushSender sender = PushSender.create();
         sender.start().whenComplete((success, throwable) -> {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
             PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
             msg.setMsgId("msgId_0");
 

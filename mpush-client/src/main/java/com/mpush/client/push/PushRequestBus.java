@@ -67,11 +67,13 @@ public class PushRequestBus extends BaseService {
             logger.error("one push request was rejected, request=" + r);
             throw new PushException("one push request was rejected. request=" + r);
         });
+        listener.onSuccess();
     }
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
         scheduledExecutor.shutdown();
-        ((ExecutorService)executor).shutdown();
+        ((ExecutorService) executor).shutdown();
+        listener.onSuccess();
     }
 }

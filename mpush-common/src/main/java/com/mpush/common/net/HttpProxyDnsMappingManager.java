@@ -55,6 +55,7 @@ public class HttpProxyDnsMappingManager extends BaseService implements DnsMappin
     public HttpProxyDnsMappingManager() {
     }
 
+
     @Override
     protected void doStart(Listener listener) throws Throwable {
         watcher.watch();
@@ -62,6 +63,7 @@ public class HttpProxyDnsMappingManager extends BaseService implements DnsMappin
             executorService = Executors.newSingleThreadScheduledExecutor();
             executorService.scheduleAtFixedRate(this, 1, 20, TimeUnit.SECONDS); //20秒 定时扫描dns
         }
+        listener.onSuccess();
     }
 
     @Override
@@ -69,6 +71,7 @@ public class HttpProxyDnsMappingManager extends BaseService implements DnsMappin
         if (executorService != null) {
             executorService.shutdown();
         }
+        listener.onSuccess();
     }
 
     @Override

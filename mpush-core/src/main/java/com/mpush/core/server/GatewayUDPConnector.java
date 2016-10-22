@@ -57,11 +57,6 @@ public final class GatewayUDPConnector extends NettyUDPConnector {
     }
 
     @Override
-    public void stop(Listener listener) {
-        super.stop(listener);
-    }
-
-    @Override
     protected void initOptions(Bootstrap b) {
         super.initOptions(b);
         b.option(ChannelOption.IP_MULTICAST_LOOP_DISABLED, true);//默认情况下，当本机发送组播数据到某个网络接口时，在IP层，数据会回送到本地的回环接口，选项IP_MULTICAST_LOOP用于控制数据是否回送到本地的回环接口

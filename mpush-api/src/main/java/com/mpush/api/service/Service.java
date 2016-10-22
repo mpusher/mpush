@@ -36,6 +36,10 @@ public interface Service {
 
     CompletableFuture<Boolean> stop();
 
+    boolean syncStart();
+
+    boolean syncStop();
+
     void init();
 
     boolean isRunning();

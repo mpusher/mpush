@@ -77,13 +77,10 @@ public class PushRequest extends FutureTask<Boolean> {
             return;
         }
 
-        timeLine.addTimePoint("check-gateway-conn");
-
-
         //2.通过网关连接，把消息发送到所在机器
-
         connectionFactory.send(
                 connection -> {
+                    timeLine.addTimePoint("check-gateway-conn");
                     if (connection == null) {
                         LOGGER.error("get gateway connection failure, location={}", location);
                         failure();

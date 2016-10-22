@@ -136,6 +136,7 @@ public abstract class NettyTCPClient extends BaseService implements Client {
             workerGroup.shutdownGracefully();
         }
         LOGGER.error("netty client [{}] stopped.", this.getClass().getSimpleName());
+        listener.onSuccess();
     }
 
     public String getHost() {

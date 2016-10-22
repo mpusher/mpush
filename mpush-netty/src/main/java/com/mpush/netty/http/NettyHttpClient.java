@@ -133,6 +133,7 @@ public class NettyHttpClient extends BaseService implements HttpClient {
             }
         });
         timer = new HashedWheelTimer(new NamedThreadFactory("http-client-timer-"), 1, TimeUnit.SECONDS, 64);
+        listener.onSuccess();
     }
 
     @Override
@@ -140,5 +141,6 @@ public class NettyHttpClient extends BaseService implements HttpClient {
         pool.close();
         workerGroup.shutdownGracefully();
         timer.stop();
+        listener.onSuccess();
     }
 }

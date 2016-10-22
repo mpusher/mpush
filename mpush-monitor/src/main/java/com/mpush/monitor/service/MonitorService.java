@@ -83,11 +83,13 @@ public class MonitorService extends BaseService implements Runnable {
             thread = ThreadPoolManager.I.newThread("monitor", this);
             thread.start();
         }
+        listener.onSuccess();
     }
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
         if (thread != null && thread.isAlive()) thread.interrupt();
+        listener.onSuccess();
     }
 
     private void dump() {

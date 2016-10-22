@@ -69,11 +69,7 @@ public final class ServerBoot extends BootJob {
 
     @Override
     protected void stop() {
-        try {
-            server.stop().get(1, TimeUnit.MINUTES);
-        } catch (Exception e) {
-            Logs.Console.error("stop server error:", e);
-        }
+        server.stop().join();
         stopNext();
     }
 }

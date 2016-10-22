@@ -178,10 +178,7 @@ public abstract class NettyTCPServer extends BaseService implements Server {
             if (listener != null) listener.onFailure(e);
             throw new ServiceException("server start exception, port=" + port, e);
         } finally {
-            /***
-             * 优雅关闭
-             */
-            stop(null);
+            if (isRunning()) stop(null);
         }
     }
 
@@ -251,15 +248,5 @@ public abstract class NettyTCPServer extends BaseService implements Server {
 
     protected int getIoRate() {
         return 70;
-    }
-
-    @Override
-    protected void doStart(Listener listener) throws Throwable {
-
-    }
-
-    @Override
-    protected void doStop(Listener listener) throws Throwable {
-
     }
 }
