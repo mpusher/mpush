@@ -40,7 +40,7 @@ import java.util.concurrent.FutureTask;
 import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
 
 /*package*/ final class PushClient extends BaseService implements PushSender {
-    private GatewayConnectionFactory factory;
+    private final GatewayConnectionFactory factory = GatewayConnectionFactory.create();
 
     private FutureTask<Boolean> send0(PushContext ctx) {
         if (ctx.isBroadcast()) {
@@ -76,15 +76,6 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
     }
 
     @Override
-    public void init() {
-        if (CC.mp.net.udpGateway()) {
-            factory = new GatewayUDPConnectionFactory();
-        } else {
-            factory = new GatewayTCPConnectionFactory();
-        }
-    }
-
-    @Override
     protected void doStart(Listener listener) throws Throwable {
         ZKClient.I.syncStart();
         RedisManager.I.init();
@@ -95,8 +86,8 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
-        factory.clear();
         ZKClient.I.syncStop();
+        factory.clear();
         RedisManager.I.destroy();
         PushRequestBus.I.stop(listener);
     }

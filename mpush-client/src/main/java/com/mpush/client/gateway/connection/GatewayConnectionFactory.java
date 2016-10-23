@@ -21,8 +21,10 @@ package com.mpush.client.gateway.connection;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.service.Listener;
+import com.mpush.api.spi.Factory;
 import com.mpush.common.message.BaseMessage;
 import com.mpush.common.message.gateway.GatewayPushMessage;
+import com.mpush.tools.config.CC;
 import com.mpush.zk.cache.ZKServerNodeCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +42,12 @@ public abstract class GatewayConnectionFactory extends ZKServerNodeCache {
 
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public static GatewayConnectionFactory create() {
+        return CC.mp.net.udpGateway() ? new GatewayUDPConnectionFactory() : new GatewayTCPConnectionFactory();
+    }
+
     public void init(Listener listener) {
+        listener.onSuccess();
     }
 
     abstract public Connection getConnection(String ip);

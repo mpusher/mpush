@@ -43,21 +43,20 @@ public class PushClientTestMain {
             msg.setMsgId("msgId_0");
 
             PushContext context = PushContext.build(msg)
-                    .setBroadcast(false)
+                    .setBroadcast(true)
                     .setAckModel(AckModel.AUTO_ACK)
-                    .setUserIds(Arrays.asList("user-0", "user-1"))
+                    //.setUserIds(Arrays.asList("user-0", "user-1"))
                     .setTimeout(2000)
                     .setCallback(new PushCallback() {
                         @Override
                         public void onResult(PushResult result) {
-                            System.out.println();
-                            System.err.println(result);
+                            System.err.println("\n\n" + result);
                         }
                     });
             FutureTask<Boolean> future = sender.send(context);
         });
 
-        LockSupport.park();
+        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(3));
     }
 
 }
