@@ -39,7 +39,7 @@ import static com.mpush.api.protocol.Command.GATEWAY_PUSH;
  *
  * @author ohun@live.cn
  */
-public class GatewayPushMessage extends ByteBufMessage {
+public final class GatewayPushMessage extends ByteBufMessage {
     public String userId;
     public Set<String> tags;
     public int clientType;

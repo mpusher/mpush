@@ -27,16 +27,16 @@ import java.net.InetSocketAddress;
  * @author ohun@live.cn (夜色)
  */
 public final class UDPPacket extends Packet {
-    private InetSocketAddress sender;
+    private InetSocketAddress address;
 
     public UDPPacket(byte cmd, InetSocketAddress sender) {
         super(cmd);
-        this.sender = sender;
+        this.address = sender;
     }
 
     public UDPPacket(Command cmd, int sessionId, InetSocketAddress sender) {
         super(cmd, sessionId);
-        this.sender = sender;
+        this.address = sender;
     }
 
     public UDPPacket(byte cmd) {
@@ -53,16 +53,16 @@ public final class UDPPacket extends Packet {
 
     @Override
     public InetSocketAddress sender() {
-        return sender;
+        return address;
     }
 
     @Override
-    public void sender(InetSocketAddress sender) {
-        this.sender = sender;
+    public void setRecipient(InetSocketAddress recipient) {
+        this.address = recipient;
     }
 
     @Override
     public Packet response(Command command) {
-        return new UDPPacket(command, sessionId, sender);
+        return new UDPPacket(command, sessionId, address);
     }
 }

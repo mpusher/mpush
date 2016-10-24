@@ -17,43 +17,27 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.common.message;
+package com.mpush.core.handler;
 
 import com.mpush.api.connection.Connection;
-import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
-import io.netty.buffer.ByteBuf;
+import com.mpush.common.handler.BaseMessageHandler;
+import com.mpush.common.message.gateway.GatewayKickUserMessage;
+import com.mpush.core.router.RouterCenter;
 
 /**
- * Created by ohun on 16/9/5.
+ * Created by ohun on 16/10/23.
  *
  * @author ohun@live.cn (夜色)
  */
-public final class AckMessage extends BaseMessage {
-
-    public AckMessage(Packet packet, Connection connection) {
-        super(packet, connection);
+public final class GatewayKickUserHandler extends BaseMessageHandler<GatewayKickUserMessage> {
+    @Override
+    public GatewayKickUserMessage decode(Packet packet, Connection connection) {
+        return new GatewayKickUserMessage(packet, connection);
     }
 
     @Override
-    public void decode(byte[] body) {
-
-    }
-
-    @Override
-    public byte[] encode() {
-        return null;
-    }
-
-
-    public static AckMessage from(BaseMessage src) {
-        return new AckMessage(new Packet(Command.ACK, src.getSessionId()), src.connection);
-    }
-
-    @Override
-    public String toString() {
-        return "AckMessage{" +
-                "packet=" + packet +
-                '}';
+    public void handle(GatewayKickUserMessage message) {
+        RouterCenter.I.getRouterChangeListener().onReceiveKickRemoteMsg(message);
     }
 }

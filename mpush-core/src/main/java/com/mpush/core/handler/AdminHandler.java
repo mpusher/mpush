@@ -26,6 +26,7 @@ import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.user.UserManager;
 import com.mpush.core.router.RouterCenter;
 import com.mpush.core.server.AdminServer;
+import com.mpush.core.server.ConnectionServer;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.Utils;
 import com.mpush.tools.common.Profiler;
@@ -54,12 +55,6 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminHandler.class);
 
     private static final String EOL = "\r\n";
-
-    private static AdminServer adminServer;
-
-    public AdminHandler(AdminServer adminServer) {
-        AdminHandler.adminServer = adminServer;
-    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String request) throws Exception {
@@ -169,7 +164,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
             public Serializable handler(ChannelHandlerContext ctx, String args) {
                 switch (args) {
                     case "conn":
-                        return adminServer.getConnectionServer().getConnectionManager().getConnections().size();
+                        return ConnectionServer.I().getConnectionManager().getConnections().size();
                     case "online": {
                         return UserManager.I.getOnlineUserNum();
                     }

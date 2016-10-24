@@ -42,9 +42,20 @@ import static com.mpush.common.MessageDispatcher.POLICY_LOG;
  */
 public final class GatewayUDPConnector extends NettyUDPConnector {
 
+    private static GatewayUDPConnector I;
+
+    public static GatewayUDPConnector I() {
+        if (I == null) {
+            synchronized (GatewayUDPConnector.class) {
+                I = new GatewayUDPConnector();
+            }
+        }
+        return I;
+    }
+
     private UDPChannelHandler channelHandler;
 
-    public GatewayUDPConnector() {
+    private GatewayUDPConnector() {
         super(CC.mp.net.gateway_client_port);
     }
 

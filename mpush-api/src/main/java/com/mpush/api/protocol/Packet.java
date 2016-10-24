@@ -116,7 +116,7 @@ public class Packet {
         return null;
     }
 
-    public void sender(InetSocketAddress sender) {
+    public void setRecipient(InetSocketAddress sender) {
     }
 
     public Packet response(Command command) {

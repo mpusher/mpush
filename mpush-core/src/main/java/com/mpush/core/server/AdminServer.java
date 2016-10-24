@@ -21,6 +21,7 @@ package com.mpush.core.server;
 
 import com.mpush.core.handler.AdminHandler;
 import com.mpush.netty.server.NettyTCPServer;
+import com.mpush.tools.config.CC;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
@@ -29,14 +30,27 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
 public final class AdminServer extends NettyTCPServer {
-    private final ConnectionServer connectionServer;
+    private static AdminServer I;
 
-    private final AdminHandler adminHandler;
+    private AdminHandler adminHandler;
 
-    public AdminServer(int port, ConnectionServer connectionServer) {
-        super(port);
-        this.connectionServer = connectionServer;
-        this.adminHandler = new AdminHandler(this);
+    public static AdminServer I() {
+        if (I == null) {
+            synchronized (AdminServer.class) {
+                I = new AdminServer();
+            }
+        }
+        return I;
+    }
+
+    private AdminServer() {
+        super(CC.mp.net.admin_server_port);
+    }
+
+    @Override
+    public void init() {
+        super.init();
+        this.adminHandler = new AdminHandler();
     }
 
     @Override
@@ -59,9 +73,4 @@ public final class AdminServer extends NettyTCPServer {
     protected ChannelHandler getEncoder() {
         return new StringEncoder();
     }
-
-    public ConnectionServer getConnectionServer() {
-        return connectionServer;
-    }
-
 }

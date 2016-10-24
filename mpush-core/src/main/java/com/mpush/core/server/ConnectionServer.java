@@ -52,6 +52,8 @@ import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
  * @author ohun@live.cn (夜色)
  */
 public final class ConnectionServer extends NettyTCPServer {
+    private static ConnectionServer I;
+
     private ServerChannelHandler channelHandler;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
     private ScheduledExecutorService trafficShapingExecutor;
@@ -59,8 +61,17 @@ public final class ConnectionServer extends NettyTCPServer {
     private ConnectionManager connectionManager = new ServerConnectionManager(true);
     private HttpClient httpClient;
 
-    public ConnectionServer(int port) {
-        super(port);
+    public static ConnectionServer I() {
+        if (I == null) {
+            synchronized (ConnectionServer.class) {
+                I = new ConnectionServer();
+            }
+        }
+        return I;
+    }
+
+    private ConnectionServer() {
+        super(CC.mp.net.connect_server_port);
     }
 
     @Override

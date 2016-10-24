@@ -45,14 +45,24 @@ import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
  * @author ohun@live.cn
  */
 public final class GatewayServer extends NettyTCPServer {
+    private static GatewayServer I;
 
     private ServerChannelHandler channelHandler;
     private ServerConnectionManager connectionManager;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
     private ScheduledExecutorService trafficShapingExecutor;
 
-    public GatewayServer(int port) {
-        super(port);
+    public static GatewayServer I() {
+        if (I == null) {
+            synchronized (GatewayServer.class) {
+                I = new GatewayServer();
+            }
+        }
+        return I;
+    }
+
+    private GatewayServer() {
+        super(CC.mp.net.gateway_server_port);
     }
 
     @Override

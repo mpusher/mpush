@@ -32,7 +32,7 @@ import java.util.Map;
  *
  * @author ohun@live.cn
  */
-public class HttpResponseMessage extends ByteBufMessage {
+public final class HttpResponseMessage extends ByteBufMessage {
     public int statusCode;
     public String reasonPhrase;
     public Map<String, String> headers = new HashMap<>();

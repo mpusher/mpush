@@ -49,7 +49,7 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
 
     private final Map<String, InetSocketAddress> ip_address = Maps.newConcurrentMap();
 
-    private final GatewayUDPConnector connector = new GatewayUDPConnector();
+    private final GatewayUDPConnector connector = GatewayUDPConnector.I();
 
     private final InetSocketAddress multicastRecipient = new InetSocketAddress(gateway_server_multicast, gateway_server_port);
 
@@ -97,7 +97,7 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
 
         Function<T, T> setRecipientFun = message -> {
             if (message != null) {
-                message.getPacket().sender(holder.get());
+                message.setRecipient(holder.get());
             }
             return message;
         };
@@ -108,7 +108,7 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
     @Override
     public <M extends BaseMessage> void broadcast(Function<Connection, M> creator, Consumer<M> sender) {
         M message = creator.apply(connector.getConnection());
-        message.getPacket().sender(multicastRecipient);
+        message.setRecipient(multicastRecipient);
         sender.accept(message);
     }
 }

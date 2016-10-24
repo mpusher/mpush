@@ -29,11 +29,19 @@ import com.mpush.cache.redis.listener.ListenerDispatcher;
 import com.mpush.cache.redis.listener.MessageListener;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.common.message.KickUserMessage;
+import com.mpush.common.message.gateway.GatewayKickUserMessage;
+import com.mpush.common.net.KickRemoteMsg;
 import com.mpush.common.router.RemoteRouter;
+import com.mpush.core.server.GatewayUDPConnector;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.Utils;
+import com.mpush.tools.config.CC;
 import com.mpush.tools.event.EventConsumer;
 import com.mpush.tools.log.Logs;
+
+import java.net.InetSocketAddress;
+
+import static com.mpush.tools.config.CC.mp.net.gateway_server_port;
 
 /**
  * Created by ohun on 2016/1/4.
@@ -73,7 +81,7 @@ public final class RouterChangeListener extends EventConsumer implements Message
      * @param userId
      * @param router
      */
-    public void kickLocal(final String userId, final LocalRouter router) {
+    private void kickLocal(final String userId, final LocalRouter router) {
         Connection connection = router.getRouteValue();
         SessionContext context = connection.getSessionContext();
         KickUserMessage message = new KickUserMessage(connection);
@@ -97,7 +105,7 @@ public final class RouterChangeListener extends EventConsumer implements Message
      * @param userId
      * @param remoteRouter
      */
-    public void kickRemote(String userId, RemoteRouter remoteRouter) {
+    private void kickRemote(String userId, RemoteRouter remoteRouter) {
         ClientLocation location = remoteRouter.getRouteValue();
         //1.如果目标机器是当前机器，就不要再发送广播了，直接忽略
         if (location.getHost().equals(Utils.getLocalIp())) {
@@ -105,15 +113,27 @@ public final class RouterChangeListener extends EventConsumer implements Message
             return;
         }
 
-        //2.发送广播
-        //TODO 远程机器可能不存在，需要确认下redis 那个通道如果机器不存在的话，是否会存在消息积压的问题。
-        KickRemoteMsg msg = new KickRemoteMsg();
-        msg.deviceId = location.getDeviceId();
-        msg.connId = location.getConnId();
-        msg.clientType = location.getClientType();
-        msg.targetServer = location.getHost();
-        msg.userId = userId;
-        RedisManager.I.publish(getKickChannel(msg.targetServer), msg);
+        if (CC.mp.net.udpGateway()) {
+            Connection connection = GatewayUDPConnector.I().getConnection();
+            GatewayKickUserMessage.build(connection)
+                    .setUserId(userId)
+                    .setClientType(location.getClientType())
+                    .setConnId(location.getConnId())
+                    .setDeviceId(location.getDeviceId())
+                    .setTargetServer(location.getHost())
+                    .setRecipient(new InetSocketAddress(location.getHost(), gateway_server_port))
+                    .sendRaw();
+        } else {
+            //2.发送广播
+            //TODO 远程机器可能不存在，需要确认下redis 那个通道如果机器不存在的话，是否会存在消息积压的问题。
+            RedisKickRemoteMessage message = new RedisKickRemoteMessage()
+                    .setUserId(userId)
+                    .setClientType(location.getClientType())
+                    .setConnId(location.getConnId())
+                    .setDeviceId(location.getDeviceId())
+                    .setTargetServer(location.getHost());
+            RedisManager.I.publish(getKickChannel(location.getHost()), message);
+        }
     }
 
     /**
@@ -126,19 +146,19 @@ public final class RouterChangeListener extends EventConsumer implements Message
      */
     public void onReceiveKickRemoteMsg(KickRemoteMsg msg) {
         //1.如果当前机器不是目标机器，直接忽略
-        if (!msg.targetServer.equals(Utils.getLocalIp())) {
+        if (!msg.getTargetServer().equals(Utils.getLocalIp())) {
             Logs.Conn.info("receive kick remote msg, target server error, localIp={}, msg={}", Utils.getLocalIp(), msg);
             return;
         }
 
         //2.查询本地路由，找到要被踢下线的链接，并删除该本地路由
-        String userId = msg.userId;
-        int clientType = msg.clientType;
+        String userId = msg.getUserId();
+        int clientType = msg.getClientType();
         LocalRouterManager localRouterManager = RouterCenter.I.getLocalRouterManager();
         LocalRouter localRouter = localRouterManager.lookup(userId, clientType);
         if (localRouter != null) {
             Logs.Conn.info("receive kick remote msg, msg={}", msg);
-            if (localRouter.getRouteValue().getId().equals(msg.connId)) {//二次校验，防止误杀
+            if (localRouter.getRouteValue().getId().equals(msg.getConnId())) {//二次校验，防止误杀
                 //2.1删除本地路由信息
                 localRouterManager.unRegister(userId, clientType);
                 //2.2发送踢人消息到客户端
