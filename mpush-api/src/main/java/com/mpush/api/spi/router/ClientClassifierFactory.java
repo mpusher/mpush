@@ -22,7 +22,6 @@ package com.mpush.api.spi.router;
 import com.mpush.api.router.ClientClassifier;
 import com.mpush.api.spi.Factory;
 import com.mpush.api.spi.SpiLoader;
-import com.mpush.api.spi.net.DnsMappingManager;
 
 /**
  * Created by ohun on 16/10/26.
