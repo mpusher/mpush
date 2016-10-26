@@ -35,7 +35,7 @@ import static com.mpush.api.protocol.Command.OK;
  *
  * @author ohun@live.cn (夜色)
  */
-public class AckHandler extends BaseMessageHandler<AckMessage> {
+public final class AckHandler extends BaseMessageHandler<AckMessage> {
 
     @Override
     public AckMessage decode(Packet packet, Connection connection) {

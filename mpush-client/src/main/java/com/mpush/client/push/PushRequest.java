@@ -56,6 +56,7 @@ public class PushRequest extends FutureTask<Boolean> {
 
     private AckModel ackModel;
     private Set<String> tags;
+    private String condition;
     private PushCallback callback;
     private String userId;
     private byte[] content;
@@ -175,6 +176,7 @@ public class PushRequest extends FutureTask<Boolean> {
                         .setUserId(userId)
                         .setContent(content)
                         .setTags(tags)
+                        .setCondition(condition)
                         .addFlag(ackModel.flag),
 
                 pushMessage -> {
@@ -223,6 +225,7 @@ public class PushRequest extends FutureTask<Boolean> {
                 .setAckModel(ctx.getAckModel())
                 .setUserId(ctx.getUserId())
                 .setTags(ctx.getTags())
+                .setCondition(ctx.getCondition())
                 .setContent(content)
                 .setTimeout(ctx.getTimeout())
                 .setCallback(ctx.getCallback());
@@ -256,6 +259,11 @@ public class PushRequest extends FutureTask<Boolean> {
 
     public PushRequest setTags(Set<String> tags) {
         this.tags = tags;
+        return this;
+    }
+
+    public PushRequest setCondition(String condition) {
+        this.condition = condition;
         return this;
     }
 

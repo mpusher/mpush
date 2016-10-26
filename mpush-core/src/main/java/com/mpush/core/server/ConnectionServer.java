@@ -26,8 +26,6 @@ import com.mpush.api.service.Listener;
 import com.mpush.api.spi.handler.PushHandlerFactory;
 import com.mpush.common.MessageDispatcher;
 import com.mpush.core.handler.*;
-import com.mpush.netty.http.HttpClient;
-import com.mpush.netty.http.NettyHttpClient;
 import com.mpush.netty.server.NettyTCPServer;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
@@ -59,7 +57,6 @@ public final class ConnectionServer extends NettyTCPServer {
     private ScheduledExecutorService trafficShapingExecutor;
 
     private ConnectionManager connectionManager = new ServerConnectionManager(true);
-    private HttpClient httpClient;
 
     public static ConnectionServer I() {
         if (I == null) {
@@ -86,10 +83,8 @@ public final class ConnectionServer extends NettyTCPServer {
         receiver.register(Command.FAST_CONNECT, new FastConnectHandler());
         receiver.register(Command.PUSH, PushHandlerFactory.create());
         receiver.register(Command.ACK, new AckHandler());
-
         if (CC.mp.http.proxy_enabled) {
-            httpClient = new NettyHttpClient();
-            receiver.register(Command.HTTP_PROXY, new HttpProxyHandler(httpClient));
+            receiver.register(Command.HTTP_PROXY, new HttpProxyHandler());
         }
         channelHandler = new ServerChannelHandler(true, connectionManager, receiver);
 
@@ -109,9 +104,6 @@ public final class ConnectionServer extends NettyTCPServer {
         if (trafficShapingHandler != null) {
             trafficShapingHandler.release();
             trafficShapingExecutor.shutdown();
-        }
-        if (httpClient != null && httpClient.isRunning()) {
-            httpClient.stop();
         }
         connectionManager.destroy();
     }
@@ -182,9 +174,5 @@ public final class ConnectionServer extends NettyTCPServer {
 
     public ConnectionManager getConnectionManager() {
         return connectionManager;
-    }
-
-    public HttpClient getHttpClient() {
-        return httpClient;
     }
 }

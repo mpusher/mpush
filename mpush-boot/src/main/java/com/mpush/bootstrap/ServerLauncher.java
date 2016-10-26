@@ -46,6 +46,7 @@ public final class ServerLauncher {
                 .setNext(new ServerBoot(ConnectionServer.I(), csNode()))//3.启动长连接服务
                 .setNext(new ServerBoot(udpGateway() ? GatewayUDPConnector.I() : GatewayServer.I(), gsNode()))//4.启动网关服务
                 .setNext(new ServerBoot(AdminServer.I(), null))//5.启动控制台服务
+                .setNext(new PushCenterBoot())//6.启动http代理服务，解析dns
                 .setNext(new HttpProxyBoot())//6.启动http代理服务，解析dns
                 .setNext(new MonitorBoot())//7.启动监控
                 .setNext(new LastBoot());//8.启动结束

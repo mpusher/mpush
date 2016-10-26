@@ -195,6 +195,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
     private void bindUser(ClientConfig client) {
         BindUserMessage message = new BindUserMessage(connection);
         message.userId = client.getUserId();
+        message.tags = "test";
         message.send();
         LOGGER.debug("<<< send bind user message={}", message);
     }

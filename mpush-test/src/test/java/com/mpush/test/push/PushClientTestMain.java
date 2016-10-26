@@ -19,6 +19,7 @@
 
 package com.mpush.test.push;
 
+import com.google.common.collect.Sets;
 import com.mpush.api.push.*;
 import com.mpush.tools.log.Logs;
 import org.junit.Test;
@@ -43,9 +44,11 @@ public class PushClientTestMain {
             msg.setMsgId("msgId_0");
 
             PushContext context = PushContext.build(msg)
-                    .setBroadcast(false)
+                    .setBroadcast(true)
                     .setAckModel(AckModel.AUTO_ACK)
-                    .setUserIds(Arrays.asList("user-0", "user-1"))
+                    //.setTags(Sets.newHashSet("test"))
+                    .setCondition("tags&&tags.indexOf('test')!=-1")
+                    //.setUserIds(Arrays.asList("user-0", "user-1"))
                     .setTimeout(2000)
                     .setCallback(new PushCallback() {
                         @Override

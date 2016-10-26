@@ -22,14 +22,13 @@ package com.mpush.common.message.gateway;
 import com.google.gson.reflect.TypeToken;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
-import com.mpush.api.protocol.UDPPacket;
+import com.mpush.common.condition.*;
 import com.mpush.common.memory.PacketFactory;
 import com.mpush.common.message.ByteBufMessage;
 import com.mpush.tools.Jsons;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 
-import java.net.InetSocketAddress;
 import java.util.Set;
 
 import static com.mpush.api.protocol.Command.GATEWAY_PUSH;
@@ -41,10 +40,13 @@ import static com.mpush.api.protocol.Command.GATEWAY_PUSH;
  */
 public final class GatewayPushMessage extends ByteBufMessage {
     public String userId;
-    public Set<String> tags;
     public int clientType;
     public int timeout;
     public byte[] content;
+
+    public String taskId;
+    public Set<String> tags;
+    public String condition;
 
     public GatewayPushMessage(Packet message, Connection connection) {
         super(message, connection);
@@ -59,19 +61,23 @@ public final class GatewayPushMessage extends ByteBufMessage {
     @Override
     public void decode(ByteBuf body) {
         userId = decodeString(body);
-        tags = decodeSet(body);
         clientType = decodeInt(body);
         timeout = decodeInt(body);
         content = decodeBytes(body);
+        taskId = decodeString(body);
+        tags = decodeSet(body);
+        condition = decodeString(body);
     }
 
     @Override
     public void encode(ByteBuf body) {
         encodeString(body, userId);
-        encodeSet(body, tags);
         encodeInt(body, clientType);
         encodeInt(body, timeout);
         encodeBytes(body, content);
+        encodeString(body, taskId);
+        encodeSet(body, tags);
+        encodeString(body, condition);
     }
 
     private Set<String> decodeSet(ByteBuf body) {
@@ -116,6 +122,11 @@ public final class GatewayPushMessage extends ByteBufMessage {
         return this;
     }
 
+    public GatewayPushMessage setCondition(String condition) {
+        this.condition = condition;
+        return this;
+    }
+
     public boolean isBroadcast() {
         return userId == null;
     }
@@ -132,6 +143,16 @@ public final class GatewayPushMessage extends ByteBufMessage {
     @Override
     public void send(ChannelFutureListener listener) {
         super.sendRaw(listener);
+    }
+
+    public Condition getCondition() {
+        if (condition != null) {
+            return new ScriptCondition(condition);
+        }
+        if (tags != null) {
+            return new TagsCondition(tags);
+        }
+        return AwaysPassCondition.I;
     }
 
     @Override

@@ -25,7 +25,7 @@ package com.mpush.bootstrap.job;
  * @author ohun@live.cn
  */
 public final class BootChain {
-    private final BootJob first = new FirstJob();
+    private final BootJob first = new FirstBoot();
 
     public void start() {
         first.start();

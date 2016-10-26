@@ -29,6 +29,7 @@ import com.mpush.common.message.HttpRequestMessage;
 import com.mpush.common.message.HttpResponseMessage;
 import com.mpush.netty.http.HttpCallback;
 import com.mpush.netty.http.HttpClient;
+import com.mpush.netty.http.NettyHttpClient;
 import com.mpush.netty.http.RequestContext;
 import com.mpush.tools.common.Profiler;
 import com.mpush.tools.log.Logs;
@@ -51,13 +52,8 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  */
 public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     private static final Logger LOGGER = Logs.HTTP;
-    private final HttpClient httpClient;
+    private final HttpClient httpClient = NettyHttpClient.I();
     private final DnsMappingManager dnsMappingManager = DnsMappingManager.create();
-
-    public HttpProxyHandler(HttpClient httpClient) {
-        this.httpClient = httpClient;
-        this.httpClient.start();
-    }
 
     @Override
     public HttpRequestMessage decode(Packet packet, Connection connection) {

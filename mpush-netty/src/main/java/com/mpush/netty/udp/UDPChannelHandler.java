@@ -88,6 +88,7 @@ public final class UDPChannelHandler extends ChannelInboundHandlerAdapter {
         DatagramPacket datagramPacket = (DatagramPacket) msg;
         Packet packet = PacketDecoder.decodeFrame(datagramPacket);
         receiver.onReceive(packet, connection);
+        datagramPacket.release();//最后一个使用方要释放引用
     }
 
     @Override

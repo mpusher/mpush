@@ -17,31 +17,20 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.bootstrap.job;
+package com.mpush.common.condition;
 
-import com.mpush.api.spi.core.ServerEventListenerFactory;
-import com.mpush.tools.log.Logs;
+import java.util.Map;
 
 /**
- * Created by ohun on 16/10/19.
+ * Created by ohun on 16/10/24.
  *
  * @author ohun@live.cn (夜色)
  */
-/*package*/ final class FirstJob extends BootJob {
-
-    public FirstJob() {
-        ServerEventListenerFactory.create();
-    }
+public final class AwaysPassCondition implements Condition {
+    public static final Condition I = new AwaysPassCondition();
 
     @Override
-    public void start() {
-        Logs.Console.info("begin start bootstrap chain...");
-        startNext();
-    }
-
-    @Override
-    protected void stop() {
-        Logs.Console.info("begin stop bootstrap chain...");
-        stopNext();
+    public boolean test(Map<String, Object> env) {
+        return true;
     }
 }

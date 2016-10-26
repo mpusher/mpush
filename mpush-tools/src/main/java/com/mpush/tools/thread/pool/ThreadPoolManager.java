@@ -40,6 +40,7 @@ public class ThreadPoolManager {
     private Executor redisExecutor;
     private Executor httpExecutor;
     private Executor pushCallbackExecutor;
+    private Executor pushCenterExecutor;
 
     public final Thread newThread(String name, Runnable target) {
         return threadFactory.newThread(name, target);

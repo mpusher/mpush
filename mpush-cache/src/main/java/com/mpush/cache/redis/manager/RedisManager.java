@@ -163,7 +163,7 @@ public final class RedisManager {
     }
 
     public Map<String, String> hgetAll(String key) {
-        return call(jedis -> jedis.hgetAll(key), Collections.emptyMap());
+        return call(jedis -> jedis.hgetAll(key), Collections.<String, String>emptyMap());
     }
 
     public <T> Map<String, T> hgetAll(String key, Class<T> clazz) {
@@ -181,7 +181,7 @@ public final class RedisManager {
      * @return
      */
     public Set<String> hkeys(String key) {
-        return call(jedis -> jedis.hkeys(key), Collections.emptySet());
+        return call(jedis -> jedis.hkeys(key), Collections.<String>emptySet());
     }
 
     /**
@@ -217,6 +217,10 @@ public final class RedisManager {
 
     public void hmset(String key, Map<String, String> hash) {
         hmset(key, hash, 0);
+    }
+
+    public long hincrBy(String key, String field, long value) {
+        return call(jedis -> jedis.hincrBy(key, field, value), 0L);
     }
 
     /********************* hash redis end ********************************/

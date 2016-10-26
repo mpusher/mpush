@@ -20,6 +20,8 @@
 package com.mpush.bootstrap.job;
 
 import com.mpush.api.spi.net.DnsMappingManager;
+import com.mpush.core.push.PushCenter;
+import com.mpush.netty.http.NettyHttpClient;
 import com.mpush.tools.config.CC;
 
 /**
@@ -32,14 +34,17 @@ public final class HttpProxyBoot extends BootJob {
     @Override
     protected void start() {
         if (CC.mp.http.proxy_enabled) {
+            NettyHttpClient.I().syncStart();
             DnsMappingManager.create().start();
         }
+
         startNext();
     }
 
     @Override
     protected void stop() {
         if (CC.mp.http.proxy_enabled) {
+            NettyHttpClient.I().syncStop();
             DnsMappingManager.create().stop();
         }
         stopNext();

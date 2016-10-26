@@ -56,6 +56,7 @@ import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
  * @author ohun@live.cn
  */
 public class NettyHttpClient extends BaseService implements HttpClient {
+    private static HttpClient I;
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyHttpClient.class);
     private static final int maxContentLength = (int) CC.mp.http.max_content_length;
     /*package*/ final AttributeKey<RequestContext> requestKey = AttributeKey.newInstance("request");
@@ -63,6 +64,15 @@ public class NettyHttpClient extends BaseService implements HttpClient {
     private Bootstrap b;
     private EventLoopGroup workerGroup;
     private Timer timer;
+
+    public static HttpClient I() {
+        if (I == null) {
+            synchronized (NettyHttpClient.class) {
+                I = new NettyHttpClient();
+            }
+        }
+        return I;
+    }
 
     @Override
     public void request(RequestContext context) throws Exception {
