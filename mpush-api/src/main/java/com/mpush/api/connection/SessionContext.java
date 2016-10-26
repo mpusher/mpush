@@ -19,7 +19,8 @@
 
 package com.mpush.api.connection;
 
-import com.mpush.api.router.ClientType;
+
+import com.mpush.api.router.ClientClassifier;
 
 /**
  * Created by ohun on 2015/12/22.
@@ -76,7 +77,7 @@ public final class SessionContext {
 
     public int getClientType() {
         if (clientType == 0) {
-            clientType = ClientType.find(osName).type;
+            clientType = ClientClassifier.I.getClientType(osName);
         }
         return clientType;
     }

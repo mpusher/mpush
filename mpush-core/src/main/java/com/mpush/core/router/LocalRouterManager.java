@@ -24,7 +24,6 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.event.ConnectionCloseEvent;
 import com.mpush.api.event.UserOfflineEvent;
-import com.mpush.api.router.ClientType;
 import com.mpush.api.router.RouterManager;
 import com.mpush.tools.event.EventBus;
 import com.mpush.tools.event.EventConsumer;

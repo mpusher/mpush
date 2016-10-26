@@ -17,7 +17,7 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.api.router;
+package com.mpush.common.router;
 
 import java.util.Arrays;
 

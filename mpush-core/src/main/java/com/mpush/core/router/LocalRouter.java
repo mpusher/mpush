@@ -20,7 +20,6 @@
 package com.mpush.core.router;
 
 import com.mpush.api.connection.Connection;
-import com.mpush.api.router.ClientType;
 import com.mpush.api.router.Router;
 
 /**
