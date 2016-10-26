@@ -50,7 +50,7 @@ public final class GatewayOKHandler extends BaseMessageHandler<OkMessage> {
                 Logs.PUSH.warn("receive a gateway response, but request has timeout. message={}", message);
                 return;
             }
-            request.success(message.data);//推送成功
+            request.success();//推送成功
         }
     }
 }

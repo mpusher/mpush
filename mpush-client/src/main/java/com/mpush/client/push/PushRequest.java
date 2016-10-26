@@ -63,7 +63,6 @@ public class PushRequest extends FutureTask<Boolean> {
     private int timeout;
     private ClientLocation location;
     private Future<?> future;
-    private String result;
 
     private void sendToConnServer(RemoteRouter remoteRouter) {
         timeLine.addTimePoint("lookup-remote");
@@ -133,7 +132,6 @@ public class PushRequest extends FutureTask<Boolean> {
         } else {
             callback.onResult(new PushResult(status.get().ordinal())
                     .setUserId(userId)
-                    .setUserIds(userId == null ? Jsons.fromJson(result, String[].class) : null)
                     .setLocation(location)
                     .setTimeLine(timeLine.getTimePoints())
             );
@@ -183,7 +181,11 @@ public class PushRequest extends FutureTask<Boolean> {
                     pushMessage.sendRaw(f -> {
                         if (!f.isSuccess()) failure();
                     });
-                    future = PushRequestBus.I.put(pushMessage.getSessionId(), PushRequest.this);
+                    if (pushMessage.taskId == null) {
+                        future = PushRequestBus.I.put(pushMessage.getSessionId(), PushRequest.this);
+                    } else {
+                        success();
+                    }
                 }
         );
 
@@ -194,8 +196,7 @@ public class PushRequest extends FutureTask<Boolean> {
         submit(Status.timeout);
     }
 
-    public void success(String data) {
-        this.result = data;
+    public void success() {
         submit(Status.success);
     }
 

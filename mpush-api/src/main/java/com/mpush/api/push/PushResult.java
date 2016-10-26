@@ -35,7 +35,6 @@ public class PushResult {
     public static final int CODE_TIMEOUT = 4;
     public int resultCode;
     public String userId;
-    public String[] userIds;
     public Object[] timeLine;
     public ClientLocation location;
 
@@ -58,15 +57,6 @@ public class PushResult {
 
     public PushResult setUserId(String userId) {
         this.userId = userId;
-        return this;
-    }
-
-    public String[] getUserIds() {
-        return userIds;
-    }
-
-    public PushResult setUserIds(String[] userIds) {
-        this.userIds = userIds;
         return this;
     }
 
@@ -107,7 +97,6 @@ public class PushResult {
         return "PushResult{" +
                 "resultCode=" + getResultDesc() +
                 ", userId='" + userId + '\'' +
-                ", userIds=" + Arrays.toString(userIds) +
                 ", timeLine=" + Arrays.toString(timeLine) +
                 ", location=" + location +
                 '}';
