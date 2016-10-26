@@ -79,7 +79,7 @@ public class PushContext {
     private Set<String> tags;
 
     /**
-     * 条件表达式, 满足条件的用户会被推送，目前支持的脚步语言为js
+     * 条件表达式, 满足条件的用户会被推送，目前支持的脚本语言为js
      * 可以使用的参数为 userId,tags,clientVersion,osName,osVersion
      * 比如 :
      * 灰度：userId % 100 < 20
