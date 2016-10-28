@@ -41,7 +41,7 @@ public enum ClientType {
     }
 
     public boolean contains(String osName) {
-        return Arrays.stream(os).anyMatch(s -> s.equalsIgnoreCase(osName));
+        return Arrays.stream(os).anyMatch(osName::contains);
     }
 
     public static boolean isSameClient(String osName1, String osName2) {
