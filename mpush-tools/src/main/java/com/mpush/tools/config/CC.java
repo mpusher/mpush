@@ -55,8 +55,9 @@ public interface CC {
 
     interface mp {
         Config cfg = CC.cfg.getObject("mp").toConfig();
-        String log_dir = cfg.getString("log.dir");
-        String log_level = cfg.getString("log.level");
+        String log_dir = cfg.getString("log-dir");
+        String log_level = cfg.getString("log-level");
+        String log_conf_path = cfg.getString("log-conf-path");
 
         interface core {
             Config cfg = mp.cfg.getObject("core").toConfig();

@@ -47,13 +47,13 @@ public class ZKDnsNodeWatcher extends ZKNodeCacheWatcher {
 
     @Override
     protected void beforeWatch() {
-        Logs.Console.error("start init zk dns data");
+        Logs.Console.info("start init zk dns data");
         List<String> rawData = ZKClient.I.getChildrenKeys(ZKPath.DNS_MAPPING.getRootPath());
         for (String raw : rawData) {
             String fullPath = ZKPath.DNS_MAPPING.getFullPath(raw);
             cache.put(fullPath, getZKNode(fullPath));
         }
-        Logs.Console.error("end init zk dns data");
+        Logs.Console.info("end init zk dns data");
     }
 
     private ZKDnsNode getZKNode(String fullPath) {

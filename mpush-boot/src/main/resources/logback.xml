@@ -189,7 +189,7 @@
         <appender-ref ref="MPUSH_INFO_APPENDER"/>
         <appender-ref ref="MPUSH_DEBUG_APPENDER"/>
     </root>
-    <logger name="console" additivity="true">
+    <logger name="console" additivity="false">
         <level value="debug"/>
         <appender-ref ref="STDOUT"/>
     </logger>
@@ -225,7 +225,6 @@
         <level value="debug"/>
         <appender-ref ref="PROFILE_APPENDER"/>
     </logger>
-
     <logger name="org.apache.zookeeper.ClientCnxn" additivity="false">
         <level value="warn"/>
         <appender-ref ref="MPUSH_ERROR_APPENDER"/>
