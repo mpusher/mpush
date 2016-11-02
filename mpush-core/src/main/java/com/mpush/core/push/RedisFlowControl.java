@@ -63,7 +63,7 @@ public final class RedisFlowControl implements FlowControl {
         }
 
         if (total() > maxLimit) {
-            throw new OverFlowException();
+            throw new OverFlowException(true);
         }
 
         if (System.currentTimeMillis() - start > duration) {
@@ -73,7 +73,7 @@ public final class RedisFlowControl implements FlowControl {
         }
 
         if (controller.isCancelled()) {
-            throw new OverFlowException();
+            throw new OverFlowException(true);
         } else {
             limit = controller.qps();
         }

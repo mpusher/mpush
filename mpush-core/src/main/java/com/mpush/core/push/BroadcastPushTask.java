@@ -57,8 +57,6 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
 
     private final Iterator<Map.Entry<String, Map<Integer, LocalRouter>>> iterator;
 
-    private Packet cachedPacket;//内存优化，因为广播所有人的消息都一样
-
     public BroadcastPushTask(GatewayPushMessage message, FlowControl flowControl) {
         this.message = message;
         this.flowControl = flowControl;
@@ -68,9 +66,21 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
 
     @Override
     public void run() {
-        boolean cancelled = false;
+        flowControl.reset();
+        boolean done = broadcast();
+        if (done) {//done
+            if (finishTasks.addAndGet(flowControl.total()) == 0) {
+                report();
+            }
+        } else {//没有结束，就延时进行下次任务 TODO 考虑优先级问题
+            PushCenter.I.delayTask(flowControl.getRemaining(), this);
+        }
+        flowControl.incTotal();
+    }
+
+
+    private boolean broadcast() {
         try {
-            flowControl.reset();
             iterator.forEachRemaining(entry -> {
 
                 String userId = entry.getKey();
@@ -81,16 +91,10 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
                     if (checkCondition(condition, connection)) {//1.条件检测
                         if (connection.isConnected()) {
                             if (connection.getChannel().isWritable()) { //检测TCP缓冲区是否已满且写队列超过最高阀值
-                                if (flowControl.checkQps()) {
-                                    if (cachedPacket == null) {//内存优化，因为广播所有人的消息都一样
-                                        PushMessage pushMessage = new PushMessage(message.content, connection);
-                                        pushMessage.send(this);
-                                        cachedPacket = pushMessage.getPacket();
-                                    } else {//内存优化，因为广播所有人的消息都一样
-                                        connection.send(cachedPacket, this);
-                                    }
-                                } else if (iterator.hasNext()) {
-                                    PushCenter.I.delayTask(flowControl.getRemaining(), this);
+                                PushMessage pushMessage = new PushMessage(message.content, connection);
+                                pushMessage.send(this);
+                                if (!flowControl.checkQps()) {
+                                    throw new OverFlowException(false);
                                 }
                             }
                         } else { //2.如果链接失效，先删除本地失效的路由，再查下远程路由，看用户是否登陆到其他机器
@@ -104,16 +108,10 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
 
             });
         } catch (OverFlowException e) {
-            cancelled = true;
+            //超出最大限制，或者遍历完毕，结束广播
+            return e.isOverMaxLimit() || !iterator.hasNext();
         }
-
-
-        if (cancelled || !iterator.hasNext()) {//done
-            if (finishTasks.addAndGet(flowControl.total()) == 0) {
-                report();
-            }
-        }
-        flowControl.incTotal();
+        return !iterator.hasNext();//遍历完毕, 广播结束
     }
 
     private void report() {
