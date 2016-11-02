@@ -3,10 +3,7 @@
 
     <!-- 尽量别用绝对路径，如果带参数不同容器路径解释可能不同,以下配置参数在pom.xml里 -->
     <property name="log.root.level" value="${log.root.level}"/> <!-- 日志级别 -->
-    <property name="log.other.level" value="${log.other.level}"/> <!-- 其他日志级别 -->
     <property name="log.home" value="${log.home}"/>  <!-- 日志路径，这里是相对路径， -->
-    <property name="log.moduleName" value="${log.moduleName}"/>  <!-- 模块名称， 影响日志配置名，日志文件名 -->
-    <property name="log.max.size" value="100MB"/> <!-- 日志文件大小 -->
 
     <!-- app log -->
     <appender name="MPUSH_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -174,13 +171,12 @@
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
-        <encoding>UTF-8</encoding>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
         </filter>
-        <layout class="ch.qos.logback.classic.PatternLayout">
+        <encoder charset="UTF-8">
             <pattern>%d{HH:mm:ss.SSS} - %msg%n</pattern>
-        </layout>
+        </encoder>
     </appender>
 
     <root>
@@ -189,6 +185,7 @@
         <appender-ref ref="MPUSH_INFO_APPENDER"/>
         <appender-ref ref="MPUSH_DEBUG_APPENDER"/>
     </root>
+
     <logger name="console" additivity="false">
         <level value="debug"/>
         <appender-ref ref="STDOUT"/>
@@ -225,8 +222,9 @@
         <level value="debug"/>
         <appender-ref ref="PROFILE_APPENDER"/>
     </logger>
+
     <logger name="org.apache.zookeeper.ClientCnxn" additivity="false">
         <level value="warn"/>
-        <appender-ref ref="MPUSH_ERROR_APPENDER"/>
+        <appender-ref ref="MPUSH_APPENDER"/>
     </logger>
 </configuration>
