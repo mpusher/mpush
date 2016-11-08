@@ -41,6 +41,7 @@ public final class RedisManager {
     private RedisConnectionFactory factory = new RedisConnectionFactory();
 
     public void init() {
+        Logs.Console.info("begin init redis");
         RedisClusterManager clusterManager = new ZKRedisClusterManager();
         clusterManager.init();
         factory.setPassword(CC.mp.redis.password);
@@ -49,6 +50,7 @@ public final class RedisManager {
         factory.setCluster(CC.mp.redis.isCluster());
         factory.init();
         test();
+        Logs.Console.info("init redis success...");
     }
 
 
