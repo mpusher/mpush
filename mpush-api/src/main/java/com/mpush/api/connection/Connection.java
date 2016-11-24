@@ -33,7 +33,6 @@ public interface Connection {
     int STATUS_NEW = 0;
     int STATUS_CONNECTED = 1;
     int STATUS_DISCONNECTED = 2;
-    int STATUS_TIMEOUT = 3;
 
     void init(Channel channel, boolean security);
 

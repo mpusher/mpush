@@ -23,7 +23,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
-public class ThreadPoolConfig {
+public final class ThreadPoolConfig {
     public static final int REJECTED_POLICY_ABORT = 0;
     public static final int REJECTED_POLICY_DISCARD = 1;
     public static final int REJECTED_POLICY_CALLER_RUNS = 2;

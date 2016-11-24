@@ -35,7 +35,7 @@ import static com.mpush.tools.thread.ThreadNames.*;
  * 此线程池可伸缩，线程空闲一定时间后回收，新请求重新创建线程
  */
 @Spi(order = 1)
-public class DefaultExecutorFactory implements ExecutorFactory {
+public final class DefaultExecutorFactory implements ExecutorFactory {
 
     private Executor get(ThreadPoolConfig config) {
         String name = config.getName();

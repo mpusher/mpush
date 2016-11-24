@@ -25,7 +25,7 @@ import java.util.concurrent.*;
  *
  * @author ohun@live.cn (夜色)
  */
-public class DefaultExecutor extends ThreadPoolExecutor {
+public final class DefaultExecutor extends ThreadPoolExecutor {
 
     public DefaultExecutor(int corePoolSize, int maximumPoolSize,
                            long keepAliveTime, TimeUnit unit,

@@ -22,7 +22,7 @@ package com.mpush.tools.thread;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class NamedPoolThreadFactory implements ThreadFactory {
+public final class NamedPoolThreadFactory implements ThreadFactory {
     private static final AtomicInteger poolNum = new AtomicInteger(1);
 
     private final AtomicInteger threadNum = new AtomicInteger(1);

@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class ThreadPoolManager {
+public final class ThreadPoolManager {
     public static final ThreadPoolManager I = new ThreadPoolManager();
 
     private final ExecutorFactory executorFactory = ExecutorFactory.create();
