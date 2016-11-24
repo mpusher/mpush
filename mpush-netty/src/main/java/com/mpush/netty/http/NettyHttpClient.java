@@ -23,6 +23,7 @@ import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.NamedThreadFactory;
+import com.mpush.tools.thread.ThreadNames;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -36,12 +37,14 @@ import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.util.AttributeKey;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
+import static com.mpush.tools.thread.ThreadNames.T_HTTP_TIMER;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.HOST;
 import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
@@ -124,7 +127,10 @@ public class NettyHttpClient extends BaseService implements HttpClient {
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        workerGroup = new NioEventLoopGroup(0, ThreadPoolManager.I.getHttpExecutor());
+        workerGroup = new NioEventLoopGroup(
+                CC.mp.thread.pool.http_proxy.max,
+                new DefaultThreadFactory(ThreadNames.T_HTTP_CLIENT)
+        );
         b = new Bootstrap();
         b.group(workerGroup);
         b.channel(NioSocketChannel.class);
@@ -142,7 +148,7 @@ public class NettyHttpClient extends BaseService implements HttpClient {
                 ch.pipeline().addLast("handler", new HttpClientHandler(NettyHttpClient.this));
             }
         });
-        timer = new HashedWheelTimer(new NamedThreadFactory("http-client-timer-"), 1, TimeUnit.SECONDS, 64);
+        timer = new HashedWheelTimer(new NamedThreadFactory(T_HTTP_TIMER), 1, TimeUnit.SECONDS, 64);
         listener.onSuccess();
     }
 

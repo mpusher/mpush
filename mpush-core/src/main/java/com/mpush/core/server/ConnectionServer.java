@@ -29,7 +29,6 @@ import com.mpush.core.handler.*;
 import com.mpush.netty.server.NettyTCPServer;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
@@ -37,7 +36,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -109,13 +107,8 @@ public final class ConnectionServer extends NettyTCPServer {
     }
 
     @Override
-    protected Executor getWorkExecutor() {
-        return ThreadPoolManager.I.getWorkExecutor();
-    }
-
-    @Override
-    protected Executor getBossExecutor() {
-        return ThreadPoolManager.I.getBossExecutor();
+    protected int getWorkThreadNum() {
+        return CC.mp.thread.pool.work.max;
     }
 
     @Override

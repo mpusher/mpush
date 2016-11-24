@@ -20,6 +20,7 @@
 package com.mpush.api;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by ohun on 2015/12/23.
@@ -27,9 +28,8 @@ import java.nio.charset.Charset;
  * @author ohun@live.cn
  */
 public interface Constants {
-    Charset UTF_8 = Charset.forName("UTF-8");
+    Charset UTF_8 = StandardCharsets.UTF_8;
     byte[] EMPTY_BYTES = new byte[0];
-
     String HTTP_HEAD_READ_TIMEOUT = "readTimeout";
-
+    String EMPTY_STRING = "";
 }

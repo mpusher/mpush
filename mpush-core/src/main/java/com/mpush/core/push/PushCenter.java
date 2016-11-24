@@ -22,17 +22,17 @@ package com.mpush.core.push;
 import com.mpush.api.push.PushException;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
+import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static com.mpush.tools.config.CC.mp.thread.pool.push_center.min;
 import static com.mpush.tools.thread.ThreadNames.T_PUSH_CENTER_TIMER;
-import static com.mpush.tools.thread.ThreadNames.T_PUSH_REQ_TIMER;
 
 /**
  * Created by ohun on 16/10/24.
@@ -58,10 +58,12 @@ public final class PushCenter extends BaseService {
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        executor = new ScheduledThreadPoolExecutor(4, new NamedPoolThreadFactory(T_PUSH_CENTER_TIMER), (r, e) -> {
-            logger.error("one push task was rejected, task=" + r);
-            throw new PushException("one push request was rejected. request=" + r);
-        });
+        executor = new ScheduledThreadPoolExecutor(min, new NamedPoolThreadFactory(T_PUSH_CENTER_TIMER),
+                (r, e) -> {
+                    logger.error("one push task was rejected, task=" + r);
+                    throw new PushException("one push request was rejected. request=" + r);
+                }
+        );
         listener.onSuccess();
     }
 

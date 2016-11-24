@@ -73,4 +73,9 @@ public final class AdminServer extends NettyTCPServer {
     protected ChannelHandler getEncoder() {
         return new StringEncoder();
     }
+
+    @Override
+    protected int getWorkThreadNum() {
+        return 1;
+    }
 }

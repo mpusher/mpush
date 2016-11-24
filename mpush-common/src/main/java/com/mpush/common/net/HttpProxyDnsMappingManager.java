@@ -28,11 +28,14 @@ import com.mpush.api.spi.net.DnsMapping;
 import com.mpush.api.spi.net.DnsMappingManager;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.config.CC;
+import com.mpush.tools.thread.NamedPoolThreadFactory;
+import com.mpush.tools.thread.ThreadNames;
 import com.mpush.zk.cache.ZKDnsNodeCache;
 import com.mpush.zk.listener.ZKDnsNodeWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -52,15 +55,13 @@ public class HttpProxyDnsMappingManager extends BaseService implements DnsMappin
 
     private ScheduledExecutorService executorService;
 
-    public HttpProxyDnsMappingManager() {
-    }
-
-
     @Override
     protected void doStart(Listener listener) throws Throwable {
         watcher.watch();
         if (all.size() > 0) {
-            executorService = Executors.newSingleThreadScheduledExecutor();
+            executorService = Executors.newSingleThreadScheduledExecutor(
+                    new NamedPoolThreadFactory(ThreadNames.T_HTTP_DNS_TIMER)
+            );
             executorService.scheduleAtFixedRate(this, 1, 20, TimeUnit.SECONDS); //20秒 定时扫描dns
         }
         listener.onSuccess();
@@ -113,15 +114,15 @@ public class HttpProxyDnsMappingManager extends BaseService implements DnsMappin
         Map<String, List<DnsMapping>> all = this.getAll();
         Map<String, List<DnsMapping>> available = Maps.newConcurrentMap();
         all.forEach((key, dnsMappings) -> {
-            List<DnsMapping> nowValue = Lists.newArrayList();
+            List<DnsMapping> okList = Lists.newArrayList();
             dnsMappings.forEach(dnsMapping -> {
                 if (checkHealth(dnsMapping.getIp(), dnsMapping.getPort())) {
-                    nowValue.add(dnsMapping);
+                    okList.add(dnsMapping);
                 } else {
                     logger.warn("dns can not reachable:" + Jsons.toJson(dnsMapping));
                 }
             });
-            available.put(key, nowValue);
+            available.put(key, okList);
         });
         this.update(available);
     }

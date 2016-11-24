@@ -218,8 +218,14 @@ public interface CC {
                     int max = cfg.getInt("max");
                     int queue_size = cfg.getInt("queue-size");
                 }
-            }
 
+                interface push_center {
+                    Config cfg = pool.cfg.getObject("push-center").toConfig();
+                    int min = cfg.getInt("min");
+                    int max = cfg.getInt("max");
+                    int queue_size = cfg.getInt("queue-size");
+                }
+            }
         }
 
         interface zk {

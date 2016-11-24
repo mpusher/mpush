@@ -23,8 +23,8 @@ import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
 import com.mpush.api.service.Server;
 import com.mpush.api.service.ServiceException;
-import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
+import com.mpush.tools.thread.ThreadNames;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -34,10 +34,10 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Locale;
 import java.util.concurrent.Executor;
 
 import static io.netty.channel.socket.InternetProtocolFamily.IPv4;
@@ -101,13 +101,17 @@ public abstract class NettyUDPConnector extends BaseService implements Server {
     }
 
     private void createNioServer(Listener listener) {
-        NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(0, getWorkExecutor());
-        createServer(listener, eventLoopGroup, () -> new NioDatagramChannel(IPv4));
+        NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(
+                0, new DefaultThreadFactory(ThreadNames.T_SERVER_WORKER)
+        );
+        createServer(listener, eventLoopGroup, () -> new NioDatagramChannel(IPv4));//默认是根据机器情况创建Channel,如果机器支持ipv6,则无法使用ipv4的地址加入组播
     }
 
     @SuppressWarnings("unused")
     private void createEpollServer(Listener listener) {
-        EpollEventLoopGroup eventLoopGroup = new EpollEventLoopGroup(0, getWorkExecutor());
+        EpollEventLoopGroup eventLoopGroup = new EpollEventLoopGroup(
+                0, new DefaultThreadFactory(ThreadNames.T_SERVER_WORKER)
+        );
         createServer(listener, eventLoopGroup, EpollDatagramChannel::new);
     }
 
@@ -116,9 +120,5 @@ public abstract class NettyUDPConnector extends BaseService implements Server {
     }
 
     public abstract ChannelHandler getChannelHandler();
-
-    protected Executor getWorkExecutor() {
-        return ThreadPoolManager.I.getWorkExecutor();
-    }
 
 }

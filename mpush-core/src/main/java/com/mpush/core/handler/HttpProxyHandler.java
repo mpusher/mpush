@@ -194,6 +194,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
         try {
             uri = new URL(url);
         } catch (MalformedURLException e) {
+            //ignore e
         }
         if (uri == null) {
             return url;

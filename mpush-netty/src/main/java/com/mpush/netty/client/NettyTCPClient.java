@@ -26,6 +26,7 @@ import com.mpush.api.service.ServiceException;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
 import com.mpush.tools.config.CC;
+import com.mpush.tools.thread.ThreadNames;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -33,10 +34,12 @@ import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
+import io.netty.channel.epoll.Native;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,13 +89,17 @@ public abstract class NettyTCPClient extends BaseService implements Client {
     }
 
     private void createNioClient(Listener listener) {
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup(1, getWorkExecutor());
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup(
+                1, new DefaultThreadFactory(ThreadNames.T_TCP_CLIENT)
+        );
         workerGroup.setIoRatio(getIoRate());
         createClient(listener, workerGroup, NioSocketChannel.class);
     }
 
     private void createEpollClient(Listener listener) {
-        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(1, getWorkExecutor());
+        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(
+                1, new DefaultThreadFactory(ThreadNames.T_TCP_CLIENT)
+        );
         workerGroup.setIoRatio(getIoRate());
         createClient(listener, workerGroup, EpollSocketChannel.class);
     }
@@ -111,23 +118,31 @@ public abstract class NettyTCPClient extends BaseService implements Client {
         return PacketEncoder.INSTANCE;
     }
 
-    protected Executor getWorkExecutor() {
-        return ThreadPoolManager.I.getWorkExecutor();
-    }
-
     protected int getIoRate() {
-        return 70;
+        return 50;
     }
 
     public abstract ChannelHandler getChannelHandler();
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        if (CC.mp.core.useNettyEpoll()) {
+        if (useNettyEpoll()) {
             createEpollClient(listener);
         } else {
             createNioClient(listener);
         }
+    }
+
+    private boolean useNettyEpoll() {
+        if (CC.mp.core.useNettyEpoll()) {
+            try {
+                Native.offsetofEpollData();
+                return true;
+            } catch (UnsatisfiedLinkError error) {
+                LOGGER.warn("can not load netty epoll, switch nio model.");
+            }
+        }
+        return false;
     }
 
     @Override

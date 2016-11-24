@@ -277,7 +277,6 @@
 
     <!-- 编译配置 -->
     <build>
-        <!-- 指定编译时的Resource目录 -->
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>

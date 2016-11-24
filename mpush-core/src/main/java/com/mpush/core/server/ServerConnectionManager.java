@@ -21,17 +21,17 @@ package com.mpush.core.server;
 
 
 import com.google.common.collect.Lists;
-import com.google.common.eventbus.Subscribe;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.ConnectionManager;
 import com.mpush.api.event.HandshakeEvent;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.event.EventBus;
 import com.mpush.tools.log.Logs;
+import com.mpush.tools.thread.NamedThreadFactory;
+import com.mpush.tools.thread.ThreadNames;
 import io.netty.channel.Channel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
-import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 
 import java.util.List;
@@ -65,7 +65,10 @@ public final class ServerConnectionManager implements ConnectionManager {
             EventBus.I.register(this);
             long tickDuration = TimeUnit.SECONDS.toMillis(1);//1s 每秒钟走一步，一个心跳周期内大致走一圈
             int ticksPerWheel = (int) (CC.mp.core.max_heartbeat / tickDuration);
-            this.timer = new HashedWheelTimer(tickDuration, TimeUnit.MILLISECONDS, ticksPerWheel);
+            this.timer = new HashedWheelTimer(
+                    new NamedThreadFactory(ThreadNames.T_CONN_TIMER),
+                    tickDuration, TimeUnit.MILLISECONDS, ticksPerWheel
+            );
         }
     }
 
@@ -84,7 +87,7 @@ public final class ServerConnectionManager implements ConnectionManager {
     @Override
     public void add(Connection connection) {
         connections.putIfAbsent(connection.getChannel().id().asShortText(), connection);
-        //if (heartbeatCheck) new HeartbeatCheckTask(connection).startTimeout();
+        if (heartbeatCheck) new HeartbeatCheckTask(connection).startTimeout();
     }
 
     @Override

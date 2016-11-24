@@ -22,36 +22,22 @@ package com.mpush.tools.thread;
 public final class ThreadNames {
     public static final String NS = "mp";
     public static final String THREAD_NAME_PREFIX = NS + "-t";
-
-    /**
-     * netty boss 线程
-     */
     public static final String T_SERVER_BOSS = NS + "-boss";
-
-    /**
-     * netty worker 线程
-     */
     public static final String T_SERVER_WORKER = NS + "-worker";
     public static final String T_TRAFFIC_SHAPING = NS + "-traffic-shaping";
-
+    public static final String T_TCP_CLIENT = NS + "-tcp-client";
     public static final String T_HTTP_CLIENT = NS + "-http";
-
     public static final String T_EVENT_BUS = NS + "-event";
-
     public static final String T_MQ = NS + "-mq";
-
     public static final String T_ZK = NS + "-zk";
-
     public static final String T_BIZ = NS + "-biz";
     public static final String T_PUSH_CALLBACK = NS + "-push-callback";
     public static final String T_PUSH_REQ_TIMER = NS + "-push-req-timer";
     public static final String T_ARK_REQ_TIMER = NS + "-ack-timer";
     public static final String T_PUSH_CENTER_TIMER = NS + "-push-center-timer";
     public static final String T_MONITOR = NS + "-monitor";
-
-    /**
-     * connection 定期检测线程
-     */
-    public static final String T_NETTY_TIMER = NS + "-timer";
+    public static final String T_CONN_TIMER = NS + "-conn-check-timer";
+    public static final String T_HTTP_TIMER = NS + "-http-client-timer";
+    public static final String T_HTTP_DNS_TIMER = NS + "-http-dns-timer";
 
 }

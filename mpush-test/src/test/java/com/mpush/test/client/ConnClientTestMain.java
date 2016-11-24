@@ -66,7 +66,7 @@ public class ConnClientTestMain {
             config.setOsVersion(osVersion);
             config.setUserId(userId);
             Client client = new ConnectClient(server.getExtranetIp(), server.getPort(), config);
-            client.start().get(10, TimeUnit.SECONDS);
+            client.start();
         }
         LockSupport.park();
     }
