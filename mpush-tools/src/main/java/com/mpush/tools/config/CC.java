@@ -302,6 +302,30 @@ public interface CC {
             }
         }
 
+        interface push {
+
+            Config cfg = mp.cfg.getObject("push").toConfig();
+
+            interface flow_control {
+
+                Config cfg = push.cfg.getObject("flow-control").toConfig();
+
+                interface global {
+                    Config cfg = flow_control.cfg.getObject("global").toConfig();
+                    int limit = cfg.getNumber("limit").intValue();
+                    int max = cfg.getInt("max");
+                    int duration = (int) cfg.getDuration("duration").toMillis();
+                }
+
+                interface broadcast {
+                    Config cfg = flow_control.cfg.getObject("broadcast").toConfig();
+                    int limit = cfg.getInt("limit");
+                    int max = cfg.getInt("max");
+                    int duration = (int) cfg.getDuration("duration").toMillis();
+                }
+            }
+        }
+
         interface monitor {
             Config cfg = mp.cfg.getObject("monitor").toConfig();
             String dump_dir = cfg.getString("dump-dir");

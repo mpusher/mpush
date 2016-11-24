@@ -31,16 +31,17 @@ public final class RedisFlowControl implements FlowControl {
 
     private final BroadcastController controller;
 
-    private final int maxLimit = 100000;//10w
     private final int duration = 1000;
+    private final int maxLimit;
     private int limit;
     private int count;
     private int total;
     private long start;
 
-    public RedisFlowControl(String taskId) {
+    public RedisFlowControl(String taskId, int maxLimit) {
         this.controller = new RedisBroadcastController(taskId);
         this.limit = controller.qps();
+        this.maxLimit = maxLimit;
     }
 
     @Override

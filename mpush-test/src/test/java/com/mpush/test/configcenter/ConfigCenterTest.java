@@ -36,7 +36,7 @@ public class ConfigCenterTest {
     @Test
     public void testKey() {
         //String t = ConfigKey.app_env.getString();
-        System.out.println(CC.mp.redis.nodes.size());
+        System.out.println(CC.mp.push.flow_control.global.max);
     }
 
     @Test

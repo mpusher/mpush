@@ -24,6 +24,9 @@ import com.mpush.api.protocol.Packet;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.core.push.*;
+import com.mpush.tools.config.CC;
+
+import static com.mpush.tools.config.CC.mp.push.flow_control.*;
 
 /**
  * Created by ohun on 2015/12/30.
@@ -34,7 +37,9 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
 
     private final PushCenter pushCenter = PushCenter.I;
 
-    private final GlobalFlowControl globalFlowControl = new GlobalFlowControl(1000, Integer.MAX_VALUE, 1000);
+    private final GlobalFlowControl globalFlowControl = new GlobalFlowControl(
+            global.limit, global.max, global.duration
+    );
 
     @Override
     public GatewayPushMessage decode(Packet packet, Connection connection) {
@@ -62,10 +67,9 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
     @Override
     public void handle(GatewayPushMessage message) {
         if (message.isBroadcast()) {
-            FlowControl flowControl
-                    = message.taskId == null
-                    ? new FastFlowControl(5000, 100000, 1000) //5k    10w     1s
-                    : new RedisFlowControl(message.taskId);
+            FlowControl flowControl = (message.taskId == null)
+                    ? new FastFlowControl(broadcast.limit, broadcast.max, broadcast.duration)
+                    : new RedisFlowControl(message.taskId, broadcast.max);
             pushCenter.addTask(new BroadcastPushTask(message, flowControl));
         } else {
             pushCenter.addTask(new SingleUserPushTask(message, globalFlowControl));
