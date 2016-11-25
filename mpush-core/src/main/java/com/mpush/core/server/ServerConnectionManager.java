@@ -120,7 +120,7 @@ public final class ServerConnectionManager implements ConnectionManager {
 
         void startTimeout() {
             int timeout = connection.getSessionContext().heartbeat;
-            timer.newTimeout(this, timeout > 0 ? timeout : CC.mp.core.min_heartbeat, TimeUnit.MILLISECONDS);
+            timer.newTimeout(this, timeout, TimeUnit.MILLISECONDS);
         }
 
         @Override
