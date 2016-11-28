@@ -19,9 +19,7 @@
 
 package com.mpush.core.ack;
 
-import com.mpush.common.message.BaseMessage;
-
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.Future;
 
 /**
  * Created by ohun on 16/9/5.
@@ -29,16 +27,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author ohun@live.cn (夜色)
  */
 public final class AckContext implements Runnable {
-    private final AtomicBoolean done = new AtomicBoolean(false);
-
     private AckCallback callback;
-    /*package*/ int pushMessageId;
+
+    private int sessionId;
+    private Future<?> future;
 
     public AckContext() {
     }
 
-    public boolean tryDone() {
-        return done.compareAndSet(false, true);
+    public void setSessionId(int sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public void setFuture(Future<?> future) {
+        this.future = future;
     }
 
     public AckContext setCallback(AckCallback callback) {
@@ -46,23 +48,29 @@ public final class AckContext implements Runnable {
         return this;
     }
 
+    private boolean tryDone() {
+        return future.cancel(true);
+    }
+
     public void success() {
         if (tryDone()) {
             callback.onSuccess(this);
+            callback = null;
         }
     }
 
     public void timeout() {
-        AckContext context = AckMessageQueue.I.getAndRemove(pushMessageId);
+        AckContext context = AckMessageQueue.I.getAndRemove(sessionId);
         if (context != null && tryDone()) {
             callback.onTimeout(this);
+            callback = null;
         }
     }
 
     @Override
     public String toString() {
         return "AckContext{" +
-                ", pushMessageId=" + pushMessageId +
+                ", sessionId=" + sessionId +
                 '}';
     }
 

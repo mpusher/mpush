@@ -34,6 +34,7 @@ import static com.mpush.tools.thread.ThreadNames.T_ARK_REQ_TIMER;
  */
 public final class AckMessageQueue {
     private final Logger logger = LoggerFactory.getLogger(AckMessageQueue.class);
+
     private static final int DEFAULT_TIMEOUT = 3000;
     public static final AckMessageQueue I = new AckMessageQueue();
 
@@ -41,15 +42,19 @@ public final class AckMessageQueue {
     private final ScheduledExecutorService scheduledExecutor;
 
     private AckMessageQueue() {
-        scheduledExecutor = new ScheduledThreadPoolExecutor(1, new NamedPoolThreadFactory(T_ARK_REQ_TIMER), (r, e) -> {
-            logger.error("one ack context was rejected, context=" + r);
-        });
+        scheduledExecutor = new ScheduledThreadPoolExecutor(1,
+                new NamedPoolThreadFactory(T_ARK_REQ_TIMER),
+                (r, e) -> logger.error("one ack context was rejected, context=" + r)
+        );
     }
 
-    public void put(int sessionId, AckContext context, int timeout) {
+    public void add(int sessionId, AckContext context, int timeout) {
         queue.put(sessionId, context);
-        context.pushMessageId = sessionId;
-        scheduledExecutor.schedule(context, timeout > 0 ? timeout : DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+        context.setSessionId(sessionId);
+        context.setFuture(scheduledExecutor.schedule(context,
+                timeout > 0 ? timeout : DEFAULT_TIMEOUT,
+                TimeUnit.MILLISECONDS
+        ));
     }
 
     public AckContext getAndRemove(int sessionId) {
