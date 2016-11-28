@@ -59,7 +59,9 @@ public final class ConnectionServer extends NettyTCPServer {
     public static ConnectionServer I() {
         if (I == null) {
             synchronized (ConnectionServer.class) {
-                I = new ConnectionServer();
+                if (I == null) {
+                    I = new ConnectionServer();
+                }
             }
         }
         return I;

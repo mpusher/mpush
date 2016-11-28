@@ -55,7 +55,9 @@ public final class GatewayServer extends NettyTCPServer {
     public static GatewayServer I() {
         if (I == null) {
             synchronized (GatewayServer.class) {
-                I = new GatewayServer();
+                if (I == null) {
+                    I = new GatewayServer();
+                }
             }
         }
         return I;

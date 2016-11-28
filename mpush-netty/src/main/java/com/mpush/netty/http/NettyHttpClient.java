@@ -71,7 +71,9 @@ public class NettyHttpClient extends BaseService implements HttpClient {
     public static HttpClient I() {
         if (I == null) {
             synchronized (NettyHttpClient.class) {
-                I = new NettyHttpClient();
+                if (I == null) {
+                    I = new NettyHttpClient();
+                }
             }
         }
         return I;

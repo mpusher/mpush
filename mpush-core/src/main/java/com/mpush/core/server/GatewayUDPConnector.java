@@ -49,7 +49,9 @@ public final class GatewayUDPConnector extends NettyUDPConnector {
     public static GatewayUDPConnector I() {
         if (I == null) {
             synchronized (GatewayUDPConnector.class) {
-                I = new GatewayUDPConnector();
+                if (I == null) {
+                    I = new GatewayUDPConnector();
+                }
             }
         }
         return I;
