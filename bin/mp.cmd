@@ -25,7 +25,7 @@ REM call %JAVA% "-Dmp.conf=%MPCFG%" "-Dmp.home=%~dp0%.." -cp "%CLASSPATH%" %MPMA
 REM endlocal
 
 
-java -Dmp.conf=../conf/mpush.conf -Dmp.home=. -jar bootstrap.jar
+java -Dmp.conf=../conf/mpush.conf -Dmp.home=.. -jar bootstrap.jar
 
 
 
