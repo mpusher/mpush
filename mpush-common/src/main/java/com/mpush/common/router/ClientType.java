@@ -51,7 +51,7 @@ public enum ClientType {
 
     public static ClientType find(String osName) {
         for (ClientType type : values()) {
-            if (type.contains(osName)) return type;
+            if (type.contains(osName.toLowerCase())) return type;
         }
         return UNKNOWN;
     }
