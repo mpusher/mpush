@@ -31,6 +31,7 @@ import com.mpush.tools.common.TimeLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -222,6 +223,9 @@ public class PushRequest extends FutureTask<Boolean> {
                 content = json.getBytes(Constants.UTF_8);
             }
         }
+
+        Objects.requireNonNull(content, "push content can not be null.");
+
         return new PushRequest(factory)
                 .setAckModel(ctx.getAckModel())
                 .setUserId(ctx.getUserId())
@@ -271,7 +275,7 @@ public class PushRequest extends FutureTask<Boolean> {
     @Override
     public String toString() {
         return "PushRequest{" +
-                "content='" + content + '\'' +
+                "content='" + content.length + '\'' +
                 ", userId='" + userId + '\'' +
                 ", timeout=" + timeout +
                 ", location=" + location +
