@@ -51,10 +51,6 @@ public final class ServerConnectionManager implements ConnectionManager {
     private HashedWheelTimer timer;
     private final boolean heartbeatCheck;
 
-    public ServerConnectionManager() {
-        this.heartbeatCheck = true;
-    }
-
     public ServerConnectionManager(boolean heartbeatCheck) {
         this.heartbeatCheck = heartbeatCheck;
     }

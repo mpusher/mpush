@@ -58,7 +58,7 @@ public final class NamedThreadFactory implements ThreadFactory {
      */
     public Thread newThread(String name, Runnable r) {
         Thread thread = new Thread(group, r, namePrefix + "-" + threadNumber.getAndIncrement() + "-" + name);
-        thread.setDaemon(true);
+        thread.setDaemon(false); //设置为非守护线程，否则jvm会立即退出
         return thread;
     }
 
