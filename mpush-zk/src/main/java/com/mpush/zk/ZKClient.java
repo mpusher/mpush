@@ -59,8 +59,11 @@ public class ZKClient extends BaseService {
 
     @Override
     public void start(Listener listener) {
-        if (isRunning()) return;
-        super.start(listener);
+        if (isRunning()) {
+            listener.onSuccess();
+        } else {
+            super.start(listener);
+        }
     }
 
     @Override
