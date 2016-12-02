@@ -125,7 +125,6 @@ else
 fi
 
 if [ ! -w "$MP_LOG_DIR" ] ; then
-echo $MP_LOG_DIR
 mkdir -p "$MP_LOG_DIR"
 fi
 
@@ -140,8 +139,7 @@ start)
          exit 0
       fi
     fi
-    nohup "$JAVA" "-Dmp.conf=$MP_CFG" "-Dmp.log.dir=${MP_LOG_DIR}" "-Dmp.root.logger=${MP_LOG4J_PROP}" \
-    -cp "$CLASSPATH" $JVM_FLAGS $MP_MAIN > "$_MP_DAEMON_OUT" 2>&1 < /dev/null &
+    nohup "$JAVA" "-Dmp.home=$MPUSH_HOME"  "-Dmp.conf=$MP_CFG" -cp "$CLASSPATH" $JVM_FLAGS $MP_MAIN > "$_MP_DAEMON_OUT" 2>&1 < /dev/null &
     if [ $? -eq 0 ]
     then
       case "$OSTYPE" in
@@ -166,12 +164,11 @@ start)
     fi
     ;;
 start-foreground)
-    "$JAVA" "-Dmp.conf=$MP_CFG" "-Dmp.log.dir=${MP_LOG_DIR}" "-Dmp.root.logger=${MP_LOG4J_PROP}" \
-    -cp "$CLASSPATH" $JVM_FLAGS $MP_MAIN
+    "$JAVA" "-Dmp.home=$MPUSH_HOME" "-Dmp.conf=$MP_CFG" -cp "$CLASSPATH" $JVM_FLAGS $MP_MAIN
     ;;
 print-cmd)
     echo "\"$JAVA\" $MP_MAIN "
-    echo "\"-Dmp.conf=$MP_CFG\" -Dmp.log.dir=\"${MP_LOG_DIR}\" -Dmp.root.logger=\"${MP_LOG4J_PROP}\" "
+    echo "\"-Dmp.home=$MPUSH_HOME  -Dmp.conf=$MP_CFG\" "
     echo "$JVM_FLAGS "
     echo "-cp \"$CLASSPATH\" "
     echo "> \"$_MP_DAEMON_OUT\" 2>&1 < /dev/null"
@@ -220,14 +217,13 @@ stop)
 upgrade)
     shift
     echo "upgrading the servers to 3.*"
-    "$JAVA" "-Dmpush.log.dir=${MP_LOG_DIR}" "-Dmpush.root.logger=${MP_LOG4J_PROP}" \
-    -cp "$CLASSPATH" $JVM_FLAGS com.mpush.tools.upgrade.UpgradeMain ${@}
+    "$JAVA" -cp "$CLASSPATH" $JVM_FLAGS com.mpush.tools.upgrade.UpgradeMain ${@}
     echo "Upgrading ... "
     ;;
 restart)
     shift
     "$0" stop ${@}
-    sleep 5
+    sleep 1
     "$0" start ${@}
     ;;
 status)

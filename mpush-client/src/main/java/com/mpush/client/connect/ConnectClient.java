@@ -21,11 +21,11 @@ package com.mpush.client.connect;
 
 import com.google.common.eventbus.Subscribe;
 import com.mpush.api.event.ConnectionCloseEvent;
-import com.mpush.netty.client.NettyClient;
+import com.mpush.netty.client.NettyTCPClient;
 import com.mpush.tools.event.EventBus;
 import io.netty.channel.ChannelHandler;
 
-public class ConnectClient extends NettyClient {
+public class ConnectClient extends NettyTCPClient {
     private final ConnClientChannelHandler handler;
 
     public ConnectClient(String host, int port, ClientConfig config) {

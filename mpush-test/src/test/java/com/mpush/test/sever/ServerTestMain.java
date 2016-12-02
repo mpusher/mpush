@@ -20,6 +20,9 @@
 package com.mpush.test.sever;
 
 import com.mpush.bootstrap.Main;
+import org.junit.Test;
+
+import java.util.concurrent.locks.LockSupport;
 
 /**
  * Created by yxx on 2016/5/16.
@@ -27,9 +30,11 @@ import com.mpush.bootstrap.Main;
  * @author ohun@live.cn
  */
 public class ServerTestMain {
-    public static void main(String[] args) {
+    @Test
+    public void testServer() {
         System.setProperty("io.netty.leakDetection.level", "PARANOID");
         System.setProperty("io.netty.noKeySetOptimization", "false");
-        Main.main(args);
+        Main.main(null);
+        LockSupport.park();
     }
 }

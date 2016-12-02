@@ -59,8 +59,11 @@ public class ZKClient extends BaseService {
 
     @Override
     public void start(Listener listener) {
-        if (isRunning()) return;
-        super.start(listener);
+        if (isRunning()) {
+            listener.onSuccess();
+        } else {
+            super.start(listener);
+        }
     }
 
     @Override
@@ -72,9 +75,9 @@ public class ZKClient extends BaseService {
         }
         initLocalCache(zkConfig.getLocalCachePath());
         addConnectionStateListener();
-        listener.onSuccess(zkConfig.getHosts());
         Logs.ZK.info("zk client start success, server lists is:{}", zkConfig.getHosts());
         Logs.Console.info("init zk client success...");
+        listener.onSuccess(zkConfig.getHosts());
     }
 
     @Override
@@ -82,6 +85,8 @@ public class ZKClient extends BaseService {
         if (cache != null) cache.close();
         TimeUnit.MILLISECONDS.sleep(600);
         client.close();
+        Logs.Console.info("zk client closed...");
+        listener.onSuccess();
     }
 
     /**
@@ -107,19 +112,28 @@ public class ZKClient extends BaseService {
         }
 
         if (zkConfig.getDigest() != null) {
-            builder.authorization("digest", zkConfig.getDigest().getBytes(Constants.UTF_8))
-                    .aclProvider(new ACLProvider() {
+            /*
+             * scheme对应于采用哪种方案来进行权限管理，zookeeper实现了一个pluggable的ACL方案，可以通过扩展scheme，来扩展ACL的机制。
+             * zookeeper缺省支持下面几种scheme:
+             *
+             * world: 默认方式，相当于全世界都能访问; 它下面只有一个id, 叫anyone, world:anyone代表任何人，zookeeper中对所有人有权限的结点就是属于world:anyone的
+             * auth: 代表已经认证通过的用户(cli中可以通过addauth digest user:pwd 来添加当前上下文中的授权用户); 它不需要id, 只要是通过authentication的user都有权限（zookeeper支持通过kerberos来进行authencation, 也支持username/password形式的authentication)
+             * digest: 即用户名:密码这种方式认证，这也是业务系统中最常用的;它对应的id为username:BASE64(SHA1(password))，它需要先通过username:password形式的authentication
+             * ip: 使用Ip地址认证;它对应的id为客户机的IP地址，设置的时候可以设置一个ip段，比如ip:192.168.1.0/16, 表示匹配前16个bit的IP段
+             * super: 在这种scheme情况下，对应的id拥有超级权限，可以做任何事情(cdrwa)
+             */
+            builder.authorization("digest", zkConfig.getDigest().getBytes(Constants.UTF_8));
+            builder.aclProvider(new ACLProvider() {
+                @Override
+                public List<ACL> getDefaultAcl() {
+                    return ZooDefs.Ids.CREATOR_ALL_ACL;
+                }
 
-                        @Override
-                        public List<ACL> getDefaultAcl() {
-                            return ZooDefs.Ids.CREATOR_ALL_ACL;
-                        }
-
-                        @Override
-                        public List<ACL> getAclForPath(final String path) {
-                            return ZooDefs.Ids.CREATOR_ALL_ACL;
-                        }
-                    });
+                @Override
+                public List<ACL> getAclForPath(final String path) {
+                    return ZooDefs.Ids.CREATOR_ALL_ACL;
+                }
+            });
         }
         client = builder.build();
         Logs.Console.info("init zk client, config={}", zkConfig.toString());

@@ -13,7 +13,7 @@
     <groupId>com.github.mpusher</groupId>
     <artifactId>mpush</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.5</version>
+    <version>0.0.6</version>
     <name>mpush</name>
     <description>MPUSH消息推送系统</description>
     <url>https://github.com/mpusher/mpush</url>
@@ -61,7 +61,7 @@
         <java.encoding>UTF-8</java.encoding>
         <java.version>1.8</java.version>
         <mpush.groupId>com.github.mpusher</mpush.groupId>
-        <mpush.version>0.0.5</mpush.version>
+        <mpush.version>0.0.6</mpush.version>
         <mpush-api-version>${mpush.version}</mpush-api-version>
         <mpush-tools-version>${mpush.version}</mpush-tools-version>
         <mpush-common-version>${mpush.version}</mpush-common-version>
@@ -277,7 +277,6 @@
 
     <!-- 编译配置 -->
     <build>
-        <!-- 指定编译时的Resource目录 -->
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>

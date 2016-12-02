@@ -13,8 +13,9 @@ import java.net.URL;
 import java.net.URLDecoder;
 
 @ChannelHandler.Sharable
-public class HttpClientHandler extends ChannelInboundHandlerAdapter {
+/*package*/ class HttpClientHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyHttpClient.class);
+
     private final NettyHttpClient client;
 
     public HttpClientHandler(NettyHttpClient client) {
@@ -31,7 +32,7 @@ public class HttpClientHandler extends ChannelInboundHandlerAdapter {
         } finally {
             client.pool.tryRelease(ctx.channel());
         }
-        LOGGER.error("http client caught an error, info={}", context, cause);
+        LOGGER.error("http client caught an ex, info={}", context, cause);
     }
 
     @Override
@@ -76,13 +77,13 @@ public class HttpClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     private String getRedirectLocation(HttpRequest request, HttpResponse response) throws Exception {
-        String hdr = URLDecoder.decode(response.headers().get(HttpHeaderNames.LOCATION).toString(), "UTF-8");
+        String hdr = URLDecoder.decode(response.headers().get(HttpHeaderNames.LOCATION), "UTF-8");
         if (hdr != null) {
             if (hdr.toLowerCase().startsWith("http://") || hdr.toLowerCase().startsWith("https://")) {
                 return hdr;
             } else {
                 URL orig = new URL(request.uri());
-                String pth = orig.getPath() == null ? "/" : URLDecoder.decode(orig.getPath().toString(), "UTF-8");
+                String pth = orig.getPath() == null ? "/" : URLDecoder.decode(orig.getPath(), "UTF-8");
                 if (hdr.startsWith("/")) {
                     pth = hdr;
                 } else if (pth.endsWith("/")) {
@@ -90,7 +91,7 @@ public class HttpClientHandler extends ChannelInboundHandlerAdapter {
                 } else {
                     pth += "/" + hdr;
                 }
-                StringBuilder sb = new StringBuilder(orig.getProtocol().toString());
+                StringBuilder sb = new StringBuilder(orig.getProtocol());
                 sb.append("://").append(orig.getHost());
                 if (orig.getPort() > 0) {
                     sb.append(":").append(orig.getPort());
@@ -105,15 +106,16 @@ public class HttpClientHandler extends ChannelInboundHandlerAdapter {
         return null;
     }
 
+    @SuppressWarnings("unused")
     private HttpRequest copy(String uri, HttpRequest request) {
         HttpRequest nue = request;
         if (request instanceof DefaultFullHttpRequest) {
-            DefaultFullHttpRequest dfrq = (DefaultFullHttpRequest) request;
+            DefaultFullHttpRequest dfr = (DefaultFullHttpRequest) request;
             FullHttpRequest rq;
             try {
-                rq = dfrq.copy();
-            } catch (IllegalReferenceCountException e) { // Empty bytebuf
-                rq = dfrq;
+                rq = dfr.copy();
+            } catch (IllegalReferenceCountException e) { // Empty byteBuf
+                rq = dfr;
             }
             rq.setUri(uri);
         } else {

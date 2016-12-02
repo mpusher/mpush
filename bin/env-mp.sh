@@ -25,6 +25,7 @@
 
 MP_BIN_DIR="${MP_BIN_DIR:-/usr/bin}"
 MPUSH_PREFIX="${MP_BIN_DIR}/.."
+MPUSH_HOME=$MPUSH_PREFIX
 
 if [ "x$MP_CFG_DIR" = "x" ]
 then

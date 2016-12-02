@@ -21,10 +21,8 @@ package com.mpush.bootstrap.job;
 
 import com.mpush.api.service.Listener;
 import com.mpush.api.service.Server;
-import com.mpush.tools.Jsons;
 import com.mpush.tools.log.Logs;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
-import com.mpush.zk.ZKClient;
 import com.mpush.zk.ZKRegister;
 import com.mpush.zk.node.ZKServerNode;
 
@@ -71,11 +69,7 @@ public final class ServerBoot extends BootJob {
 
     @Override
     protected void stop() {
-        try {
-            server.stop().get(1, TimeUnit.MINUTES);
-        } catch (Exception e) {
-            Logs.Console.error("stop server error:", e);
-        }
+        server.stop().join();
         stopNext();
     }
 }

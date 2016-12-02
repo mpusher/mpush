@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,26 +14,23 @@
  * limitations under the License.
  *
  * Contributors:
- *   ohun@live.cn (夜色)
+ *     ohun@live.cn (夜色)
  */
 
-package com.mpush.api.spi.common;
+package com.mpush.common.condition;
 
-import java.util.concurrent.Executor;
+import java.util.Map;
 
 /**
- * Created by yxx on 2016/5/20.
+ * Created by ohun on 16/10/24.
  *
- * @author ohun@live.cn
+ * @author ohun@live.cn (夜色)
  */
-public interface ThreadPoolFactory {
-    String SERVER_BOSS = "sb";
-    String SERVER_WORK = "sw";
-    String HTTP_CLIENT_WORK = "hcw";
-    String PUSH_CALLBACK = "pc";
-    String EVENT_BUS = "eb";
-    String MQ = "r";
-    String BIZ = "b";
+public final class AwaysPassCondition implements Condition {
+    public static final Condition I = new AwaysPassCondition();
 
-    Executor get(String name);
+    @Override
+    public boolean test(Map<String, Object> env) {
+        return true;
+    }
 }

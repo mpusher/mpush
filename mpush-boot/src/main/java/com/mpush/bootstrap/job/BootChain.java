@@ -19,15 +19,13 @@
 
 package com.mpush.bootstrap.job;
 
-import com.mpush.tools.log.Logs;
-
 /**
  * Created by yxx on 2016/5/15.
  *
  * @author ohun@live.cn
  */
 public final class BootChain {
-    private final BootJob first = first();
+    private final BootJob first = new FirstBoot();
 
     public void start() {
         first.start();
@@ -39,22 +37,6 @@ public final class BootChain {
 
     public static BootChain chain() {
         return new BootChain();
-    }
-
-    private BootJob first() {
-        return new BootJob() {
-            @Override
-            public void start() {
-                Logs.Console.info("begin start bootstrap chain...");
-                startNext();
-            }
-
-            @Override
-            protected void stop() {
-                Logs.Console.info("begin stop bootstrap chain...");
-                stopNext();
-            }
-        };
     }
 
     public BootJob boot() {

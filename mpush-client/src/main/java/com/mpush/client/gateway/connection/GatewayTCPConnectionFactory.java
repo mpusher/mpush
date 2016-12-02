@@ -17,30 +17,27 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.client.gateway;
+package com.mpush.client.gateway.connection;
 
 import com.google.common.collect.Maps;
 import com.mpush.api.connection.Connection;
+import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Client;
 import com.mpush.api.service.Listener;
-import com.mpush.zk.cache.ZKServerNodeCache;
+import com.mpush.client.gateway.GatewayClient;
+import com.mpush.common.message.BaseMessage;
 import com.mpush.zk.node.ZKServerNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Created by yxx on 2016/5/17.
  *
  * @author ohun@live.cn
  */
-public class GatewayClientFactory extends ZKServerNodeCache {
-    public static final GatewayClientFactory I = new GatewayClientFactory();
-
-    private final Logger logger = LoggerFactory.getLogger(GatewayClientFactory.class);
+public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
 
     private final Map<String, GatewayClient> ip_client = Maps.newConcurrentMap();
 
@@ -61,19 +58,10 @@ public class GatewayClientFactory extends ZKServerNodeCache {
     @Override
     public void clear() {
         super.clear();
-        for (GatewayClient client : ip_client.values()) {
-            client.stop(null);
-        }
+        ip_client.values().forEach(BaseService::stop);
     }
 
-    public GatewayClient getClient(String ip) {
-        GatewayClient client = ip_client.get(ip);
-        if (client == null) {
-            return null;//TODO create client
-        }
-        return client;
-    }
-
+    @Override
     public Connection getConnection(String ip) {
         GatewayClient client = ip_client.get(ip);
         if (client == null) {
@@ -85,6 +73,19 @@ public class GatewayClientFactory extends ZKServerNodeCache {
         }
         restartClient(client);
         return null;
+    }
+
+
+    @Override
+    public <M extends BaseMessage> Function<String, Void> send(Function<Connection, M> creator, Function<M, Void> sender) {
+        return creator.compose(this::getConnection).andThen(sender);
+    }
+
+    @Override
+    public <M extends BaseMessage> void broadcast(Function<Connection, M> creator, Consumer<M> sender) {
+        ip_client.forEach((s, client) -> {
+            sender.accept(creator.apply(client.getConnection()));
+        });
     }
 
     private void restartClient(final GatewayClient client) {
@@ -124,9 +125,5 @@ public class GatewayClientFactory extends ZKServerNodeCache {
                 logger.error("create gateway client ex, client={}", client, cause);
             }
         });
-    }
-
-    public Collection<Connection> getAllConnections() {
-        return ip_client.values().stream().map(GatewayClient::getConnection).collect(Collectors.toList());
     }
 }

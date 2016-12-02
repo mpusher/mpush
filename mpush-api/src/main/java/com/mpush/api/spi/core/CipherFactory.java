@@ -21,6 +21,7 @@ package com.mpush.api.spi.core;
 
 import com.mpush.api.connection.Cipher;
 import com.mpush.api.spi.Factory;
+import com.mpush.api.spi.SpiLoader;
 
 /**
  * Created by yxx on 2016/5/19.
@@ -28,5 +29,7 @@ import com.mpush.api.spi.Factory;
  * @author ohun@live.cn
  */
 public interface CipherFactory extends Factory<Cipher> {
-    Cipher get();
+    static Cipher create() {
+        return SpiLoader.load(CipherFactory.class).get();
+    }
 }

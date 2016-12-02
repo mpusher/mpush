@@ -24,7 +24,6 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.event.ConnectionCloseEvent;
 import com.mpush.api.event.UserOfflineEvent;
-import com.mpush.api.router.ClientType;
 import com.mpush.api.router.RouterManager;
 import com.mpush.tools.event.EventBus;
 import com.mpush.tools.event.EventConsumer;
@@ -40,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author ohun@live.cn
  */
 public final class LocalRouterManager extends EventConsumer implements RouterManager<LocalRouter> {
-    public static final Logger LOGGER = LoggerFactory.getLogger(LocalRouterManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalRouterManager.class);
     private static final Map<Integer, LocalRouter> EMPTY = Collections.unmodifiableMap(new HashMap<>(0));
 
     /**
@@ -72,6 +71,10 @@ public final class LocalRouterManager extends EventConsumer implements RouterMan
         LocalRouter router = routers.getOrDefault(userId, EMPTY).get(clientType);
         LOGGER.info("lookup local router userId={}, router={}", userId, router);
         return router;
+    }
+
+    public Map<String, Map<Integer, LocalRouter>> routers() {
+        return routers;
     }
 
     /**

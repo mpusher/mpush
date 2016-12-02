@@ -47,7 +47,6 @@ public class ZKRedisClusterManager implements RedisClusterManager {
      */
     @Override
     public void init() {
-        Logs.Console.info("begin init redis cluster");
         if (!ZKClient.I.isRunning()) throw new RedisException("init redis cluster ex, ZK client not running.");
 
         if (CollectionUtils.isNotEmpty(CC.mp.redis.nodes)) {
@@ -62,7 +61,6 @@ public class ZKRedisClusterManager implements RedisClusterManager {
         }
 
         if (nodes.isEmpty()) throw new RedisException("init redis sever fail groupList is null");
-        Logs.Console.info("init redis cluster success...");
     }
 
     @Override

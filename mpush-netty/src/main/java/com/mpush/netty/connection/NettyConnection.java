@@ -19,14 +19,16 @@
 
 package com.mpush.netty.connection;
 
+import com.mpush.api.connection.Cipher;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.protocol.Packet;
-import com.mpush.api.spi.SpiLoader;
 import com.mpush.api.spi.core.CipherFactory;
+import com.mpush.netty.codec.PacketEncoder;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.socket.DatagramPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class NettyConnection implements Connection, ChannelFutureListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyConnection.class);
-    private static final CipherFactory factory = SpiLoader.load(CipherFactory.class);
+    private static final Cipher RSA_CIPHER = CipherFactory.create();
     private SessionContext context;
     private Channel channel;
     private volatile int status = STATUS_NEW;
@@ -50,8 +52,8 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
         this.context = new SessionContext();
         this.lastReadTime = System.currentTimeMillis();
         this.status = STATUS_CONNECTED;
-        if (security && factory != null) {
-            this.context.changeCipher(factory.get());
+        if (security) {
+            this.context.changeCipher(RSA_CIPHER);
         }
     }
 
@@ -78,7 +80,10 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     @Override
     public ChannelFuture send(Packet packet, final ChannelFutureListener listener) {
         if (channel.isActive()) {
-            ChannelFuture future = channel.writeAndFlush(packet).addListener(this);
+
+            Object msg = packet.sender() == null ? packet : new DatagramPacket(PacketEncoder.encode(channel, packet), packet.sender());
+
+            ChannelFuture future = channel.writeAndFlush(msg).addListener(this);
 
             if (listener != null) {
                 future.addListener(listener);

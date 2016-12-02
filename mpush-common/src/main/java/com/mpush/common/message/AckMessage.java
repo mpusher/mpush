@@ -29,19 +29,22 @@ import io.netty.buffer.ByteBuf;
  *
  * @author ohun@live.cn (夜色)
  */
-public class AckMessage extends ByteBufMessage {
+public final class AckMessage extends BaseMessage {
 
     public AckMessage(Packet packet, Connection connection) {
         super(packet, connection);
     }
 
     @Override
-    public void decode(ByteBuf body) {
+    public void decode(byte[] body) {
+
     }
 
     @Override
-    public void encode(ByteBuf body) {
+    public byte[] encode() {
+        return null;
     }
+
 
     public static AckMessage from(BaseMessage src) {
         return new AckMessage(new Packet(Command.ACK, src.getSessionId()), src.connection);

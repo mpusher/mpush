@@ -17,30 +17,29 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.core.router;
+package com.mpush.api.spi.common;
 
-import com.mpush.api.router.ClientType;
+import com.mpush.api.spi.SpiLoader;
+
+import java.util.concurrent.Executor;
 
 /**
- * Created by ohun on 2016/1/4.
+ * Created by yxx on 2016/5/20.
  *
  * @author ohun@live.cn
  */
-public final class KickRemoteMsg {
-    public String userId;
-    public String deviceId;
-    public String connId;
-    public int clientType;
-    public String targetServer;
+public interface ExecutorFactory {
+    String SERVER_BOSS = "sb";
+    String SERVER_WORK = "sw";
+    String HTTP_CLIENT_WORK = "hcw";
+    String PUSH_CALLBACK = "pc";
+    String EVENT_BUS = "eb";
+    String MQ = "r";
+    String BIZ = "b";
 
-    @Override
-    public String toString() {
-        return "KickRemoteMsg{"
-                + "userId='" + userId + '\''
-                + ", deviceId='" + deviceId + '\''
-                + ", connId='" + connId + '\''
-                + ", clientType='" + clientType + '\''
-                + ", targetServer='" + targetServer + '\''
-                + '}';
+    Executor get(String name);
+
+    static ExecutorFactory create() {
+        return SpiLoader.load(ExecutorFactory.class);
     }
 }

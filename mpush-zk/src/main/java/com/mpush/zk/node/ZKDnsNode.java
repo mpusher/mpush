@@ -33,6 +33,7 @@ public class ZKDnsNode extends DnsMapping implements ZKNode {
     public ZKDnsNode() {
     }
 
+    //ip 可以通过Utils.getInetAddress(true)获取。
     public ZKDnsNode(String origin, String ip, int port) {
         super(ip, port);
         this.origin = origin;

@@ -19,13 +19,15 @@
 
 package com.mpush.test.push;
 
+import com.google.common.collect.Sets;
 import com.mpush.api.push.*;
-import com.mpush.api.router.ClientLocation;
 import com.mpush.tools.log.Logs;
+import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
 /**
  * Created by ohun on 2016/1/7.
@@ -33,27 +35,31 @@ import java.util.concurrent.FutureTask;
  * @author ohun@live.cn
  */
 public class PushClientTestMain {
-    public static void main(String[] args) throws Exception {
+    @Test
+    public void testPush() throws Exception {
         Logs.init();
         PushSender sender = PushSender.create();
         sender.start().whenComplete((success, throwable) -> {
-
             PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
             msg.setMsgId("msgId_0");
 
             PushContext context = PushContext.build(msg)
-                    .setBroadcast(false)
+                    .setBroadcast(true)
                     .setAckModel(AckModel.AUTO_ACK)
-                    .setUserIds(Arrays.asList("user-0", "user-1"))
+                    //.setTags(Sets.newHashSet("test"))
+                    .setCondition("tags&&tags.indexOf('test')!=-1")
+                    //.setUserIds(Arrays.asList("user-0", "user-1"))
                     .setTimeout(2000)
                     .setCallback(new PushCallback() {
                         @Override
                         public void onResult(PushResult result) {
-                            System.err.println(result);
+                            System.err.println("\n\n" + result);
                         }
                     });
             FutureTask<Boolean> future = sender.send(context);
         });
+
+        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(3));
     }
 
 }

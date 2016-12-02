@@ -31,7 +31,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import static com.mpush.tools.thread.pool.ThreadPoolConfig.REJECTED_POLICY_ABORT;
 import static com.mpush.tools.thread.pool.ThreadPoolConfig.REJECTED_POLICY_CALLER_RUNS;
 
-public class DumpThreadRejectedHandler implements RejectedExecutionHandler {
+public final class DumpThreadRejectedHandler implements RejectedExecutionHandler {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DumpThreadRejectedHandler.class);
 

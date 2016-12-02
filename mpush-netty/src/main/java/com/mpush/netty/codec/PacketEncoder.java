@@ -22,6 +22,7 @@ package com.mpush.netty.codec;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -38,6 +39,17 @@ public final class PacketEncoder extends MessageToByteEncoder<Packet> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) throws Exception {
+        encodeFrame(packet, out);
+    }
+
+    public static ByteBuf encode(Channel channel, Packet packet) {
+        int capacity = packet.cmd == Command.HEARTBEAT.cmd ? 1 : Packet.HEADER_LEN + packet.getBodyLength();
+        ByteBuf out = channel.alloc().buffer(capacity, capacity);
+        encodeFrame(packet, out);
+        return out;
+    }
+
+    public static void encodeFrame(Packet packet, ByteBuf out) {
         if (packet.cmd == Command.HEARTBEAT.cmd) {
             out.writeByte(Packet.HB_PACKET_BYTE);
         } else {

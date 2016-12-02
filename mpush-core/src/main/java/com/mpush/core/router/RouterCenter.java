@@ -101,4 +101,8 @@ public final class RouterCenter {
     public RemoteRouterManager getRemoteRouterManager() {
         return remoteRouterManager;
     }
+
+    public RouterChangeListener getRouterChangeListener() {
+        return routerChangeListener;
+    }
 }

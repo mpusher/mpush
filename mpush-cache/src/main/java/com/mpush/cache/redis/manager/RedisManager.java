@@ -24,6 +24,7 @@ import com.mpush.cache.redis.connection.RedisConnectionFactory;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
+import com.mpush.tools.thread.pool.ThreadPoolManager;
 import redis.clients.jedis.*;
 
 import java.util.*;
@@ -40,6 +41,7 @@ public final class RedisManager {
     private RedisConnectionFactory factory = new RedisConnectionFactory();
 
     public void init() {
+        Logs.Console.info("begin init redis...");
         RedisClusterManager clusterManager = new ZKRedisClusterManager();
         clusterManager.init();
         factory.setPassword(CC.mp.redis.password);
@@ -48,6 +50,7 @@ public final class RedisManager {
         factory.setCluster(CC.mp.redis.isCluster());
         factory.init();
         test();
+        Logs.Console.info("init redis success...");
     }
 
 
@@ -162,7 +165,7 @@ public final class RedisManager {
     }
 
     public Map<String, String> hgetAll(String key) {
-        return call(jedis -> jedis.hgetAll(key), Collections.emptyMap());
+        return call(jedis -> jedis.hgetAll(key), Collections.<String, String>emptyMap());
     }
 
     public <T> Map<String, T> hgetAll(String key, Class<T> clazz) {
@@ -180,7 +183,7 @@ public final class RedisManager {
      * @return
      */
     public Set<String> hkeys(String key) {
-        return call(jedis -> jedis.hkeys(key), Collections.emptySet());
+        return call(jedis -> jedis.hkeys(key), Collections.<String>emptySet());
     }
 
     /**
@@ -216,6 +219,10 @@ public final class RedisManager {
 
     public void hmset(String key, Map<String, String> hash) {
         hmset(key, hash, 0);
+    }
+
+    public long hincrBy(String key, String field, long value) {
+        return call(jedis -> jedis.hincrBy(key, field, value), 0L);
     }
 
     /********************* hash redis end ********************************/
@@ -307,9 +314,9 @@ public final class RedisManager {
     }
 
     public void subscribe(final JedisPubSub pubsub, final String... channels) {
-        new Thread(() -> call(jedis ->
+        ThreadPoolManager.I.newThread(Arrays.toString(channels), (() -> call(jedis ->
                 Arrays.stream(channels).forEach(channel -> ((MultiKeyCommands) jedis).subscribe(pubsub, channel))
-        ), Arrays.toString(channels)).start();
+        ))).start();
     }
 
     /*********************

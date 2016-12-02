@@ -19,39 +19,40 @@
 
 package com.mpush.client.push;
 
-import com.mpush.api.connection.Connection;
-import com.mpush.api.push.*;
+import com.mpush.api.push.PushContext;
+import com.mpush.api.push.PushException;
+import com.mpush.api.push.PushSender;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
 import com.mpush.cache.redis.manager.RedisManager;
-import com.mpush.client.gateway.GatewayClientFactory;
+import com.mpush.client.gateway.connection.GatewayConnectionFactory;
+import com.mpush.client.gateway.connection.GatewayTCPConnectionFactory;
+import com.mpush.client.gateway.connection.GatewayUDPConnectionFactory;
 import com.mpush.common.router.CachedRemoteRouterManager;
 import com.mpush.common.router.RemoteRouter;
+import com.mpush.tools.config.CC;
 import com.mpush.zk.ZKClient;
 import com.mpush.zk.listener.ZKServerNodeWatcher;
 
-import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.FutureTask;
 
 import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
 
 /*package*/ final class PushClient extends BaseService implements PushSender {
-    private static final int DEFAULT_TIMEOUT = 3000;
-    private final GatewayClientFactory factory = GatewayClientFactory.I;
-    private final CachedRemoteRouterManager routerManager = CachedRemoteRouterManager.I;
+    private final GatewayConnectionFactory factory = GatewayConnectionFactory.create();
 
     private FutureTask<Boolean> send0(PushContext ctx) {
         if (ctx.isBroadcast()) {
-            return PushRequest.build(this, ctx).broadcast();
+            return PushRequest.build(factory, ctx).broadcast();
         } else {
-            Set<RemoteRouter> remoteRouters = routerManager.lookupAll(ctx.getUserId());
+            Set<RemoteRouter> remoteRouters = CachedRemoteRouterManager.I.lookupAll(ctx.getUserId());
             if (remoteRouters == null || remoteRouters.isEmpty()) {
-                return PushRequest.build(this, ctx).offline();
+                return PushRequest.build(factory, ctx).offline();
             }
             FutureTask<Boolean> task = null;
             for (RemoteRouter remoteRouter : remoteRouters) {
-                task = PushRequest.build(this, ctx).send(remoteRouter);
+                task = PushRequest.build(factory, ctx).send(remoteRouter);
             }
             return task;
         }
@@ -74,26 +75,19 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
         }
     }
 
-    Connection getGatewayConnection(String host) {
-        return factory.getConnection(host);
-    }
-
-    Collection<Connection> getAllConnections() {
-        return factory.getAllConnections();
-    }
-
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        ZKClient.I.start(listener);
+        ZKClient.I.syncStart();
         RedisManager.I.init();
         ZKServerNodeWatcher.build(GATEWAY_SERVER, factory).watch();
-        PushRequestBus.I.start(listener);
+        PushRequestBus.I.syncStart();
+        factory.init(listener);
     }
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
+        ZKClient.I.syncStop();
         factory.clear();
-        ZKClient.I.stop(listener);
         RedisManager.I.destroy();
         PushRequestBus.I.stop(listener);
     }

@@ -17,7 +17,7 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.api.router;
+package com.mpush.common.router;
 
 import java.util.Arrays;
 
@@ -41,18 +41,18 @@ public enum ClientType {
     }
 
     public boolean contains(String osName) {
-        return Arrays.stream(os).anyMatch(s -> s.equalsIgnoreCase(osName));
-    }
-
-    public static boolean isSameClient(String osName1, String osName2) {
-        if (osName1.equals(osName2)) return true;
-        return find(osName1).contains(osName2);
+        return Arrays.stream(os).anyMatch(osName::contains);
     }
 
     public static ClientType find(String osName) {
         for (ClientType type : values()) {
-            if (type.contains(osName)) return type;
+            if (type.contains(osName.toLowerCase())) return type;
         }
         return UNKNOWN;
+    }
+
+    public static boolean isSameClient(String osNameA, String osNameB) {
+        if (osNameA.equals(osNameB)) return true;
+        return find(osNameA).contains(osNameB);
     }
 }

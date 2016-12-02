@@ -23,10 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.Socket;
+import java.net.*;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,6 +56,34 @@ public final class Utils {
             LOCAL_IP = getInetAddress(true);
         }
         return LOCAL_IP;
+    }
+
+    public static NetworkInterface getLocalNetworkInterface() {
+        Enumeration<NetworkInterface> interfaces;
+        try {
+            interfaces = NetworkInterface.getNetworkInterfaces();
+        } catch (SocketException e) {
+            throw new RuntimeException("NetworkInterface not found", e);
+        }
+        while (interfaces.hasMoreElements()) {
+            NetworkInterface networkInterface = interfaces.nextElement();
+            Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
+            while (addresses.hasMoreElements()) {
+                InetAddress address = addresses.nextElement();
+                if (address.isLoopbackAddress()) continue;
+                if (address.getHostAddress().contains(":")) continue;
+                if (address.isSiteLocalAddress()) return networkInterface;
+            }
+        }
+        throw new RuntimeException("NetworkInterface not found");
+    }
+
+    public static InetAddress getInetAddress(String host) {
+        try {
+            return InetAddress.getByName(host);
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException("UnknownHost " + host, e);
+        }
     }
 
     /**

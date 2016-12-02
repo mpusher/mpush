@@ -27,19 +27,20 @@ import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
+import com.mpush.tools.thread.ThreadNames;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.epoll.Native;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Locale;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -47,9 +48,9 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author ohun@live.cn
  */
-public abstract class NettyServer extends BaseService implements Server {
+public abstract class NettyTCPServer extends BaseService implements Server {
 
-    private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public enum State {Created, Initialized, Starting, Started, Shutdown}
 
@@ -59,13 +60,13 @@ public abstract class NettyServer extends BaseService implements Server {
     protected EventLoopGroup bossGroup;
     protected EventLoopGroup workerGroup;
 
-    public NettyServer(int port) {
+    public NettyTCPServer(int port) {
         this.port = port;
     }
 
     public void init() {
         if (!serverState.compareAndSet(State.Created, State.Initialized)) {
-            throw new IllegalStateException("Server already init");
+            throw new ServiceException("Server already init");
         }
     }
 
@@ -77,7 +78,7 @@ public abstract class NettyServer extends BaseService implements Server {
     @Override
     public void stop(Listener listener) {
         if (!serverState.compareAndSet(State.Started, State.Shutdown)) {
-            if (listener != null) listener.onFailure(new IllegalStateException("server was already shutdown."));
+            if (listener != null) listener.onFailure(new ServiceException("server was already shutdown."));
             Logs.Console.error("{} was already shutdown.", this.getClass().getSimpleName());
             return;
         }
@@ -93,7 +94,7 @@ public abstract class NettyServer extends BaseService implements Server {
     @Override
     public void start(final Listener listener) {
         if (!serverState.compareAndSet(State.Initialized, State.Starting)) {
-            throw new IllegalStateException("Server already started or have not init");
+            throw new ServiceException("Server already started or have not init");
         }
         if (useNettyEpoll()) {
             createEpollServer(listener);
@@ -146,7 +147,7 @@ public abstract class NettyServer extends BaseService implements Server {
              */
             b.childHandler(new ChannelInitializer<SocketChannel>() { // (4)
                 @Override
-                public void initChannel(SocketChannel ch) throws Exception {
+                public void initChannel(SocketChannel ch) throws Exception {//每连上一个链接调用一次
                     initPipeline(ch.pipeline());
                 }
             });
@@ -178,24 +179,29 @@ public abstract class NettyServer extends BaseService implements Server {
             if (listener != null) listener.onFailure(e);
             throw new ServiceException("server start exception, port=" + port, e);
         } finally {
-            /***
-             * 优雅关闭
-             */
-            stop(null);
+            if (isRunning()) stop(null);
         }
     }
 
     private void createNioServer(Listener listener) {
-        NioEventLoopGroup bossGroup = new NioEventLoopGroup(1, getBossExecutor());
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup(0, getWorkExecutor());
+        NioEventLoopGroup bossGroup = new NioEventLoopGroup(
+                getBossThreadNum(), new DefaultThreadFactory(ThreadNames.T_SERVER_BOSS)
+        );
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup(
+                getWorkThreadNum(), new DefaultThreadFactory(ThreadNames.T_SERVER_WORKER)
+        );
+        bossGroup.setIoRatio(100);
         workerGroup.setIoRatio(getIoRate());
         createServer(listener, bossGroup, workerGroup, NioServerSocketChannel.class);
     }
 
-    @SuppressWarnings("unused")
     private void createEpollServer(Listener listener) {
-        EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1, getBossExecutor());
-        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(0, getWorkExecutor());
+        EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(
+                getBossThreadNum(), new DefaultThreadFactory(ThreadNames.T_SERVER_BOSS)
+        );
+        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(
+                getWorkThreadNum(), new DefaultThreadFactory(ThreadNames.T_SERVER_WORKER)
+        );
         workerGroup.setIoRatio(getIoRate());
         createServer(listener, bossGroup, workerGroup, EpollServerSocketChannel.class);
     }
@@ -228,40 +234,59 @@ public abstract class NettyServer extends BaseService implements Server {
     }
 
     protected ChannelHandler getEncoder() {
-        return PacketEncoder.INSTANCE;
+        return PacketEncoder.INSTANCE;//每连上一个链接调用一次, 所有用单利
     }
 
+    /**
+     * 每连上一个链接调用一次
+     *
+     * @param pipeline
+     */
     protected void initPipeline(ChannelPipeline pipeline) {
         pipeline.addLast("decoder", getDecoder());
         pipeline.addLast("encoder", getEncoder());
         pipeline.addLast("handler", getChannelHandler());
     }
 
-    protected Executor getBossExecutor() {
-        return null;
+    /**
+     * netty 默认的Executor为ThreadPerTaskExecutor
+     * 线程池的使用在SingleThreadEventExecutor#doStartThread
+     * <p>
+     * eventLoop.execute(runnable);
+     * 是比较重要的一个方法。在没有启动真正线程时，
+     * 它会启动线程并将待执行任务放入执行队列里面。
+     * 启动真正线程(startThread())会判断是否该线程已经启动，
+     * 如果已经启动则会直接跳过，达到线程复用的目的
+     *
+     * @return
+     */
+    protected int getBossThreadNum() {
+        return 1;
     }
 
-    protected Executor getWorkExecutor() {
-        return null;
+    /**
+     * netty 默认的Executor为ThreadPerTaskExecutor
+     * 线程池的使用在SingleThreadEventExecutor#doStartThread
+     *
+     * @return
+     */
+    protected int getWorkThreadNum() {
+        return 0;
     }
 
     protected int getIoRate() {
         return 70;
     }
 
-    @Override
-    protected void doStart(Listener listener) throws Throwable {
-
-    }
-
-    @Override
-    protected void doStop(Listener listener) throws Throwable {
-
-    }
-
-    private boolean useNettyEpoll() {
-        if (!"netty".equals(CC.mp.core.epoll_provider)) return false;
-        String name = CC.cfg.getString("os.name").toLowerCase(Locale.UK).trim();
-        return name.startsWith("linux");
+    protected boolean useNettyEpoll() {
+        if (CC.mp.core.useNettyEpoll()) {
+            try {
+                Native.offsetofEpollData();
+                return true;
+            } catch (UnsatisfiedLinkError error) {
+                logger.warn("can not load netty epoll, switch nio model.");
+            }
+        }
+        return false;
     }
 }

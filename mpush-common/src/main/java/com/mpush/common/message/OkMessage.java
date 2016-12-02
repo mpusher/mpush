@@ -59,8 +59,7 @@ public final class OkMessage extends ByteBufMessage {
     }
 
     public static OkMessage from(BaseMessage src) {
-        return new OkMessage(src.packet.cmd, new Packet(OK
-                , src.packet.sessionId), src.connection);
+        return new OkMessage(src.packet.cmd, src.packet.response(OK), src.connection);
     }
 
     public OkMessage setCode(byte code) {

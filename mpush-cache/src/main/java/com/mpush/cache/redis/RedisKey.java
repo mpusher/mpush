@@ -31,6 +31,7 @@ public final class RedisKey {
 
     public static final String SESSION_AES_KEY = "mp:sa";
     public static final String SESSION_AES_SEQ_KEY = "mp:sas";
+    public static final String PUSH_TASK_PREFIX = "mp:pt";
 
     public static String getUserRouteKey(String userId) {
         return USER_PREFIX + userId;
@@ -46,6 +47,10 @@ public final class RedisKey {
 
     public static String getOnlineUserListKey(String publicIP) {
         return ONLINE_USER_LIST_KEY_PREFIX + publicIP;
+    }
+
+    public static String getPushTaskKey(String taskId) {
+        return PUSH_TASK_PREFIX + taskId;
     }
 
 }

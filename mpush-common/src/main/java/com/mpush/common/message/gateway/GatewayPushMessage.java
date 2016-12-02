@@ -22,6 +22,8 @@ package com.mpush.common.message.gateway;
 import com.google.gson.reflect.TypeToken;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
+import com.mpush.common.condition.*;
+import com.mpush.common.memory.PacketFactory;
 import com.mpush.common.message.ByteBufMessage;
 import com.mpush.tools.Jsons;
 import io.netty.buffer.ByteBuf;
@@ -36,39 +38,46 @@ import static com.mpush.api.protocol.Command.GATEWAY_PUSH;
  *
  * @author ohun@live.cn
  */
-public class GatewayPushMessage extends ByteBufMessage {
+public final class GatewayPushMessage extends ByteBufMessage {
     public String userId;
-    public Set<String> tags;
     public int clientType;
     public int timeout;
     public byte[] content;
 
-    public GatewayPushMessage(String userId, byte[] content, Connection connection) {
-        super(new Packet(GATEWAY_PUSH, genSessionId()), connection);
-        this.userId = userId;
-        this.content = content;
-    }
+    public String taskId;
+    public Set<String> tags;
+    public String condition;
 
     public GatewayPushMessage(Packet message, Connection connection) {
         super(message, connection);
     }
 
+    public static GatewayPushMessage build(Connection connection) {
+        Packet packet = PacketFactory.get(GATEWAY_PUSH);
+        packet.sessionId = genSessionId();
+        return new GatewayPushMessage(packet, connection);
+    }
+
     @Override
     public void decode(ByteBuf body) {
         userId = decodeString(body);
-        tags = decodeSet(body);
         clientType = decodeInt(body);
         timeout = decodeInt(body);
         content = decodeBytes(body);
+        taskId = decodeString(body);
+        tags = decodeSet(body);
+        condition = decodeString(body);
     }
 
     @Override
     public void encode(ByteBuf body) {
         encodeString(body, userId);
-        encodeSet(body, tags);
         encodeInt(body, clientType);
         encodeInt(body, timeout);
         encodeBytes(body, content);
+        encodeString(body, taskId);
+        encodeSet(body, tags);
+        encodeString(body, condition);
     }
 
     private Set<String> decodeSet(ByteBuf body) {
@@ -83,6 +92,16 @@ public class GatewayPushMessage extends ByteBufMessage {
         encodeString(body, json);
     }
 
+    public GatewayPushMessage setUserId(String userId) {
+        this.userId = userId;
+        return this;
+    }
+
+    public GatewayPushMessage setContent(byte[] content) {
+        this.content = content;
+        return this;
+    }
+
     public GatewayPushMessage setClientType(int clientType) {
         this.clientType = clientType;
         return this;
@@ -95,6 +114,16 @@ public class GatewayPushMessage extends ByteBufMessage {
 
     public GatewayPushMessage setTimeout(int timeout) {
         this.timeout = timeout;
+        return this;
+    }
+
+    public GatewayPushMessage setTags(Set<String> tags) {
+        this.tags = tags;
+        return this;
+    }
+
+    public GatewayPushMessage setCondition(String condition) {
+        this.condition = condition;
         return this;
     }
 
@@ -116,13 +145,23 @@ public class GatewayPushMessage extends ByteBufMessage {
         super.sendRaw(listener);
     }
 
+    public Condition getCondition() {
+        if (condition != null) {
+            return new ScriptCondition(condition);
+        }
+        if (tags != null) {
+            return new TagsCondition(tags);
+        }
+        return AwaysPassCondition.I;
+    }
+
     @Override
     public String toString() {
         return "GatewayPushMessage{" +
                 "userId='" + userId + '\'' +
                 ", clientType='" + clientType + '\'' +
                 ", timeout='" + timeout + '\'' +
-                ", content='" + content.length + '\'' +
+                ", content='" + (content == null ? 0 : content.length) + '\'' +
                 '}';
     }
 }

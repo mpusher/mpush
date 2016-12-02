@@ -19,20 +19,12 @@
 
 package com.mpush.core.ack;
 
-import com.mpush.api.protocol.Packet;
-import com.mpush.api.push.PushException;
-import com.mpush.common.ErrorCode;
-import com.mpush.common.message.ErrorMessage;
-import com.mpush.common.message.OkMessage;
-import com.mpush.tools.log.Logs;
-import com.mpush.tools.thread.PoolThreadFactory;
+import com.mpush.tools.thread.NamedPoolThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.*;
 
-import static com.mpush.api.protocol.Command.ERROR;
-import static com.mpush.api.protocol.Command.OK;
 import static com.mpush.tools.thread.ThreadNames.T_ARK_REQ_TIMER;
 
 /**
@@ -42,6 +34,7 @@ import static com.mpush.tools.thread.ThreadNames.T_ARK_REQ_TIMER;
  */
 public final class AckMessageQueue {
     private final Logger logger = LoggerFactory.getLogger(AckMessageQueue.class);
+
     private static final int DEFAULT_TIMEOUT = 3000;
     public static final AckMessageQueue I = new AckMessageQueue();
 
@@ -49,15 +42,19 @@ public final class AckMessageQueue {
     private final ScheduledExecutorService scheduledExecutor;
 
     private AckMessageQueue() {
-        scheduledExecutor = new ScheduledThreadPoolExecutor(1, new PoolThreadFactory(T_ARK_REQ_TIMER), (r, e) -> {
-            logger.error("one ack context was rejected, context=" + r);
-        });
+        scheduledExecutor = new ScheduledThreadPoolExecutor(1,
+                new NamedPoolThreadFactory(T_ARK_REQ_TIMER),
+                (r, e) -> logger.error("one ack context was rejected, context=" + r)
+        );
     }
 
-    public void put(int sessionId, AckContext context, int timeout) {
+    public void add(int sessionId, AckContext context, int timeout) {
         queue.put(sessionId, context);
-        context.pushMessageId = sessionId;
-        scheduledExecutor.schedule(context, timeout > 0 ? timeout : DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+        context.setSessionId(sessionId);
+        context.setFuture(scheduledExecutor.schedule(context,
+                timeout > 0 ? timeout : DEFAULT_TIMEOUT,
+                TimeUnit.MILLISECONDS
+        ));
     }
 
     public AckContext getAndRemove(int sessionId) {

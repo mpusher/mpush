@@ -23,8 +23,9 @@ import com.mpush.api.protocol.Command;
 import com.mpush.api.service.Listener;
 import com.mpush.common.MessageDispatcher;
 import com.mpush.core.handler.GatewayPushHandler;
-import com.mpush.netty.server.NettyServer;
+import com.mpush.netty.server.NettyTCPServer;
 import com.mpush.tools.config.CC;
+import com.mpush.tools.thread.NamedPoolThreadFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
@@ -33,22 +34,37 @@ import io.netty.channel.WriteBufferWaterMark;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static com.mpush.tools.config.CC.mp.net.traffic_shaping.gateway_server.*;
+import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
 
 /**
  * Created by ohun on 2015/12/30.
  *
  * @author ohun@live.cn
  */
-public final class GatewayServer extends NettyServer {
+public final class GatewayServer extends NettyTCPServer {
+    private static GatewayServer I;
 
     private ServerChannelHandler channelHandler;
     private ServerConnectionManager connectionManager;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
+    private ScheduledExecutorService trafficShapingExecutor;
 
-    public GatewayServer(int port) {
-        super(port);
+    public static GatewayServer I() {
+        if (I == null) {
+            synchronized (GatewayServer.class) {
+                if (I == null) {
+                    I = new GatewayServer();
+                }
+            }
+        }
+        return I;
+    }
+
+    private GatewayServer() {
+        super(CC.mp.net.gateway_server_port);
     }
 
     @Override
@@ -60,8 +76,9 @@ public final class GatewayServer extends NettyServer {
         channelHandler = new ServerChannelHandler(false, connectionManager, receiver);
 
         if (CC.mp.net.traffic_shaping.gateway_server.enabled) {//启用流量整形，限流
+            trafficShapingExecutor = Executors.newSingleThreadScheduledExecutor(new NamedPoolThreadFactory(T_TRAFFIC_SHAPING));
             trafficShapingHandler = new GlobalChannelTrafficShapingHandler(
-                    Executors.newSingleThreadScheduledExecutor(),
+                    trafficShapingExecutor,
                     write_global_limit, read_global_limit,
                     write_channel_limit, read_channel_limit,
                     check_interval);
@@ -70,10 +87,11 @@ public final class GatewayServer extends NettyServer {
 
     @Override
     public void stop(Listener listener) {
+        super.stop(listener);
         if (trafficShapingHandler != null) {
             trafficShapingHandler.release();
+            trafficShapingExecutor.shutdown();
         }
-        super.stop(listener);
         if (connectionManager != null) {
             connectionManager.destroy();
         }

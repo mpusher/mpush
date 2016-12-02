@@ -26,10 +26,7 @@ import com.typesafe.config.*;
 
 import java.io.File;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toCollection;
@@ -58,8 +55,9 @@ public interface CC {
 
     interface mp {
         Config cfg = CC.cfg.getObject("mp").toConfig();
-        String log_dir = cfg.getString("log.dir");
-        String log_level = cfg.getString("log.level");
+        String log_dir = cfg.getString("log-dir");
+        String log_level = cfg.getString("log-level");
+        String log_conf_path = cfg.getString("log-conf-path");
 
         interface core {
             Config cfg = mp.cfg.getObject("core").toConfig();
@@ -77,6 +75,12 @@ public interface CC {
             int max_hb_timeout_times = cfg.getInt("max-hb-timeout-times");
 
             String epoll_provider = cfg.getString("epoll-provider");
+
+            static boolean useNettyEpoll() {
+                if (!"netty".equals(CC.mp.core.epoll_provider)) return false;
+                String name = CC.cfg.getString("os.name").toLowerCase(Locale.UK).trim();
+                return name.startsWith("linux");//只在linux下使用netty提供的epoll库
+            }
         }
 
         interface net {
@@ -85,6 +89,16 @@ public interface CC {
             int connect_server_port = cfg.getInt("connect-server-port");
             int gateway_server_port = cfg.getInt("gateway-server-port");
             int admin_server_port = cfg.getInt("admin-server-port");
+            int gateway_client_port = cfg.getInt("gateway-client-port");
+
+            String gateway_server_net = cfg.getString("gateway-server-net");
+            String gateway_server_multicast = cfg.getString("gateway-server-multicast");
+            String gateway_client_multicast = cfg.getString("gateway-client-multicast");
+
+            static boolean udpGateway() {
+                return "udp".equals(gateway_server_net);
+            }
+
 
             interface public_ip_mapping {
 
@@ -204,8 +218,14 @@ public interface CC {
                     int max = cfg.getInt("max");
                     int queue_size = cfg.getInt("queue-size");
                 }
-            }
 
+                interface push_center {
+                    Config cfg = pool.cfg.getObject("push-center").toConfig();
+                    int min = cfg.getInt("min");
+                    int max = cfg.getInt("max");
+                    int queue_size = cfg.getInt("queue-size");
+                }
+            }
         }
 
         interface zk {
@@ -279,6 +299,30 @@ public interface CC {
                         )
                 );
                 return map;
+            }
+        }
+
+        interface push {
+
+            Config cfg = mp.cfg.getObject("push").toConfig();
+
+            interface flow_control {
+
+                Config cfg = push.cfg.getObject("flow-control").toConfig();
+
+                interface global {
+                    Config cfg = flow_control.cfg.getObject("global").toConfig();
+                    int limit = cfg.getNumber("limit").intValue();
+                    int max = cfg.getInt("max");
+                    int duration = (int) cfg.getDuration("duration").toMillis();
+                }
+
+                interface broadcast {
+                    Config cfg = flow_control.cfg.getObject("broadcast").toConfig();
+                    int limit = cfg.getInt("limit");
+                    int max = cfg.getInt("max");
+                    int duration = (int) cfg.getDuration("duration").toMillis();
+                }
             }
         }
 

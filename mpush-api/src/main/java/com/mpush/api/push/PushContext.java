@@ -23,6 +23,7 @@ import com.mpush.api.Constants;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by ohun on 16/9/8.
@@ -51,11 +52,6 @@ public class PushContext {
     private List<String> userIds;
 
     /**
-     * 用户标签过滤,目前只有include, 后续会增加exclude
-     */
-    private Set<String> tags;
-
-    /**
      * 消息ack模式
      */
     private AckModel ackModel = AckModel.NO_ACK;
@@ -66,14 +62,37 @@ public class PushContext {
     private PushCallback callback;
 
     /**
+     * 推送超时时间
+     */
+    private int timeout = 3000;
+
+    //================================broadcast=====================================//
+
+    /**
      * 全网广播在线用户
      */
     private boolean broadcast = false;
 
     /**
-     * 推送超时时间
+     * 用户标签过滤,目前只有include, 后续会增加exclude
      */
-    private int timeout = 3000;
+    private Set<String> tags;
+
+    /**
+     * 条件表达式, 满足条件的用户会被推送，目前支持的脚本语言为js
+     * 可以使用的参数为 userId,tags,clientVersion,osName,osVersion
+     * 比如 :
+     * 灰度：userId % 100 < 20
+     * 包含test标签：tags!=null && tags.indexOf("test")!=-1
+     * 判断客户端版本号：clientVersion.indexOf("android")!=-1 && clientVersion.replace(/[^\d]/g,"") > 20
+     * 等等
+     */
+    private String condition;
+
+    /**
+     * 广播推送的时候可以考虑生成一个ID, 便于控制任务。
+     */
+    private String taskId;
 
     public PushContext(byte[] context) {
         this.context = context;
@@ -89,6 +108,10 @@ public class PushContext {
 
     public static PushContext build(PushMsg msg) {
         return new PushContext(msg);
+    }
+
+    public static String genTaskId() {
+        return UUID.randomUUID().toString();
     }
 
     public byte[] getContext() {
@@ -159,6 +182,24 @@ public class PushContext {
 
     public PushContext setTags(Set<String> tags) {
         this.tags = tags;
+        return this;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public PushContext setCondition(String condition) {
+        this.condition = condition;
+        return this;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public PushContext setTaskId(String taskId) {
+        this.taskId = taskId;
         return this;
     }
 }

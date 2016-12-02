@@ -19,8 +19,7 @@
 
 package com.mpush.tools.thread.pool;
 
-import com.mpush.api.spi.SpiLoader;
-import com.mpush.api.spi.common.ThreadPoolFactory;
+import com.mpush.api.spi.common.ExecutorFactory;
 import com.mpush.tools.thread.NamedThreadFactory;
 
 import java.util.HashMap;
@@ -28,12 +27,10 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import static com.mpush.tools.config.CC.mp.spi.thread_pool_factory;
-
-public class ThreadPoolManager {
+public final class ThreadPoolManager {
     public static final ThreadPoolManager I = new ThreadPoolManager();
 
-    private final ThreadPoolFactory threadPoolFactory = SpiLoader.load(ThreadPoolFactory.class, thread_pool_factory);
+    private final ExecutorFactory executorFactory = ExecutorFactory.create();
     private final NamedThreadFactory threadFactory = new NamedThreadFactory();
 
     private Executor bossExecutor;
@@ -43,6 +40,7 @@ public class ThreadPoolManager {
     private Executor redisExecutor;
     private Executor httpExecutor;
     private Executor pushCallbackExecutor;
+    private Executor pushCenterExecutor;
 
     public final Thread newThread(String name, Runnable target) {
         return threadFactory.newThread(name, target);
@@ -51,7 +49,7 @@ public class ThreadPoolManager {
     public Executor getHttpExecutor() {
         if (httpExecutor == null) {
             synchronized (this) {
-                httpExecutor = threadPoolFactory.get(ThreadPoolFactory.HTTP_CLIENT_WORK);
+                httpExecutor = executorFactory.get(ExecutorFactory.HTTP_CLIENT_WORK);
             }
         }
         return httpExecutor;
@@ -60,7 +58,7 @@ public class ThreadPoolManager {
     public Executor getRedisExecutor() {
         if (redisExecutor == null) {
             synchronized (this) {
-                redisExecutor = threadPoolFactory.get(ThreadPoolFactory.MQ);
+                redisExecutor = executorFactory.get(ExecutorFactory.MQ);
             }
         }
         return redisExecutor;
@@ -69,7 +67,7 @@ public class ThreadPoolManager {
     public Executor getEventBusExecutor() {
         if (eventBusExecutor == null) {
             synchronized (this) {
-                eventBusExecutor = threadPoolFactory.get(ThreadPoolFactory.EVENT_BUS);
+                eventBusExecutor = executorFactory.get(ExecutorFactory.EVENT_BUS);
             }
         }
         return eventBusExecutor;
@@ -78,7 +76,7 @@ public class ThreadPoolManager {
     public Executor getBizExecutor() {
         if (bizExecutor == null) {
             synchronized (this) {
-                bizExecutor = threadPoolFactory.get(ThreadPoolFactory.BIZ);
+                bizExecutor = executorFactory.get(ExecutorFactory.BIZ);
             }
         }
         return bizExecutor;
@@ -87,7 +85,7 @@ public class ThreadPoolManager {
     public Executor getWorkExecutor() {
         if (workExecutor == null) {
             synchronized (this) {
-                workExecutor = threadPoolFactory.get(ThreadPoolFactory.SERVER_WORK);
+                workExecutor = executorFactory.get(ExecutorFactory.SERVER_WORK);
             }
         }
         return workExecutor;
@@ -96,7 +94,7 @@ public class ThreadPoolManager {
     public Executor getBossExecutor() {
         if (bossExecutor == null) {
             synchronized (this) {
-                bossExecutor = threadPoolFactory.get(ThreadPoolFactory.SERVER_BOSS);
+                bossExecutor = executorFactory.get(ExecutorFactory.SERVER_BOSS);
             }
         }
         return bossExecutor;
@@ -105,7 +103,7 @@ public class ThreadPoolManager {
     public Executor getPushCallbackExecutor() {
         if (pushCallbackExecutor == null) {
             synchronized (this) {
-                pushCallbackExecutor = threadPoolFactory.get(ThreadPoolFactory.PUSH_CALLBACK);
+                pushCallbackExecutor = executorFactory.get(ExecutorFactory.PUSH_CALLBACK);
             }
         }
         return pushCallbackExecutor;

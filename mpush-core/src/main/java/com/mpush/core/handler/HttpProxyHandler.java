@@ -22,18 +22,16 @@ package com.mpush.core.handler;
 import com.google.common.base.Strings;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
-import com.mpush.api.spi.SpiLoader;
 import com.mpush.api.spi.net.DnsMapping;
 import com.mpush.api.spi.net.DnsMappingManager;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.HttpRequestMessage;
 import com.mpush.common.message.HttpResponseMessage;
-import com.mpush.common.net.HttpProxyDnsMappingManager;
 import com.mpush.netty.http.HttpCallback;
 import com.mpush.netty.http.HttpClient;
+import com.mpush.netty.http.NettyHttpClient;
 import com.mpush.netty.http.RequestContext;
 import com.mpush.tools.common.Profiler;
-import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
@@ -54,13 +52,8 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  */
 public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     private static final Logger LOGGER = Logs.HTTP;
-    private final HttpClient httpClient;
-    private final DnsMappingManager dnsMappingManager = SpiLoader.load(DnsMappingManager.class, CC.mp.spi.dns_mapping_manager);
-
-    public HttpProxyHandler(HttpClient httpClient) {
-        this.httpClient = httpClient;
-        this.httpClient.start();
-    }
+    private final HttpClient httpClient = NettyHttpClient.I();
+    private final DnsMappingManager dnsMappingManager = DnsMappingManager.create();
 
     @Override
     public HttpRequestMessage decode(Packet packet, Connection connection) {
@@ -85,12 +78,13 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
             //2.url转换
             uri = doDnsMapping(uri);
 
+            Profiler.enter("time cost on [create FullHttpRequest]");
             //3.包装成HTTP request
             FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.valueOf(method), uri);
             setHeaders(request, message);//处理header
             setBody(request, message);//处理body
 
-            Profiler.enter("time cost on [HttpClient]");
+            Profiler.enter("time cost on [HttpClient.request]");
             //4.发送请求
             httpClient.request(new RequestContext(request, new DefaultHttpCallback(message)));
         } catch (Exception e) {
@@ -200,6 +194,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
         try {
             uri = new URL(url);
         } catch (MalformedURLException e) {
+            //ignore e
         }
         if (uri == null) {
             return url;

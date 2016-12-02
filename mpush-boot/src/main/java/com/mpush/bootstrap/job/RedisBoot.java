@@ -39,6 +39,7 @@ public final class RedisBoot extends BootJob {
     @Override
     protected void stop() {
         RedisManager.I.destroy();
+        UserManager.I.clearUserOnlineData();
         stopNext();
     }
 }

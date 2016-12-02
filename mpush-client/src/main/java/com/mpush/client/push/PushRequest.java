@@ -20,9 +20,9 @@
 package com.mpush.client.push;
 
 import com.mpush.api.Constants;
-import com.mpush.api.connection.Connection;
 import com.mpush.api.push.*;
 import com.mpush.api.router.ClientLocation;
+import com.mpush.client.gateway.connection.GatewayConnectionFactory;
 import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.common.router.CachedRemoteRouterManager;
 import com.mpush.common.router.RemoteRouter;
@@ -31,6 +31,8 @@ import com.mpush.tools.common.TimeLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -51,16 +53,17 @@ public class PushRequest extends FutureTask<Boolean> {
     private final AtomicReference<Status> status = new AtomicReference<>(Status.init);
     private final TimeLine timeLine = new TimeLine("Push-Time-Line");
 
-    private final PushClient client;
+    private final GatewayConnectionFactory connectionFactory;
 
     private AckModel ackModel;
+    private Set<String> tags;
+    private String condition;
     private PushCallback callback;
     private String userId;
     private byte[] content;
     private int timeout;
     private ClientLocation location;
     private Future<?> future;
-    private String result;
 
     private void sendToConnServer(RemoteRouter remoteRouter) {
         timeLine.addTimePoint("lookup-remote");
@@ -75,32 +78,37 @@ public class PushRequest extends FutureTask<Boolean> {
             return;
         }
 
-        timeLine.addTimePoint("get-gateway-conn");
-
-
         //2.通过网关连接，把消息发送到所在机器
-        Connection gatewayConn = client.getGatewayConnection(location.getHost());
-        if (gatewayConn == null) {
-            LOGGER.error("get gateway connection failure, location={}", location);
-            failure();
-            return;
-        }
+        connectionFactory.send(
+                connection -> {
+                    timeLine.addTimePoint("check-gateway-conn");
+                    if (connection == null) {
+                        LOGGER.error("get gateway connection failure, location={}", location);
+                        failure();
+                        return null;
+                    }
 
-        timeLine.addTimePoint("send-to-gateway-begin");
-
-        GatewayPushMessage pushMessage =
-                new GatewayPushMessage(userId, content, gatewayConn)
-                        .setClientType(location.getClientType())
-                        .setTimeout(timeout - 500)
-                        .addFlag(ackModel.flag);
-
-        pushMessage.sendRaw(f -> {
-            timeLine.addTimePoint("send-to-gateway-end");
-            if (!f.isSuccess()) failure();
-        });
-
-        timeLine.addTimePoint("put-request-bus");
-        future = PushRequestBus.I.put(pushMessage.getSessionId(), this);
+                    return GatewayPushMessage.build(connection)
+                            .setUserId(userId)
+                            .setContent(content)
+                            .setClientType(location.getClientType())
+                            .setTimeout(timeout - 500)
+                            .setTags(tags)
+                            .addFlag(ackModel.flag);
+                },
+                pushMessage -> {
+                    if (pushMessage != null) {
+                        timeLine.addTimePoint("send-to-gateway-begin");
+                        pushMessage.sendRaw(f -> {
+                            timeLine.addTimePoint("send-to-gateway-end");
+                            if (!f.isSuccess()) failure();
+                        });
+                        PushRequest.this.content = null;//释放内存
+                        future = PushRequestBus.I.put(pushMessage.getSessionId(), PushRequest.this);
+                    }
+                    return null;
+                }
+        ).apply(location.getHost());
     }
 
     private void submit(Status status) {
@@ -125,7 +133,6 @@ public class PushRequest extends FutureTask<Boolean> {
         } else {
             callback.onResult(new PushResult(status.get().ordinal())
                     .setUserId(userId)
-                    .setUserIds(userId == null ? Jsons.fromJson(result, String[].class) : null)
                     .setLocation(location)
                     .setTimeLine(timeLine.getTimePoints())
             );
@@ -161,16 +168,28 @@ public class PushRequest extends FutureTask<Boolean> {
 
     public FutureTask<Boolean> broadcast() {
         timeLine.begin();
-        client.getAllConnections().forEach(conn -> {
-            GatewayPushMessage pushMessage = new GatewayPushMessage(userId, content, conn)
-                    .addFlag(ackModel.flag);
 
-            pushMessage.sendRaw(f -> {
-                if (!f.isSuccess()) failure();
-            });
+        connectionFactory.broadcast(
+                connection -> GatewayPushMessage
+                        .build(connection)
+                        .setUserId(userId)
+                        .setContent(content)
+                        .setTags(tags)
+                        .setCondition(condition)
+                        .addFlag(ackModel.flag),
 
-            future = PushRequestBus.I.put(pushMessage.getSessionId(), this);
-        });
+                pushMessage -> {
+                    pushMessage.sendRaw(f -> {
+                        if (!f.isSuccess()) failure();
+                    });
+                    if (pushMessage.taskId == null) {
+                        future = PushRequestBus.I.put(pushMessage.getSessionId(), PushRequest.this);
+                    } else {
+                        success();
+                    }
+                }
+        );
+
         return this;
     }
 
@@ -178,8 +197,7 @@ public class PushRequest extends FutureTask<Boolean> {
         submit(Status.timeout);
     }
 
-    public void success(String data) {
-        this.result = data;
+    public void success() {
         submit(Status.success);
     }
 
@@ -191,12 +209,12 @@ public class PushRequest extends FutureTask<Boolean> {
         return timeout;
     }
 
-    public PushRequest(PushClient client) {
+    public PushRequest(GatewayConnectionFactory factory) {
         super(NONE);
-        this.client = client;
+        this.connectionFactory = factory;
     }
 
-    public static PushRequest build(PushClient client, PushContext ctx) {
+    public static PushRequest build(GatewayConnectionFactory factory, PushContext ctx) {
         byte[] content = ctx.getContext();
         PushMsg msg = ctx.getPushMsg();
         if (msg != null) {
@@ -205,9 +223,14 @@ public class PushRequest extends FutureTask<Boolean> {
                 content = json.getBytes(Constants.UTF_8);
             }
         }
-        return new PushRequest(client)
+
+        Objects.requireNonNull(content, "push content can not be null.");
+
+        return new PushRequest(factory)
                 .setAckModel(ctx.getAckModel())
                 .setUserId(ctx.getUserId())
+                .setTags(ctx.getTags())
+                .setCondition(ctx.getCondition())
                 .setContent(content)
                 .setTimeout(ctx.getTimeout())
                 .setCallback(ctx.getCallback());
@@ -239,10 +262,20 @@ public class PushRequest extends FutureTask<Boolean> {
         return this;
     }
 
+    public PushRequest setTags(Set<String> tags) {
+        this.tags = tags;
+        return this;
+    }
+
+    public PushRequest setCondition(String condition) {
+        this.condition = condition;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "PushRequest{" +
-                "content='" + content + '\'' +
+                "content='" + content.length + '\'' +
                 ", userId='" + userId + '\'' +
                 ", timeout=" + timeout +
                 ", location=" + location +

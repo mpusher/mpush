@@ -42,8 +42,20 @@ import static com.mpush.common.ErrorCode.UNSUPPORTED_CMD;
  * @author ohun@live.cn
  */
 public final class MessageDispatcher implements PacketReceiver {
-    public static final Logger LOGGER = LoggerFactory.getLogger(MessageDispatcher.class);
+    public static final int POLICY_REJECT = 2;
+    public static final int POLICY_LOG = 1;
+    public static final int POLICY_IGNORE = 0;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageDispatcher.class);
     private final Map<Byte, MessageHandler> handlers = new HashMap<>();
+    private final int unsupportedPolicy;
+
+    public MessageDispatcher() {
+        unsupportedPolicy = POLICY_REJECT;
+    }
+
+    public MessageDispatcher(int unsupportedPolicy) {
+        this.unsupportedPolicy = unsupportedPolicy;
+    }
 
     public void register(Command command, MessageHandler handler) {
         handlers.put(command.cmd, handler);
@@ -67,12 +79,15 @@ public final class MessageDispatcher implements PacketReceiver {
                 Profiler.release();
             }
         } else {
-            LOGGER.error("dispatch message failure unsupported cmd, packet={}, connect={}, body={}"
-                    , packet, connection);
-            ErrorMessage
-                    .from(packet, connection)
-                    .setErrorCode(UNSUPPORTED_CMD)
-                    .close();
+            if (unsupportedPolicy > POLICY_IGNORE) {
+                LOGGER.error("dispatch message failure unsupported cmd, packet={}, connect={}, body={}", packet, connection);
+                if (unsupportedPolicy == POLICY_REJECT) {
+                    ErrorMessage
+                            .from(packet, connection)
+                            .setErrorCode(UNSUPPORTED_CMD)
+                            .close();
+                }
+            }
         }
     }
 }
