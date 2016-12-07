@@ -30,6 +30,11 @@ import java.util.concurrent.locks.LockSupport;
  * @author ohun@live.cn
  */
 public class ServerTestMain {
+
+    public static void main(String[] args) {
+        new ServerTestMain().testServer();
+    }
+
     @Test
     public void testServer() {
         System.setProperty("io.netty.leakDetection.level", "PARANOID");
@@ -37,4 +42,5 @@ public class ServerTestMain {
         Main.main(null);
         LockSupport.park();
     }
+
 }

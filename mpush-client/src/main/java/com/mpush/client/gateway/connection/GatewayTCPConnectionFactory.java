@@ -62,8 +62,8 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     }
 
     @Override
-    public Connection getConnection(String ip) {
-        GatewayClient client = ip_client.get(ip);
+    public Connection getConnection(String hostAndPort) {
+        GatewayClient client = ip_client.get(hostAndPort);
         if (client == null) {
             return null;//TODO create client
         }
@@ -77,8 +77,10 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
 
 
     @Override
-    public <M extends BaseMessage> Function<String, Void> send(Function<Connection, M> creator, Function<M, Void> sender) {
-        return creator.compose(this::getConnection).andThen(sender);
+    public <M extends BaseMessage> void send(String hostAndPort, Function<Connection, M> creator, Function<M, Void> sender) {
+        creator.compose(this::getConnection)
+                .andThen(sender)
+                .apply(hostAndPort);
     }
 
     @Override
@@ -89,7 +91,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     }
 
     private void restartClient(final GatewayClient client) {
-        ip_client.remove(client.getHost());
+        ip_client.remove(client.getHostAndPort());
         client.stop(new Listener() {
             @Override
             public void onSuccess(Object... args) {
@@ -105,7 +107,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
 
     private void removeClient(ZKServerNode node) {
         if (node != null) {
-            Client client = ip_client.remove(node.getIp());
+            Client client = ip_client.remove(node.getHostAndPort());
             if (client != null) {
                 client.stop(null);
             }
@@ -117,7 +119,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
         client.start(new Listener() {
             @Override
             public void onSuccess(Object... args) {
-                ip_client.put(host, client);
+                ip_client.put(client.getHostAndPort(), client);
             }
 
             @Override

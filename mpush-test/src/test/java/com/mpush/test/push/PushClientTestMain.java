@@ -35,6 +35,11 @@ import java.util.concurrent.locks.LockSupport;
  * @author ohun@live.cn
  */
 public class PushClientTestMain {
+
+    public static void main(String[] args) throws Exception {
+        new PushClientTestMain().testPush();
+    }
+
     @Test
     public void testPush() throws Exception {
         Logs.init();
@@ -44,10 +49,11 @@ public class PushClientTestMain {
             msg.setMsgId("msgId_0");
 
             PushContext context = PushContext.build(msg)
-                    .setBroadcast(true)
                     .setAckModel(AckModel.AUTO_ACK)
+                    .setUserId("user-0")
+                    .setBroadcast(false)
                     //.setTags(Sets.newHashSet("test"))
-                    .setCondition("tags&&tags.indexOf('test')!=-1")
+                    //.setCondition("tags&&tags.indexOf('test')!=-1")
                     //.setUserIds(Arrays.asList("user-0", "user-1"))
                     .setTimeout(2000)
                     .setCallback(new PushCallback() {
@@ -59,7 +65,7 @@ public class PushClientTestMain {
             FutureTask<Boolean> future = sender.send(context);
         });
 
-        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(3));
+        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(30));
     }
 
 }

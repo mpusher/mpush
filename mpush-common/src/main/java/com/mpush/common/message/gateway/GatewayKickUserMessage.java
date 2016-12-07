@@ -40,6 +40,8 @@ public final class GatewayKickUserMessage extends ByteBufMessage implements Kick
     public String connId;
     public int clientType;
     public String targetServer;
+    public int targetPort;
+
 
     public GatewayKickUserMessage(Packet message, Connection connection) {
         super(message, connection);
@@ -58,6 +60,7 @@ public final class GatewayKickUserMessage extends ByteBufMessage implements Kick
         connId = decodeString(body);
         clientType = decodeInt(body);
         targetServer = decodeString(body);
+        targetPort = decodeInt(body);
     }
 
     @Override
@@ -67,6 +70,7 @@ public final class GatewayKickUserMessage extends ByteBufMessage implements Kick
         encodeString(body, connId);
         encodeInt(body, clientType);
         encodeString(body, targetServer);
+        encodeInt(body, targetPort);
     }
 
     public GatewayKickUserMessage setUserId(String userId) {
@@ -91,6 +95,11 @@ public final class GatewayKickUserMessage extends ByteBufMessage implements Kick
 
     public GatewayKickUserMessage setTargetServer(String targetServer) {
         this.targetServer = targetServer;
+        return this;
+    }
+
+    public GatewayKickUserMessage setTargetPort(int targetPort) {
+        this.targetPort = targetPort;
         return this;
     }
 
@@ -120,6 +129,11 @@ public final class GatewayKickUserMessage extends ByteBufMessage implements Kick
     }
 
     @Override
+    public int getTargetPort() {
+        return targetPort;
+    }
+
+    @Override
     public String toString() {
         return "GatewayKickUserMessage{" +
                 "userId='" + userId + '\'' +
@@ -127,6 +141,7 @@ public final class GatewayKickUserMessage extends ByteBufMessage implements Kick
                 ", connId='" + connId + '\'' +
                 ", clientType=" + clientType +
                 ", targetServer='" + targetServer + '\'' +
+                ", targetPort=" + targetPort +
                 '}';
     }
 }

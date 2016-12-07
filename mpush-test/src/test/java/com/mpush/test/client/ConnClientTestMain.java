@@ -39,6 +39,10 @@ import java.util.concurrent.locks.LockSupport;
 
 public class ConnClientTestMain {
 
+    public static void main(String[] args) throws Exception {
+        new ConnClientTestMain().testConnClient();
+    }
+
     @Test
     public void testConnClient() throws Exception {
         ConnClientBoot boot = new ConnClientBoot();

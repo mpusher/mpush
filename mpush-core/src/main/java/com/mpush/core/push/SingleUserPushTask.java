@@ -32,11 +32,13 @@ import com.mpush.core.ack.AckMessageQueue;
 import com.mpush.core.router.LocalRouter;
 import com.mpush.core.router.RouterCenter;
 import com.mpush.tools.Utils;
+import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
 
 import static com.mpush.common.ErrorCode.OFFLINE;
 import static com.mpush.common.ErrorCode.PUSH_CLIENT_FAILURE;
 import static com.mpush.common.ErrorCode.ROUTER_CHANGE;
+import static com.mpush.zk.node.ZKServerNode.GS_NODE;
 
 /**
  * Created by ohun on 16/10/24.
@@ -149,7 +151,7 @@ public final class SingleUserPushTask implements PushTask {
         }
 
         //2.如果查出的远程机器是当前机器，说明路由已经失效，此时用户已下线，需要删除失效的缓存
-        if (Utils.getLocalIp().equals(remoteRouter.getRouteValue().getHost())) {
+        if (remoteRouter.getRouteValue().isThisPC(GS_NODE.getIp(), GS_NODE.getPort())) {
 
             ErrorMessage.from(message).setErrorCode(OFFLINE).setData(userId + ',' + clientType).sendRaw();
 

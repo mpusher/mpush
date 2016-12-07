@@ -19,6 +19,11 @@
 
 package com.mpush.common.net;
 
+import com.mpush.tools.Utils;
+import com.mpush.tools.config.CC;
+
+import static com.mpush.zk.node.ZKServerNode.GS_NODE;
+
 /**
  * Created by ohun on 16/10/23.
  *
@@ -34,4 +39,11 @@ public interface KickRemoteMsg {
     int getClientType();
 
     String getTargetServer();
+
+    int getTargetPort();
+
+    default boolean isTargetPC() {
+        return this.getTargetPort() == GS_NODE.getPort()
+                && this.getTargetServer().equals(Utils.getLocalIp());
+    }
 }

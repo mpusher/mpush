@@ -26,9 +26,12 @@ import com.mpush.api.router.Router;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.router.RemoteRouterManager;
 import com.mpush.tools.Utils;
+import com.mpush.tools.config.CC;
 import com.mpush.tools.event.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.mpush.zk.node.ZKServerNode.GS_NODE;
 
 /**
  * Created by ohun on 2015/12/23.
@@ -55,7 +58,8 @@ public final class RouterCenter {
     public boolean register(String userId, Connection connection) {
         ClientLocation location = ClientLocation
                 .from(connection)
-                .setHost(Utils.getLocalIp());
+                .setHost(Utils.getLocalIp())
+                .setPort(GS_NODE.getPort());
 
         LocalRouter localRouter = new LocalRouter(connection);
         RemoteRouter remoteRouter = new RemoteRouter(location);
