@@ -47,6 +47,7 @@ public class ConnClientTestMain {
 
     @Test
     public void testConnClient() throws Exception {
+        Logs.init();
         ConnClientBoot boot = new ConnClientBoot();
         boot.start().get();
         List<ZKServerNode> serverList = boot.getServers();
