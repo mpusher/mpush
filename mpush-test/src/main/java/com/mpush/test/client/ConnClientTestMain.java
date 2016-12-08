@@ -19,21 +19,14 @@
 
 package com.mpush.test.client;
 
-import com.mpush.api.service.Client;
-import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.client.connect.ClientConfig;
 import com.mpush.client.connect.ConnClientChannelHandler;
-import com.mpush.client.connect.ConnectClient;
 import com.mpush.common.security.CipherBox;
 import com.mpush.tools.log.Logs;
-import com.mpush.zk.ZKClient;
-import com.mpush.zk.listener.ZKServerNodeWatcher;
 import com.mpush.zk.node.ZKServerNode;
-import org.junit.After;
-import org.junit.Before;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -42,18 +35,41 @@ import java.util.concurrent.locks.LockSupport;
 public class ConnClientTestMain {
 
     public static void main(String[] args) throws Exception {
-        new ConnClientTestMain().testConnClient();
+        int count = 1, printDelay = 1;
+        if (args.length > 0) {
+            count = NumberUtils.toInt(args[0], count);
+        }
+        if (args.length > 1) {
+            printDelay = NumberUtils.toInt(args[1], printDelay);
+        }
+
+        testConnClient(count, printDelay);
     }
 
     @Test
     public void testConnClient() throws Exception {
+        testConnClient(1, 1);
+        LockSupport.park();
+    }
+
+    private static void testConnClient(int count, int printDelay) throws Exception {
         Logs.init();
         ConnClientBoot boot = new ConnClientBoot();
         boot.start().get();
         List<ZKServerNode> serverList = boot.getServers();
+        if (serverList.isEmpty()) {
+            boot.stop();
+            System.out.println("no mpush server.");
+            return;
+        }
 
+        Executors
+                .newSingleThreadScheduledExecutor()
+                .scheduleAtFixedRate(() -> System.err.println(ConnClientChannelHandler.STATISTICS)
+                        , 3, printDelay, TimeUnit.SECONDS
+                );
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < count; i++) {
             String clientVersion = "1.0." + i;
             String osName = "android";
             String osVersion = "1.0.1";
@@ -71,16 +87,11 @@ public class ConnClientTestMain {
             config.setOsVersion(osVersion);
             config.setUserId(userId);
 
-            int index = (int) ((Math.random() % serverList.size()) * serverList.size());
+            int L = serverList.size();
+            int index = (int) ((Math.random() % L) * L);
             ZKServerNode server = serverList.get(index);
+
             boot.connect(server.getExtranetIp(), server.getPort(), config);
-            System.out.println("client num=" + i);
         }
-
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            System.err.println(ConnClientChannelHandler.STATISTICS);
-        }, 0, 1, TimeUnit.SECONDS);
-
-        LockSupport.park();
     }
 }
