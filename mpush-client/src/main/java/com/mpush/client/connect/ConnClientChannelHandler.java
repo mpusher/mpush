@@ -40,8 +40,11 @@ import io.netty.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Clock;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
 
 /**
  * Created by ohun on 2015/12/19.
@@ -57,6 +60,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
     private final Connection connection = new NettyConnection();
     private ClientConfig clientConfig;
     private boolean perfTest;
+    private int hbTimeoutTimes;
 
     public ConnClientChannelHandler() {
         perfTest = true;
@@ -82,7 +86,8 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 HandshakeOkMessage message = new HandshakeOkMessage(packet, connection);
                 byte[] sessionKey = CipherBox.I.mixKey(clientConfig.getClientKey(), message.serverKey);
                 connection.getSessionContext().changeCipher(new AesCipher(sessionKey, clientConfig.getIv()));
-                startHeartBeat(message.heartbeat);
+                connection.getSessionContext().setHeartbeat(message.heartbeat);
+                startHeartBeat(message.heartbeat - 1000);
                 LOGGER.info(">>> handshake success, clientConfig={}, connectedNum={}", clientConfig, connectedNum);
                 bindUser(clientConfig);
                 if (!perfTest) {
@@ -97,7 +102,8 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 connection.getSessionContext().changeCipher(new AesCipher(key, iv));
 
                 FastConnectOkMessage message = new FastConnectOkMessage(packet, connection);
-                startHeartBeat(message.heartbeat);
+                connection.getSessionContext().setHeartbeat(message.heartbeat);
+                startHeartBeat(message.heartbeat - 1000);
                 bindUser(clientConfig);
                 LOGGER.info(">>> fast connect success, clientConfig={}, connectedNum={}", clientConfig, connectedNum);
             } else if (command == Command.KICK) {
@@ -150,8 +156,9 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         int clientNum = STATISTICS.clientNum.incrementAndGet();
         LOGGER.info("client connect channel={}, clientNum={}", ctx.channel(), clientNum);
-        if (clientConfig == null) {
+        while (clientConfig == null) {
             clientConfig = ctx.channel().attr(CONFIG_KEY).getAndRemove();
+            if (clientConfig == null) TimeUnit.SECONDS.sleep(1);
         }
         connection.init(ctx.channel(), true);
         if (perfTest) {
@@ -212,6 +219,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
         message.userId = client.getUserId();
         message.tags = "test";
         message.send();
+        connection.getSessionContext().setUserId(client.getUserId());
         LOGGER.debug("<<< send bind user message={}", message);
     }
 
@@ -247,22 +255,34 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
         HASHED_WHEEL_TIMER.newTimeout(new TimerTask() {
             @Override
             public void run(Timeout timeout) throws Exception {
-                final TimerTask self = this;
-                final Channel channel = connection.getChannel();
-                if (channel.isActive()) {
-                    ChannelFuture channelFuture = channel.writeAndFlush(Packet.getHBPacket());
-                    channelFuture.addListener((ChannelFutureListener) future -> {
-                        if (!future.isSuccess()) {
-                            LOGGER.debug("<<< send heartbeat ping... " + channel.remoteAddress().toString());
-                        } else {
-                            LOGGER.warn("client send msg hb false:" + channel.remoteAddress().toString(), future.cause());
-                        }
-                        HASHED_WHEEL_TIMER.newTimeout(self, heartbeat, TimeUnit.MILLISECONDS);
-                    });
-                } else {
-                    LOGGER.error("connection was closed, connection={}", connection);
+                if (connection.isConnected() && healthCheck()) {
+                    HASHED_WHEEL_TIMER.newTimeout(this, heartbeat, TimeUnit.MILLISECONDS);
                 }
             }
         }, heartbeat, TimeUnit.MILLISECONDS);
+    }
+
+    private boolean healthCheck() {
+
+        if (connection.isReadTimeout()) {
+            hbTimeoutTimes++;
+            LOGGER.warn("heartbeat timeout times={}, client={}", hbTimeoutTimes, connection);
+        } else {
+            hbTimeoutTimes = 0;
+        }
+
+        if (hbTimeoutTimes >= 2) {
+            LOGGER.warn("heartbeat timeout times={} over limit={}, client={}", hbTimeoutTimes, 2, connection);
+            hbTimeoutTimes = 0;
+            connection.close();
+            return false;
+        }
+
+        if (connection.isWriteTimeout()) {
+            LOGGER.info("<<< send heartbeat ping...");
+            connection.send(Packet.HB_PACKET);
+        }
+
+        return true;
     }
 }

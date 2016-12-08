@@ -125,10 +125,10 @@ public final class ServerConnectionManager implements ConnectionManager {
                 Logs.HB.info("connection was disconnected, heartbeat timeout times={}, connection={}", timeoutTimes, connection);
                 return;
             }
-            if (connection.heartbeatTimeout()) {
+            if (connection.isReadTimeout()) {
                 if (++timeoutTimes > CC.mp.core.max_hb_timeout_times) {
                     connection.close();
-                    Logs.HB.info("client heartbeat timeout times={}, do close connection={}", timeoutTimes, connection);
+                    Logs.HB.warn("client heartbeat timeout times={}, do close connection={}", timeoutTimes, connection);
                     return;
                 } else {
                     Logs.HB.info("client heartbeat timeout times={}, connection={}", timeoutTimes, connection);

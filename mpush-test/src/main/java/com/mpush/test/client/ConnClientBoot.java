@@ -38,13 +38,13 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+
+import static com.mpush.client.connect.ConnClientChannelHandler.CONFIG_KEY;
 
 public final class ConnClientBoot extends BaseService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnClientBoot.class);
@@ -105,9 +105,10 @@ public final class ConnClientBoot extends BaseService {
 
     public ChannelFuture connect(String host, int port, ClientConfig clientConfig) {
         ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
+        if (future.channel() != null) future.channel().attr(CONFIG_KEY).set(clientConfig);
         future.addListener(f -> {
             if (f.isSuccess()) {
-                future.channel().attr(ConnClientChannelHandler.CONFIG_KEY).set(clientConfig);
+                future.channel().attr(CONFIG_KEY).set(clientConfig);
                 LOGGER.info("start netty client success, host={}, port={}", host, port);
             } else {
                 LOGGER.error("start netty client failure, host={}, port={}", host, port, f.cause());

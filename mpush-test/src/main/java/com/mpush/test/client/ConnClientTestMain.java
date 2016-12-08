@@ -25,7 +25,6 @@ import com.mpush.common.security.CipherBox;
 import com.mpush.tools.log.Logs;
 import com.mpush.zk.node.ZKServerNode;
 import io.netty.channel.ChannelFuture;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.Test;
 
@@ -37,7 +36,7 @@ import java.util.concurrent.locks.LockSupport;
 public class ConnClientTestMain {
 
     public static void main(String[] args) throws Exception {
-        int count = 5000, printDelay = 1;
+        int count = 10, printDelay = 1;
         boolean sync = true;
         if (args.length > 0) {
             count = NumberUtils.toInt(args[0], count);
@@ -70,9 +69,9 @@ public class ConnClientTestMain {
             return;
         }
 
-        Executors
-                .newSingleThreadScheduledExecutor()
-                .scheduleAtFixedRate(() -> System.err.println(ConnClientChannelHandler.STATISTICS)
+        Executors.newSingleThreadScheduledExecutor()
+                .scheduleAtFixedRate(
+                        () -> System.err.println(ConnClientChannelHandler.STATISTICS)
                         , 3, printDelay, TimeUnit.SECONDS
                 );
 

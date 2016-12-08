@@ -50,11 +50,13 @@ public interface Connection {
 
     boolean isConnected();
 
-    boolean heartbeatTimeout();
+    boolean isReadTimeout();
+
+    boolean isWriteTimeout();
 
     void updateLastReadTime();
 
-    long getLastReadTime();
+    void updateLastWriteTime();
 
     Channel getChannel();
 

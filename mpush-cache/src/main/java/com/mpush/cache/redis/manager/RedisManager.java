@@ -313,13 +313,13 @@ public final class RedisManager {
         call(jedis -> ((MultiKeyCommands) jedis).publish(channel, message instanceof String ? (String) message : Jsons.toJson(message)));
     }
 
-    public void subscribe(final JedisPubSub pubsub, final String... channels) {
-        ThreadPoolManager.I.newThread(Arrays.toString(channels),
+    public void subscribe(final JedisPubSub pubsub, final String channel) {
+        ThreadPoolManager.I.newThread(channel,
                 () -> call(jedis -> {
                     if (jedis instanceof MultiKeyCommands) {
-                        Arrays.stream(channels).forEach(channel -> ((MultiKeyCommands) jedis).subscribe(pubsub, channel));
+                        ((MultiKeyCommands) jedis).subscribe(pubsub, channel);
                     } else if (jedis instanceof MultiKeyJedisClusterCommands) {
-                        Arrays.stream(channels).forEach(channel -> ((MultiKeyJedisClusterCommands) jedis).subscribe(pubsub, channel));
+                        ((MultiKeyJedisClusterCommands) jedis).subscribe(pubsub, channel);
                     }
                 })
         ).start();

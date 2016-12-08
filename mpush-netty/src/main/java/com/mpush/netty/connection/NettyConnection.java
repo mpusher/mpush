@@ -113,19 +113,18 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     }
 
     @Override
-    public boolean heartbeatTimeout() {
-        long between = System.currentTimeMillis() - lastReadTime;
-        return context.heartbeat > 0 && between > context.heartbeat;
+    public boolean isReadTimeout() {
+        return System.currentTimeMillis() - lastReadTime > context.heartbeat + 1000;
+    }
+
+    @Override
+    public boolean isWriteTimeout() {
+        return System.currentTimeMillis() - lastWriteTime > context.heartbeat - 1000;
     }
 
     @Override
     public void updateLastReadTime() {
         lastReadTime = System.currentTimeMillis();
-    }
-
-    @Override
-    public long getLastReadTime() {
-        return lastReadTime;
     }
 
     @Override
@@ -137,10 +136,10 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
         }
     }
 
+    @Override
     public void updateLastWriteTime() {
         lastWriteTime = System.currentTimeMillis();
     }
-
 
     @Override
     public String toString() {
