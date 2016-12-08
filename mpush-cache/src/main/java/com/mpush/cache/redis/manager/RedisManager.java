@@ -314,9 +314,15 @@ public final class RedisManager {
     }
 
     public void subscribe(final JedisPubSub pubsub, final String... channels) {
-        ThreadPoolManager.I.newThread(Arrays.toString(channels), (() -> call(jedis ->
-                Arrays.stream(channels).forEach(channel -> ((MultiKeyCommands) jedis).subscribe(pubsub, channel))
-        ))).start();
+        ThreadPoolManager.I.newThread(Arrays.toString(channels),
+                () -> call(jedis -> {
+                    if (jedis instanceof MultiKeyCommands) {
+                        Arrays.stream(channels).forEach(channel -> ((MultiKeyCommands) jedis).subscribe(pubsub, channel));
+                    } else if (jedis instanceof MultiKeyJedisClusterCommands) {
+                        Arrays.stream(channels).forEach(channel -> ((MultiKeyJedisClusterCommands) jedis).subscribe(pubsub, channel));
+                    }
+                })
+        ).start();
     }
 
     /*********************
