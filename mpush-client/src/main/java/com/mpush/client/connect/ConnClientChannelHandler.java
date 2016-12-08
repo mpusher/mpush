@@ -50,7 +50,6 @@ import java.util.concurrent.TimeUnit;
  *
  * @author ohun@live.cn
  */
-@ChannelHandler.Sharable
 public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnClientChannelHandler.class);
     private static final Timer HASHED_WHEEL_TIMER = new HashedWheelTimer(new NamedPoolThreadFactory(ThreadNames.T_CONN_TIMER));
