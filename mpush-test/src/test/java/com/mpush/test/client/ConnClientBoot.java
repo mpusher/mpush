@@ -22,20 +22,36 @@ package com.mpush.test.client;
 import com.google.common.collect.Lists;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
-import com.mpush.api.service.ServiceException;
 import com.mpush.cache.redis.manager.RedisManager;
+import com.mpush.client.connect.ClientConfig;
+import com.mpush.client.connect.ConnClientChannelHandler;
+import com.mpush.netty.codec.PacketDecoder;
+import com.mpush.netty.codec.PacketEncoder;
 import com.mpush.zk.ZKClient;
 import com.mpush.zk.listener.ZKServerNodeWatcher;
 import com.mpush.zk.node.ZKServerNode;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.AttributeKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 
 public final class ConnClientBoot extends BaseService {
-    private final ZKServerNodeWatcher watcher = ZKServerNodeWatcher.buildConnect();
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnClientBoot.class);
 
-    public List<ZKServerNode> getServers() {
-        return Lists.newArrayList(watcher.getCache().values());
-    }
+    private final ZKServerNodeWatcher watcher = ZKServerNodeWatcher.buildConnect();
+    private Bootstrap bootstrap;
+    private NioEventLoopGroup workerGroup;
+
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
@@ -52,12 +68,58 @@ public final class ConnClientBoot extends BaseService {
                 listener.onFailure(cause);
             }
         });
+
+        this.workerGroup = new NioEventLoopGroup();
+        this.bootstrap = new Bootstrap();
+        bootstrap.group(workerGroup)//
+                .option(ChannelOption.TCP_NODELAY, true)//
+                .option(ChannelOption.SO_REUSEADDR, true)//
+                .option(ChannelOption.SO_KEEPALIVE, true)//
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)//
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 4000)
+                .channel(NioSocketChannel.class);
+
+        bootstrap.handler(new ChannelInitializer<SocketChannel>() { // (4)
+            @Override
+            public void initChannel(SocketChannel ch) throws Exception {
+                ch.pipeline().addLast("decoder", new PacketDecoder());
+                ch.pipeline().addLast("encoder", PacketEncoder.INSTANCE);
+                ch.pipeline().addLast("handler", new ConnClientChannelHandler());
+            }
+        });
     }
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
+        if (workerGroup != null) workerGroup.shutdownGracefully();
         ZKClient.I.syncStop();
         RedisManager.I.destroy();
         listener.onSuccess();
+    }
+
+    public List<ZKServerNode> getServers() {
+        return Lists.newArrayList(watcher.getCache().values());
+    }
+
+
+    public void connect(String host, int port, ClientConfig clientConfig) {
+        ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
+        future.channel().attr(ConnClientChannelHandler.CONFIG_KEY).set(clientConfig);
+        future.addListener(f -> {
+            if (f.isSuccess()) {
+                LOGGER.info("start netty client success, host={}, port={}", host, port);
+            } else {
+                LOGGER.error("start netty client failure, host={}, port={}", host, port, f.cause());
+            }
+        });
+        future.syncUninterruptibly();
+    }
+
+    public Bootstrap getBootstrap() {
+        return bootstrap;
+    }
+
+    public NioEventLoopGroup getWorkerGroup() {
+        return workerGroup;
     }
 }

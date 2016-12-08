@@ -28,6 +28,7 @@ import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.cache.redis.RedisKey;
 import com.mpush.cache.redis.manager.RedisManager;
+import com.mpush.common.ErrorCode;
 import com.mpush.common.message.*;
 import com.mpush.common.security.AesCipher;
 import com.mpush.common.security.CipherBox;
@@ -36,10 +37,7 @@ import com.mpush.tools.event.EventBus;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
 import com.mpush.tools.thread.ThreadNames;
 import io.netty.channel.*;
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timeout;
-import io.netty.util.Timer;
-import io.netty.util.TimerTask;
+import io.netty.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,9 +54,16 @@ import java.util.concurrent.TimeUnit;
 public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnClientChannelHandler.class);
     private static final Timer HASHED_WHEEL_TIMER = new HashedWheelTimer(new NamedPoolThreadFactory(ThreadNames.T_CONN_TIMER));
+    public static final AttributeKey<ClientConfig> CONFIG_KEY = AttributeKey.newInstance("clientConfig");
+    public static final TestStatistics STATISTICS = new TestStatistics();
 
     private final Connection connection = new NettyConnection();
-    private final ClientConfig clientConfig;
+    private ClientConfig clientConfig;
+    private boolean stressingTest;
+
+    public ConnClientChannelHandler() {
+        stressingTest = true;
+    }
 
     public ConnClientChannelHandler(ClientConfig clientConfig) {
         this.clientConfig = clientConfig;
@@ -75,15 +80,19 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
             Packet packet = (Packet) msg;
             Command command = Command.toCMD(packet.cmd);
             if (command == Command.HANDSHAKE) {
+                int connectedNum = STATISTICS.connectedNum.incrementAndGet();
                 connection.getSessionContext().changeCipher(new AesCipher(clientConfig.getClientKey(), clientConfig.getIv()));
                 HandshakeOkMessage message = new HandshakeOkMessage(packet, connection);
                 byte[] sessionKey = CipherBox.I.mixKey(clientConfig.getClientKey(), message.serverKey);
                 connection.getSessionContext().changeCipher(new AesCipher(sessionKey, clientConfig.getIv()));
                 startHeartBeat(message.heartbeat);
-                LOGGER.warn(">>> handshake success, message={}, sessionKey={}", message, sessionKey);
+                LOGGER.info(">>> handshake success, clientConfig={}, connectedNum={}", clientConfig, connectedNum);
                 bindUser(clientConfig);
-                saveToRedisForFastConnection(clientConfig, message.sessionId, message.expireTime, sessionKey);
+                if (!stressingTest) {
+                    saveToRedisForFastConnection(clientConfig, message.sessionId, message.expireTime, sessionKey);
+                }
             } else if (command == Command.FAST_CONNECT) {
+                int connectedNum = STATISTICS.connectedNum.incrementAndGet();
                 String cipherStr = clientConfig.getCipher();
                 String[] cs = cipherStr.split(",");
                 byte[] key = AesCipher.toArray(cs[0]);
@@ -93,7 +102,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 FastConnectOkMessage message = new FastConnectOkMessage(packet, connection);
                 startHeartBeat(message.heartbeat);
                 bindUser(clientConfig);
-                LOGGER.warn(">>> fast connect success, message=" + message);
+                LOGGER.info(">>> fast connect success, clientConfig={}, connectedNum={}", clientConfig, connectedNum);
             } else if (command == Command.KICK) {
                 KickUserMessage message = new KickUserMessage(packet, connection);
                 LOGGER.error(">>> receive kick user userId={}, deviceId={}, message={},", clientConfig.getUserId(), clientConfig.getDeviceId(), message);
@@ -101,31 +110,31 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
             } else if (command == Command.ERROR) {
                 ErrorMessage errorMessage = new ErrorMessage(packet, connection);
                 LOGGER.error(">>> receive an error packet=" + errorMessage);
-            } else if (command == Command.BIND) {
-
             } else if (command == Command.PUSH) {
+                int receivePushNum = STATISTICS.receivePushNum.incrementAndGet();
+
                 PushMessage message = new PushMessage(packet, connection);
-                LOGGER.warn(">>> receive an push message, content=" + new String(message.content, Constants.UTF_8));
+                LOGGER.info(">>> receive an push message, content={}, receivePushNum={}", new String(message.content, Constants.UTF_8), receivePushNum);
 
                 if (message.needAck()) {
                     AckMessage.from(message).sendRaw();
-                    LOGGER.warn(">>> send ack success for sessionId={}", message.getSessionId());
+                    LOGGER.info(">>> send ack success for sessionId={}", message.getSessionId());
                 }
 
             } else if (command == Command.HEARTBEAT) {
-                LOGGER.warn(">>> receive a heartbeat pong...");
+                LOGGER.info(">>> receive a heartbeat pong...");
             } else if (command == Command.OK) {
                 OkMessage okMessage = new OkMessage(packet, connection);
-                LOGGER.warn(">>> receive an success packet=" + okMessage);
-                Map<String, String> headers = new HashMap<>();
-                headers.put(Constants.HTTP_HEAD_READ_TIMEOUT, "10000");
-                HttpRequestMessage message = new HttpRequestMessage(connection);
-                message.headers = headers;
-                message.uri = "http://baidu.com";
-                message.send();
+                int bindUserNum = STATISTICS.bindUserNum.get();
+                if (okMessage.cmd == Command.BIND.cmd) {
+                    bindUserNum = STATISTICS.bindUserNum.incrementAndGet();
+                }
+
+                LOGGER.info(">>> receive an success message={}, bindUserNum={}", okMessage, bindUserNum);
+
             } else if (command == Command.HTTP_PROXY) {
                 HttpResponseMessage message = new HttpResponseMessage(packet, connection);
-                LOGGER.warn(">>> receive a http response, message={}, body={}",
+                LOGGER.info(">>> receive a http response, message={}, body={}",
                         message, message.body == null ? null : new String(message.body, Constants.UTF_8));
             }
         }
@@ -142,16 +151,25 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        LOGGER.info("client connect channel={}", ctx.channel());
+        int clientNum = STATISTICS.clientNum.incrementAndGet();
+        LOGGER.info("client connect channel={}, clientNum={}", ctx.channel(), clientNum);
+        if (clientConfig == null) {
+            clientConfig = ctx.channel().attr(CONFIG_KEY).getAndRemove();
+        }
         connection.init(ctx.channel(), true);
-        tryFastConnect();
+        if (stressingTest) {
+            handshake();
+        } else {
+            tryFastConnect();
+        }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        int clientNum = STATISTICS.clientNum.decrementAndGet();
         connection.close();
         EventBus.I.post(new ConnectionCloseEvent(connection));
-        LOGGER.info("client disconnect connection={}", connection);
+        LOGGER.info("client disconnect channel={}, clientNum={}", connection, clientNum);
     }
 
     private void tryFastConnect() {
@@ -159,19 +177,19 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
         Map<String, String> sessionTickets = getFastConnectionInfo(clientConfig.getDeviceId());
 
         if (sessionTickets == null) {
-            handshake(clientConfig);
+            handshake();
             return;
         }
         String sessionId = sessionTickets.get("sessionId");
         if (sessionId == null) {
-            handshake(clientConfig);
+            handshake();
             return;
         }
         String expireTime = sessionTickets.get("expireTime");
         if (expireTime != null) {
             long exp = Long.parseLong(expireTime);
             if (exp < System.currentTimeMillis()) {
-                handshake(clientConfig);
+                handshake();
                 return;
             }
         }
@@ -186,7 +204,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
             if (channelFuture.isSuccess()) {
                 clientConfig.setCipher(cipher);
             } else {
-                handshake(clientConfig);
+                handshake();
             }
         });
         LOGGER.debug("<<< send fast connect message={}", message);
@@ -215,14 +233,14 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
         return RedisManager.I.get(key, Map.class);
     }
 
-    private void handshake(ClientConfig client) {
+    private void handshake() {
         HandshakeMessage message = new HandshakeMessage(connection);
-        message.clientKey = client.getClientKey();
-        message.iv = client.getIv();
-        message.clientVersion = client.getClientVersion();
-        message.deviceId = client.getDeviceId();
-        message.osName = client.getOsName();
-        message.osVersion = client.getOsVersion();
+        message.clientKey = clientConfig.getClientKey();
+        message.iv = clientConfig.getIv();
+        message.clientVersion = clientConfig.getClientVersion();
+        message.deviceId = clientConfig.getDeviceId();
+        message.osName = clientConfig.getOsName();
+        message.osVersion = clientConfig.getOsVersion();
         message.timestamp = System.currentTimeMillis();
         message.send();
         LOGGER.debug("<<< send handshake message={}", message);

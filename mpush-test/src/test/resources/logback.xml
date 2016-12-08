@@ -142,7 +142,7 @@
     </appender>
 
     <root>
-        <level value="debug"/>
+        <level value="warn"/>
         <appender-ref ref="MPUSH_APPENDER"/>
         <appender-ref ref="MPUSH_INFO_APPENDER"/>
         <appender-ref ref="MPUSH_DEBUG_APPENDER"/>

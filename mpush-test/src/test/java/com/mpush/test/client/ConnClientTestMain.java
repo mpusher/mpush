@@ -22,6 +22,7 @@ package com.mpush.test.client;
 import com.mpush.api.service.Client;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.client.connect.ClientConfig;
+import com.mpush.client.connect.ConnClientChannelHandler;
 import com.mpush.client.connect.ConnectClient;
 import com.mpush.common.security.CipherBox;
 import com.mpush.tools.log.Logs;
@@ -34,6 +35,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
@@ -47,12 +49,10 @@ public class ConnClientTestMain {
     public void testConnClient() throws Exception {
         ConnClientBoot boot = new ConnClientBoot();
         boot.start().get();
-
         List<ZKServerNode> serverList = boot.getServers();
 
-        int index = (int) ((Math.random() % serverList.size()) * serverList.size());
-        ZKServerNode server = serverList.get(index);
-        for (int i = 0; i < 1; i++) {
+
+        for (int i = 0; i < 1000; i++) {
             String clientVersion = "1.0." + i;
             String osName = "android";
             String osVersion = "1.0.1";
@@ -69,9 +69,17 @@ public class ConnClientTestMain {
             config.setOsName(osName);
             config.setOsVersion(osVersion);
             config.setUserId(userId);
-            Client client = new ConnectClient(server.getExtranetIp(), server.getPort(), config);
-            client.start();
+
+            int index = (int) ((Math.random() % serverList.size()) * serverList.size());
+            ZKServerNode server = serverList.get(index);
+            boot.connect(server.getExtranetIp(), server.getPort(), config);
+            System.out.println("client num=" + i);
         }
+
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            System.err.println(ConnClientChannelHandler.STATISTICS);
+        }, 0, 1, TimeUnit.SECONDS);
+
         LockSupport.park();
     }
 }
