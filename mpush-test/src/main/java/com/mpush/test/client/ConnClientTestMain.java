@@ -24,6 +24,8 @@ import com.mpush.client.connect.ConnClientChannelHandler;
 import com.mpush.common.security.CipherBox;
 import com.mpush.tools.log.Logs;
 import com.mpush.zk.node.ZKServerNode;
+import io.netty.channel.ChannelFuture;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.Test;
 
@@ -36,6 +38,7 @@ public class ConnClientTestMain {
 
     public static void main(String[] args) throws Exception {
         int count = 1, printDelay = 1;
+        boolean sync = true;
         if (args.length > 0) {
             count = NumberUtils.toInt(args[0], count);
         }
@@ -43,16 +46,20 @@ public class ConnClientTestMain {
             printDelay = NumberUtils.toInt(args[1], printDelay);
         }
 
-        testConnClient(count, printDelay);
+        if (args.length > 2) {
+            sync = !"1".equals(args[2]);
+        }
+
+        testConnClient(count, printDelay, sync);
     }
 
     @Test
     public void testConnClient() throws Exception {
-        testConnClient(1, 1);
+        testConnClient(1, 1, true);
         LockSupport.park();
     }
 
-    private static void testConnClient(int count, int printDelay) throws Exception {
+    private static void testConnClient(int count, int printDelay, boolean sync) throws Exception {
         Logs.init();
         ConnClientBoot boot = new ConnClientBoot();
         boot.start().get();
@@ -91,7 +98,8 @@ public class ConnClientTestMain {
             int index = (int) ((Math.random() % L) * L);
             ZKServerNode server = serverList.get(index);
 
-            boot.connect(server.getExtranetIp(), server.getPort(), config);
+            ChannelFuture future = boot.connect(server.getExtranetIp(), server.getPort(), config);
+            if (sync) future.awaitUninterruptibly();
         }
     }
 }

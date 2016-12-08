@@ -102,17 +102,17 @@ public final class ConnClientBoot extends BaseService {
     }
 
 
-    public void connect(String host, int port, ClientConfig clientConfig) {
+    public ChannelFuture connect(String host, int port, ClientConfig clientConfig) {
         ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
-        future.channel().attr(ConnClientChannelHandler.CONFIG_KEY).set(clientConfig);
         future.addListener(f -> {
             if (f.isSuccess()) {
+                future.channel().attr(ConnClientChannelHandler.CONFIG_KEY).set(clientConfig);
                 LOGGER.info("start netty client success, host={}, port={}", host, port);
             } else {
                 LOGGER.error("start netty client failure, host={}, port={}", host, port, f.cause());
             }
         });
-        future.syncUninterruptibly();
+        return future;
     }
 
     public Bootstrap getBootstrap() {
