@@ -37,7 +37,7 @@ import java.util.concurrent.locks.LockSupport;
 public class ConnClientTestMain {
 
     public static void main(String[] args) throws Exception {
-        int count = 1, printDelay = 1;
+        int count = 5000, printDelay = 1;
         boolean sync = true;
         if (args.length > 0) {
             count = NumberUtils.toInt(args[0], count);
