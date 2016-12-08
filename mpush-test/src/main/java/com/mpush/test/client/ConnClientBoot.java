@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public final class ConnClientBoot extends BaseService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnClientBoot.class);
@@ -76,7 +77,7 @@ public final class ConnClientBoot extends BaseService {
                 .option(ChannelOption.SO_REUSEADDR, true)//
                 .option(ChannelOption.SO_KEEPALIVE, true)//
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)//
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 4000)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60 * 1000)
                 .channel(NioSocketChannel.class);
 
         bootstrap.handler(new ChannelInitializer<SocketChannel>() { // (4)

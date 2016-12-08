@@ -28,7 +28,6 @@ import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.cache.redis.RedisKey;
 import com.mpush.cache.redis.manager.RedisManager;
-import com.mpush.common.ErrorCode;
 import com.mpush.common.message.*;
 import com.mpush.common.security.AesCipher;
 import com.mpush.common.security.CipherBox;
@@ -41,7 +40,6 @@ import io.netty.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -58,10 +56,10 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
 
     private final Connection connection = new NettyConnection();
     private ClientConfig clientConfig;
-    private boolean stressingTest;
+    private boolean perfTest;
 
     public ConnClientChannelHandler() {
-        stressingTest = true;
+        perfTest = true;
     }
 
     public ConnClientChannelHandler(ClientConfig clientConfig) {
@@ -87,7 +85,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 startHeartBeat(message.heartbeat);
                 LOGGER.info(">>> handshake success, clientConfig={}, connectedNum={}", clientConfig, connectedNum);
                 bindUser(clientConfig);
-                if (!stressingTest) {
+                if (!perfTest) {
                     saveToRedisForFastConnection(clientConfig, message.sessionId, message.expireTime, sessionKey);
                 }
             } else if (command == Command.FAST_CONNECT) {
@@ -156,7 +154,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
             clientConfig = ctx.channel().attr(CONFIG_KEY).getAndRemove();
         }
         connection.init(ctx.channel(), true);
-        if (stressingTest) {
+        if (perfTest) {
             handshake();
         } else {
             tryFastConnect();
