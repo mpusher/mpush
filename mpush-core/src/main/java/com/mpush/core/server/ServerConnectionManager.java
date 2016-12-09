@@ -77,18 +77,18 @@ public final class ServerConnectionManager implements ConnectionManager {
 
     @Override
     public Connection get(final Channel channel) {
-        return connections.get(channel.id().asShortText());
+        return connections.get(channel.id().asLongText());
     }
 
     @Override
     public void add(Connection connection) {
-        connections.putIfAbsent(connection.getChannel().id().asShortText(), connection);
+        connections.putIfAbsent(connection.getChannel().id().asLongText(), connection);
         if (heartbeatCheck) new HeartbeatCheckTask(connection).startTimeout();
     }
 
     @Override
     public Connection removeAndClose(Channel channel) {
-        Connection connection = connections.remove(channel.id().asShortText());
+        Connection connection = connections.remove(channel.id().asLongText());
         if (connection != null) {
             connection.close();
         }
