@@ -122,13 +122,13 @@ public final class ServerConnectionManager implements ConnectionManager {
         @Override
         public void run(Timeout timeout) throws Exception {
             if (!connection.isConnected()) {
-                Logs.HB.info("connection was disconnected, heartbeat timeout times={}, connection={}", timeoutTimes, connection);
+                Logs.HB.info("heartbeat timeout times={}, connection disconnected, conn={}", timeoutTimes, connection);
                 return;
             }
             if (connection.isReadTimeout()) {
                 if (++timeoutTimes > CC.mp.core.max_hb_timeout_times) {
                     connection.close();
-                    Logs.HB.warn("client heartbeat timeout times={}, do close connection={}", timeoutTimes, connection);
+                    Logs.HB.warn("client heartbeat timeout times={}, do close conn={}", timeoutTimes, connection);
                     return;
                 } else {
                     Logs.HB.info("client heartbeat timeout times={}, connection={}", timeoutTimes, connection);
