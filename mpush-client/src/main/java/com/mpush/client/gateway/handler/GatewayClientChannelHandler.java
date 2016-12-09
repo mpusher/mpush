@@ -51,7 +51,7 @@ public final class GatewayClientChannelHandler extends ChannelInboundHandlerAdap
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        Logs.Conn.info("receive gateway packet={}, channel={}", msg, ctx.channel());
+        Logs.CONN.info("receive gateway packet={}, channel={}", msg, ctx.channel());
         Packet packet = (Packet) msg;
         receiver.onReceive(packet, connection);
     }
@@ -64,14 +64,14 @@ public final class GatewayClientChannelHandler extends ChannelInboundHandlerAdap
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        Logs.Conn.info("client connect channel={}", ctx.channel());
+        Logs.CONN.info("client connect channel={}", ctx.channel());
         connection.init(ctx.channel(), false);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         connection.close();
-        Logs.Conn.info("client disconnect channel={}", ctx.channel());
+        Logs.CONN.info("client disconnect channel={}", ctx.channel());
     }
 
     public Connection getConnection() {

@@ -26,6 +26,7 @@ import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.common.message.ErrorMessage;
 import com.mpush.tools.common.Profiler;
+import com.mpush.tools.log.Logs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +72,8 @@ public final class MessageDispatcher implements PacketReceiver {
             } catch (Throwable throwable) {
                 LOGGER.error("dispatch message ex, packet={}, connect={}, body={}"
                         , packet, connection, Arrays.toString(packet.body), throwable);
+                Logs.CONN.error("dispatch message ex, packet={}, connect={}, body={}, error={}"
+                        , packet, connection, Arrays.toString(packet.body), throwable.getMessage());
                 ErrorMessage
                         .from(packet, connection)
                         .setErrorCode(DISPATCH_ERROR)
@@ -80,7 +83,8 @@ public final class MessageDispatcher implements PacketReceiver {
             }
         } else {
             if (unsupportedPolicy > POLICY_IGNORE) {
-                LOGGER.error("dispatch message failure unsupported cmd, packet={}, connect={}, body={}", packet, connection);
+                Logs.CONN.error("dispatch message failure, cmd={} unsupported, packet={}, connect={}, body={}"
+                        , Command.toCMD(packet.cmd), packet, connection);
                 if (unsupportedPolicy == POLICY_REJECT) {
                     ErrorMessage
                             .from(packet, connection)

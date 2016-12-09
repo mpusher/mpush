@@ -59,13 +59,13 @@ public final class UDPChannelHandler extends ChannelInboundHandlerAdapter {
         if (multicastAddress != null) {
             ((DatagramChannel) ctx.channel()).joinGroup(multicastAddress, networkInterface, null).addListener(future -> {
                 if (future.isSuccess()) {
-                    Logs.Conn.info("join multicast group success, channel={}, group={}", ctx.channel(), multicastAddress);
+                    Logs.CONN.info("join multicast group success, channel={}, group={}", ctx.channel(), multicastAddress);
                 } else {
                     LOGGER.error("join multicast group error, channel={}, group={}", ctx.channel(), multicastAddress, future.cause());
                 }
             });
         }
-        Logs.Conn.info("init udp channel={}", ctx.channel());
+        Logs.CONN.info("init udp channel={}", ctx.channel());
     }
 
     @Override
@@ -74,13 +74,13 @@ public final class UDPChannelHandler extends ChannelInboundHandlerAdapter {
         if (multicastAddress != null) {
             ((DatagramChannel) ctx.channel()).leaveGroup(multicastAddress, networkInterface, null).addListener(future -> {
                 if (future.isSuccess()) {
-                    Logs.Conn.info("leave multicast group success, channel={}, group={}", ctx.channel(), multicastAddress);
+                    Logs.CONN.info("leave multicast group success, channel={}, group={}", ctx.channel(), multicastAddress);
                 } else {
                     LOGGER.error("leave multicast group error, channel={}, group={}", ctx.channel(), multicastAddress, future.cause());
                 }
             });
         }
-        Logs.Conn.info("disconnect udp channel={}, connection={}", ctx.channel(), connection);
+        Logs.CONN.info("disconnect udp channel={}, connection={}", ctx.channel(), connection);
     }
 
     @Override
@@ -94,7 +94,7 @@ public final class UDPChannelHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         connection.close();
-        Logs.Conn.error("udp channel caught an exception channel={}, connection={}", ctx.channel(), connection);
+        Logs.CONN.error("udp channel caught an exception channel={}, connection={}", ctx.channel(), connection);
         LOGGER.error("caught an ex, channel={}, connection={}", ctx.channel(), connection, cause);
     }
 

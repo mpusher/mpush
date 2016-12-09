@@ -98,7 +98,7 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
                                 }
                             }
                         } else { //2.如果链接失效，先删除本地失效的路由，再查下远程路由，看用户是否登陆到其他机器
-                            Logs.PUSH.info("gateway broadcast, router in local but disconnect, message={}", message);
+                            Logs.PUSH.warn("[broadcast] find router in local but conn disconnect, message={}, conn={}", message, connection);
                             //删除已经失效的本地路由
                             RouterCenter.I.getLocalRouterManager().unRegister(userId, clientType);
                         }
@@ -115,7 +115,7 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
     }
 
     private void report() {
-        Logs.PUSH.info("gateway broadcast finished, cost={}, message={}", (System.currentTimeMillis() - begin), message);
+        Logs.PUSH.info("[broadcast] task finished, cost={}, message={}", (System.currentTimeMillis() - begin), message);
         OkMessage.from(message).sendRaw();//通知发送方，广播推送完毕
     }
 
@@ -134,9 +134,9 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
     @Override
     public void operationComplete(ChannelFuture future) throws Exception {
         if (future.isSuccess()) {//推送成功
-            Logs.PUSH.info("<<< gateway broadcast client success, userId={}, message={}", message.userId, message);
+            Logs.PUSH.info("[broadcast] push message to client success, userId={}, message={}", message.userId, message);
         } else {//推送失败
-            Logs.PUSH.info("gateway broadcast client failure, userId={}, message={}", message.userId, message);
+            Logs.PUSH.warn("[broadcast] push message to client failure, userId={}, message={}, conn={}", message.userId, message, future.channel());
         }
         if (finishTasks.decrementAndGet() == 0) {
             report();

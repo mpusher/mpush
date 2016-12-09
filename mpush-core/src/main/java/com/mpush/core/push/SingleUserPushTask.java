@@ -82,7 +82,7 @@ public final class SingleUserPushTask implements PushTask {
         //2.如果链接失效，先删除本地失效的路由，再查下远程路由，看用户是否登陆到其他机器
         if (!connection.isConnected()) {
 
-            Logs.PUSH.info("gateway push, router in local but disconnect, message={}", message, connection);
+            Logs.PUSH.warn("[SingleUserPush] find local router but conn disconnected, message={}, conn={}", message, connection);
 
             //删除已经失效的本地路由
             RouterCenter.I.getLocalRouterManager().unRegister(userId, clientType);
@@ -94,7 +94,7 @@ public final class SingleUserPushTask implements PushTask {
         if (!connection.getChannel().isWritable()) {
             ErrorMessage.from(message).setErrorCode(PUSH_CLIENT_FAILURE).setData(userId + ',' + clientType).sendRaw();
 
-            Logs.PUSH.info("gateway push message to client failure, send too busy, message={}", message);
+            Logs.PUSH.error("[SingleUserPush] push message to client failure, tcp sender too busy, message={}, conn={}", message, connection);
             return true;
         }
 
@@ -112,13 +112,13 @@ public final class SingleUserPushTask implements PushTask {
                         OkMessage.from(message).setData(userId + ',' + clientType).sendRaw();
                     }
 
-                    Logs.PUSH.info("<<< gateway push message to client success, message={}", message);
+                    Logs.PUSH.info("[SingleUserPush] push message to client success, message={}", message);
 
                 } else {//推送失败
 
                     ErrorMessage.from(message).setErrorCode(PUSH_CLIENT_FAILURE).setData(userId + ',' + clientType).sendRaw();
 
-                    Logs.PUSH.info("gateway push message to client failure, message={}", message);
+                    Logs.PUSH.error("[SingleUserPush] push message to client failure, message={}, conn={}", message, connection);
                 }
             });
         } else {
@@ -145,7 +145,7 @@ public final class SingleUserPushTask implements PushTask {
 
             ErrorMessage.from(message).setErrorCode(OFFLINE).setData(userId + ',' + clientType).sendRaw();
 
-            Logs.PUSH.info("gateway push, router not exists user offline, message={}", message);
+            Logs.PUSH.info("[SingleUserPush] remote router not exists user offline, message={}", message);
 
             return;
         }
@@ -158,7 +158,8 @@ public final class SingleUserPushTask implements PushTask {
             //删除失效的远程缓存
             RouterCenter.I.getRemoteRouterManager().unRegister(userId, clientType);
 
-            Logs.PUSH.info("gateway push error remote is local, userId={}, clientType={}, router={}", userId, clientType, remoteRouter);
+            Logs.PUSH.info("[SingleUserPush] find remote router in this pc, but local router not exists, userId={}, clientType={}, router={}"
+                    , userId, clientType, remoteRouter);
 
             return;
         }
@@ -166,7 +167,7 @@ public final class SingleUserPushTask implements PushTask {
         //3.否则说明用户已经跑到另外一台机器上了；路由信息发生更改，让PushClient重推
         ErrorMessage.from(message).setErrorCode(ROUTER_CHANGE).setData(userId + ',' + clientType).sendRaw();
 
-        Logs.PUSH.info("gateway push, router in remote userId={}, clientType={}, router={}", userId, clientType, remoteRouter);
+        Logs.PUSH.info("[SingleUserPush] find router in another pc, userId={}, clientType={}, router={}", userId, clientType, remoteRouter);
 
     }
 
@@ -178,27 +179,27 @@ public final class SingleUserPushTask implements PushTask {
             @Override
             public void onSuccess(AckContext ctx) {
                 if (!message.getConnection().isConnected()) {
-                    Logs.PUSH.info(">>> receive client ack, gateway connection is closed, context={}", ctx);
+                    Logs.PUSH.warn("receive client ack, gateway connection is closed, context={}", ctx);
                     return;
                 }
 
                 OkMessage okMessage = OkMessage.from(message);
                 okMessage.setData(message.userId + ',' + message.clientType);
                 okMessage.sendRaw();
-                Logs.PUSH.info(">>> receive client ack and response gateway client success, context={}", ctx);
+                Logs.PUSH.info("receive client ack and response gateway client success, context={}", ctx);
             }
 
             @Override
             public void onTimeout(AckContext ctx) {
                 if (!message.getConnection().isConnected()) {
-                    Logs.PUSH.info("push message timeout client not ack, gateway connection is closed, context={}", ctx);
+                    Logs.PUSH.warn("push message timeout client not ack, gateway connection is closed, context={}", ctx);
                     return;
                 }
                 ErrorMessage errorMessage = ErrorMessage.from(message);
                 errorMessage.setData(message.userId + ',' + message.clientType);
                 errorMessage.setErrorCode(ErrorCode.ACK_TIMEOUT);
                 errorMessage.sendRaw();
-                Logs.PUSH.info("push message timeout client not ack, context={}", ctx);
+                Logs.PUSH.warn("push message timeout client not ack, context={}", ctx);
             }
         });
     }

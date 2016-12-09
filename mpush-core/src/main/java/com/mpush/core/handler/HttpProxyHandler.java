@@ -36,6 +36,7 @@ import com.mpush.tools.log.Logs;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -51,7 +52,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  * @author ohun@live.cn
  */
 public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
-    private static final Logger LOGGER = Logs.HTTP;
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxyHandler.class);
     private final HttpClient httpClient = NettyHttpClient.I();
     private final DnsMappingManager dnsMappingManager = DnsMappingManager.create();
 
@@ -72,7 +73,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                         .setStatusCode(400)
                         .setReasonPhrase("Bad Request")
                         .sendRaw();
-                LOGGER.warn("request url is empty!");
+                Logs.HTTP.warn("receive bad request url is empty, request={}", message);
             }
 
             //2.url转换
@@ -94,6 +95,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                     .setReasonPhrase("Bad Gateway")
                     .sendRaw();
             LOGGER.error("send request ex, message=" + message, e);
+            Logs.HTTP.error("send proxy request ex, request={}, error={}", message, e.getMessage());
         } finally {
             Profiler.release();
         }
@@ -127,7 +129,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                 }
             }
             response.send();
-            LOGGER.debug("<<< callback success request={}, response={}", request, response);
+            Logs.HTTP.info("send proxy request success end request={}, response={}", request, response);
         }
 
         @Override
@@ -137,7 +139,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                     .setStatusCode(statusCode)
                     .setReasonPhrase(reasonPhrase)
                     .sendRaw();
-            LOGGER.warn("callback failure request={}, response={}", request, statusCode + ":" + reasonPhrase);
+            Logs.HTTP.warn("send proxy request failure end request={}, response={}", request, statusCode + ":" + reasonPhrase);
         }
 
         @Override
@@ -147,7 +149,9 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                     .setStatusCode(502)
                     .setReasonPhrase("Bad Gateway")
                     .sendRaw();
-            LOGGER.error("callback exception request={}, response={}", request, 502, throwable);
+
+            LOGGER.error("send proxy request ex end request={}, response={}", request, 502, throwable);
+            Logs.HTTP.error("send proxy request ex end request={}, response={}, error={}", request, 502, throwable.getMessage());
         }
 
         @Override
@@ -157,7 +161,7 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                     .setStatusCode(408)
                     .setReasonPhrase("Request Timeout")
                     .sendRaw();
-            LOGGER.warn("callback timeout request={}, response={}", request, 408);
+            Logs.HTTP.warn("send proxy request timeout end request={}, response={}", request, 408);
         }
 
         @Override
