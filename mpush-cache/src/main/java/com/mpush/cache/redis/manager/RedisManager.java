@@ -59,13 +59,13 @@ public final class RedisManager {
             try {
                 return function.apply(factory.getClusterConnection());
             } catch (Exception e) {
-                Logs.REDIS.error("redis ex:{}, {}, {}, {}", e);
+                Logs.REDIS.error("redis ex", e);
             }
         } else {
             try (Jedis jedis = factory.getJedisConnection()) {
                 return function.apply(jedis);
             } catch (Exception e) {
-                Logs.REDIS.error("redis ex:{}, {}, {}, {}", e);
+                Logs.REDIS.error("redis ex", e);
             }
         }
         return d;
@@ -76,13 +76,13 @@ public final class RedisManager {
             try {
                 consumer.accept(factory.getClusterConnection());
             } catch (Exception e) {
-                Logs.REDIS.error("redis ex:{}, {}, {}, {}", e);
+                Logs.REDIS.error("redis ex", e);
             }
         } else {
             try (Jedis jedis = factory.getJedisConnection()) {
                 consumer.accept(jedis);
             } catch (Exception e) {
-                Logs.REDIS.error("redis ex:{}, {}, {}, {}", e);
+                Logs.REDIS.error("redis ex", e);
             }
         }
     }
