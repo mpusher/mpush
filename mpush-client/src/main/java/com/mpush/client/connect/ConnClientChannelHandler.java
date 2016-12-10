@@ -210,7 +210,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 handshake();
             }
         });
-        LOGGER.debug("<<< send fast connect message={}", message);
+        LOGGER.debug("send fast connect message={}", message);
     }
 
     private void bindUser(ClientConfig client) {
@@ -219,7 +219,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
         message.tags = "test";
         message.send();
         connection.getSessionContext().setUserId(client.getUserId());
-        LOGGER.debug("<<< send bind user message={}", message);
+        LOGGER.debug("send bind user message={}", message);
     }
 
     private void saveToRedisForFastConnection(ClientConfig client, String sessionId, Long expireTime, byte[] sessionKey) {
@@ -247,7 +247,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
         message.osVersion = clientConfig.getOsVersion();
         message.timestamp = System.currentTimeMillis();
         message.send();
-        LOGGER.debug("<<< send handshake message={}", message);
+        LOGGER.debug("send handshake message={}", message);
     }
 
     private void startHeartBeat(final int heartbeat) throws Exception {
@@ -278,7 +278,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
         }
 
         if (connection.isWriteTimeout()) {
-            LOGGER.info("<<< send heartbeat ping...");
+            LOGGER.info("send heartbeat ping...");
             connection.send(Packet.HB_PACKET);
         }
 
