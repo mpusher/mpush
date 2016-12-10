@@ -207,7 +207,7 @@
                 <version>4.10</version>
                 <scope>test</scope>
             </dependency>
-            <!-- commons -->
+            <!-- apache commons -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
@@ -228,7 +228,7 @@
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-recipes</artifactId>
-                <version>2.11.1</version>
+                <version>2.11.1</version><!--(client 2.x.x <==> server 3.4.x) (client 3.x.x <==> server 3.5.x)-->
                 <exclusions>
                     <exclusion>
                         <artifactId>netty</artifactId>
@@ -239,15 +239,15 @@
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-x-discovery</artifactId>
-                <version>2.11.1</version>
+                <version>2.11.1</version><!--(client 2.x.x <==> server 3.4.x) (client 3.x.x <==> server 3.5.x)-->
             </dependency>
-            <!-- redis -->
+            <!-- redis client -->
             <dependency>
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
                 <version>2.9.0</version>
             </dependency>
-            <!-- json lib-->
+            <!-- json lib -->
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
