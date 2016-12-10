@@ -45,7 +45,7 @@ public final class ClientPushHandler extends BaseMessageHandler<PushMessage> imp
 
     @Override
     public void handle(PushMessage message) {
-        Logs.PUSH.info(">>> receive client push message={}", message);
+        Logs.PUSH.info("receive client push message={}", message);
 
         if (message.autoAck()) {
             AckMessage.from(message).sendRaw();

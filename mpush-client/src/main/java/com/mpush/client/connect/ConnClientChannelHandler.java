@@ -87,7 +87,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 connection.getSessionContext().changeCipher(new AesCipher(sessionKey, clientConfig.getIv()));
                 connection.getSessionContext().setHeartbeat(message.heartbeat);
                 startHeartBeat(message.heartbeat - 1000);
-                LOGGER.info(">>> handshake success, clientConfig={}, connectedNum={}", clientConfig, connectedNum);
+                LOGGER.info("handshake success, clientConfig={}, connectedNum={}", clientConfig, connectedNum);
                 bindUser(clientConfig);
                 if (!perfTest) {
                     saveToRedisForFastConnection(clientConfig, message.sessionId, message.expireTime, sessionKey);
@@ -104,27 +104,27 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 connection.getSessionContext().setHeartbeat(message.heartbeat);
                 startHeartBeat(message.heartbeat - 1000);
                 bindUser(clientConfig);
-                LOGGER.info(">>> fast connect success, clientConfig={}, connectedNum={}", clientConfig, connectedNum);
+                LOGGER.info("fast connect success, clientConfig={}, connectedNum={}", clientConfig, connectedNum);
             } else if (command == Command.KICK) {
                 KickUserMessage message = new KickUserMessage(packet, connection);
-                LOGGER.error(">>> receive kick user userId={}, deviceId={}, message={},", clientConfig.getUserId(), clientConfig.getDeviceId(), message);
+                LOGGER.error("receive kick user userId={}, deviceId={}, message={},", clientConfig.getUserId(), clientConfig.getDeviceId(), message);
                 ctx.close();
             } else if (command == Command.ERROR) {
                 ErrorMessage errorMessage = new ErrorMessage(packet, connection);
-                LOGGER.error(">>> receive an error packet=" + errorMessage);
+                LOGGER.error("receive an error packet=" + errorMessage);
             } else if (command == Command.PUSH) {
                 int receivePushNum = STATISTICS.receivePushNum.incrementAndGet();
 
                 PushMessage message = new PushMessage(packet, connection);
-                LOGGER.info(">>> receive an push message, content={}, receivePushNum={}", new String(message.content, Constants.UTF_8), receivePushNum);
+                LOGGER.info("receive an push message, content={}, receivePushNum={}", new String(message.content, Constants.UTF_8), receivePushNum);
 
                 if (message.needAck()) {
                     AckMessage.from(message).sendRaw();
-                    LOGGER.info(">>> send ack success for sessionId={}", message.getSessionId());
+                    LOGGER.info("send ack success for sessionId={}", message.getSessionId());
                 }
 
             } else if (command == Command.HEARTBEAT) {
-                LOGGER.info(">>> receive a heartbeat pong...");
+                LOGGER.info("receive a heartbeat pong...");
             } else if (command == Command.OK) {
                 OkMessage okMessage = new OkMessage(packet, connection);
                 int bindUserNum = STATISTICS.bindUserNum.get();
@@ -132,11 +132,11 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                     bindUserNum = STATISTICS.bindUserNum.incrementAndGet();
                 }
 
-                LOGGER.info(">>> receive an success message={}, bindUserNum={}", okMessage, bindUserNum);
+                LOGGER.info("receive an success message={}, bindUserNum={}", okMessage, bindUserNum);
 
             } else if (command == Command.HTTP_PROXY) {
                 HttpResponseMessage message = new HttpResponseMessage(packet, connection);
-                LOGGER.info(">>> receive a http response, message={}, body={}",
+                LOGGER.info("receive a http response, message={}, body={}",
                         message, message.body == null ? null : new String(message.body, Constants.UTF_8));
             }
         }
