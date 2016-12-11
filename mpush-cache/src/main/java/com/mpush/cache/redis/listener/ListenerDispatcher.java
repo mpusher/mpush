@@ -54,12 +54,7 @@ public class ListenerDispatcher implements MessageListener {
     }
 
     public void subscribe(String channel, MessageListener listener) {
-        List<MessageListener> listeners = subscribes.get(channel);
-        if (listeners == null) {
-            listeners = Lists.newArrayList();
-            subscribes.put(channel, listeners);
-        }
-        listeners.add(listener);
+        subscribes.computeIfAbsent(channel, k -> Lists.newArrayList()).add(listener);
         RedisManager.I.subscribe(Subscriber.holder, channel);
     }
 }

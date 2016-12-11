@@ -51,9 +51,12 @@ import static com.mpush.zk.node.ZKServerNode.GS_NODE;
 public final class RouterChangeListener extends EventConsumer implements MessageListener {
     public static final String KICK_CHANNEL_ = "/mpush/kick/";
     private final String kick_channel = KICK_CHANNEL_ + GS_NODE.getHostAndPort();
+    private final boolean udpGateway = CC.mp.net.udpGateway();
 
     public RouterChangeListener() {
-        ListenerDispatcher.I.subscribe(getKickChannel(), this);
+        if (!udpGateway) {
+            ListenerDispatcher.I.subscribe(getKickChannel(), this);
+        }
     }
 
     public String getKickChannel() {
@@ -113,7 +116,7 @@ public final class RouterChangeListener extends EventConsumer implements Message
             return;
         }
 
-        if (CC.mp.net.udpGateway()) {
+        if (udpGateway) {
             Connection connection = GatewayUDPConnector.I().getConnection();
             GatewayKickUserMessage.build(connection)
                     .setUserId(userId)
