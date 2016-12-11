@@ -107,7 +107,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 LOGGER.info("fast connect success, clientConfig={}, connectedNum={}", clientConfig, connectedNum);
             } else if (command == Command.KICK) {
                 KickUserMessage message = new KickUserMessage(packet, connection);
-                LOGGER.error("receive kick user userId={}, deviceId={}, message={},", clientConfig.getUserId(), clientConfig.getDeviceId(), message);
+                LOGGER.error("receive kick user msg userId={}, deviceId={}, message={},", clientConfig.getUserId(), clientConfig.getDeviceId(), message);
                 ctx.close();
             } else if (command == Command.ERROR) {
                 ErrorMessage errorMessage = new ErrorMessage(packet, connection);
@@ -116,7 +116,8 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 int receivePushNum = STATISTICS.receivePushNum.incrementAndGet();
 
                 PushMessage message = new PushMessage(packet, connection);
-                LOGGER.info("receive an push message, content={}, receivePushNum={}", new String(message.content, Constants.UTF_8), receivePushNum);
+                LOGGER.info("receive push message, content={}, receivePushNum={}"
+                        , new String(message.content, Constants.UTF_8), receivePushNum);
 
                 if (message.needAck()) {
                     AckMessage.from(message).sendRaw();
@@ -124,7 +125,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 }
 
             } else if (command == Command.HEARTBEAT) {
-                LOGGER.info("receive a heartbeat pong...");
+                LOGGER.info("receive heartbeat pong...");
             } else if (command == Command.OK) {
                 OkMessage okMessage = new OkMessage(packet, connection);
                 int bindUserNum = STATISTICS.bindUserNum.get();
@@ -132,17 +133,16 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                     bindUserNum = STATISTICS.bindUserNum.incrementAndGet();
                 }
 
-                LOGGER.info("receive an success message={}, bindUserNum={}", okMessage, bindUserNum);
+                LOGGER.info("receive {}, bindUserNum={}", okMessage, bindUserNum);
 
             } else if (command == Command.HTTP_PROXY) {
                 HttpResponseMessage message = new HttpResponseMessage(packet, connection);
-                LOGGER.info("receive a http response, message={}, body={}",
+                LOGGER.info("receive http response, message={}, body={}",
                         message, message.body == null ? null : new String(message.body, Constants.UTF_8));
             }
         }
 
-
-        LOGGER.debug("update currentTime:" + ctx.channel() + "," + msg);
+        LOGGER.debug("receive package={}, chanel={}", msg, ctx.channel());
     }
 
     @Override
