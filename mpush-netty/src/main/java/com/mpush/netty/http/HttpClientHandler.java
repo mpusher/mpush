@@ -40,6 +40,7 @@ import java.net.URLDecoder;
         RequestContext context = ctx.channel().attr(client.requestKey).getAndRemove();
         try {
             if (context != null && context.tryDone()) {
+                LOGGER.debug("receive server response, request={}, response={}", context, msg);
                 HttpResponse response = (HttpResponse) msg;
                 if (isRedirect(response)) {
                     if (context.onRedirect(response)) {
@@ -53,7 +54,8 @@ import java.net.URLDecoder;
                     }
                 }
                 context.onResponse(response);
-                LOGGER.debug("request done request={}", context);
+            } else {
+                LOGGER.warn("receive server response but timeout, request={}, response={}", context, msg);
             }
         } finally {
             client.pool.tryRelease(ctx.channel());

@@ -60,7 +60,9 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
 
     @Override
     public FutureTask<Boolean> send(PushContext ctx) {
-        if (ctx.getUserId() != null) {
+        if (ctx.isBroadcast()) {
+            return send0(ctx.setUserId(null));
+        } else if (ctx.getUserId() != null) {
             return send0(ctx);
         } else if (ctx.getUserIds() != null) {
             FutureTask<Boolean> task = null;
@@ -68,8 +70,6 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
                 task = send0(ctx.setUserId(userId));
             }
             return task;
-        } else if (ctx.isBroadcast()) {
-            return send0(ctx.setUserId(null));
         } else {
             throw new PushException("param error.");
         }

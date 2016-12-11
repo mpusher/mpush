@@ -50,9 +50,9 @@ public abstract class GatewayConnectionFactory extends ZKServerNodeCache {
         listener.onSuccess();
     }
 
-    abstract public Connection getConnection(String ip);
+    abstract public Connection getConnection(String hostAndPort);
 
-    abstract public <M extends BaseMessage> Function<String, Void> send(Function<Connection, M> creator, Function<M, Void> sender);
+    abstract public <M extends BaseMessage> void send(String hostAndPort, Function<Connection, M> creator, Function<M, Void> sender);
 
     abstract public <M extends BaseMessage> void broadcast(Function<Connection, M> creator, Consumer<M> sender);
 

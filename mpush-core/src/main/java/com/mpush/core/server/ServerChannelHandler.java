@@ -48,10 +48,8 @@ public final class ServerChannelHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerChannelHandler.class);
 
     private static final long profile_slowly_limit = CC.mp.monitor.profile_slowly_duration.toMillis();
-    /**
-     * 是否启用加密
-     */
-    private final boolean security;
+
+    private final boolean security; //是否启用加密
     private final ConnectionManager connectionManager;
     private final PacketReceiver receiver;
 
@@ -69,7 +67,7 @@ public final class ServerChannelHandler extends ChannelInboundHandlerAdapter {
         try {
             Profiler.start("time cost on [channel read]: " + packet.toString());
             Connection connection = connectionManager.get(ctx.channel());
-            LOGGER.debug("channelRead channel={}, connection={}, packet={}", ctx.channel(), connection.getSessionContext(), msg);
+            LOGGER.debug("channelRead conn={}, packet={}", ctx.channel(), connection.getSessionContext(), msg);
             connection.updateLastReadTime();
             receiver.onReceive(packet, connection);
         } finally {
@@ -84,13 +82,13 @@ public final class ServerChannelHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         Connection connection = connectionManager.removeAndClose(ctx.channel());
-        Logs.Conn.error("client exceptionCaught channel={}, connection={}", ctx.channel(), connection);
-        LOGGER.error("caught an ex, channel={}, connection={}", ctx.channel(), connection, cause);
+        Logs.CONN.error("client caught ex, conn={}", connection);
+        LOGGER.error("caught an ex, channel={}, conn={}", ctx.channel(), connection, cause);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        Logs.Conn.info("client connect channel={}", ctx.channel());
+        Logs.CONN.info("client connected conn={}", ctx.channel());
         Connection connection = new NettyConnection();
         connection.init(ctx.channel(), security);
         connectionManager.add(connection);
@@ -100,11 +98,6 @@ public final class ServerChannelHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Connection connection = connectionManager.removeAndClose(ctx.channel());
         EventBus.I.post(new ConnectionCloseEvent(connection));
-        Logs.Conn.info("client disconnect channel={}, connection={}", ctx.channel(), connection);
-    }
-
-    @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        super.userEventTriggered(ctx, evt);
+        Logs.CONN.info("client disconnected conn={}", connection);
     }
 }

@@ -25,6 +25,7 @@ import com.mpush.api.connection.SessionContext;
 import com.mpush.api.protocol.Packet;
 import com.mpush.api.spi.core.CipherFactory;
 import com.mpush.netty.codec.PacketEncoder;
+import com.mpush.tools.log.Logs;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -113,9 +114,13 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     }
 
     @Override
-    public boolean heartbeatTimeout() {
-        long between = System.currentTimeMillis() - lastReadTime;
-        return context.heartbeat > 0 && between > context.heartbeat;
+    public boolean isReadTimeout() {
+        return System.currentTimeMillis() - lastReadTime > context.heartbeat + 1000;
+    }
+
+    @Override
+    public boolean isWriteTimeout() {
+        return System.currentTimeMillis() - lastWriteTime > context.heartbeat - 1000;
     }
 
     @Override
@@ -124,28 +129,24 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     }
 
     @Override
-    public long getLastReadTime() {
-        return lastReadTime;
-    }
-
-    @Override
     public void operationComplete(ChannelFuture future) throws Exception {
         if (future.isSuccess()) {
             lastWriteTime = System.currentTimeMillis();
         } else {
             LOGGER.error("connection send msg error", future.cause());
+            Logs.CONN.error("connection send msg error={}, conn={}", future.cause().getMessage(), this);
         }
     }
 
+    @Override
     public void updateLastWriteTime() {
         lastWriteTime = System.currentTimeMillis();
     }
 
-
     @Override
     public String toString() {
-        return "NettyConnection [context=" + context
-                + ", channel=" + channel
+        return "[channel=" + channel
+                + ", context=" + context
                 + ", status=" + status
                 + ", lastReadTime=" + lastReadTime
                 + ", lastWriteTime=" + lastWriteTime
@@ -156,6 +157,5 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     public Channel getChannel() {
         return channel;
     }
-
 
 }

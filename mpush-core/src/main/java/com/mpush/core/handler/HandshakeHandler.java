@@ -61,14 +61,14 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
                 || iv.length != CipherBox.I.getAesKeyLength()
                 || clientKey.length != CipherBox.I.getAesKeyLength()) {
             ErrorMessage.from(message).setReason("Param invalid").close();
-            Logs.Conn.info("handshake failure, message={}", message.toString());
+            Logs.CONN.error("handshake failure, message={}, conn={}", message, message.getConnection());
             return;
         }
 
         //2.重复握手判断
         SessionContext context = message.getConnection().getSessionContext();
         if (message.deviceId.equals(context.deviceId)) {
-            Logs.Conn.info("handshake failure, repeat handshake, session={}", message.getConnection().getSessionContext());
+            Logs.CONN.warn("handshake failure, repeat handshake, conn={}", message.getConnection());
             return;
         }
 
@@ -105,6 +105,6 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
 
         //10.触发握手成功事件
         EventBus.I.post(new HandshakeEvent(message.getConnection(), heartbeat));
-        Logs.Conn.info(">>> handshake success, session={}", context);
+        Logs.CONN.info("handshake success, conn={}", message.getConnection());
     }
 }

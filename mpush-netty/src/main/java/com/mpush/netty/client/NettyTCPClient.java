@@ -162,6 +162,10 @@ public abstract class NettyTCPClient extends BaseService implements Client {
         return port;
     }
 
+    public String getHostAndPort() {
+        return host + ":" + port;
+    }
+
     @Override
     public String toString() {
         return "NettyClient{" +

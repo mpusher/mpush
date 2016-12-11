@@ -234,7 +234,7 @@ public interface CC {
 
             int sessionTimeoutMs = (int) cfg.getDuration("sessionTimeoutMs", TimeUnit.MILLISECONDS);
 
-            String local_cache_path = cfg.getString("local-cache-path");
+            String watch_path = cfg.getString("watch-path");
 
             int connectionTimeoutMs = (int) cfg.getDuration("connectionTimeoutMs", TimeUnit.MILLISECONDS);
 

@@ -61,7 +61,7 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
     @Override
     public void put(String fullPath, ZKServerNode node) {
         super.put(fullPath, node);
-        ip_address.put(node.getIp(), new InetSocketAddress(node.getIp(), node.getPort()));
+        ip_address.put(node.getHostAndPort(), new InetSocketAddress(node.getIp(), node.getPort()));
     }
 
     @Override
@@ -79,30 +79,23 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
     }
 
     @Override
-    public Connection getConnection(String ip) {
+    public Connection getConnection(String hostAndPort) {
         return connector.getConnection();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <T extends BaseMessage> Function<String, Void> send(Function<Connection, T> creator, Function<T, Void> sender) {
+    public <T extends BaseMessage> void send(String hostAndPort, Function<Connection, T> creator, Function<T, Void> sender) {
+        InetSocketAddress recipient = ip_address.get(hostAndPort);
+        if (recipient == null) {// gateway server 找不到，直接返回推送失败
+            creator.apply(null);
+            return;
+        }
 
-        Holder<InetSocketAddress> holder = new Holder<>();
-
-        Function<String, Connection> getConn = host -> {
-            InetSocketAddress recipient = ip_address.get(host);
-            if (recipient == null) return null;
-            holder.set(recipient);
-            return connector.getConnection();
-        };
-
-        Function<T, T> setRecipientFun = message -> {
-            if (message != null) {
-                message.setRecipient(holder.get());
-            }
-            return message;
-        };
-
-        return creator.compose(getConn).andThen(setRecipientFun).andThen(sender);
+        creator.compose(this::getConnection)
+                .andThen(message -> (T) message.setRecipient(recipient))
+                .andThen(sender)
+                .apply(hostAndPort);
     }
 
     @Override

@@ -17,33 +17,28 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.common.net;
+package com.mpush.client.connect;
 
-import com.mpush.tools.Utils;
-import com.mpush.tools.config.CC;
-
-import static com.mpush.zk.node.ZKServerNode.GS_NODE;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Created by ohun on 16/10/23.
+ * Created by ohun on 2016/12/8.
  *
  * @author ohun@live.cn (夜色)
  */
-public interface KickRemoteMsg {
-    String getUserId();
+public final class TestStatistics {
+    public AtomicInteger clientNum = new AtomicInteger();
+    public AtomicInteger connectedNum = new AtomicInteger();
+    public AtomicInteger bindUserNum = new AtomicInteger();
+    public AtomicInteger receivePushNum = new AtomicInteger();
 
-    String getDeviceId();
-
-    String getConnId();
-
-    int getClientType();
-
-    String getTargetServer();
-
-    int getTargetPort();
-
-    default boolean isTargetPC() {
-        return this.getTargetPort() == GS_NODE.getPort()
-                && this.getTargetServer().equals(Utils.getLocalIp());
+    @Override
+    public String toString() {
+        return "TestStatistics{" +
+                "clientNum=" + clientNum +
+                ", connectedNum=" + connectedNum +
+                ", bindUserNum=" + bindUserNum +
+                ", receivePushNum=" + receivePushNum +
+                '}';
     }
 }

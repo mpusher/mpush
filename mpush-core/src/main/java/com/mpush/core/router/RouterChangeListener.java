@@ -41,7 +41,7 @@ import com.mpush.tools.log.Logs;
 
 import java.net.InetSocketAddress;
 
-import static com.mpush.tools.config.CC.mp.net.gateway_server_port;
+import static com.mpush.zk.node.ZKServerNode.GS_NODE;
 
 /**
  * Created by ohun on 2016/1/4.
@@ -50,7 +50,7 @@ import static com.mpush.tools.config.CC.mp.net.gateway_server_port;
  */
 public final class RouterChangeListener extends EventConsumer implements MessageListener {
     public static final String KICK_CHANNEL_ = "/mpush/kick/";
-    private final String kick_channel = KICK_CHANNEL_ + Utils.getLocalIp();
+    private final String kick_channel = KICK_CHANNEL_ + GS_NODE.getHostAndPort();
 
     public RouterChangeListener() {
         ListenerDispatcher.I.subscribe(getKickChannel(), this);
@@ -60,8 +60,8 @@ public final class RouterChangeListener extends EventConsumer implements Message
         return kick_channel;
     }
 
-    public String getKickChannel(String remoteIp) {
-        return KICK_CHANNEL_ + remoteIp;
+    public String getKickChannel(String hostAndPort) {
+        return KICK_CHANNEL_ + hostAndPort;
     }
 
     @Subscribe
@@ -89,9 +89,9 @@ public final class RouterChangeListener extends EventConsumer implements Message
         message.userId = userId;
         message.send(future -> {
             if (future.isSuccess()) {
-                Logs.Conn.info("kick local connection success, userId={}, router={}", userId, router);
+                Logs.CONN.info("kick local connection success, userId={}, router={}, conn={}", userId, router, connection);
             } else {
-                Logs.Conn.info("kick local connection failure, userId={}, router={}", userId, router);
+                Logs.CONN.warn("kick local connection failure, userId={}, router={}, conn={}", userId, router, connection);
             }
         });
     }
@@ -108,8 +108,8 @@ public final class RouterChangeListener extends EventConsumer implements Message
     private void kickRemote(String userId, RemoteRouter remoteRouter) {
         ClientLocation location = remoteRouter.getRouteValue();
         //1.如果目标机器是当前机器，就不要再发送广播了，直接忽略
-        if (location.getHost().equals(Utils.getLocalIp())) {
-            Logs.Conn.info("kick remote user but router in local, userId={}", userId);
+        if (location.isThisPC(GS_NODE.getIp(), GS_NODE.getPort())) {
+            Logs.CONN.debug("kick remote router in local pc, ignore remote broadcast, userId={}", userId);
             return;
         }
 
@@ -121,7 +121,8 @@ public final class RouterChangeListener extends EventConsumer implements Message
                     .setConnId(location.getConnId())
                     .setDeviceId(location.getDeviceId())
                     .setTargetServer(location.getHost())
-                    .setRecipient(new InetSocketAddress(location.getHost(), gateway_server_port))
+                    .setTargetPort(location.getPort())
+                    .setRecipient(new InetSocketAddress(location.getHost(), location.getPort()))
                     .sendRaw();
         } else {
             //2.发送广播
@@ -131,8 +132,9 @@ public final class RouterChangeListener extends EventConsumer implements Message
                     .setClientType(location.getClientType())
                     .setConnId(location.getConnId())
                     .setDeviceId(location.getDeviceId())
-                    .setTargetServer(location.getHost());
-            RedisManager.I.publish(getKickChannel(location.getHost()), message);
+                    .setTargetServer(location.getHost())
+                    .setTargetPort(location.getPort());
+            RedisManager.I.publish(getKickChannel(location.getHostAndPort()), message);
         }
     }
 
@@ -146,8 +148,8 @@ public final class RouterChangeListener extends EventConsumer implements Message
      */
     public void onReceiveKickRemoteMsg(KickRemoteMsg msg) {
         //1.如果当前机器不是目标机器，直接忽略
-        if (!msg.getTargetServer().equals(Utils.getLocalIp())) {
-            Logs.Conn.info("receive kick remote msg, target server error, localIp={}, msg={}", Utils.getLocalIp(), msg);
+        if (!msg.isTargetPC()) {
+            Logs.CONN.error("receive kick remote msg, target server error, localIp={}, msg={}", Utils.getLocalIp(), msg);
             return;
         }
 
@@ -157,17 +159,17 @@ public final class RouterChangeListener extends EventConsumer implements Message
         LocalRouterManager localRouterManager = RouterCenter.I.getLocalRouterManager();
         LocalRouter localRouter = localRouterManager.lookup(userId, clientType);
         if (localRouter != null) {
-            Logs.Conn.info("receive kick remote msg, msg={}", msg);
+            Logs.CONN.info("receive kick remote msg, msg={}", msg);
             if (localRouter.getRouteValue().getId().equals(msg.getConnId())) {//二次校验，防止误杀
                 //2.1删除本地路由信息
                 localRouterManager.unRegister(userId, clientType);
                 //2.2发送踢人消息到客户端
                 kickLocal(userId, localRouter);
             } else {
-                Logs.Conn.warn("kick router connId was wrong, localRouter={}, msg={}", localRouter, msg);
+                Logs.CONN.warn("kick router failure target connId not match, localRouter={}, msg={}", localRouter, msg);
             }
         } else {
-            Logs.Conn.info("no local router find, kick failure, msg={}", msg);
+            Logs.CONN.warn("kick router failure can't find local router, msg={}", msg);
         }
     }
 
@@ -178,10 +180,10 @@ public final class RouterChangeListener extends EventConsumer implements Message
             if (msg != null) {
                 onReceiveKickRemoteMsg(msg);
             } else {
-                Logs.Conn.info("receive an error kick message={}", message);
+                Logs.CONN.warn("receive an error kick message={}", message);
             }
         } else {
-            Logs.Conn.info("receive an error redis channel={}", channel);
+            Logs.CONN.warn("receive an error redis channel={}", channel);
         }
     }
 }

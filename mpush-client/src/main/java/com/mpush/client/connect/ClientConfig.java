@@ -95,4 +95,11 @@ public class ClientConfig {
         this.userId = userId;
     }
 
+    @Override
+    public String toString() {
+        return "{" +
+                "deviceId='" + deviceId + '\'' +
+                ", userId='" + userId + '\'' +
+                '}';
+    }
 }

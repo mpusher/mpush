@@ -30,6 +30,7 @@ import com.mpush.tools.log.Logs;
 import com.mpush.tools.thread.NamedThreadFactory;
 import com.mpush.tools.thread.ThreadNames;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelId;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.TimerTask;
@@ -46,7 +47,7 @@ import java.util.concurrent.TimeUnit;
  * @author ohun@live.cn
  */
 public final class ServerConnectionManager implements ConnectionManager {
-    private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMap<>();
+    private final ConcurrentMap<ChannelId, Connection> connections = new ConcurrentHashMap<>();
 
     private HashedWheelTimer timer;
     private final boolean heartbeatCheck;
@@ -76,19 +77,19 @@ public final class ServerConnectionManager implements ConnectionManager {
     }
 
     @Override
-    public Connection get(final Channel channel) {
-        return connections.get(channel.id().asShortText());
+    public Connection get(Channel channel) {
+        return connections.get(channel.id());
     }
 
     @Override
     public void add(Connection connection) {
-        connections.putIfAbsent(connection.getChannel().id().asShortText(), connection);
+        connections.putIfAbsent(connection.getChannel().id(), connection);
         if (heartbeatCheck) new HeartbeatCheckTask(connection).startTimeout();
     }
 
     @Override
     public Connection removeAndClose(Channel channel) {
-        Connection connection = connections.remove(channel.id().asShortText());
+        Connection connection = connections.remove(channel.id());
         if (connection != null) {
             connection.close();
         }
@@ -122,13 +123,13 @@ public final class ServerConnectionManager implements ConnectionManager {
         @Override
         public void run(Timeout timeout) throws Exception {
             if (!connection.isConnected()) {
-                Logs.HB.info("connection was disconnected, heartbeat timeout times={}, connection={}", timeoutTimes, connection);
+                Logs.HB.info("heartbeat timeout times={}, connection disconnected, conn={}", timeoutTimes, connection);
                 return;
             }
-            if (connection.heartbeatTimeout()) {
+            if (connection.isReadTimeout()) {
                 if (++timeoutTimes > CC.mp.core.max_hb_timeout_times) {
                     connection.close();
-                    Logs.HB.info("client heartbeat timeout times={}, do close connection={}", timeoutTimes, connection);
+                    Logs.HB.warn("client heartbeat timeout times={}, do close conn={}", timeoutTimes, connection);
                     return;
                 } else {
                     Logs.HB.info("client heartbeat timeout times={}, connection={}", timeoutTimes, connection);

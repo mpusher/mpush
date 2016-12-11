@@ -59,13 +59,13 @@ public final class RedisManager {
             try {
                 return function.apply(factory.getClusterConnection());
             } catch (Exception e) {
-                Logs.REDIS.error("redis ex:{}, {}, {}, {}", e);
+                Logs.REDIS.error("redis ex", e);
             }
         } else {
             try (Jedis jedis = factory.getJedisConnection()) {
                 return function.apply(jedis);
             } catch (Exception e) {
-                Logs.REDIS.error("redis ex:{}, {}, {}, {}", e);
+                Logs.REDIS.error("redis ex", e);
             }
         }
         return d;
@@ -76,13 +76,13 @@ public final class RedisManager {
             try {
                 consumer.accept(factory.getClusterConnection());
             } catch (Exception e) {
-                Logs.REDIS.error("redis ex:{}, {}, {}, {}", e);
+                Logs.REDIS.error("redis ex", e);
             }
         } else {
             try (Jedis jedis = factory.getJedisConnection()) {
                 consumer.accept(jedis);
             } catch (Exception e) {
-                Logs.REDIS.error("redis ex:{}, {}, {}, {}", e);
+                Logs.REDIS.error("redis ex", e);
             }
         }
     }
@@ -310,13 +310,26 @@ public final class RedisManager {
 
 
     public <T> void publish(String channel, T message) {
-        call(jedis -> ((MultiKeyCommands) jedis).publish(channel, message instanceof String ? (String) message : Jsons.toJson(message)));
+        String msg = message instanceof String ? (String) message : Jsons.toJson(message);
+        call(jedis -> {
+            if (jedis instanceof MultiKeyCommands) {
+                ((MultiKeyCommands) jedis).publish(channel, msg);
+            } else if (jedis instanceof MultiKeyJedisClusterCommands) {
+                ((MultiKeyJedisClusterCommands) jedis).publish(channel, msg);
+            }
+        });
     }
 
-    public void subscribe(final JedisPubSub pubsub, final String... channels) {
-        ThreadPoolManager.I.newThread(Arrays.toString(channels), (() -> call(jedis ->
-                Arrays.stream(channels).forEach(channel -> ((MultiKeyCommands) jedis).subscribe(pubsub, channel))
-        ))).start();
+    public void subscribe(final JedisPubSub pubsub, final String channel) {
+        ThreadPoolManager.I.newThread(channel,
+                () -> call(jedis -> {
+                    if (jedis instanceof MultiKeyCommands) {
+                        ((MultiKeyCommands) jedis).subscribe(pubsub, channel);
+                    } else if (jedis instanceof MultiKeyJedisClusterCommands) {
+                        ((MultiKeyJedisClusterCommands) jedis).subscribe(pubsub, channel);
+                    }
+                })
+        ).start();
     }
 
     /*********************

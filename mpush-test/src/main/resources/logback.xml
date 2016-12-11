@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="true">
-
+    <property name="log.root.level" value="${log.root.level}"/> <!-- 日志级别 -->
     <!-- app log -->
     <appender name="MPUSH_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.err</target>
@@ -142,7 +142,7 @@
     </appender>
 
     <root>
-        <level value="debug"/>
+        <level value="${log.root.level}"/>
         <appender-ref ref="MPUSH_APPENDER"/>
         <appender-ref ref="MPUSH_INFO_APPENDER"/>
         <appender-ref ref="MPUSH_DEBUG_APPENDER"/>

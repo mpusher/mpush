@@ -73,7 +73,7 @@ public class ZKClient extends BaseService {
         if (!client.blockUntilConnected(1, TimeUnit.MINUTES)) {
             throw new ZKException("init zk error, config=" + zkConfig);
         }
-        initLocalCache(zkConfig.getLocalCachePath());
+        initLocalCache(zkConfig.getWatchPath());
         addConnectionStateListener();
         Logs.ZK.info("zk client start success, server lists is:{}", zkConfig.getHosts());
         Logs.Console.info("init zk client success...");
@@ -150,8 +150,8 @@ public class ZKClient extends BaseService {
     }
 
     // 本地缓存
-    private void initLocalCache(String cachePath) throws Exception {
-        cache = new TreeCache(client, cachePath);
+    private void initLocalCache(String watchRootPath) throws Exception {
+        cache = new TreeCache(client, watchRootPath);
         cache.start();
     }
 

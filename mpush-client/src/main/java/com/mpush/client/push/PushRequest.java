@@ -80,6 +80,7 @@ public class PushRequest extends FutureTask<Boolean> {
 
         //2.通过网关连接，把消息发送到所在机器
         connectionFactory.send(
+                location.getHostAndPort(),
                 connection -> {
                     timeLine.addTimePoint("check-gateway-conn");
                     if (connection == null) {
@@ -108,7 +109,7 @@ public class PushRequest extends FutureTask<Boolean> {
                     }
                     return null;
                 }
-        ).apply(location.getHost());
+        );
     }
 
     private void submit(Status status) {

@@ -66,7 +66,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
     private void bind(BindUserMessage message) {
         if (Strings.isNullOrEmpty(message.userId)) {
             ErrorMessage.from(message).setReason("invalid param").close();
-            Logs.Conn.info("bind user failure for invalid param, session={}", message.getConnection().getSessionContext());
+            Logs.CONN.error("bind user failure for invalid param, conn={}", message.getConnection());
             return;
         }
         //1.绑定用户时先看下是否握手成功
@@ -77,7 +77,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 if (message.userId.equals(context.userId)) {
                     context.tags = message.tags;
                     OkMessage.from(message).setData("bind success").sendRaw();
-                    Logs.Conn.info(">>> rebind user success, userId={}, session={}", message.userId, context);
+                    Logs.CONN.info("rebind user success, userId={}, session={}", message.userId, context);
                     return;
                 } else {
                     unbind(message);
@@ -90,16 +90,16 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 context.tags = message.tags;
                 EventBus.I.post(new UserOnlineEvent(message.getConnection(), message.userId));
                 OkMessage.from(message).setData("bind success").sendRaw();
-                Logs.Conn.info(">>> bind user success, userId={}, session={}", message.userId, context);
+                Logs.CONN.info("bind user success, userId={}, session={}", message.userId, context);
             } else {
                 //3.注册失败再处理下，防止本地注册成功，远程注册失败的情况，只有都成功了才叫成功
                 RouterCenter.I.unRegister(message.userId, context.getClientType());
                 ErrorMessage.from(message).setReason("bind failed").close();
-                Logs.Conn.info("bind user failure, userId={}, session={}", message.userId, context);
+                Logs.CONN.info("bind user failure, userId={}, session={}", message.userId, context);
             }
         } else {
             ErrorMessage.from(message).setReason("not handshake").close();
-            Logs.Conn.info("bind user failure for not handshake, userId={}, session={}", message.userId, context);
+            Logs.CONN.error("bind user failure not handshake, userId={}, conn={}", message.userId, message.getConnection());
         }
     }
 
@@ -112,7 +112,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
     private void unbind(BindUserMessage message) {
         if (Strings.isNullOrEmpty(message.userId)) {
             ErrorMessage.from(message).setReason("invalid param").close();
-            Logs.Conn.info("unbind user failure invalid param, session={}", message.getConnection().getSessionContext());
+            Logs.CONN.error("unbind user failure invalid param, session={}", message.getConnection().getSessionContext());
             return;
         }
         //1.解绑用户时先看下是否握手成功
@@ -146,14 +146,14 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 context.tags = null;
                 EventBus.I.post(new UserOfflineEvent(message.getConnection(), userId));
                 OkMessage.from(message).setData("unbind success").sendRaw();
-                Logs.Conn.info(">>> unbind user success, userId={}, session={}", userId, context);
+                Logs.CONN.info("unbind user success, userId={}, session={}", userId, context);
             } else {
                 ErrorMessage.from(message).setReason("unbind failed").sendRaw();
-                Logs.Conn.info("unbind user failure, register router failure, userId={}, session={}", userId, context);
+                Logs.CONN.error("unbind user failure, unRegister router failure, userId={}, session={}", userId, context);
             }
         } else {
             ErrorMessage.from(message).setReason("not handshake").close();
-            Logs.Conn.info("unbind user failure not handshake, userId={}, session={}", message.userId, context);
+            Logs.CONN.error("unbind user failure not handshake, userId={}, session={}", message.userId, context);
         }
     }
 

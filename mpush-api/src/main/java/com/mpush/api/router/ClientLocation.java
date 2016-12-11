@@ -35,6 +35,11 @@ public final class ClientLocation {
     private String host;
 
     /**
+     * 长链接所在的机器端口
+     */
+    private int port;
+
+    /**
      * 客户端系统类型
      */
     private String osName;
@@ -65,6 +70,15 @@ public final class ClientLocation {
 
     public ClientLocation setHost(String host) {
         this.host = host;
+        return this;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public ClientLocation setPort(int port) {
+        this.port = port;
         return this;
     }
 
@@ -118,6 +132,14 @@ public final class ClientLocation {
     public ClientLocation offline() {
         this.connId = null;
         return this;
+    }
+
+    public boolean isThisPC(String host, int port) {
+        return this.port == port && this.host.equals(host);
+    }
+
+    public String getHostAndPort() {
+        return host + ":" + port;
     }
 
     public static ClientLocation from(Connection connection) {

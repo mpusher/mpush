@@ -47,7 +47,7 @@ public interface Logs {
 
     Logger Console = LoggerFactory.getLogger("console"),
 
-    Conn = LoggerFactory.getLogger("mpush.conn.log"),
+    CONN = LoggerFactory.getLogger("mpush.conn.log"),
 
     MONITOR = LoggerFactory.getLogger("mpush.monitor.log"),
 

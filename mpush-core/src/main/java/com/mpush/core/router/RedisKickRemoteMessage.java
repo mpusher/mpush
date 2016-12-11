@@ -32,6 +32,7 @@ class RedisKickRemoteMessage implements KickRemoteMsg {
     private String connId;
     private int clientType;
     private String targetServer;
+    private int targetPort;
 
     public RedisKickRemoteMessage setUserId(String userId) {
         this.userId = userId;
@@ -55,6 +56,11 @@ class RedisKickRemoteMessage implements KickRemoteMsg {
 
     public RedisKickRemoteMessage setTargetServer(String targetServer) {
         this.targetServer = targetServer;
+        return this;
+    }
+
+    public RedisKickRemoteMessage setTargetPort(int targetPort) {
+        this.targetPort = targetPort;
         return this;
     }
 
@@ -84,6 +90,11 @@ class RedisKickRemoteMessage implements KickRemoteMsg {
     }
 
     @Override
+    public int getTargetPort() {
+        return targetPort;
+    }
+
+    @Override
     public String toString() {
         return "KickRemoteMsg{"
                 + "userId='" + userId + '\''
@@ -91,6 +102,7 @@ class RedisKickRemoteMessage implements KickRemoteMsg {
                 + ", connId='" + connId + '\''
                 + ", clientType='" + clientType + '\''
                 + ", targetServer='" + targetServer + '\''
+                + ", targetPort=" + targetPort
                 + '}';
     }
 }

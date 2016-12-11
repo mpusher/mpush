@@ -45,7 +45,7 @@ public class ZKConfig {
 
     private int connectionTimeout = ZK_CONNECTION_TIMEOUT;
 
-    private String localCachePath = ZK_DEFAULT_CACHE_PATH;
+    private String watchPath = ZK_DEFAULT_CACHE_PATH;
 
     public ZKConfig(String hosts) {
         this.hosts = hosts;
@@ -55,7 +55,7 @@ public class ZKConfig {
         return new ZKConfig(zk.server_address)
                 .setConnectionTimeout(zk.connectionTimeoutMs)
                 .setDigest(zk.digest)
-                .setLocalCachePath(zk.local_cache_path)
+                .setWatchPath(zk.watch_path)
                 .setMaxRetries(zk.retry.maxRetries)
                 .setMaxSleepMs(zk.retry.maxSleepMs)
                 .setBaseSleepTimeMs(zk.retry.baseSleepTimeMs)
@@ -136,12 +136,12 @@ public class ZKConfig {
         return this;
     }
 
-    public String getLocalCachePath() {
-        return localCachePath;
+    public String getWatchPath() {
+        return watchPath;
     }
 
-    public ZKConfig setLocalCachePath(String localCachePath) {
-        this.localCachePath = localCachePath;
+    public ZKConfig setWatchPath(String watchPath) {
+        this.watchPath = watchPath;
         return this;
     }
 
@@ -156,7 +156,7 @@ public class ZKConfig {
                 ", maxSleepMs=" + maxSleepMs +
                 ", sessionTimeout=" + sessionTimeout +
                 ", connectionTimeout=" + connectionTimeout +
-                ", localCachePath='" + localCachePath + '\'' +
+                ", watchPath='" + watchPath + '\'' +
                 '}';
     }
 }

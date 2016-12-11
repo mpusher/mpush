@@ -125,7 +125,7 @@ public class Packet {
 
     @Override
     public String toString() {
-        return "Packet{" +
+        return "{" +
                 "cmd=" + cmd +
                 ", cc=" + cc +
                 ", flags=" + flags +
