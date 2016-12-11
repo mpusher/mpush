@@ -36,32 +36,41 @@ import java.util.concurrent.locks.LockSupport;
 public class ConnClientTestMain {
 
     public static void main(String[] args) throws Exception {
-        int count = 10, printDelay = 1;
+        int count = 10;
+        String userPrefix = "";
+        int printDelay = 1;
         boolean sync = true;
+
         if (args.length > 0) {
             count = NumberUtils.toInt(args[0], count);
         }
+
         if (args.length > 1) {
-            printDelay = NumberUtils.toInt(args[1], printDelay);
+            userPrefix = args[1];
         }
 
         if (args.length > 2) {
-            sync = !"1".equals(args[2]);
+            printDelay = NumberUtils.toInt(args[2], printDelay);
         }
 
-        testConnClient(count, printDelay, sync);
+        if (args.length > 3) {
+            sync = !"1".equals(args[3]);
+        }
+
+        testConnClient(count, userPrefix, printDelay, sync);
     }
 
     @Test
     public void testConnClient() throws Exception {
-        testConnClient(1, 1, true);
+        testConnClient(1, "", 1, true);
         LockSupport.park();
     }
 
-    private static void testConnClient(int count, int printDelay, boolean sync) throws Exception {
+    private static void testConnClient(int count, String userPrefix, int printDelay, boolean sync) throws Exception {
         Logs.init();
         ConnClientBoot boot = new ConnClientBoot();
         boot.start().get();
+
         List<ZKServerNode> serverList = boot.getServers();
         if (serverList.isEmpty()) {
             boot.stop();
@@ -69,18 +78,20 @@ public class ConnClientTestMain {
             return;
         }
 
-        Executors.newSingleThreadScheduledExecutor()
-                .scheduleAtFixedRate(
-                        () -> System.err.println(ConnClientChannelHandler.STATISTICS)
-                        , 3, printDelay, TimeUnit.SECONDS
-                );
+        if (printDelay > 0) {
+            Executors.newSingleThreadScheduledExecutor()
+                    .scheduleAtFixedRate(
+                            () -> System.err.println(ConnClientChannelHandler.STATISTICS)
+                            , 3, printDelay, TimeUnit.SECONDS
+                    );
+        }
 
         for (int i = 0; i < count; i++) {
             String clientVersion = "1.0." + i;
             String osName = "android";
             String osVersion = "1.0.1";
-            String userId = "user-" + i;
-            String deviceId = "test-device-id-" + i;
+            String userId = userPrefix + "user-" + i;
+            String deviceId = userPrefix + "test-device-id-" + i;
             byte[] clientKey = CipherBox.I.randomAESKey();
             byte[] iv = CipherBox.I.randomAESIV();
 

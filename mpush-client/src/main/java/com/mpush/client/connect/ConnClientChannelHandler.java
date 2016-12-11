@@ -155,10 +155,17 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         int clientNum = STATISTICS.clientNum.incrementAndGet();
         LOGGER.info("client connect channel={}, clientNum={}", ctx.channel(), clientNum);
-        while (clientConfig == null) {
+
+        for (int i = 0; i < 3; i++) {
+            if (clientConfig != null) break;
             clientConfig = ctx.channel().attr(CONFIG_KEY).getAndRemove();
             if (clientConfig == null) TimeUnit.SECONDS.sleep(1);
         }
+
+        if (clientConfig == null) {
+            throw new NullPointerException("client config is null, channel=" + ctx.channel());
+        }
+
         connection.init(ctx.channel(), true);
         if (perfTest) {
             handshake();
