@@ -36,7 +36,7 @@ public interface ConnectionManager {
 
     void add(Connection connection);
 
-    List<Connection> getConnections();
+    int getConnNum();
 
     void init();
 

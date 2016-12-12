@@ -43,7 +43,7 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     private static final Cipher RSA_CIPHER = CipherFactory.create();
     private SessionContext context;
     private Channel channel;
-    private volatile int status = STATUS_NEW;
+    private volatile byte status = STATUS_NEW;
     private long lastReadTime;
     private long lastWriteTime;
 
@@ -110,7 +110,7 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
 
     @Override
     public boolean isConnected() {
-        return status == STATUS_CONNECTED || channel.isActive();
+        return status == STATUS_CONNECTED;
     }
 
     @Override

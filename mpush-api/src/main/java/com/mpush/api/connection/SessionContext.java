@@ -22,8 +22,6 @@ package com.mpush.api.connection;
 
 import com.mpush.api.router.ClientClassifier;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * Created by ohun on 2015/12/22.
  *
@@ -36,9 +34,9 @@ public final class SessionContext {
     public String deviceId;
     public String userId;
     public String tags;
-    public int heartbeat = (int) TimeUnit.SECONDS.toMillis(10);
+    public int heartbeat = 10000;// 10s
     public Cipher cipher;
-    private int clientType;
+    private byte clientType;
 
     public void changeCipher(Cipher cipher) {
         this.cipher = cipher;
@@ -79,7 +77,7 @@ public final class SessionContext {
 
     public int getClientType() {
         if (clientType == 0) {
-            clientType = ClientClassifier.I.getClientType(osName);
+            clientType = (byte) ClientClassifier.I.getClientType(osName);
         }
         return clientType;
     }

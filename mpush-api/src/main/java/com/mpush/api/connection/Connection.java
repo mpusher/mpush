@@ -30,9 +30,9 @@ import io.netty.channel.ChannelFutureListener;
  * @author ohun@live.cn (夜色)
  */
 public interface Connection {
-    int STATUS_NEW = 0;
-    int STATUS_CONNECTED = 1;
-    int STATUS_DISCONNECTED = 2;
+    byte STATUS_NEW = 0;
+    byte STATUS_CONNECTED = 1;
+    byte STATUS_DISCONNECTED = 2;
 
     void init(Channel channel, boolean security);
 

@@ -164,7 +164,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
             public Serializable handler(ChannelHandlerContext ctx, String args) {
                 switch (args) {
                     case "conn":
-                        return ConnectionServer.I().getConnectionManager().getConnections().size();
+                        return ConnectionServer.I().getConnectionManager().getConnNum();
                     case "online": {
                         return UserManager.I.getOnlineUserNum();
                     }
