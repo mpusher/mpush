@@ -36,6 +36,16 @@ then
   fi
 fi
 
+if [ "x${MP_DATA_DIR}" = "x" ]
+then
+    MP_DATA_DIR="${MPUSH_PREFIX}/tmp"
+fi
+
+if [ "x${MP_LOG_DIR}" = "x" ]
+then
+    MP_LOG_DIR="${MPUSH_PREFIX}/logs"
+fi
+
 if [ -f "${MP_BIN_DIR}/set-env.sh" ]; then
   . "${MP_BIN_DIR}/set-env.sh"
 fi
@@ -50,16 +60,6 @@ MP_CFG="$MP_CFG_DIR/$MP_CFG"
 if [ -f "$MP_BIN_DIR/java.env" ]
 then
     . "$MP_BIN_DIR/java.env"
-fi
-
-if [ "x${MP_DATA_DIR}" = "x" ]
-then
-    MP_DATA_DIR="${MPUSH_PREFIX}/tmp"
-fi
-
-if [ "x${MP_LOG_DIR}" = "x" ]
-then
-    MP_LOG_DIR="${MPUSH_PREFIX}/logs"
 fi
 
 if [ "x${MP_LOG4J_PROP}" = "x" ]
@@ -77,38 +77,16 @@ fi
 #add the conf dir to classpath
 CLASSPATH="$MP_CFG_DIR:$CLASSPATH"
 
-for i in "$MP_BIN_DIR"/../src/java/lib/*.jar
-do
-    CLASSPATH="$i:$CLASSPATH"
-done
-
 #make it work in the binary package
 #(use array for LIB_PATH to account for spaces within wildcard expansion)
-if [ -e "${MPUSH_PREFIX}"/share/mpush/mpush-*.jar ]; then
-  LIB_PATH=("${MPUSH_PREFIX}"/share/mpush/*.jar)
-else
-  #release tarball format
-  for i in "$MP_BIN_DIR"/../mpush-*.jar
-  do
-    CLASSPATH="$i:$CLASSPATH"
-  done
-  LIB_PATH=("${MP_BIN_DIR}"/../lib/*.jar)
+if [ -e "${MPUSH_PREFIX}"/../lib/plugins/*.jar ]; then
+  LIB_PATH=("${MPUSH_PREFIX}"/../lib/plugins/*.jar)
 fi
 
 for i in "${LIB_PATH[@]}"
 do
     CLASSPATH="$i:$CLASSPATH"
 done
-
-#make it work for developers
-for d in "$MP_BIN_DIR"/../build/lib/*.jar
-do
-   CLASSPATH="$d:$CLASSPATH"
-done
-
-#make it work for developers
-CLASSPATH="$MP_BIN_DIR/../build/classes:$CLASSPATH"
-
 
 case "`uname`" in
     CYGWIN*) cygwin=true ;;
@@ -119,5 +97,3 @@ if $cygwin
 then
     CLASSPATH=`cygpath -wp "$CLASSPATH"`
 fi
-
-#echo "CLASSPATH=$CLASSPATH"
