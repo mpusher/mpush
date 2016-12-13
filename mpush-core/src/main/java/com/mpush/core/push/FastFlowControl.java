@@ -59,6 +59,7 @@ public final class FastFlowControl implements FlowControl {
     public boolean checkQps() {
         if (count < limit) {
             count++;
+            total++;
             return true;
         }
 
@@ -66,14 +67,10 @@ public final class FastFlowControl implements FlowControl {
 
         if (System.currentTimeMillis() - start > duration) {
             reset();
+            total++;
             return true;
         }
         return false;
-    }
-
-    @Override
-    public int incTotal() {
-        return total;
     }
 
     @Override

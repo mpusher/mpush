@@ -82,13 +82,12 @@ public final class RedisFlowControl implements FlowControl {
     }
 
     @Override
-    public int incTotal() {
+    public void end() {
         int t = total;
         if (total > 0) {
             total = 0;
-            return controller.incSendCount(t);
+            controller.incSendCount(t);
         }
-        return 0;
     }
 
     @Override

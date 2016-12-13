@@ -32,7 +32,7 @@ public interface FlowControl {
 
     boolean checkQps() throws OverFlowException;
 
-    int incTotal();
+    default void end(){};
 
     int getRemaining();
 

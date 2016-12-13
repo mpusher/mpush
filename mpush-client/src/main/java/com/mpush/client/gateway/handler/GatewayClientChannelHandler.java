@@ -64,7 +64,7 @@ public final class GatewayClientChannelHandler extends ChannelInboundHandlerAdap
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        Logs.CONN.info("client connect channel={}", ctx.channel());
+        Logs.CONN.info("client connected channel={}", ctx.channel());
         connection.init(ctx.channel(), false);
     }
 

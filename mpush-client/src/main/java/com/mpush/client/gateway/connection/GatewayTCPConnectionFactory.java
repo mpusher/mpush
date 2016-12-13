@@ -85,9 +85,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
 
     @Override
     public <M extends BaseMessage> void broadcast(Function<Connection, M> creator, Consumer<M> sender) {
-        ip_client.forEach((s, client) -> {
-            sender.accept(creator.apply(client.getConnection()));
-        });
+        ip_client.forEach((s, client) -> sender.accept(creator.apply(client.getConnection())));
     }
 
     private void restartClient(final GatewayClient client) {

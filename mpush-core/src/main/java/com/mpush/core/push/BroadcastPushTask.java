@@ -21,7 +21,6 @@ package com.mpush.core.push;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
-import com.mpush.api.protocol.Packet;
 import com.mpush.common.condition.AwaysPassCondition;
 import com.mpush.common.condition.Condition;
 import com.mpush.common.message.OkMessage;
@@ -75,7 +74,7 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
         } else {//没有结束，就延时进行下次任务 TODO 考虑优先级问题
             PushCenter.I.delayTask(flowControl.getRemaining(), this);
         }
-        flowControl.incTotal();
+        flowControl.end();
     }
 
 

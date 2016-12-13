@@ -181,7 +181,12 @@ public class PushRequest extends FutureTask<Boolean> {
 
                 pushMessage -> {
                     pushMessage.sendRaw(f -> {
-                        if (!f.isSuccess()) failure();
+                        if (f.isSuccess()) {
+                            LOGGER.debug("send broadcast to gateway server success, userId={}, conn={}", userId, f.channel());
+                        } else {
+                            failure();
+                            LOGGER.error("send broadcast to gateway server failure, userId={}, conn={}", userId, f.channel(), f.cause());
+                        }
                     });
                     if (pushMessage.taskId == null) {
                         future = PushRequestBus.I.put(pushMessage.getSessionId(), PushRequest.this);

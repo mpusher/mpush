@@ -55,6 +55,7 @@ public final class GlobalFlowControl implements FlowControl {
     @Override
     public boolean checkQps() {
         if (count.incrementAndGet() < limit) {
+            total.incrementAndGet();
             return true;
         }
 
@@ -62,14 +63,10 @@ public final class GlobalFlowControl implements FlowControl {
 
         if (System.currentTimeMillis() - start > duration) {
             reset();
+            total.incrementAndGet();
             return true;
         }
         return false;
-    }
-
-    @Override
-    public int incTotal() {
-        return total.get();
     }
 
     @Override
