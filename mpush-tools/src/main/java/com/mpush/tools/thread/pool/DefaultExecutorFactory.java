@@ -83,10 +83,11 @@ public final class DefaultExecutorFactory implements ExecutorFactory {
                 break;
             case EVENT_BUS:
                 config = ThreadPoolConfig
-                        .buildFixed(T_EVENT_BUS,
-                                CC.mp.thread.pool.event_bus.min,
-                                CC.mp.thread.pool.event_bus.queue_size
-                        );
+                        .build(T_EVENT_BUS)
+                        .setCorePoolSize(CC.mp.thread.pool.event_bus.min)
+                        .setMaxPoolSize(CC.mp.thread.pool.event_bus.max)
+                        .setKeepAliveSeconds(TimeUnit.SECONDS.toSeconds(10))
+                        .setQueueCapacity(CC.mp.thread.pool.event_bus.queue_size);
                 break;
             case MQ:
                 config = ThreadPoolConfig
