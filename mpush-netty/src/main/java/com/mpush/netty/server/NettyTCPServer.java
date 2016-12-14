@@ -206,15 +206,13 @@ public abstract class NettyTCPServer extends BaseService implements Server {
         createServer(listener, bossGroup, workerGroup, EpollServerSocketChannel.class);
     }
 
+    /***
+     * option()是提供给NioServerSocketChannel用来接收进来的连接。
+     * childOption()是提供给由父管道ServerChannel接收到的连接，
+     * 在这个例子中也是NioServerSocketChannel。
+     */
     protected void initOptions(ServerBootstrap b) {
-
-        /***
-         * option()是提供给NioServerSocketChannel用来接收进来的连接。
-         * childOption()是提供给由父管道ServerChannel接收到的连接，
-         * 在这个例子中也是NioServerSocketChannel。
-         */
-        b.childOption(ChannelOption.SO_KEEPALIVE, true);
-
+        //b.childOption(ChannelOption.SO_KEEPALIVE, false);// 使用应用层心跳
 
         /**
          * 在Netty 4中实现了一个新的ByteBuf内存池，它是一个纯Java版本的 jemalloc （Facebook也在用）。
