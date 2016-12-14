@@ -38,6 +38,7 @@ import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static com.mpush.tools.config.CC.mp.net.traffic_shaping.connect_server.*;
 import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
@@ -125,12 +126,6 @@ public final class ConnectionServer extends NettyTCPServer {
     protected void initOptions(ServerBootstrap b) {
         super.initOptions(b);
 
-        /**
-         * 你可以设置这里指定的通道实现的配置参数。
-         * 我们正在写一个TCP/IP的服务端，
-         * 因此我们被允许设置socket的参数选项比如tcpNoDelay和keepAlive。
-         * 请参考ChannelOption和详细的ChannelConfig实现的接口文档以此可以对ChannelOptions的有一个大概的认识。
-         */
         b.option(ChannelOption.SO_BACKLOG, 1024);
 
         /**
