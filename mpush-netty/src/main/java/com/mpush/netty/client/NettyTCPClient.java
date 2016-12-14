@@ -64,11 +64,9 @@ public abstract class NettyTCPClient extends BaseService implements Client {
         b.group(workerGroup)//
                 .option(ChannelOption.TCP_NODELAY, true)//
                 .option(ChannelOption.SO_REUSEADDR, true)//
-                .option(ChannelOption.SO_KEEPALIVE, true)//
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)//
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 4000)
                 .channel(clazz);
-
         b.handler(new ChannelInitializer<SocketChannel>() { // (4)
             @Override
             public void initChannel(SocketChannel ch) throws Exception {

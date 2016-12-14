@@ -75,7 +75,6 @@ public final class ConnClientBoot extends BaseService {
         bootstrap.group(workerGroup)//
                 .option(ChannelOption.TCP_NODELAY, true)//
                 .option(ChannelOption.SO_REUSEADDR, true)//
-                .option(ChannelOption.SO_KEEPALIVE, true)//
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)//
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60 * 1000)
                 .channel(NioSocketChannel.class);
