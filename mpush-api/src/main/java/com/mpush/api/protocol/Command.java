@@ -56,9 +56,8 @@ public enum Command {
 
     public final byte cmd;
 
-    private static final Command[] values = values();
-
     public static Command toCMD(byte b) {
+        Command[] values = values();
         if (b > 0 && b < values.length) return values[b - 1];
         return UNKNOWN;
     }

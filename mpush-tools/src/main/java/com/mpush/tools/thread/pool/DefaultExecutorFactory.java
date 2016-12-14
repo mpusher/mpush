@@ -19,16 +19,15 @@
 
 package com.mpush.tools.thread.pool;
 
+import com.mpush.api.push.PushException;
 import com.mpush.api.spi.Spi;
 import com.mpush.api.spi.common.ExecutorFactory;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
+import static com.mpush.tools.config.CC.mp.thread.pool.push_center.min;
 import static com.mpush.tools.thread.ThreadNames.*;
 
 /**
@@ -57,30 +56,6 @@ public final class DefaultExecutorFactory implements ExecutorFactory {
     public Executor get(String name) {
         final ThreadPoolConfig config;
         switch (name) {
-            case SERVER_BOSS:
-                config = ThreadPoolConfig
-                        .build(T_SERVER_BOSS)
-                        .setCorePoolSize(CC.mp.thread.pool.boss.min)
-                        .setMaxPoolSize(CC.mp.thread.pool.boss.max)
-                        .setKeepAliveSeconds(TimeUnit.MINUTES.toSeconds(5))
-                        .setQueueCapacity(CC.mp.thread.pool.boss.queue_size);
-                break;
-            case SERVER_WORK:
-                config = ThreadPoolConfig
-                        .build(T_SERVER_WORKER)
-                        .setCorePoolSize(CC.mp.thread.pool.work.min)
-                        .setMaxPoolSize(CC.mp.thread.pool.work.max)
-                        .setKeepAliveSeconds(TimeUnit.MINUTES.toSeconds(5))
-                        .setQueueCapacity(CC.mp.thread.pool.work.queue_size);
-                break;
-            case HTTP_CLIENT_WORK:
-                config = ThreadPoolConfig
-                        .buildFixed(T_HTTP_CLIENT,
-                                CC.mp.thread.pool.http_proxy.min,
-                                CC.mp.thread.pool.http_proxy.queue_size
-                        )
-                        .setRejectedPolicy(ThreadPoolConfig.REJECTED_POLICY_DISCARD);
-                break;
             case EVENT_BUS:
                 config = ThreadPoolConfig
                         .build(T_EVENT_BUS)
@@ -105,15 +80,14 @@ public final class DefaultExecutorFactory implements ExecutorFactory {
                         .setQueueCapacity(CC.mp.thread.pool.push_callback.queue_size)
                         .setRejectedPolicy(ThreadPoolConfig.REJECTED_POLICY_CALLER_RUNS);
                 break;
+            case PUSH_TIMER:
+                return new ScheduledThreadPoolExecutor(min, new NamedPoolThreadFactory(T_PUSH_CENTER_TIMER),
+                        (r, e) -> {
+                            throw new PushException("one push request was rejected. task=" + r);
+                        }
+                );
             default:
-            case BIZ:
-                config = ThreadPoolConfig
-                        .build(T_BIZ)
-                        .setCorePoolSize(CC.mp.thread.pool.biz.min)
-                        .setMaxPoolSize(CC.mp.thread.pool.biz.max)
-                        .setKeepAliveSeconds(TimeUnit.MINUTES.toSeconds(5))
-                        .setQueueCapacity(CC.mp.thread.pool.biz.queue_size);
-                break;
+                throw new IllegalArgumentException("no executor for " + name);
         }
 
         return get(config);

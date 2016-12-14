@@ -44,32 +44,31 @@ public final class ServerBoot extends BootJob {
 
     @Override
     public void start() {
-        String serverName = server.getClass().getSimpleName();
-        ThreadPoolManager.I.newThread(serverName, () -> {
-            server.init();
-            server.start(new Listener() {
-                @Override
-                public void onSuccess(Object... args) {
-                    Logs.Console.info("start {} success listen:{}", serverName, args[0]);
-                    if (node != null) {//注册应用到zk
-                        ZKRegister.build().setEphemeral(true).setNode(node).register();
-                        Logs.Console.info("register server node={} to zk path={}", node, node.getNodePath());
-                    }
-                    startNext();
+        server.init();
+        server.start(new Listener() {
+            @Override
+            public void onSuccess(Object... args) {
+                Logs.Console.info("start {} success on:{}", server.getClass().getSimpleName(), args[0]);
+                if (node != null) {//注册应用到zk
+                    ZKRegister.build().setEphemeral(true).setNode(node).register();
+                    Logs.ZK.info("register {} to zk server success.", node);
                 }
+                startNext();
+            }
 
-                @Override
-                public void onFailure(Throwable cause) {
-                    Logs.Console.error("start " + serverName + " failure, jvm exit with code -1", cause);
-                    System.exit(-1);
-                }
-            });
-        }).start();
+            @Override
+            public void onFailure(Throwable cause) {
+                Logs.Console.error("start {} failure, jvm exit with code -1", server.getClass().getSimpleName(), cause);
+                System.exit(-1);
+            }
+        });
     }
 
     @Override
     protected void stop() {
+        Logs.Console.info("try shutdown {}...", this.getClass().getSimpleName());
         server.stop().join();
+        Logs.Console.info("{} shutdown success.", this.getClass().getSimpleName());
         stopNext();
     }
 }

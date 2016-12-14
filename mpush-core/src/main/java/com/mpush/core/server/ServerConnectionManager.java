@@ -46,10 +46,12 @@ public final class ServerConnectionManager implements ConnectionManager {
     private final ConcurrentMap<ChannelId, ConnectionHolder> connections = new ConcurrentHashMap<>();
     private final ConnectionHolder DEFAULT = new SimpleConnectionHolder(null);
     private final boolean heartbeatCheck;
+    private final ConnectionHolderFactory holderFactory;
     private HashedWheelTimer timer;
 
     public ServerConnectionManager(boolean heartbeatCheck) {
         this.heartbeatCheck = heartbeatCheck;
+        this.holderFactory = heartbeatCheck ? HeartbeatCheckTask::new : SimpleConnectionHolder::new;
     }
 
     @Override
@@ -80,11 +82,7 @@ public final class ServerConnectionManager implements ConnectionManager {
 
     @Override
     public void add(Connection connection) {
-        if (heartbeatCheck) {
-            connections.putIfAbsent(connection.getChannel().id(), new HeartbeatCheckTask(connection));
-        } else {
-            connections.putIfAbsent(connection.getChannel().id(), new SimpleConnectionHolder(connection));
-        }
+        connections.putIfAbsent(connection.getChannel().id(), holderFactory.create(connection));
     }
 
     @Override
@@ -140,6 +138,8 @@ public final class ServerConnectionManager implements ConnectionManager {
         }
 
         void startTimeout() {
+            Connection connection = this.connection;
+
             if (connection != null && connection.isConnected()) {
                 int timeout = connection.getSessionContext().heartbeat;
                 timer.newTimeout(this, timeout, TimeUnit.MILLISECONDS);
@@ -148,6 +148,8 @@ public final class ServerConnectionManager implements ConnectionManager {
 
         @Override
         public void run(Timeout timeout) throws Exception {
+            Connection connection = this.connection;
+
             if (connection == null || !connection.isConnected()) {
                 Logs.HB.info("heartbeat timeout times={}, connection disconnected, conn={}", timeoutTimes, connection);
                 return;
@@ -179,5 +181,10 @@ public final class ServerConnectionManager implements ConnectionManager {
         public Connection get() {
             return connection;
         }
+    }
+
+    @FunctionalInterface
+    private interface ConnectionHolderFactory {
+        ConnectionHolder create(Connection connection);
     }
 }

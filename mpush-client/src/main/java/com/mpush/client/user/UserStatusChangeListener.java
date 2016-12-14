@@ -40,8 +40,8 @@ public class UserStatusChangeListener implements MessageListener {
     //只需要一台机器注册online、offline 消息通道
     public UserStatusChangeListener() {
         if ("127.0.0.1".equals(Utils.getLocalIp())) {
-            ListenerDispatcher.I.subscribe(ONLINE_CHANNEL, this);
-            ListenerDispatcher.I.subscribe(OFFLINE_CHANNEL, this);
+            ListenerDispatcher.I().subscribe(ONLINE_CHANNEL, this);
+            ListenerDispatcher.I().subscribe(OFFLINE_CHANNEL, this);
         } else {
             LOGGER.error("UserChangeListener is not localhost,required:{}, but:{}", "127.0.0.1", Utils.getLocalIp());
         }

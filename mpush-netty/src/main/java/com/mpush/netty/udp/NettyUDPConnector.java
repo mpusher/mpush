@@ -63,9 +63,9 @@ public abstract class NettyUDPConnector extends BaseService implements Server {
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
-        Logs.Console.info("try shutdown {}...", this.getClass().getSimpleName());
+        logger.info("try shutdown {}...", this.getClass().getSimpleName());
         if (eventLoopGroup != null) eventLoopGroup.shutdownGracefully().syncUninterruptibly();
-        Logs.Console.info("{} shutdown success.", this.getClass().getSimpleName());
+        logger.info("{} shutdown success.", this.getClass().getSimpleName());
         listener.onSuccess(port);
     }
 
@@ -80,29 +80,26 @@ public abstract class NettyUDPConnector extends BaseService implements Server {
 
             initOptions(b);
 
-            ChannelFuture f = b.bind(port).sync();//直接绑定端口，不要指定host，不然收不到组播消息
-
-            if (f.isSuccess()) {
-                Logs.Console.info("udp server start success on:{}", port);
-                if (listener != null) listener.onSuccess(port);
-
-                f.channel().closeFuture().sync();
-            } else {
-                Logs.Console.error("udp server start failure on:{}", port, f.cause());
-                if (listener != null) listener.onFailure(f.cause());
-            }
+            //直接绑定端口，不要指定host，不然收不到组播消息
+            b.bind(port).addListener(future -> {
+                if (future.isSuccess()) {
+                    logger.info("udp server start success on:{}", port);
+                    if (listener != null) listener.onSuccess(port);
+                } else {
+                    logger.error("udp server start failure on:{}", port, future.cause());
+                    if (listener != null) listener.onFailure(future.cause());
+                }
+            });
         } catch (Exception e) {
             logger.error("udp server start exception", e);
             if (listener != null) listener.onFailure(e);
             throw new ServiceException("udp server start exception, port=" + port, e);
-        } finally {
-            if (isRunning()) stop();
         }
     }
 
     private void createNioServer(Listener listener) {
         NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(
-                0, new DefaultThreadFactory(ThreadNames.T_SERVER_WORKER)
+                0, new DefaultThreadFactory(ThreadNames.T_GATEWAY_WORKER)
         );
         createServer(listener, eventLoopGroup, () -> new NioDatagramChannel(IPv4));//默认是根据机器情况创建Channel,如果机器支持ipv6,则无法使用ipv4的地址加入组播
     }
@@ -110,7 +107,7 @@ public abstract class NettyUDPConnector extends BaseService implements Server {
     @SuppressWarnings("unused")
     private void createEpollServer(Listener listener) {
         EpollEventLoopGroup eventLoopGroup = new EpollEventLoopGroup(
-                0, new DefaultThreadFactory(ThreadNames.T_SERVER_WORKER)
+                0, new DefaultThreadFactory(ThreadNames.T_GATEWAY_WORKER)
         );
         createServer(listener, eventLoopGroup, EpollDatagramChannel::new);
     }

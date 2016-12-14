@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author ohun@live.cn
  */
-public class PushRequest extends FutureTask<Boolean> {
+public final class PushRequest extends FutureTask<Boolean> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PushRequest.class);
 
     private static final Callable<Boolean> NONE = () -> Boolean.FALSE;
@@ -78,38 +78,39 @@ public class PushRequest extends FutureTask<Boolean> {
             return;
         }
 
+        timeLine.addTimePoint("check-gateway-conn");
         //2.通过网关连接，把消息发送到所在机器
-        connectionFactory.send(
+        boolean success = connectionFactory.send(
                 location.getHostAndPort(),
-                connection -> {
-                    timeLine.addTimePoint("check-gateway-conn");
-                    if (connection == null) {
-                        LOGGER.error("get gateway connection failure, location={}", location);
-                        failure();
-                        return null;
-                    }
-
-                    return GatewayPushMessage.build(connection)
-                            .setUserId(userId)
-                            .setContent(content)
-                            .setClientType(location.getClientType())
-                            .setTimeout(timeout - 500)
-                            .setTags(tags)
-                            .addFlag(ackModel.flag);
-                },
+                connection -> GatewayPushMessage
+                        .build(connection)
+                        .setUserId(userId)
+                        .setContent(content)
+                        .setClientType(location.getClientType())
+                        .setTimeout(timeout - 500)
+                        .setTags(tags)
+                        .addFlag(ackModel.flag)
+                ,
                 pushMessage -> {
-                    if (pushMessage != null) {
-                        timeLine.addTimePoint("send-to-gateway-begin");
-                        pushMessage.sendRaw(f -> {
-                            timeLine.addTimePoint("send-to-gateway-end");
-                            if (!f.isSuccess()) failure();
-                        });
-                        PushRequest.this.content = null;//释放内存
-                        future = PushRequestBus.I.put(pushMessage.getSessionId(), PushRequest.this);
-                    }
-                    return null;
+                    timeLine.addTimePoint("send-to-gateway-begin");
+                    pushMessage.sendRaw(f -> {
+                        timeLine.addTimePoint("send-to-gateway-end");
+                        if (f.isSuccess()) {
+                            LOGGER.debug("send to gateway server success, location={}, conn={}", location, f.channel());
+                        } else {
+                            LOGGER.error("send to gateway server failure, location={}, conn={}", location, f.channel(), f.cause());
+                            failure();
+                        }
+                    });
+                    PushRequest.this.content = null;//释放内存
+                    future = PushRequestBus.I.put(pushMessage.getSessionId(), PushRequest.this);
                 }
         );
+
+        if (!success) {
+            LOGGER.error("get gateway connection failure, location={}", location);
+            failure();
+        }
     }
 
     private void submit(Status status) {
@@ -170,7 +171,7 @@ public class PushRequest extends FutureTask<Boolean> {
     public FutureTask<Boolean> broadcast() {
         timeLine.begin();
 
-        connectionFactory.broadcast(
+        boolean success = connectionFactory.broadcast(
                 connection -> GatewayPushMessage
                         .build(connection)
                         .setUserId(userId)
@@ -188,6 +189,7 @@ public class PushRequest extends FutureTask<Boolean> {
                             LOGGER.error("send broadcast to gateway server failure, userId={}, conn={}", userId, f.channel(), f.cause());
                         }
                     });
+
                     if (pushMessage.taskId == null) {
                         future = PushRequestBus.I.put(pushMessage.getSessionId(), PushRequest.this);
                     } else {
@@ -195,6 +197,11 @@ public class PushRequest extends FutureTask<Boolean> {
                     }
                 }
         );
+
+        if (!success) {
+            LOGGER.error("get gateway connection failure when broadcast.");
+            failure();
+        }
 
         return this;
     }

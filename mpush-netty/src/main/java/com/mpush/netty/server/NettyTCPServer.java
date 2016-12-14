@@ -26,7 +26,6 @@ import com.mpush.api.service.ServiceException;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
 import com.mpush.tools.config.CC;
-import com.mpush.tools.log.Logs;
 import com.mpush.tools.thread.ThreadNames;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -41,6 +40,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -79,13 +79,13 @@ public abstract class NettyTCPServer extends BaseService implements Server {
     public void stop(Listener listener) {
         if (!serverState.compareAndSet(State.Started, State.Shutdown)) {
             if (listener != null) listener.onFailure(new ServiceException("server was already shutdown."));
-            Logs.Console.error("{} was already shutdown.", this.getClass().getSimpleName());
+            logger.error("{} was already shutdown.", this.getClass().getSimpleName());
             return;
         }
-        Logs.Console.info("try shutdown {}...", this.getClass().getSimpleName());
+        logger.info("try shutdown {}...", this.getClass().getSimpleName());
         if (bossGroup != null) bossGroup.shutdownGracefully().syncUninterruptibly();//要先关闭接收连接的main reactor
         if (workerGroup != null) workerGroup.shutdownGracefully().syncUninterruptibly();//再关闭处理业务的sub reactor
-        Logs.Console.info("{} shutdown success.", this.getClass().getSimpleName());
+        logger.info("{} shutdown success.", this.getClass().getSimpleName());
         if (listener != null) {
             listener.onSuccess(port);
         }
@@ -157,51 +157,34 @@ public abstract class NettyTCPServer extends BaseService implements Server {
             /***
              * 绑定端口并启动去接收进来的连接
              */
-            ChannelFuture f = b.bind(port).sync().addListener(future -> {
+            b.bind(port).addListener(future -> {
                 if (future.isSuccess()) {
-                    Logs.Console.info("server start success on:{}", port);
+                    serverState.set(State.Started);
+                    logger.info("server start success on:{}", port);
                     if (listener != null) listener.onSuccess(port);
                 } else {
-                    Logs.Console.error("server start failure on:{}", port, future.cause());
+                    logger.error("server start failure on:{}", port, future.cause());
                     if (listener != null) listener.onFailure(future.cause());
                 }
             });
-            if (f.isSuccess()) {
-                serverState.set(State.Started);
-                /**
-                 * 这里会一直等待，直到socket被关闭
-                 */
-                f.channel().closeFuture().sync();
-            }
-
         } catch (Exception e) {
             logger.error("server start exception", e);
             if (listener != null) listener.onFailure(e);
             throw new ServiceException("server start exception, port=" + port, e);
-        } finally {
-            if (isRunning()) stop(null);
         }
     }
 
     private void createNioServer(Listener listener) {
-        NioEventLoopGroup bossGroup = new NioEventLoopGroup(
-                getBossThreadNum(), new DefaultThreadFactory(ThreadNames.T_SERVER_BOSS)
-        );
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup(
-                getWorkThreadNum(), new DefaultThreadFactory(ThreadNames.T_SERVER_WORKER)
-        );
+        NioEventLoopGroup bossGroup = new NioEventLoopGroup(getBossThreadNum(), getBossThreadFactory());
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup(getWorkThreadNum(), getWorkThreadFactory());
         bossGroup.setIoRatio(100);
         workerGroup.setIoRatio(getIoRate());
         createServer(listener, bossGroup, workerGroup, NioServerSocketChannel.class);
     }
 
     private void createEpollServer(Listener listener) {
-        EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(
-                getBossThreadNum(), new DefaultThreadFactory(ThreadNames.T_SERVER_BOSS)
-        );
-        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(
-                getWorkThreadNum(), new DefaultThreadFactory(ThreadNames.T_SERVER_WORKER)
-        );
+        EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(getBossThreadNum(), getBossThreadFactory());
+        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(getWorkThreadNum(), getWorkThreadFactory());
         workerGroup.setIoRatio(getIoRate());
         createServer(listener, bossGroup, workerGroup, EpollServerSocketChannel.class);
     }
@@ -258,18 +241,28 @@ public abstract class NettyTCPServer extends BaseService implements Server {
      *
      * @return
      */
+    protected ThreadFactory getBossThreadFactory() {
+        return new DefaultThreadFactory(getBossThreadName());
+    }
+
+    protected ThreadFactory getWorkThreadFactory() {
+        return new DefaultThreadFactory(getWorkThreadName());
+    }
+
     protected int getBossThreadNum() {
         return 1;
     }
 
-    /**
-     * netty 默认的Executor为ThreadPerTaskExecutor
-     * 线程池的使用在SingleThreadEventExecutor#doStartThread
-     *
-     * @return
-     */
     protected int getWorkThreadNum() {
         return 0;
+    }
+
+    protected String getBossThreadName() {
+        return ThreadNames.T_BOSS;
+    }
+
+    protected String getWorkThreadName() {
+        return ThreadNames.T_WORKER;
     }
 
     protected int getIoRate() {

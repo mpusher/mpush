@@ -24,14 +24,9 @@ import com.mpush.tools.Jsons;
 import com.mpush.tools.log.Logs;
 import redis.clients.jedis.JedisPubSub;
 
-public class Subscriber extends JedisPubSub {
+public final class Subscriber extends JedisPubSub {
 
-    private static ListenerDispatcher dispatcher = ListenerDispatcher.I;
-
-    public static Subscriber holder = new Subscriber();
-
-    private Subscriber() {
-    }
+    private ListenerDispatcher dispatcher = ListenerDispatcher.I();
 
     @Override
     public void onMessage(String channel, String message) {

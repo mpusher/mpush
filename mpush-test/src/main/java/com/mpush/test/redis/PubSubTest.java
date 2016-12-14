@@ -19,6 +19,7 @@
 
 package com.mpush.test.redis;
 
+import com.mpush.cache.redis.listener.ListenerDispatcher;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.cache.redis.mq.Subscriber;
 import org.junit.Before;
@@ -34,8 +35,8 @@ public class PubSubTest {
 
     @Test
     public void subpubTest() {
-        RedisManager.I.subscribe(Subscriber.holder, "/hello/123");
-        RedisManager.I.subscribe(Subscriber.holder, "/hello/124");
+        RedisManager.I.subscribe(ListenerDispatcher.I().getSubscriber(), "/hello/123");
+        RedisManager.I.subscribe(ListenerDispatcher.I().getSubscriber(), "/hello/124");
         RedisManager.I.publish("/hello/123", "123");
         RedisManager.I.publish("/hello/124", "124");
     }
@@ -44,8 +45,8 @@ public class PubSubTest {
     public void pubsubTest() {
         RedisManager.I.publish("/hello/123", "123");
         RedisManager.I.publish("/hello/124", "124");
-        RedisManager.I.subscribe(Subscriber.holder, "/hello/123");
-        RedisManager.I.subscribe(Subscriber.holder, "/hello/124");
+        RedisManager.I.subscribe(ListenerDispatcher.I().getSubscriber(), "/hello/123");
+        RedisManager.I.subscribe(ListenerDispatcher.I().getSubscriber(), "/hello/124");
     }
 
     @Test
@@ -56,8 +57,8 @@ public class PubSubTest {
 
     @Test
     public void subTest() {
-        RedisManager.I.subscribe(Subscriber.holder, "/hello/123");
-        RedisManager.I.subscribe(Subscriber.holder, "/hello/124");
+        RedisManager.I.subscribe(ListenerDispatcher.I().getSubscriber(), "/hello/123");
+        RedisManager.I.subscribe(ListenerDispatcher.I().getSubscriber(), "/hello/124");
         LockSupport.park();
     }
 

@@ -85,23 +85,21 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends BaseMessage> void send(String hostAndPort, Function<Connection, T> creator, Function<T, Void> sender) {
+    public <M extends BaseMessage> boolean send(String hostAndPort, Function<Connection, M> creator, Consumer<M> sender) {
         InetSocketAddress recipient = ip_address.get(hostAndPort);
-        if (recipient == null) {// gateway server 找不到，直接返回推送失败
-            creator.apply(null);
-            return;
-        }
+        if (recipient == null) return false;// gateway server 找不到，直接返回推送失败
 
-        creator.compose(this::getConnection)
-                .andThen(message -> (T) message.setRecipient(recipient))
-                .andThen(sender)
-                .apply(hostAndPort);
+        M message = creator.apply(connector.getConnection());
+        message.setRecipient(recipient);
+        sender.accept(message);
+        return true;
     }
 
     @Override
-    public <M extends BaseMessage> void broadcast(Function<Connection, M> creator, Consumer<M> sender) {
+    public <M extends BaseMessage> boolean broadcast(Function<Connection, M> creator, Consumer<M> sender) {
         M message = creator.apply(connector.getConnection());
         message.setRecipient(multicastRecipient);
         sender.accept(message);
+        return true;
     }
 }

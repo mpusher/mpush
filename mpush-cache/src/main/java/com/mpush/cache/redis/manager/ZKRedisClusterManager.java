@@ -74,7 +74,7 @@ public class ZKRedisClusterManager implements RedisClusterManager {
                 || !ZKClient.I.isExisted(REDIS_SERVER.getRootPath())//redis节点不存在
                 || !ZKClient.I.get(REDIS_SERVER.getRootPath()).equals(data)) {//数据有变更
             ZKClient.I.registerPersist(REDIS_SERVER.getRootPath(), data);
-            Logs.Console.info("register redis server group success, group={}", data);
+            Logs.REDIS.info("register redis server group success, group={}", data);
         }
     }
 }

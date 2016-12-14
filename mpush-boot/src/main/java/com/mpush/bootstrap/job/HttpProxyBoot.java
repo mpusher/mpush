@@ -20,7 +20,6 @@
 package com.mpush.bootstrap.job;
 
 import com.mpush.api.spi.net.DnsMappingManager;
-import com.mpush.core.push.PushCenter;
 import com.mpush.netty.http.NettyHttpClient;
 import com.mpush.tools.config.CC;
 

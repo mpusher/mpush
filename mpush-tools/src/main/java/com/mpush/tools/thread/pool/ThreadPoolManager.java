@@ -25,6 +25,8 @@ import com.mpush.tools.thread.NamedThreadFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public final class ThreadPoolManager {
@@ -33,26 +35,13 @@ public final class ThreadPoolManager {
     private final ExecutorFactory executorFactory = ExecutorFactory.create();
     private final NamedThreadFactory threadFactory = new NamedThreadFactory();
 
-    private Executor bossExecutor;
-    private Executor workExecutor;
-    private Executor bizExecutor;
     private Executor eventBusExecutor;
     private Executor redisExecutor;
-    private Executor httpExecutor;
     private Executor pushCallbackExecutor;
-    private Executor pushCenterExecutor;
+    private ScheduledExecutorService pushCenterTimer;
 
     public final Thread newThread(String name, Runnable target) {
         return threadFactory.newThread(name, target);
-    }
-
-    public Executor getHttpExecutor() {
-        if (httpExecutor == null) {
-            synchronized (this) {
-                httpExecutor = executorFactory.get(ExecutorFactory.HTTP_CLIENT_WORK);
-            }
-        }
-        return httpExecutor;
     }
 
     public Executor getRedisExecutor() {
@@ -73,33 +62,6 @@ public final class ThreadPoolManager {
         return eventBusExecutor;
     }
 
-    public Executor getBizExecutor() {
-        if (bizExecutor == null) {
-            synchronized (this) {
-                bizExecutor = executorFactory.get(ExecutorFactory.BIZ);
-            }
-        }
-        return bizExecutor;
-    }
-
-    public Executor getWorkExecutor() {
-        if (workExecutor == null) {
-            synchronized (this) {
-                workExecutor = executorFactory.get(ExecutorFactory.SERVER_WORK);
-            }
-        }
-        return workExecutor;
-    }
-
-    public Executor getBossExecutor() {
-        if (bossExecutor == null) {
-            synchronized (this) {
-                bossExecutor = executorFactory.get(ExecutorFactory.SERVER_BOSS);
-            }
-        }
-        return bossExecutor;
-    }
-
     public Executor getPushCallbackExecutor() {
         if (pushCallbackExecutor == null) {
             synchronized (this) {
@@ -109,15 +71,21 @@ public final class ThreadPoolManager {
         return pushCallbackExecutor;
     }
 
+    public ScheduledExecutorService getPushCenterTimer() {
+        if (pushCenterTimer == null) {
+            synchronized (this) {
+                pushCenterTimer = (ScheduledExecutorService) executorFactory.get(ExecutorFactory.PUSH_TIMER);
+            }
+        }
+        return pushCenterTimer;
+    }
+
     public Map<String, Executor> getActivePools() {
         Map<String, Executor> map = new HashMap<>();
-        if (bossExecutor != null) map.put("bossExecutor", bossExecutor);
-        if (workExecutor != null) map.put("workExecutor", workExecutor);
-        if (bizExecutor != null) map.put("bizExecutor", bizExecutor);
         if (eventBusExecutor != null) map.put("eventBusExecutor", eventBusExecutor);
         if (redisExecutor != null) map.put("redisExecutor", redisExecutor);
-        if (httpExecutor != null) map.put("httpExecutor", httpExecutor);
         if (pushCallbackExecutor != null) map.put("pushCallbackExecutor", pushCallbackExecutor);
+        if (pushCenterTimer != null) map.put("pushCenterTimer", pushCenterTimer);
         return map;
     }
 

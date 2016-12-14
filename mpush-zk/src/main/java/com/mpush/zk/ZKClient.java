@@ -36,7 +36,10 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class ZKClient extends BaseService {
@@ -69,14 +72,13 @@ public class ZKClient extends BaseService {
     @Override
     protected void doStart(Listener listener) throws Throwable {
         client.start();
-        Logs.Console.info("init zk client waiting for connected...");
+        Logs.ZK.info("init zk client waiting for connected...");
         if (!client.blockUntilConnected(1, TimeUnit.MINUTES)) {
             throw new ZKException("init zk error, config=" + zkConfig);
         }
         initLocalCache(zkConfig.getWatchPath());
         addConnectionStateListener();
         Logs.ZK.info("zk client start success, server lists is:{}", zkConfig.getHosts());
-        Logs.Console.info("init zk client success...");
         listener.onSuccess(zkConfig.getHosts());
     }
 
@@ -85,7 +87,7 @@ public class ZKClient extends BaseService {
         if (cache != null) cache.close();
         TimeUnit.MILLISECONDS.sleep(600);
         client.close();
-        Logs.Console.info("zk client closed...");
+        Logs.ZK.info("zk client closed...");
         listener.onSuccess();
     }
 
@@ -136,7 +138,7 @@ public class ZKClient extends BaseService {
             });
         }
         client = builder.build();
-        Logs.Console.info("init zk client, config={}", zkConfig.toString());
+        Logs.ZK.info("init zk client, config={}", zkConfig.toString());
     }
 
     // 注册连接状态监听器

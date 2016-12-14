@@ -19,20 +19,13 @@
 
 package com.mpush.zk.listener;
 
-import com.google.common.base.Strings;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.log.Logs;
 import com.mpush.zk.ZKClient;
 import com.mpush.zk.ZKPath;
 import com.mpush.zk.cache.ZKDnsNodeCache;
-import com.mpush.zk.cache.ZKRedisNodeCache;
 import com.mpush.zk.node.ZKDnsNode;
-import com.mpush.zk.node.ZKRedisNode;
-import com.mpush.zk.node.ZKServerNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -40,20 +33,18 @@ import java.util.List;
  */
 public class ZKDnsNodeWatcher extends ZKNodeCacheWatcher {
 
-    private final Logger logger = LoggerFactory.getLogger(ZKDnsNodeWatcher.class);
-
     private final ZKDnsNodeCache cache = new ZKDnsNodeCache();
 
 
     @Override
     protected void beforeWatch() {
-        Logs.Console.info("start init zk dns data");
+        Logs.ZK.info("start init zk dns data");
         List<String> rawData = ZKClient.I.getChildrenKeys(ZKPath.DNS_MAPPING.getRootPath());
         for (String raw : rawData) {
             String fullPath = ZKPath.DNS_MAPPING.getFullPath(raw);
             cache.put(fullPath, getZKNode(fullPath));
         }
-        Logs.Console.info("end init zk dns data");
+        Logs.ZK.info("end init zk dns data");
     }
 
     private ZKDnsNode getZKNode(String fullPath) {

@@ -29,6 +29,7 @@ import com.mpush.core.handler.*;
 import com.mpush.netty.server.NettyTCPServer;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
+import com.mpush.tools.thread.ThreadNames;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
@@ -112,6 +113,16 @@ public final class ConnectionServer extends NettyTCPServer {
     @Override
     protected int getWorkThreadNum() {
         return CC.mp.thread.pool.work.max;
+    }
+
+    @Override
+    protected String getBossThreadName() {
+        return ThreadNames.T_CONN_BOSS;
+    }
+
+    @Override
+    protected String getWorkThreadName() {
+        return ThreadNames.T_CONN_WORKER;
     }
 
     @Override

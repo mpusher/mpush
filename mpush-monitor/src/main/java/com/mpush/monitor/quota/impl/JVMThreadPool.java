@@ -40,8 +40,10 @@ public class JVMThreadPool implements ThreadPoolQuota {
         Map<String, Executor> pool = ThreadPoolManager.I.getActivePools();
         for (Map.Entry<String, Executor> entry : pool.entrySet()) {
             String serviceName = entry.getKey();
-            ThreadPoolExecutor executor = (ThreadPoolExecutor) entry.getValue();
-            map.put(serviceName, ThreadPoolManager.getPoolInfo(executor));
+            Executor executor = entry.getValue();
+            if (executor instanceof ThreadPoolExecutor) {
+                map.put(serviceName, ThreadPoolManager.getPoolInfo((ThreadPoolExecutor) executor));
+            }
         }
         return map;
     }

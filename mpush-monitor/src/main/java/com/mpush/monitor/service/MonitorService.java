@@ -27,6 +27,7 @@ import com.mpush.monitor.quota.impl.JVMInfo;
 import com.mpush.tools.common.JVMUtil;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
+import com.mpush.tools.thread.ThreadNames;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +81,8 @@ public class MonitorService extends BaseService implements Runnable {
     @Override
     protected void doStart(Listener listener) throws Throwable {
         if (printLog || dumpEnabled) {
-            thread = ThreadPoolManager.I.newThread("monitor", this);
+            thread = ThreadPoolManager.I.newThread(ThreadNames.T_MONITOR, this);
+            thread.setDaemon(true);
             thread.start();
         }
         listener.onSuccess();

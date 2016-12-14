@@ -32,11 +32,25 @@ import java.util.concurrent.Executor;
 
 public class ListenerDispatcher implements MessageListener {
 
-    public static final ListenerDispatcher I = new ListenerDispatcher();
+    private static ListenerDispatcher I;
 
     private final Map<String, List<MessageListener>> subscribes = Maps.newTreeMap();
 
     private final Executor executor = ThreadPoolManager.I.getRedisExecutor();
+
+    private final Subscriber subscriber = new Subscriber();
+
+
+    public static ListenerDispatcher I() {
+        if (I == null) {
+            synchronized (ListenerDispatcher.class) {
+                if (I == null) {
+                    I = new ListenerDispatcher();
+                }
+            }
+        }
+        return I;
+    }
 
     private ListenerDispatcher() {
     }
@@ -55,6 +69,10 @@ public class ListenerDispatcher implements MessageListener {
 
     public void subscribe(String channel, MessageListener listener) {
         subscribes.computeIfAbsent(channel, k -> Lists.newArrayList()).add(listener);
-        RedisManager.I.subscribe(Subscriber.holder, channel);
+        RedisManager.I.subscribe(subscriber, channel);
+    }
+
+    public Subscriber getSubscriber() {
+        return subscriber;
     }
 }

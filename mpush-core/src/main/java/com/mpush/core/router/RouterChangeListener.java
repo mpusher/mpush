@@ -55,7 +55,7 @@ public final class RouterChangeListener extends EventConsumer implements Message
 
     public RouterChangeListener() {
         if (!udpGateway) {
-            ListenerDispatcher.I.subscribe(getKickChannel(), this);
+            ListenerDispatcher.I().subscribe(getKickChannel(), this);
         }
     }
 

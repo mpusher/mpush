@@ -21,6 +21,7 @@ package com.mpush.bootstrap.job;
 
 import com.mpush.api.service.Listener;
 import com.mpush.bootstrap.BootException;
+import com.mpush.tools.log.Logs;
 import com.mpush.zk.ZKClient;
 
 /**
@@ -32,9 +33,11 @@ public final class ZKBoot extends BootJob {
 
     @Override
     protected void start() {
+        Logs.Console.info("init zk client waiting for connected...");
         ZKClient.I.start(new Listener() {
             @Override
             public void onSuccess(Object... args) {
+                Logs.Console.info("init zk client success...");
                 startNext();
             }
 
@@ -48,6 +51,7 @@ public final class ZKBoot extends BootJob {
     @Override
     protected void stop() {
         ZKClient.I.stop();
+        Logs.Console.info("zk client closed...");
         stopNext();
     }
 }

@@ -77,15 +77,19 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
 
 
     @Override
-    public <M extends BaseMessage> void send(String hostAndPort, Function<Connection, M> creator, Function<M, Void> sender) {
-        creator.compose(this::getConnection)
-                .andThen(sender)
-                .apply(hostAndPort);
+    public <M extends BaseMessage> boolean send(String hostAndPort, Function<Connection, M> creator, Consumer<M> sender) {
+        Connection connection = getConnection(hostAndPort);
+        if (connection == null) return false;// gateway server 找不到，直接返回推送失败
+
+        sender.accept(creator.apply(connection));
+        return true;
     }
 
     @Override
-    public <M extends BaseMessage> void broadcast(Function<Connection, M> creator, Consumer<M> sender) {
+    public <M extends BaseMessage> boolean broadcast(Function<Connection, M> creator, Consumer<M> sender) {
+        if (ip_client.isEmpty()) return false;
         ip_client.forEach((s, client) -> sender.accept(creator.apply(client.getConnection())));
+        return true;
     }
 
     private void restartClient(final GatewayClient client) {

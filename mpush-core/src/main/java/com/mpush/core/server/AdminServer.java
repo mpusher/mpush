@@ -22,12 +22,15 @@ package com.mpush.core.server;
 import com.mpush.core.handler.AdminHandler;
 import com.mpush.netty.server.NettyTCPServer;
 import com.mpush.tools.config.CC;
+import com.mpush.tools.thread.ThreadNames;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+
+import java.util.concurrent.ThreadFactory;
 
 public final class AdminServer extends NettyTCPServer {
     private static AdminServer I;
@@ -77,5 +80,15 @@ public final class AdminServer extends NettyTCPServer {
     @Override
     protected int getWorkThreadNum() {
         return 1;
+    }
+
+    @Override
+    protected String getBossThreadName() {
+        return ThreadNames.T_ADMIN_BOSS;
+    }
+
+    @Override
+    protected String getWorkThreadName() {
+        return ThreadNames.T_ADMIN_WORKER;
     }
 }
