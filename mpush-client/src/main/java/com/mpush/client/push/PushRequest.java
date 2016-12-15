@@ -115,15 +115,13 @@ public final class PushRequest extends FutureTask<Boolean> {
 
     private void submit(Status status) {
         if (this.status.compareAndSet(Status.init, status)) {//防止重复调用
+            timeLine.end();
             if (future != null) future.cancel(true);
             if (callback != null) {
                 PushRequestBus.I.asyncCall(this);
-            } else {
-                LOGGER.warn("callback is null");
             }
             super.set(this.status.get() == Status.success);
         }
-        timeLine.end();
         LOGGER.info("push request {} end, userId={}, content={}, location={}, timeLine={}"
                 , status, userId, content, location, timeLine);
     }
