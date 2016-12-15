@@ -46,30 +46,33 @@ public class PushClientTestMain {
         PushSender sender = PushSender.create();
         sender.start().join();
 
-        PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
-        msg.setMsgId("msgId_0");
+        for (int i = 0; i < 10; i++) {
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
+            msg.setMsgId("msgId_" + i);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            PushContext context = PushContext.build(msg)
+                    .setAckModel(AckModel.AUTO_ACK)
+                    .setUserId("user-" + i)
+                    .setBroadcast(false)
+                    //.setTags(Sets.newHashSet("test"))
+                    //.setCondition("tags&&tags.indexOf('test')!=-1")
+                    //.setUserIds(Arrays.asList("user-0", "user-1"))
+                    .setTimeout(2000)
+                    .setCallback(new PushCallback() {
+                        @Override
+                        public void onResult(PushResult result) {
+                            System.err.println("\n\n" + result);
+                        }
+                    });
+            FutureTask<Boolean> future = sender.send(context);
         }
-
-        PushContext context = PushContext.build(msg)
-                .setAckModel(AckModel.AUTO_ACK)
-                //.setUserId("user-0")
-                .setBroadcast(true)
-                //.setTags(Sets.newHashSet("test"))
-                //.setCondition("tags&&tags.indexOf('test')!=-1")
-                //.setUserIds(Arrays.asList("user-0", "user-1"))
-                .setTimeout(20000)
-                .setCallback(new PushCallback() {
-                    @Override
-                    public void onResult(PushResult result) {
-                        System.err.println("\n\n" + result);
-                    }
-                });
-        FutureTask<Boolean> future = sender.send(context);
 
         LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(30));
     }

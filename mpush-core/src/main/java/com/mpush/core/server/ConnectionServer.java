@@ -30,6 +30,7 @@ import com.mpush.netty.server.NettyTCPServer;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
 import com.mpush.tools.thread.ThreadNames;
+import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
@@ -101,6 +102,14 @@ public final class ConnectionServer extends NettyTCPServer {
     }
 
     @Override
+    public void start(Listener listener) {
+        super.start(listener);
+        if (this.workerGroup != null) {// 增加线程池监控
+            ThreadPoolManager.I.register("conn-worker", this.workerGroup);
+        }
+    }
+
+    @Override
     public void stop(Listener listener) {
         super.stop(listener);
         if (trafficShapingHandler != null) {
@@ -112,7 +121,7 @@ public final class ConnectionServer extends NettyTCPServer {
 
     @Override
     protected int getWorkThreadNum() {
-        return CC.mp.thread.pool.work.max;
+        return CC.mp.thread.pool.conn_work;
     }
 
     @Override

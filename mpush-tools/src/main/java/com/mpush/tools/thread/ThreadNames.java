@@ -34,11 +34,8 @@ public final class ThreadNames {
     public static final String T_HTTP_CLIENT = NS + "-http-client-work";
     public static final String T_EVENT_BUS = NS + "-event";
     public static final String T_MQ = NS + "-mq";
-    public static final String T_ZK = NS + "-zk";
-    public static final String T_BIZ = NS + "-biz";
-    public static final String T_PUSH_CALLBACK = NS + "-push-callback";
-    public static final String T_PUSH_REQ_TIMER = NS + "-push-req-timer";
     public static final String T_ARK_REQ_TIMER = NS + "-ack-timer";
+    public static final String T_PUSH_CLIENT_TIMER = NS + "-push-client-timer";
     public static final String T_PUSH_CENTER_TIMER = NS + "-push-center-timer";
     public static final String T_CONN_TIMER = NS + "-conn-check-timer";
     public static final String T_HTTP_TIMER = NS + "-http-client-timer";

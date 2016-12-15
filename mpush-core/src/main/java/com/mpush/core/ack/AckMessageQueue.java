@@ -19,33 +19,32 @@
 
 package com.mpush.core.ack;
 
-import com.mpush.tools.thread.NamedPoolThreadFactory;
+import com.mpush.api.service.BaseService;
+import com.mpush.api.service.Listener;
+import com.mpush.tools.thread.pool.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.*;
-
-import static com.mpush.tools.thread.ThreadNames.T_ARK_REQ_TIMER;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ohun on 16/9/5.
  *
  * @author ohun@live.cn (夜色)
  */
-public final class AckMessageQueue {
+public final class AckMessageQueue extends BaseService {
     private final Logger logger = LoggerFactory.getLogger(AckMessageQueue.class);
 
     private static final int DEFAULT_TIMEOUT = 3000;
     public static final AckMessageQueue I = new AckMessageQueue();
 
     private final ConcurrentMap<Integer, AckContext> queue = new ConcurrentHashMap<>();
-    private final ScheduledExecutorService scheduledExecutor;
+    private ScheduledExecutorService scheduledExecutor;
 
     private AckMessageQueue() {
-        scheduledExecutor = new ScheduledThreadPoolExecutor(1,
-                new NamedPoolThreadFactory(T_ARK_REQ_TIMER),
-                (r, e) -> logger.error("one ack context was rejected, context=" + r)
-        );
     }
 
     public void add(int sessionId, AckContext context, int timeout) {
@@ -61,4 +60,17 @@ public final class AckMessageQueue {
         return queue.remove(sessionId);
     }
 
+    @Override
+    protected void doStart(Listener listener) throws Throwable {
+        scheduledExecutor = ThreadPoolManager.I.getAckTimer();
+        super.doStart(listener);
+    }
+
+    @Override
+    protected void doStop(Listener listener) throws Throwable {
+        if (scheduledExecutor != null) {
+            scheduledExecutor.shutdown();
+        }
+        super.doStop(listener);
+    }
 }

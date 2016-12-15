@@ -21,6 +21,7 @@ package com.mpush.core.push;
 
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
+import com.mpush.core.ack.AckMessageQueue;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,8 @@ public final class PushCenter extends BaseService {
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        executor = ThreadPoolManager.I.getPushCenterTimer();
+        executor = ThreadPoolManager.I.getPushTaskTimer();
+        AckMessageQueue.I.start();
         logger.info("push center start success");
         listener.onSuccess();
     }
@@ -61,6 +63,7 @@ public final class PushCenter extends BaseService {
     @Override
     protected void doStop(Listener listener) throws Throwable {
         executor.shutdown();
+        AckMessageQueue.I.stop();
         logger.info("push center stop success");
         listener.onSuccess();
     }

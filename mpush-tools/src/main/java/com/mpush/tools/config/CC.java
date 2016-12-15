@@ -164,21 +164,11 @@ public interface CC {
 
                 Config cfg = thread.cfg.getObject("pool").toConfig();
 
-                interface boss {
-                    Config cfg = pool.cfg.getObject("boss").toConfig();
-                    int min = cfg.getInt("min");
-                    int max = cfg.getInt("max");
-                    int queue_size = cfg.getInt("queue-size");
-
-                }
-
-                interface work {
-                    Config cfg = pool.cfg.getObject("work").toConfig();
-                    int min = cfg.getInt("min");
-                    int max = cfg.getInt("max");
-                    int queue_size = cfg.getInt("queue-size");
-
-                }
+                int conn_work = cfg.getInt("conn-work");
+                int http_work = cfg.getInt("http-work");
+                int push_task = cfg.getInt("push-task");
+                int push_client = cfg.getInt("push-client");
+                int ack_timer = cfg.getInt("ack-timer");
 
                 interface event_bus {
                     Config cfg = pool.cfg.getObject("event-bus").toConfig();
@@ -188,39 +178,8 @@ public interface CC {
 
                 }
 
-                interface http_proxy {
-                    Config cfg = pool.cfg.getObject("http-proxy").toConfig();
-                    int min = cfg.getInt("min");
-                    int max = cfg.getInt("max");
-                    int queue_size = cfg.getInt("queue-size");
-
-                }
-
-                interface biz {
-                    Config cfg = pool.cfg.getObject("biz").toConfig();
-                    int min = cfg.getInt("min");
-                    int max = cfg.getInt("max");
-                    int queue_size = cfg.getInt("queue-size");
-
-                }
-
                 interface mq {
                     Config cfg = pool.cfg.getObject("mq").toConfig();
-                    int min = cfg.getInt("min");
-                    int max = cfg.getInt("max");
-                    int queue_size = cfg.getInt("queue-size");
-
-                }
-
-                interface push_callback {
-                    Config cfg = pool.cfg.getObject("push-callback").toConfig();
-                    int min = cfg.getInt("min");
-                    int max = cfg.getInt("max");
-                    int queue_size = cfg.getInt("queue-size");
-                }
-
-                interface push_center {
-                    Config cfg = pool.cfg.getObject("push-center").toConfig();
                     int min = cfg.getInt("min");
                     int max = cfg.getInt("max");
                     int queue_size = cfg.getInt("queue-size");

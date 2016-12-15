@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
+import static com.mpush.tools.config.CC.mp.thread.pool.http_work;
 import static com.mpush.tools.thread.ThreadNames.T_HTTP_TIMER;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.HOST;
@@ -129,10 +130,7 @@ public class NettyHttpClient extends BaseService implements HttpClient {
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        workerGroup = new NioEventLoopGroup(
-                CC.mp.thread.pool.http_proxy.max,
-                new DefaultThreadFactory(ThreadNames.T_HTTP_CLIENT)
-        );
+        workerGroup = new NioEventLoopGroup(http_work, new DefaultThreadFactory(ThreadNames.T_HTTP_CLIENT));
         b = new Bootstrap();
         b.group(workerGroup);
         b.channel(NioSocketChannel.class);

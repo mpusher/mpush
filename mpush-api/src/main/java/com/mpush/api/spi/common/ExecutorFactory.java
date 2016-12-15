@@ -32,8 +32,9 @@ public interface ExecutorFactory {
     String SERVER_BOSS = "sb";
     String SERVER_WORK = "sw";
     String HTTP_CLIENT_WORK = "hcw";
-    String PUSH_CALLBACK = "pc";
-    String PUSH_TIMER = "pt";
+    String PUSH_CLIENT = "pc";
+    String PUSH_TASK = "pt";
+    String ACK_TIMER = "at";
     String EVENT_BUS = "eb";
     String MQ = "r";
     String BIZ = "b";

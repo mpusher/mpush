@@ -280,4 +280,8 @@ public abstract class NettyTCPServer extends BaseService implements Server {
         }
         return false;
     }
+
+    public EventLoopGroup getWorkerGroup() {
+        return workerGroup;
+    }
 }

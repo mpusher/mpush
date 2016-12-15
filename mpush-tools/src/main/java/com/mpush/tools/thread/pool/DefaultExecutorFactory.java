@@ -23,11 +23,14 @@ import com.mpush.api.push.PushException;
 import com.mpush.api.spi.Spi;
 import com.mpush.api.spi.common.ExecutorFactory;
 import com.mpush.tools.config.CC;
+import com.mpush.tools.log.Logs;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
 
 import java.util.concurrent.*;
 
-import static com.mpush.tools.config.CC.mp.thread.pool.push_center.min;
+import static com.mpush.tools.config.CC.mp.thread.pool.ack_timer;
+import static com.mpush.tools.config.CC.mp.thread.pool.push_client;
+import static com.mpush.tools.config.CC.mp.thread.pool.push_task;
 import static com.mpush.tools.thread.ThreadNames.*;
 
 /**
@@ -66,25 +69,25 @@ public final class DefaultExecutorFactory implements ExecutorFactory {
                 break;
             case MQ:
                 config = ThreadPoolConfig
-                        .buildFixed(T_MQ,
-                                CC.mp.thread.pool.mq.min,
-                                CC.mp.thread.pool.mq.queue_size
-                        );
-                break;
-            case PUSH_CALLBACK:
-                config = ThreadPoolConfig
-                        .build(T_PUSH_CALLBACK)
-                        .setCorePoolSize(CC.mp.thread.pool.push_callback.min)
-                        .setMaxPoolSize(CC.mp.thread.pool.push_callback.max)
+                        .build(T_MQ)
+                        .setCorePoolSize(CC.mp.thread.pool.mq.min)
+                        .setMaxPoolSize(CC.mp.thread.pool.mq.max)
                         .setKeepAliveSeconds(TimeUnit.SECONDS.toSeconds(10))
-                        .setQueueCapacity(CC.mp.thread.pool.push_callback.queue_size)
-                        .setRejectedPolicy(ThreadPoolConfig.REJECTED_POLICY_CALLER_RUNS);
+                        .setQueueCapacity(CC.mp.thread.pool.mq.queue_size);
                 break;
-            case PUSH_TIMER:
-                return new ScheduledThreadPoolExecutor(min, new NamedPoolThreadFactory(T_PUSH_CENTER_TIMER),
+            case PUSH_CLIENT:
+                return new ScheduledThreadPoolExecutor(push_client, new NamedPoolThreadFactory(T_PUSH_CLIENT_TIMER),
+                        (r, e) -> r.run() // run caller thread
+                );
+            case PUSH_TASK:
+                return new ScheduledThreadPoolExecutor(push_task, new NamedPoolThreadFactory(T_PUSH_CENTER_TIMER),
                         (r, e) -> {
-                            throw new PushException("one push request was rejected. task=" + r);
+                            throw new PushException("one push task was rejected. task=" + r);
                         }
+                );
+            case ACK_TIMER:
+                return new ScheduledThreadPoolExecutor(ack_timer, new NamedPoolThreadFactory(T_ARK_REQ_TIMER),
+                        (r, e) -> Logs.PUSH.error("one ack context was rejected, context=" + r)
                 );
             default:
                 throw new IllegalArgumentException("no executor for " + name);

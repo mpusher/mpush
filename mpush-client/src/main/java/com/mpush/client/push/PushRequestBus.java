@@ -19,18 +19,17 @@
 
 package com.mpush.client.push;
 
-import com.mpush.api.push.PushException;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
-import com.mpush.tools.thread.NamedPoolThreadFactory;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.concurrent.*;
-
-import static com.mpush.tools.thread.ThreadNames.T_PUSH_REQ_TIMER;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ohun on 2015/12/30.
@@ -41,7 +40,6 @@ public class PushRequestBus extends BaseService {
     public static final PushRequestBus I = new PushRequestBus();
     private final Logger logger = LoggerFactory.getLogger(PushRequestBus.class);
     private final Map<Integer, PushRequest> reqQueue = new ConcurrentHashMap<>(1024);
-    private Executor executor;
     private ScheduledExecutorService scheduledExecutor;
 
     private PushRequestBus() {
@@ -57,23 +55,20 @@ public class PushRequestBus extends BaseService {
     }
 
     public void asyncCall(Runnable runnable) {
-        executor.execute(runnable);
+        scheduledExecutor.execute(runnable);
     }
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        executor = ThreadPoolManager.I.getPushCallbackExecutor();
-        scheduledExecutor = new ScheduledThreadPoolExecutor(1, new NamedPoolThreadFactory(T_PUSH_REQ_TIMER), (r, e) -> {
-            logger.error("one push request was rejected, request=" + r);
-            throw new PushException("one push request was rejected. request=" + r);
-        });
+        scheduledExecutor = ThreadPoolManager.I.getPushClientTimer();
         listener.onSuccess();
     }
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
-        scheduledExecutor.shutdown();
-        ((ExecutorService) executor).shutdown();
+        if (scheduledExecutor != null) {
+            scheduledExecutor.shutdown();
+        }
         listener.onSuccess();
     }
 }
