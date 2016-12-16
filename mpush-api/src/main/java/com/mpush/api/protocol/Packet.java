@@ -33,10 +33,11 @@ import java.net.InetSocketAddress;
 public class Packet {
     public static final int HEADER_LEN = 13;
 
-    public static final byte FLAG_CRYPTO = 0x01;
-    public static final byte FLAG_COMPRESS = 0x02;
-    public static final byte FLAG_BIZ_ACK = 0x04;
-    public static final byte FLAG_AUTO_ACK = 0x08;
+    public static final byte FLAG_CRYPTO = 1;
+    public static final byte FLAG_COMPRESS = 2;
+    public static final byte FLAG_BIZ_ACK = 4;
+    public static final byte FLAG_AUTO_ACK = 8;
+    public static final byte FLAG_JSON_BODY = 16;
 
     public static final byte HB_PACKET_BYTE = -33;
     public static final byte[] HB_PACKET_BYTES = new byte[]{HB_PACKET_BYTE};

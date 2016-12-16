@@ -82,6 +82,10 @@ public final class SessionContext {
         return clientType;
     }
 
+    public boolean isSecurity() {
+        return cipher != null;
+    }
+
     @Override
     public String toString() {
         return "{" +

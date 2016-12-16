@@ -31,6 +31,7 @@ import io.netty.buffer.ByteBuf;
  */
 public final class AckMessage extends BaseMessage {
 
+
     public AckMessage(Packet packet, Connection connection) {
         super(packet, connection);
     }

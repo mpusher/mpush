@@ -24,7 +24,11 @@ import com.mpush.api.Message;
 import com.mpush.api.MessageHandler;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
+import com.mpush.tools.Jsons;
 import com.mpush.tools.common.Profiler;
+import com.mpush.tools.common.Reflects;
+
+import static com.mpush.api.protocol.Packet.FLAG_JSON_BODY;
 
 /**
  * Created by ohun on 2015/12/22.
@@ -32,6 +36,8 @@ import com.mpush.tools.common.Profiler;
  * @author ohun@live.cn
  */
 public abstract class BaseMessageHandler<T extends Message> implements MessageHandler {
+    protected Class<T> clazz = Reflects.getSuperClassGenericType(this.getClass(), 0);
+
     public abstract T decode(Packet packet, Connection connection);
 
     public abstract void handle(T message);
@@ -45,6 +51,13 @@ public abstract class BaseMessageHandler<T extends Message> implements MessageHa
             Profiler.enter("time cost on [handle]");
             handle(t);
             Profiler.release();
+        }
+    }
+
+    protected T decode0(Packet packet, Connection connection) {
+        if (packet.hasFlag(FLAG_JSON_BODY)) {
+            Jsons.fromJson(packet.body, clazz);
+            return Jsons.fromJson(packet.body, clazz);
         }
     }
 }
