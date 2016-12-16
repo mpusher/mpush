@@ -39,8 +39,11 @@ import java.util.concurrent.atomic.LongAdder;
  */
 public abstract class BaseMessage implements Message {
     private static final LongAdder ID_SEQ = new LongAdder();
-    protected final Packet packet;
-    protected final Connection connection;
+    protected Packet packet;
+    protected Connection connection;
+
+    public BaseMessage() {
+    }
 
     public BaseMessage(Packet packet, Connection connection) {
         this.packet = packet;
@@ -154,6 +157,14 @@ public abstract class BaseMessage implements Message {
     public BaseMessage setRecipient(InetSocketAddress recipient) {
         packet.setRecipient(recipient);
         return this;
+    }
+
+    public void setPacket(Packet packet) {
+        this.packet = packet;
+    }
+
+    public void setConnection(Connection connection) {
+        this.connection = connection;
     }
 
     @Override

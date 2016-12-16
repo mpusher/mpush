@@ -24,6 +24,7 @@ import com.mpush.api.Message;
 import com.mpush.api.MessageHandler;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
+import com.mpush.common.message.BaseMessage;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.common.Profiler;
 import com.mpush.tools.common.Reflects;
@@ -35,8 +36,9 @@ import static com.mpush.api.protocol.Packet.FLAG_JSON_BODY;
  *
  * @author ohun@live.cn
  */
-public abstract class BaseMessageHandler<T extends Message> implements MessageHandler {
-    protected Class<T> clazz = Reflects.getSuperClassGenericType(this.getClass(), 0);
+public abstract class BaseMessageHandler<T extends BaseMessage> implements MessageHandler {
+    @SuppressWarnings("unchecked")
+    private Class<T> clazz = Reflects.getSuperClassGenericType(this.getClass(), 0);
 
     public abstract T decode(Packet packet, Connection connection);
 
@@ -44,7 +46,7 @@ public abstract class BaseMessageHandler<T extends Message> implements MessageHa
 
     public void handle(Packet packet, Connection connection) {
         Profiler.enter("time cost on [message decode]");
-        T t = decode(packet, connection);
+        T t = decode0(packet, connection);
         Profiler.release();
 
         if (t != null) {
@@ -56,8 +58,15 @@ public abstract class BaseMessageHandler<T extends Message> implements MessageHa
 
     protected T decode0(Packet packet, Connection connection) {
         if (packet.hasFlag(FLAG_JSON_BODY)) {
-            Jsons.fromJson(packet.body, clazz);
-            return Jsons.fromJson(packet.body, clazz);
+            String body = packet.getBody();
+            T t = Jsons.fromJson(body, clazz);
+            if (t != null) {
+                t.setPacket(packet);
+                t.setConnection(connection);
+            }
+            return Jsons.fromJson(body, clazz);
+        } else {
+            return decode(packet, connection);
         }
     }
 }

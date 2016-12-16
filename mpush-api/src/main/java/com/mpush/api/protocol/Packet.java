@@ -80,6 +80,10 @@ public class Packet {
         return (flags & flag) != 0;
     }
 
+    public <T> T getBody() {
+        return (T) body;
+    }
+
     public short calcCheckCode() {
         short checkCode = 0;
         if (body != null) {
