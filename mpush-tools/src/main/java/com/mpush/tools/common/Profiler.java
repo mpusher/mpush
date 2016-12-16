@@ -46,7 +46,7 @@ public class Profiler {
      * 开始计时。
      */
     public static void start() {
-        start((String) null);
+        start(EMPTY_STRING);
     }
 
     /**
@@ -54,8 +54,8 @@ public class Profiler {
      *
      * @param message 第一个entry的信息
      */
-    public static void start(String message) {
-        if (enabled) entryStack.set(new Entry(message, null, null));
+    public static void start(String message, Object... args) {
+        if (enabled) entryStack.set(new Entry(String.format(message, args), null, null));
     }
 
     /**
@@ -74,7 +74,7 @@ public class Profiler {
      * </p>
      */
     public static void reset() {
-        entryStack.set(null);
+        entryStack.remove();
     }
 
     /**

@@ -22,6 +22,7 @@ package com.mpush.core.server;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.ConnectionManager;
+import com.mpush.netty.connection.NettyConnection;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
 import com.mpush.tools.thread.NamedThreadFactory;
@@ -93,7 +94,12 @@ public final class ServerConnectionManager implements ConnectionManager {
             holder.close();
             return connection;
         }
-        return null;
+
+        //add default
+        Connection connection = new NettyConnection();
+        connection.init(channel, false);
+        connection.close();
+        return connection;
     }
 
     @Override

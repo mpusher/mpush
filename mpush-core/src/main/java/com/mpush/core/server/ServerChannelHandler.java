@@ -65,7 +65,7 @@ public final class ServerChannelHandler extends ChannelInboundHandlerAdapter {
         byte cmd = packet.cmd;
 
         try {
-            Profiler.start("time cost on [channel read]: " + packet.toString());
+            Profiler.start("time cost on [channel read]: ", packet.toString());
             Connection connection = connectionManager.get(ctx.channel());
             LOGGER.debug("channelRead conn={}, packet={}", ctx.channel(), connection.getSessionContext(), msg);
             connection.updateLastReadTime();
@@ -81,9 +81,10 @@ public final class ServerChannelHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        Connection connection = connectionManager.removeAndClose(ctx.channel());
+        Connection connection = connectionManager.get(ctx.channel());
         Logs.CONN.error("client caught ex, conn={}", connection);
         LOGGER.error("caught an ex, channel={}, conn={}", ctx.channel(), connection, cause);
+        ctx.close();
     }
 
     @Override
