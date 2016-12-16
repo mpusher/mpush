@@ -46,9 +46,9 @@ public interface PushSender extends Service {
      * @param context 推送参数
      * @return FutureTask 可用于同步调用
      */
-    FutureTask<Boolean> send(PushContext context);
+    FutureTask<PushResult> send(PushContext context);
 
-    default FutureTask<Boolean> send(String context, String userId, PushCallback callback) {
+    default FutureTask<PushResult> send(String context, String userId, PushCallback callback) {
         return send(PushContext
                 .build(context)
                 .setUserId(userId)
@@ -56,7 +56,7 @@ public interface PushSender extends Service {
         );
     }
 
-    default FutureTask<Boolean> send(String context, String userId, AckModel ackModel, PushCallback callback) {
+    default FutureTask<PushResult> send(String context, String userId, AckModel ackModel, PushCallback callback) {
         return send(PushContext
                 .build(context)
                 .setAckModel(ackModel)
