@@ -65,7 +65,8 @@ public final class DefaultExecutorFactory implements ExecutorFactory {
                         .setCorePoolSize(CC.mp.thread.pool.event_bus.min)
                         .setMaxPoolSize(CC.mp.thread.pool.event_bus.max)
                         .setKeepAliveSeconds(TimeUnit.SECONDS.toSeconds(10))
-                        .setQueueCapacity(CC.mp.thread.pool.event_bus.queue_size);
+                        .setQueueCapacity(CC.mp.thread.pool.event_bus.queue_size)
+                        .setRejectedPolicy(ThreadPoolConfig.REJECTED_POLICY_CALLER_RUNS);
                 break;
             case MQ:
                 config = ThreadPoolConfig
@@ -73,7 +74,9 @@ public final class DefaultExecutorFactory implements ExecutorFactory {
                         .setCorePoolSize(CC.mp.thread.pool.mq.min)
                         .setMaxPoolSize(CC.mp.thread.pool.mq.max)
                         .setKeepAliveSeconds(TimeUnit.SECONDS.toSeconds(10))
-                        .setQueueCapacity(CC.mp.thread.pool.mq.queue_size);
+                        .setQueueCapacity(CC.mp.thread.pool.mq.queue_size)
+                        .setRejectedPolicy(ThreadPoolConfig.REJECTED_POLICY_CALLER_RUNS);
+                ;
                 break;
             case PUSH_CLIENT:
                 return new ScheduledThreadPoolExecutor(push_client, new NamedPoolThreadFactory(T_PUSH_CLIENT_TIMER),
