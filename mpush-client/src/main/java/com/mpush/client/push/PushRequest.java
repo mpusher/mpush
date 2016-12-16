@@ -314,7 +314,7 @@ public final class PushRequest extends FutureTask<PushResult> {
     @Override
     public String toString() {
         return "PushRequest{" +
-                "content='" + content.length + '\'' +
+                "content='" + (content == null ? -1 : content.length) + '\'' +
                 ", userId='" + userId + '\'' +
                 ", timeout=" + timeout +
                 ", location=" + location +
