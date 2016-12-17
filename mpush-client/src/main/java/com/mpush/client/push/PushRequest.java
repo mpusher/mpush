@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicReference;
@@ -43,10 +44,10 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author ohun@live.cn
  */
-public final class PushRequest extends FutureTask<Boolean> {
+public final class PushRequest extends FutureTask<PushResult> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PushRequest.class);
 
-    private static final Callable<Boolean> NONE = () -> Boolean.FALSE;
+    private static final Callable<PushResult> NONE = () -> new PushResult(PushResult.CODE_FAILURE);
 
     private enum Status {init, success, failure, offline, timeout}
 
@@ -63,7 +64,9 @@ public final class PushRequest extends FutureTask<Boolean> {
     private byte[] content;
     private int timeout;
     private ClientLocation location;
+    private int sessionId;
     private Future<?> future;
+    private PushResult result;
 
     private void sendToConnServer(RemoteRouter remoteRouter) {
         timeLine.addTimePoint("lookup-remote");
@@ -103,7 +106,8 @@ public final class PushRequest extends FutureTask<Boolean> {
                         }
                     });
                     PushRequest.this.content = null;//释放内存
-                    future = PushRequestBus.I.put(pushMessage.getSessionId(), PushRequest.this);
+                    sessionId = pushMessage.getSessionId();
+                    future = PushRequestBus.I.put(sessionId, PushRequest.this);
                 }
         );
 
@@ -115,27 +119,38 @@ public final class PushRequest extends FutureTask<Boolean> {
 
     private void submit(Status status) {
         if (this.status.compareAndSet(Status.init, status)) {//防止重复调用
-            timeLine.end();
-            if (future != null) future.cancel(true);
-            if (callback != null) {
-                PushRequestBus.I.asyncCall(this);
+            boolean isTimeoutEnd = status == Status.timeout;//任务是否超时结束
+
+            if (future != null && !isTimeoutEnd) {//是超时结束任务不用再取消一次
+                future.cancel(true);//取消超时任务
             }
-            super.set(this.status.get() == Status.success);
+
+            this.timeLine.end();//结束时间流统计
+            super.set(getResult());//设置同步调用的返回结果
+
+            if (callback != null) {//回调callback
+                if (isTimeoutEnd) {//超时结束时，当前线程已经是线程池里的线程，直接调用callback
+                    callback.onResult(getResult());
+                } else {//非超时结束时，当前线程为Netty线程池，要异步执行callback
+                    PushRequestBus.I.asyncCall(this);//会执行run方法
+                }
+            }
         }
-        LOGGER.info("push request {} end, userId={}, content={}, location={}, timeLine={}"
-                , status, userId, content, location, timeLine);
+        LOGGER.info("push request {} end, {}, {}, {}", status, userId, location, timeLine);
     }
 
+    /**
+     * run方法会有两个地方的线程调用
+     * 1. 任务超时时会调用，见PushRequestBus.I.put(sessionId, PushRequest.this);
+     * 2. 异步执行callback的时候，见PushRequestBus.I.asyncCall(this);
+     */
     @Override
     public void run() {
-        if (status.get() == Status.init) {//从定时任务过来的，超时时间到了
-            submit(Status.timeout);
+        //判断任务是否超时，如果超时了此时状态是init，否则应该是其他状态, 因为从submit方法过来的状态都不是init
+        if (status.get() == Status.init) {
+            timeout();
         } else {
-            callback.onResult(new PushResult(status.get().ordinal())
-                    .setUserId(userId)
-                    .setLocation(location)
-                    .setTimeLine(timeLine.getTimePoints())
-            );
+            callback.onResult(getResult());
         }
     }
 
@@ -144,7 +159,7 @@ public final class PushRequest extends FutureTask<Boolean> {
         throw new UnsupportedOperationException();
     }
 
-    public FutureTask<Boolean> send(RemoteRouter router) {
+    public FutureTask<PushResult> send(RemoteRouter router) {
         timeLine.begin();
         sendToConnServer(router);
         return this;
@@ -160,13 +175,13 @@ public final class PushRequest extends FutureTask<Boolean> {
         }
     }
 
-    public FutureTask<Boolean> offline() {
+    public FutureTask<PushResult> offline() {
         CachedRemoteRouterManager.I.invalidateLocalCache(userId);
         submit(Status.offline);
         return this;
     }
 
-    public FutureTask<Boolean> broadcast() {
+    public FutureTask<PushResult> broadcast() {
         timeLine.begin();
 
         boolean success = connectionFactory.broadcast(
@@ -189,7 +204,8 @@ public final class PushRequest extends FutureTask<Boolean> {
                     });
 
                     if (pushMessage.taskId == null) {
-                        future = PushRequestBus.I.put(pushMessage.getSessionId(), PushRequest.this);
+                        sessionId = pushMessage.getSessionId();
+                        future = PushRequestBus.I.put(sessionId, PushRequest.this);
                     } else {
                         success();
                     }
@@ -205,7 +221,9 @@ public final class PushRequest extends FutureTask<Boolean> {
     }
 
     public void timeout() {
-        submit(Status.timeout);
+        if (PushRequestBus.I.getAndRemove(sessionId) != null) {
+            submit(Status.timeout);
+        }
     }
 
     public void success() {
@@ -248,6 +266,16 @@ public final class PushRequest extends FutureTask<Boolean> {
 
     }
 
+    private PushResult getResult() {
+        if (result == null) {
+            result = new PushResult(status.get().ordinal())
+                    .setUserId(userId)
+                    .setLocation(location)
+                    .setTimeLine(timeLine.getTimePoints());
+        }
+        return result;
+    }
+
     public PushRequest setCallback(PushCallback callback) {
         this.callback = callback;
         return this;
@@ -286,7 +314,7 @@ public final class PushRequest extends FutureTask<Boolean> {
     @Override
     public String toString() {
         return "PushRequest{" +
-                "content='" + content.length + '\'' +
+                "content='" + (content == null ? -1 : content.length) + '\'' +
                 ", userId='" + userId + '\'' +
                 ", timeout=" + timeout +
                 ", location=" + location +

@@ -78,20 +78,27 @@ public final class DefaultExecutorFactory implements ExecutorFactory {
                         .setRejectedPolicy(ThreadPoolConfig.REJECTED_POLICY_CALLER_RUNS);
                 ;
                 break;
-            case PUSH_CLIENT:
-                return new ScheduledThreadPoolExecutor(push_client, new NamedPoolThreadFactory(T_PUSH_CLIENT_TIMER),
-                        (r, e) -> r.run() // run caller thread
+            case PUSH_CLIENT: {
+                ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(push_client
+                        , new NamedPoolThreadFactory(T_PUSH_CLIENT_TIMER), (r, e) -> r.run() // run caller thread
                 );
+                executor.setRemoveOnCancelPolicy(true);
+                return executor;
+            }
             case PUSH_TASK:
                 return new ScheduledThreadPoolExecutor(push_task, new NamedPoolThreadFactory(T_PUSH_CENTER_TIMER),
                         (r, e) -> {
                             throw new PushException("one push task was rejected. task=" + r);
                         }
                 );
-            case ACK_TIMER:
-                return new ScheduledThreadPoolExecutor(ack_timer, new NamedPoolThreadFactory(T_ARK_REQ_TIMER),
+            case ACK_TIMER: {
+                ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(ack_timer,
+                        new NamedPoolThreadFactory(T_ARK_REQ_TIMER),
                         (r, e) -> Logs.PUSH.error("one ack context was rejected, context=" + r)
                 );
+                executor.setRemoveOnCancelPolicy(true);
+                return executor;
+            }
             default:
                 throw new IllegalArgumentException("no executor for " + name);
         }

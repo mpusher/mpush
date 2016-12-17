@@ -27,7 +27,7 @@ import java.util.Date;
  * @author ohun@live.cn (夜色)
  */
 public final class TimeLine {
-    private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    private static final SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss.SSS");
     private final TimePoint root = new TimePoint("root");
     private final String name;
     private int pointCount;
@@ -62,7 +62,7 @@ public final class TimeLine {
     public String toString() {
         StringBuilder sb = new StringBuilder(name);
         if (root.next != null) {
-            sb.append('[').append(current.time - root.next.time).append(']');
+            sb.append('[').append(current.time - root.next.time).append(']').append("(ms)");
         }
         sb.append('{');
         TimePoint next = root;
@@ -99,9 +99,8 @@ public final class TimeLine {
 
         @Override
         public String toString() {
-            String header = name + "[" + formatter.format(new Date(time)) + "]";
-            if (next == null) return header;
-            return header + " --" + (next.time - time) + "(ms)--> ";
+            if (next == null) return name;
+            return name + " --（" + (next.time - time) + "ms) --> ";
         }
     }
 }

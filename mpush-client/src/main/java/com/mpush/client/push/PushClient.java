@@ -21,6 +21,7 @@ package com.mpush.client.push;
 
 import com.mpush.api.push.PushContext;
 import com.mpush.api.push.PushException;
+import com.mpush.api.push.PushResult;
 import com.mpush.api.push.PushSender;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
@@ -42,7 +43,7 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
 /*package*/ final class PushClient extends BaseService implements PushSender {
     private final GatewayConnectionFactory factory = GatewayConnectionFactory.create();
 
-    private FutureTask<Boolean> send0(PushContext ctx) {
+    private FutureTask<PushResult> send0(PushContext ctx) {
         if (ctx.isBroadcast()) {
             return PushRequest.build(factory, ctx).broadcast();
         } else {
@@ -50,7 +51,7 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
             if (remoteRouters == null || remoteRouters.isEmpty()) {
                 return PushRequest.build(factory, ctx).offline();
             }
-            FutureTask<Boolean> task = null;
+            FutureTask<PushResult> task = null;
             for (RemoteRouter remoteRouter : remoteRouters) {
                 task = PushRequest.build(factory, ctx).send(remoteRouter);
             }
@@ -59,13 +60,13 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
     }
 
     @Override
-    public FutureTask<Boolean> send(PushContext ctx) {
+    public FutureTask<PushResult> send(PushContext ctx) {
         if (ctx.isBroadcast()) {
             return send0(ctx.setUserId(null));
         } else if (ctx.getUserId() != null) {
             return send0(ctx);
         } else if (ctx.getUserIds() != null) {
-            FutureTask<Boolean> task = null;
+            FutureTask<PushResult> task = null;
             for (String userId : ctx.getUserIds()) {
                 task = send0(ctx.setUserId(userId));
             }

@@ -45,17 +45,12 @@ public class PushClientTestMain {
         Logs.init();
         PushSender sender = PushSender.create();
         sender.start().join();
+        Thread.sleep(1000);
 
         for (int i = 0; i < 10; i++) {
 
             PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
             msg.setMsgId("msgId_" + i);
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
             PushContext context = PushContext.build(msg)
                     .setAckModel(AckModel.AUTO_ACK)
@@ -71,7 +66,9 @@ public class PushClientTestMain {
                             System.err.println("\n\n" + result);
                         }
                     });
-            FutureTask<Boolean> future = sender.send(context);
+            FutureTask<PushResult> future = sender.send(context);
+
+            //System.err.println("\n\n" + future.get());
         }
 
         LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(30));

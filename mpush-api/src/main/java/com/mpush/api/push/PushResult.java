@@ -98,7 +98,7 @@ public class PushResult {
                 "resultCode=" + getResultDesc() +
                 ", userId='" + userId + '\'' +
                 ", timeLine=" + Arrays.toString(timeLine) +
-                ", location=" + location +
+                ", " + location +
                 '}';
     }
 }
