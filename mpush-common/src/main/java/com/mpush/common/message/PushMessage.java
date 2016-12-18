@@ -19,8 +19,14 @@
 
 package com.mpush.common.message;
 
+import com.mpush.api.Constants;
 import com.mpush.api.connection.Connection;
+import com.mpush.api.protocol.JsonPacket;
 import com.mpush.api.protocol.Packet;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.mpush.api.protocol.Command.PUSH;
 
@@ -37,9 +43,12 @@ public final class PushMessage extends BaseMessage {
         super(packet, connection);
     }
 
-    public PushMessage(byte[] content, Connection connection) {
-        super(new Packet(PUSH, genSessionId()), connection);
-        this.content = content;
+    public static PushMessage build(Connection connection) {
+        if (connection.getSessionContext().isSecurity()) {
+            return new PushMessage(new Packet(PUSH, genSessionId()), connection);
+        } else {
+            return new PushMessage(new JsonPacket(PUSH, genSessionId()), connection);
+        }
     }
 
     @Override
@@ -52,6 +61,22 @@ public final class PushMessage extends BaseMessage {
         return content;
     }
 
+    @Override
+    public void decodeJsonBody(Map<String, Object> body) {
+        String content = (String) body.get("content");
+        if (content != null) {
+            this.content = content.getBytes(Constants.UTF_8);
+        }
+    }
+
+    @Override
+    public Map<String, Object> encodeJsonBody() {
+        if (content != null) {
+            return Collections.singletonMap("content", new String(content, Constants.UTF_8));
+        }
+        return null;
+    }
+
     public boolean autoAck() {
         return packet.hasFlag(Packet.FLAG_AUTO_ACK);
     }
@@ -59,6 +84,13 @@ public final class PushMessage extends BaseMessage {
     public boolean needAck() {
         return packet.hasFlag(Packet.FLAG_BIZ_ACK) || packet.hasFlag(Packet.FLAG_AUTO_ACK);
     }
+
+    public PushMessage setContent(byte[] content) {
+        this.content = content;
+        return this;
+    }
+
+
 
     @Override
     public String toString() {

@@ -24,6 +24,8 @@ import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 
+import java.util.Map;
+
 /**
  * Created by ohun on 2015/12/28.
  *
@@ -54,6 +56,12 @@ public final class BindUserMessage extends ByteBufMessage {
         encodeString(body, userId);
         encodeString(body, alias);
         encodeString(body, tags);
+    }
+
+    @Override
+    public void decodeJsonBody(Map<String, Object> body) {
+        userId = (String) body.get("userId");
+        tags = (String) body.get("tags");
     }
 
     @Override

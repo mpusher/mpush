@@ -90,8 +90,10 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
                     if (checkCondition(condition, connection)) {//1.条件检测
                         if (connection.isConnected()) {
                             if (connection.getChannel().isWritable()) { //检测TCP缓冲区是否已满且写队列超过最高阀值
-                                PushMessage pushMessage = new PushMessage(message.content, connection);
-                                pushMessage.send(this);
+                                PushMessage
+                                        .build(connection)
+                                        .setContent(message.content)
+                                        .send(this);
                                 if (!flowControl.checkQps()) {
                                     throw new OverFlowException(false);
                                 }

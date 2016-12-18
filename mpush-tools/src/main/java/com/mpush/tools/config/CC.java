@@ -94,9 +94,15 @@ public interface CC {
             String gateway_server_net = cfg.getString("gateway-server-net");
             String gateway_server_multicast = cfg.getString("gateway-server-multicast");
             String gateway_client_multicast = cfg.getString("gateway-client-multicast");
+            int ws_server_port = cfg.getInt("ws-server-port");
+            String ws_path = cfg.getString("ws-path");
 
             static boolean udpGateway() {
                 return "udp".equals(gateway_server_net);
+            }
+
+            static boolean wsEnabled() {
+                return ws_server_port > 0;
             }
 
 

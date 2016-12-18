@@ -71,4 +71,9 @@ public final class ServerBoot extends BootJob {
         Logs.Console.info("{} shutdown success.", this.getClass().getSimpleName());
         stopNext();
     }
+
+    @Override
+    protected String getName() {
+        return super.getName() + '(' + server.getClass().getSimpleName() + ')';
+    }
 }

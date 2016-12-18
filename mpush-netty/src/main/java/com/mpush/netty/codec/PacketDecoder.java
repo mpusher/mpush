@@ -20,7 +20,9 @@
 package com.mpush.netty.codec;
 
 import com.mpush.api.protocol.Packet;
+import com.mpush.api.protocol.JsonPacket;
 import com.mpush.api.protocol.UDPPacket;
+import com.mpush.tools.Jsons;
 import com.mpush.tools.config.CC;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -28,7 +30,10 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.TooLongFrameException;
 
+import java.util.HashMap;
 import java.util.List;
+
+import static com.mpush.api.protocol.Packet.decodePacket;
 
 /**
  * Created by ohun on 2015/12/19.
@@ -77,33 +82,26 @@ public final class PacketDecoder extends ByteToMessageDecoder {
         if (readableBytes < (bodyLength + Packet.HEADER_LEN)) {
             return null;
         }
-        return readPacket(new Packet(in.readByte()), in, bodyLength);
+        if (bodyLength > maxPacketSize) {
+            throw new TooLongFrameException("packet body length over limit:" + bodyLength);
+        }
+        return decodePacket(new Packet(in.readByte()), in, bodyLength);
     }
 
-    public static Packet decodeFrame(DatagramPacket datagram) throws Exception {
-        ByteBuf in = datagram.content();
+    public static Packet decodeFrame(DatagramPacket frame) throws Exception {
+        ByteBuf in = frame.content();
         int readableBytes = in.readableBytes();
         int bodyLength = in.readInt();
         if (readableBytes < (bodyLength + Packet.HEADER_LEN)) {
             return null;
         }
-        return readPacket(new UDPPacket(in.readByte()
-                        , datagram.sender()), in, bodyLength);
+
+        return decodePacket(new UDPPacket(in.readByte()
+                , frame.sender()), in, bodyLength);
     }
 
-    private static Packet readPacket(Packet packet, ByteBuf in, int bodyLength) {
-        packet.cc = in.readShort();//read cc
-        packet.flags = in.readByte();//read flags
-        packet.sessionId = in.readInt();//read sessionId
-        packet.lrc = in.readByte();//read lrc
-
-        //read body
-        if (bodyLength > 0) {
-            if (bodyLength > maxPacketSize) {
-                throw new TooLongFrameException("packet body length over limit:" + bodyLength);
-            }
-            in.readBytes(packet.body = new byte[bodyLength]);
-        }
-        return packet;
+    public static Packet decodeFrame(String frame) throws Exception {
+        if (frame == null) return null;
+        return Jsons.fromJson(frame, JsonPacket.class);
     }
 }

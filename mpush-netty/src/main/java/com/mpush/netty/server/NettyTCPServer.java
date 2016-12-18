@@ -175,17 +175,40 @@ public abstract class NettyTCPServer extends BaseService implements Server {
     }
 
     private void createNioServer(Listener listener) {
-        NioEventLoopGroup bossGroup = new NioEventLoopGroup(getBossThreadNum(), getBossThreadFactory());
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup(getWorkThreadNum(), getWorkThreadFactory());
-        bossGroup.setIoRatio(100);
-        workerGroup.setIoRatio(getIoRate());
+        EventLoopGroup bossGroup = getBossGroup();
+        EventLoopGroup workerGroup = getWorkerGroup();
+
+        if (bossGroup == null) {
+            NioEventLoopGroup nioEventLoopGroup = new NioEventLoopGroup(getBossThreadNum(), getBossThreadFactory());
+            nioEventLoopGroup.setIoRatio(100);
+            bossGroup = nioEventLoopGroup;
+        }
+
+        if (workerGroup == null) {
+            NioEventLoopGroup nioEventLoopGroup = new NioEventLoopGroup(getWorkThreadNum(), getWorkThreadFactory());
+            nioEventLoopGroup.setIoRatio(getIoRate());
+            workerGroup = nioEventLoopGroup;
+        }
+
         createServer(listener, bossGroup, workerGroup, NioServerSocketChannel.class);
     }
 
     private void createEpollServer(Listener listener) {
-        EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(getBossThreadNum(), getBossThreadFactory());
-        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(getWorkThreadNum(), getWorkThreadFactory());
-        workerGroup.setIoRatio(getIoRate());
+        EventLoopGroup bossGroup = getBossGroup();
+        EventLoopGroup workerGroup = getWorkerGroup();
+
+        if (bossGroup == null) {
+            EpollEventLoopGroup epollEventLoopGroup = new EpollEventLoopGroup(getBossThreadNum(), getBossThreadFactory());
+            epollEventLoopGroup.setIoRatio(100);
+            bossGroup = epollEventLoopGroup;
+        }
+
+        if (workerGroup == null) {
+            EpollEventLoopGroup epollEventLoopGroup = new EpollEventLoopGroup(getWorkThreadNum(), getWorkThreadFactory());
+            epollEventLoopGroup.setIoRatio(getIoRate());
+            workerGroup = epollEventLoopGroup;
+        }
+
         createServer(listener, bossGroup, workerGroup, EpollServerSocketChannel.class);
     }
 
@@ -279,6 +302,10 @@ public abstract class NettyTCPServer extends BaseService implements Server {
             }
         }
         return false;
+    }
+
+    public EventLoopGroup getBossGroup() {
+        return bossGroup;
     }
 
     public EventLoopGroup getWorkerGroup() {

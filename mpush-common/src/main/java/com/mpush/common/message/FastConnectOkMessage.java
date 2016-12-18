@@ -20,8 +20,11 @@
 package com.mpush.common.message;
 
 import com.mpush.api.connection.Connection;
+import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
+
+import static com.mpush.api.protocol.Command.FAST_CONNECT;
 
 /**
  * Created by ohun on 2015/12/28.
@@ -36,7 +39,7 @@ public final class FastConnectOkMessage extends ByteBufMessage {
     }
 
     public static FastConnectOkMessage from(BaseMessage src) {
-        return new FastConnectOkMessage(src.createResponse(), src.connection);
+        return new FastConnectOkMessage(src.packet.response(FAST_CONNECT), src.connection);
     }
 
     @Override

@@ -47,7 +47,7 @@ public class PushClientTestMain {
         sender.start().join();
         Thread.sleep(1000);
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 1; i++) {
 
             PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
             msg.setMsgId("msgId_" + i);

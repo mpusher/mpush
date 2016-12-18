@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MPush WebSocket Client</title>
+</head>
+<body>
+
+<script type="text/javascript">
+    (function (window) {
+        let socket, session = {}, ID_SEQ = 1;
+        let config = {listener: null, tags: null, log: console};
+        let listener = {
+            onHandshake: function () {
+                session.handshakeOk = true;
+                if (config.listener != null) {
+                    config.listener.onHandshake();
+                }
+                if (config.userId) {
+                    bindUser(config.userId, config.tags);
+                }
+            },
+            onBindUser: function (success) {
+                if (config.listener != null) {
+                    config.listener.onBindUser(success);
+                }
+            },
+            onReceivePush: function (message, messageId) {
+                if (config.listener != null) {
+                    config.listener.onReceivePush(message, messageId);
+                }
+            }
+        };
+
+        const Command = {
+            HANDSHAKE: 2,
+            BIND: 5,
+            UNBIND: 6,
+            ERROR: 10,
+            OK: 11,
+            KICK: 13,
+            PUSH: 15,
+            ACK: 23,
+            UNKNOWN: -1
+        };
+
+        function Packet(cmd, body, sessionId) {
+            return {
+                cmd: cmd,
+                flags: 16,
+                sessionId: sessionId || ID_SEQ++,
+                body: body
+            }
+        }
+
+        function handshake() {
+            config.log.error("Web Socket opened!");
+            send(Packet(Command.HANDSHAKE, {
+                    deviceId: config.deviceId,
+                    osName: config.osName,
+                    osVersion: config.osVersion,
+                    clientVersion: config.clientVersion
+                })
+            );
+        }
+
+        function bindUser(userId, tags) {
+            if (userId && userId != session.userId) {
+                session.userId = userId;
+                session.tags = tags;
+                send(Packet(Command.BIND, {userId: userId, tags: tags}));
+            }
+        }
+
+        function ack(sessionId) {
+            send(Packet(Command.ACK, null, sessionId));
+        }
+
+        function send(message) {
+            if (!socket) {
+                return;
+            }
+            if (socket.readyState == WebSocket.OPEN) {
+                socket.send(JSON.stringify(message));
+            } else {
+                config.log.error("The socket is not open.");
+            }
+        }
+
+        function dispatch(event) {
+            let packet = JSON.parse(event.data);
+            switch (packet.cmd) {
+                case Command.HANDSHAKE: {
+                    config.log.debug(">>> handshake ok.");
+                    listener.onHandshake();
+                    break;
+                }
+                case Command.OK: {
+                    if (packet.body.cmd == Command.BIND) {
+                        config.log.debug(">>> bind user ok.");
+                        listener.onBindUser(true);
+                    }
+                    break;
+                }
+                case Command.PUSH: {
+                    config.log.debug(">>> receive push, content=" + packet.body.content);
+                    let sessionId;
+                    if ((packet.flags & 8) != 0) {
+                        ack(packet.sessionId);
+                    } else {
+                        sessionId = packet.sessionId
+                    }
+                    listener.onReceivePush(packet.body.content, sessionId);
+                    break;
+                }
+            }
+        }
+
+        function close(event) {
+            config.log.error("Web Socket closed!");
+        }
+
+        function connect(cfg) {
+            config = copy(cfg);
+            socket = new WebSocket(config.url);
+            socket.onmessage = dispatch;
+            socket.onopen = handshake;
+            socket.onclose = close;
+        }
+
+        function copy(cfg) {
+            for (let p in cfg) {
+                if (cfg.hasOwnProperty(p)) {
+                    config[p] = cfg[p];
+                }
+            }
+            return config;
+        }
+
+        window.mpush = {
+            connect: connect,
+            bindUser: bindUser
+        }
+    })(window);
+
+    function $(id) {
+        return document.getElementById(id);
+    }
+
+    let log = {
+        log: function (text) {
+            $("responseText").value += text + "\r\n";
+        }
+    };
+    log.debug = log.info = log.warn = log.error = log.log;
+
+    function connect() {
+        mpush.connect({
+            url: $("url").value,
+            userId: $("userId").value,
+            deviceId: "test-1001",
+            osName: "web " + navigator.userAgent,
+            osVersion: "55.2",
+            clientVersion: "1.0",
+            log: log
+        });
+    }
+
+    function bind() {
+        mpush.bindUser($("userId").value)
+    }
+
+</script>
+<form onsubmit="return false;">
+    <label> Server Url:
+        <input type="text" id="url" value="ws://127.0.0.1:8080/">
+    </label>
+    <input type="button" value="Connect" onclick="connect()">
+    <br>
+    <label> Bind User:
+        <input type="text" id="userId" value="user-0">
+    </label>
+    <input type="button" value="bind" onclick="bind()">
+    <h3><label for="responseText">Output</label></h3>
+    <textarea id="responseText" style="width:500px;height:300px;"></textarea>
+</form>
+
+</body>
+</html>

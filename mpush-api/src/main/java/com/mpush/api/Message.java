@@ -32,6 +32,10 @@ public interface Message {
 
     Connection getConnection();
 
+    void decodeBody();
+
+    void encodeBody();
+
     /**
      * 发送当前message, 并根据情况最body进行数据压缩、加密
      *

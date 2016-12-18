@@ -3,11 +3,8 @@ package com.mpush.core.server;
 import com.mpush.api.PacketReceiver;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.ConnectionManager;
+import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.connection.NettyConnection;
-import com.shinemo.signin.amc.common.PacketReceiver;
-import com.shinemo.signin.amc.server.conn.ConnManager;
-import com.shinemo.signin.amc.server.conn.Connection;
-import com.shinemo.signin.amc.server.message.MessageReceiver;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -20,6 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Echoes uppercase content of text frames.
  */
+@ChannelHandler.Sharable
 public class WebSocketChannelHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
     private final Logger logger = LoggerFactory.getLogger(WebSocketChannelHandler.class.getSimpleName());
 
@@ -34,8 +32,8 @@ public class WebSocketChannelHandler extends SimpleChannelInboundHandler<WebSock
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
         if (frame instanceof TextWebSocketFrame) {
-            String request = ((TextWebSocketFrame) frame).text();
-            receiver.onReceive(request, ctx.channel());
+            String text = ((TextWebSocketFrame) frame).text();
+            receiver.onReceive(PacketDecoder.decodeFrame(text), connectionManager.get(ctx.channel()));
         } else {
             String message = "unsupported frame type: " + frame.getClass().getName();
             throw new UnsupportedOperationException(message);

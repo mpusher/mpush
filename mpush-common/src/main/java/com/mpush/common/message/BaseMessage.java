@@ -29,7 +29,7 @@ import com.mpush.tools.config.CC;
 import io.netty.channel.ChannelFutureListener;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Map;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
@@ -38,45 +38,72 @@ import java.util.concurrent.atomic.LongAdder;
  * @author ohun@live.cn
  */
 public abstract class BaseMessage implements Message {
+    private static final byte STATUS_DECODED = 1;
+    private static final byte STATUS_ENCODED = 2;
     private static final LongAdder ID_SEQ = new LongAdder();
-    protected Packet packet;
-    protected Connection connection;
-
-    public BaseMessage() {
-    }
+    transient protected Packet packet;
+    transient protected Connection connection;
+    transient private byte status = 0;
 
     public BaseMessage(Packet packet, Connection connection) {
         this.packet = packet;
         this.connection = connection;
-        decodeBody();
     }
 
-    protected void decodeBody() {
-        if (packet.body != null && packet.body.length > 0) {
-            //1.解密
-            byte[] tmp = packet.body;
-            if (packet.hasFlag(Packet.FLAG_CRYPTO)) {
-                if (connection.getSessionContext().cipher != null) {
-                    tmp = connection.getSessionContext().cipher.decrypt(tmp);
+    @Override
+    public void decodeBody() {
+        if ((status & STATUS_DECODED) == 0) {
+            status |= STATUS_DECODED;
+
+            if (packet.getBodyLength() > 0) {
+                if (packet.hasFlag(Packet.FLAG_JSON_BODY)) {
+                    decodeJsonBody0();
+                } else {
+                    decodeBinaryBody0();
                 }
             }
-            //2.解压
-            if (packet.hasFlag(Packet.FLAG_COMPRESS)) {
-                tmp = IOUtils.decompress(tmp);
-            }
 
-            if (tmp.length == 0) {
-                throw new RuntimeException("message decode ex");
-            }
-
-            packet.body = tmp;
-            Profiler.enter("time cost on [body decode]");
-            decode(packet.body);
-            Profiler.release();
         }
     }
 
-    protected void encodeBody() {
+    @Override
+    public void encodeBody() {
+        if ((status & STATUS_ENCODED) == 0) {
+            status |= STATUS_ENCODED;
+
+            if (packet.hasFlag(Packet.FLAG_JSON_BODY)) {
+                encodeJsonBody0();
+            } else {
+                encodeBinaryBody0();
+            }
+        }
+
+    }
+
+    private void decodeBinaryBody0() {
+        //1.解密
+        byte[] tmp = packet.body;
+        if (packet.hasFlag(Packet.FLAG_CRYPTO)) {
+            if (connection.getSessionContext().cipher != null) {
+                tmp = connection.getSessionContext().cipher.decrypt(tmp);
+            }
+        }
+        //2.解压
+        if (packet.hasFlag(Packet.FLAG_COMPRESS)) {
+            tmp = IOUtils.decompress(tmp);
+        }
+
+        if (tmp.length == 0) {
+            throw new RuntimeException("message decode ex");
+        }
+
+        packet.body = tmp;
+        Profiler.enter("time cost on [body decode]");
+        decode(packet.body);
+        Profiler.release();
+    }
+
+    private void encodeBinaryBody0() {
         Profiler.enter("time cost on [body encode]");
         byte[] tmp = encode();
         Profiler.release();
@@ -103,12 +130,37 @@ public abstract class BaseMessage implements Message {
         }
     }
 
+    private void decodeJsonBody0() {
+        Map<String, Object> body = packet.getBody();
+        decodeJsonBody(body);
+    }
+
+    private void encodeJsonBody0() {
+        packet.setBody(encodeJsonBody());
+    }
+
+    private void encodeBodyRaw() {
+        if ((status & STATUS_ENCODED) == 0) {
+            status |= STATUS_ENCODED;
+
+            if (packet.hasFlag(Packet.FLAG_JSON_BODY)) {
+                encodeJsonBody0();
+            } else {
+                packet.body = encode();
+            }
+        }
+    }
+
     public abstract void decode(byte[] body);
 
     public abstract byte[] encode();
 
-    public Packet createResponse() {
-        return new Packet(packet.cmd, packet.sessionId);
+    protected void decodeJsonBody(Map<String, Object> body) {
+
+    }
+
+    protected Map<String, Object> encodeJsonBody() {
+        return null;
     }
 
     @Override
@@ -129,7 +181,7 @@ public abstract class BaseMessage implements Message {
 
     @Override
     public void sendRaw(ChannelFutureListener listener) {
-        packet.body = encode();
+        encodeBodyRaw();
         connection.send(packet, listener);
     }
 

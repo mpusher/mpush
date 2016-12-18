@@ -49,7 +49,7 @@ public final class SpiLoader {
         return load0(clazz, name);
     }
 
-    public static <T> T load0(Class<T> clazz, String name) {
+    public static <T> T load0(Class<T>  clazz, String name) {
         ServiceLoader<T> factories = ServiceLoader.load(clazz);
         T t = filterByName(factories, name);
 

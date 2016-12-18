@@ -19,7 +19,13 @@
 
 package com.mpush.api.protocol;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import io.netty.channel.socket.DatagramPacket;
+
 import java.net.InetSocketAddress;
+
+import static com.mpush.api.protocol.Command.HEARTBEAT;
 
 /**
  * Created by ohun on 16/10/21.
@@ -64,5 +70,13 @@ public final class UDPPacket extends Packet {
     @Override
     public Packet response(Command command) {
         return new UDPPacket(command, sessionId, address);
+    }
+
+    @Override
+    public Object toFrame(Channel channel) {
+        int capacity = cmd == HEARTBEAT.cmd ? 1 : HEADER_LEN + getBodyLength();
+        ByteBuf out = channel.alloc().buffer(capacity, capacity);
+        encodePacket(this, out);
+        return new DatagramPacket(out, sender());
     }
 }

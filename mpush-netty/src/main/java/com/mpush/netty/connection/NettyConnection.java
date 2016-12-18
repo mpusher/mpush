@@ -83,9 +83,7 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
     public ChannelFuture send(Packet packet, final ChannelFutureListener listener) {
         if (channel.isActive()) {
 
-            Object msg = packet.sender() == null ? packet : new DatagramPacket(PacketEncoder.encode(channel, packet), packet.sender());
-
-            ChannelFuture future = channel.writeAndFlush(msg).addListener(this);
+            ChannelFuture future = channel.writeAndFlush(packet.toFrame(channel)).addListener(this);
 
             if (listener != null) {
                 future.addListener(listener);

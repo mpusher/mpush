@@ -24,16 +24,16 @@ import com.mpush.api.protocol.Command;
 import com.mpush.api.service.Listener;
 import com.mpush.api.spi.handler.PushHandlerFactory;
 import com.mpush.common.MessageDispatcher;
-import com.mpush.core.handler.*;
+import com.mpush.core.handler.AckHandler;
+import com.mpush.core.handler.BindUserHandler;
+import com.mpush.core.handler.HandshakeHandler;
 import com.mpush.netty.server.NettyTCPServer;
 import com.mpush.tools.config.CC;
-import com.mpush.tools.thread.ThreadNames;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.WriteBufferWaterMark;
+import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
@@ -51,7 +51,7 @@ public final class WebSocketServer extends NettyTCPServer {
 
     private static WebSocketServer I;
 
-    private ServerChannelHandler channelHandler;
+    private ChannelHandler channelHandler;
 
     private ConnectionManager connectionManager = new ServerConnectionManager(true);
 
@@ -67,7 +67,7 @@ public final class WebSocketServer extends NettyTCPServer {
     }
 
     private WebSocketServer() {
-        super(8080);
+        super(CC.mp.net.ws_server_port);
     }
 
     @Override
@@ -80,18 +80,7 @@ public final class WebSocketServer extends NettyTCPServer {
         receiver.register(Command.UNBIND, new BindUserHandler());
         receiver.register(Command.PUSH, PushHandlerFactory.create());
         receiver.register(Command.ACK, new AckHandler());
-        if (CC.mp.http.proxy_enabled) {
-            receiver.register(Command.HTTP_PROXY, new HttpProxyHandler());
-        }
-        channelHandler = new ServerChannelHandler(false, connectionManager, receiver);
-    }
-
-    @Override
-    public void start(Listener listener) {
-        super.start(listener);
-        if (this.workerGroup != null) {// 增加线程池监控
-            ThreadPoolManager.I.register("conn-worker", this.workerGroup);
-        }
+        channelHandler = new WebSocketChannelHandler(connectionManager, receiver);
     }
 
     @Override
@@ -101,18 +90,13 @@ public final class WebSocketServer extends NettyTCPServer {
     }
 
     @Override
-    protected int getWorkThreadNum() {
-        return CC.mp.thread.pool.conn_work;
+    public EventLoopGroup getBossGroup() {
+        return ConnectionServer.I().getBossGroup();
     }
 
     @Override
-    protected String getBossThreadName() {
-        return ThreadNames.T_CONN_BOSS;
-    }
-
-    @Override
-    protected String getWorkThreadName() {
-        return ThreadNames.T_CONN_WORKER;
+    public EventLoopGroup getWorkerGroup() {
+        return ConnectionServer.I().getWorkerGroup();
     }
 
     @Override
@@ -120,8 +104,9 @@ public final class WebSocketServer extends NettyTCPServer {
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new HttpObjectAggregator(65536));
         pipeline.addLast(new WebSocketServerCompressionHandler());
-        pipeline.addLast(new WebSocketServerProtocolHandler("/", null, true));
-        pipeline.addLast("handler", getChannelHandler());
+        pipeline.addLast(new WebSocketServerProtocolHandler(CC.mp.net.ws_path, null, true));
+        pipeline.addLast(new WebSocketIndexPageHandler());
+        pipeline.addLast(getChannelHandler());
     }
 
     @Override
@@ -130,7 +115,6 @@ public final class WebSocketServer extends NettyTCPServer {
         b.option(ChannelOption.SO_BACKLOG, 1024);
         b.childOption(ChannelOption.SO_SNDBUF, 32 * 1024);
         b.childOption(ChannelOption.SO_RCVBUF, 32 * 1024);
-        b.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark.DEFAULT);
     }
 
     @Override

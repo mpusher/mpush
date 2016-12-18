@@ -20,10 +20,13 @@
 package com.mpush.common.message;
 
 import com.mpush.api.connection.Connection;
+import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 
 import java.util.Arrays;
+
+import static com.mpush.api.protocol.Command.HANDSHAKE;
 
 /**
  * Created by ohun on 2015/12/27.
@@ -57,7 +60,7 @@ public final class HandshakeOkMessage extends ByteBufMessage {
     }
 
     public static HandshakeOkMessage from(BaseMessage src) {
-        return new HandshakeOkMessage(src.createResponse(), src.connection);
+        return new HandshakeOkMessage(src.packet.response(HANDSHAKE), src.connection);
     }
 
     public HandshakeOkMessage setServerKey(byte[] serverKey) {

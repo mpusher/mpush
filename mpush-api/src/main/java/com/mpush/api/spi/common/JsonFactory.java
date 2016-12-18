@@ -17,27 +17,19 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.api.protocol;
+package com.mpush.api.spi.common;
+
+import com.mpush.api.spi.Factory;
+import com.mpush.api.spi.SpiLoader;
 
 /**
- * Created by ohun on 2016/12/16.
+ * Created by ohun on 2016/12/17.
  *
  * @author ohun@live.cn (夜色)
  */
-public final class TextPacket extends Packet {
-    public String body;
+public interface JsonFactory extends Factory<Json> {
 
-    public TextPacket(byte cmd) {
-        super(cmd);
-    }
-
-    public TextPacket(byte cmd, int sessionId) {
-        super(cmd, sessionId);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public String getBody() {
-        return body;
+    static Json create() {
+        return SpiLoader.load(JsonFactory.class).get();
     }
 }

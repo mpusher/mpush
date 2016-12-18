@@ -75,6 +75,7 @@
         <mpush-zk-version>${mpush.version}</mpush-zk-version>
         <netty.version>4.1.4.Final</netty.version>
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
+        <org.mapstruct.version>1.1.0.Final</org.mapstruct.version>
     </properties>
 
 
@@ -265,6 +266,11 @@
                 <artifactId>javassist</artifactId>
                 <version>3.21.0-GA</version>
             </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-jdk8</artifactId>
+                <version>${org.mapstruct.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -285,6 +291,13 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${java.encoding}</encoding>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>

@@ -23,6 +23,9 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.mpush.api.protocol.Command.OK;
 
 /**
@@ -56,6 +59,15 @@ public final class OkMessage extends ByteBufMessage {
         encodeByte(body, cmd);
         encodeByte(body, code);
         encodeString(body, data);
+    }
+
+    @Override
+    public Map<String, Object> encodeJsonBody() {
+        Map<String, Object> body = new HashMap<>(3);
+        if (cmd > 0) body.put("cmd", cmd);
+        if (code > 0) body.put("code", code);
+        if (data != null) body.put("data", data);
+        return body;
     }
 
     public static OkMessage from(BaseMessage src) {

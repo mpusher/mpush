@@ -21,6 +21,7 @@ package com.mpush.api.protocol;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 
 import java.net.InetSocketAddress;
 
@@ -44,11 +45,11 @@ public class Packet {
     public static final Packet HB_PACKET = new Packet(Command.HEARTBEAT);
 
     public byte cmd; //命令
-    public short cc; //校验码 暂时没有用到
+    transient public short cc; //校验码 暂时没有用到
     public byte flags; //特性，如是否加密，是否压缩等
     public int sessionId; // 会话id。客户端生成。
-    public byte lrc; // 校验，纵向冗余校验。只校验head
-    public byte[] body;
+    transient public byte lrc; // 校验，纵向冗余校验。只校验head
+    transient public byte[] body;
 
     public Packet(byte cmd) {
         this.cmd = cmd;
@@ -84,6 +85,10 @@ public class Packet {
         return (T) body;
     }
 
+    public <T> void setBody(T body) {
+        this.body = (byte[]) body;
+    }
+
     public short calcCheckCode() {
         short checkCode = 0;
         if (body != null) {
@@ -109,7 +114,7 @@ public class Packet {
         return lrc;
     }
 
-    public boolean vaildCheckCode() {
+    public boolean validCheckCode() {
         return calcCheckCode() == cc;
     }
 
@@ -126,6 +131,39 @@ public class Packet {
 
     public Packet response(Command command) {
         return new Packet(command, sessionId);
+    }
+
+    public Object toFrame(Channel channel) {
+        return this;
+    }
+
+    public static Packet decodePacket(Packet packet, ByteBuf in, int bodyLength) {
+        packet.cc = in.readShort();//read cc
+        packet.flags = in.readByte();//read flags
+        packet.sessionId = in.readInt();//read sessionId
+        packet.lrc = in.readByte();//read lrc
+
+        //read body
+        if (bodyLength > 0) {
+            in.readBytes(packet.body = new byte[bodyLength]);
+        }
+        return packet;
+    }
+
+    public static void encodePacket(Packet packet, ByteBuf out) {
+        if (packet.cmd == Command.HEARTBEAT.cmd) {
+            out.writeByte(Packet.HB_PACKET_BYTE);
+        } else {
+            out.writeInt(packet.getBodyLength());
+            out.writeByte(packet.cmd);
+            out.writeShort(packet.cc);
+            out.writeByte(packet.flags);
+            out.writeInt(packet.sessionId);
+            out.writeByte(packet.lrc);
+            if (packet.getBodyLength() > 0) {
+                out.writeBytes(packet.body);
+            }
+        }
     }
 
     @Override

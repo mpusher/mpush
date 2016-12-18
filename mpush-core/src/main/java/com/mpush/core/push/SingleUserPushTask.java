@@ -100,8 +100,8 @@ public final class SingleUserPushTask implements PushTask {
 
         if (flowControl.checkQps()) {
             //4.链接可用，直接下发消息到手机客户端
-            PushMessage pushMessage = new PushMessage(message.content, connection);
-            pushMessage.getPacket().flags = message.getPacket().flags;
+            PushMessage pushMessage = PushMessage.build(connection).setContent(message.content);
+            pushMessage.getPacket().addFlag(message.getPacket().flags);
 
             pushMessage.send(future -> {
                 if (future.isSuccess()) {//推送成功

@@ -36,6 +36,7 @@ public class ZKServerNode implements ZKNode {
 
     public static final ZKServerNode CS_NODE = csNode();
     public static final ZKServerNode GS_NODE = gsNode();
+    public static final ZKServerNode WS_NODE = wsNode();
 
     private String ip;
 
@@ -68,6 +69,14 @@ public class ZKServerNode implements ZKNode {
                 null,
                 ZKPath.GATEWAY_SERVER.getNodePath());
     }
+
+    private static ZKServerNode wsNode() {
+        return new ZKServerNode(Utils.getLocalIp(),
+                CC.mp.net.ws_server_port,
+                ConfigManager.I.getPublicIp(),
+                ZKPath.WS_SERVER.getNodePath());
+    }
+
 
     public String getIp() {
         return ip;

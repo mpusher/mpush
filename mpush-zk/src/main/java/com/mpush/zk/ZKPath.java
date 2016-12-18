@@ -28,6 +28,7 @@ public enum ZKPath {
     REDIS_SERVER("/redis", "machine", "redis注册的地方"),
     CONNECT_SERVER("/cs/hosts", "machine", "connection server服务器应用注册的路径"),
     GATEWAY_SERVER("/gs/hosts", "machine", "gateway server服务器应用注册的路径"),
+    WS_SERVER("/ws/hosts", "machine", "websocket server服务器应用注册的路径"),
     DNS_MAPPING("/dns/mapping", "machine", "dns mapping服务器应用注册的路径");
 
     ZKPath(String root, String name, String desc) {

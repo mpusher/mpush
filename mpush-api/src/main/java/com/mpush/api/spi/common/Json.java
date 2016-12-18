@@ -17,24 +17,17 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.common.memory;
-
-import com.mpush.api.protocol.Command;
-import com.mpush.api.protocol.Packet;
-import com.mpush.api.protocol.UDPPacket;
-import com.mpush.tools.config.CC;
+package com.mpush.api.spi.common;
 
 /**
- * Created by ohun on 16/10/22.
+ * Created by ohun on 2016/12/17.
  *
  * @author ohun@live.cn (夜色)
  */
-public interface PacketFactory {
-    PacketFactory FACTORY = CC.mp.net.udpGateway() ? UDPPacket::new : Packet::new;
+public interface Json {
+    Json JSON = JsonFactory.create();
 
-    static Packet get(Command command) {
-        return FACTORY.create(command);
-    }
+    <T> T fromJson(String json, Class<T> clazz);
 
-    Packet create(Command command);
+    String toJson(Object json);
 }
