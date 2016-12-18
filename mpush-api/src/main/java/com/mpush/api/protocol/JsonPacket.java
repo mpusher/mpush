@@ -43,6 +43,11 @@ public final class JsonPacket extends Packet {
         this.addFlag(FLAG_JSON_BODY);
     }
 
+    public JsonPacket(Command cmd) {
+        super(cmd);
+        this.addFlag(FLAG_JSON_BODY);
+    }
+
     public JsonPacket(Command cmd, int sessionId) {
         super(cmd, sessionId);
         this.addFlag(FLAG_JSON_BODY);

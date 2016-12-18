@@ -83,6 +83,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 int connectedNum = STATISTICS.connectedNum.incrementAndGet();
                 connection.getSessionContext().changeCipher(new AesCipher(clientConfig.getClientKey(), clientConfig.getIv()));
                 HandshakeOkMessage message = new HandshakeOkMessage(packet, connection);
+                message.decodeBody();
                 byte[] sessionKey = CipherBox.I.mixKey(clientConfig.getClientKey(), message.serverKey);
                 connection.getSessionContext().changeCipher(new AesCipher(sessionKey, clientConfig.getIv()));
                 connection.getSessionContext().setHeartbeat(message.heartbeat);
@@ -101,6 +102,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 connection.getSessionContext().changeCipher(new AesCipher(key, iv));
 
                 FastConnectOkMessage message = new FastConnectOkMessage(packet, connection);
+                message.decodeBody();
                 connection.getSessionContext().setHeartbeat(message.heartbeat);
                 startHeartBeat(message.heartbeat - 1000);
                 bindUser(clientConfig);
@@ -110,12 +112,14 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 LOGGER.error("receive kick user msg userId={}, deviceId={}, message={},", clientConfig.getUserId(), clientConfig.getDeviceId(), message);
                 ctx.close();
             } else if (command == Command.ERROR) {
-                ErrorMessage errorMessage = new ErrorMessage(packet, connection);
-                LOGGER.error("receive an error packet=" + errorMessage);
+                ErrorMessage message = new ErrorMessage(packet, connection);
+                message.decodeBody();
+                LOGGER.error("receive an error packet=" + message);
             } else if (command == Command.PUSH) {
                 int receivePushNum = STATISTICS.receivePushNum.incrementAndGet();
 
                 PushMessage message = new PushMessage(packet, connection);
+                message.decodeBody();
                 LOGGER.info("receive push message, content={}, receivePushNum={}"
                         , new String(message.content, Constants.UTF_8), receivePushNum);
 
@@ -127,16 +131,18 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
             } else if (command == Command.HEARTBEAT) {
                 LOGGER.info("receive heartbeat pong...");
             } else if (command == Command.OK) {
-                OkMessage okMessage = new OkMessage(packet, connection);
+                OkMessage message = new OkMessage(packet, connection);
+                message.decodeBody();
                 int bindUserNum = STATISTICS.bindUserNum.get();
-                if (okMessage.cmd == Command.BIND.cmd) {
+                if (message.cmd == Command.BIND.cmd) {
                     bindUserNum = STATISTICS.bindUserNum.incrementAndGet();
                 }
 
-                LOGGER.info("receive {}, bindUserNum={}", okMessage, bindUserNum);
+                LOGGER.info("receive {}, bindUserNum={}", message, bindUserNum);
 
             } else if (command == Command.HTTP_PROXY) {
                 HttpResponseMessage message = new HttpResponseMessage(packet, connection);
+                message.decodeBody();
                 LOGGER.info("receive http response, message={}, body={}",
                         message, message.body == null ? null : new String(message.body, Constants.UTF_8));
             }

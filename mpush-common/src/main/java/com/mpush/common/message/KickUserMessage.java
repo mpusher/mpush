@@ -20,10 +20,15 @@
 package com.mpush.common.message;
 
 import com.mpush.api.connection.Connection;
+import com.mpush.api.protocol.JsonPacket;
 import com.mpush.api.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.mpush.api.protocol.Command.KICK;
+import static com.mpush.api.protocol.Command.PUSH;
 
 /**
  * Created by ohun on 2015/12/29.
@@ -34,12 +39,16 @@ public class KickUserMessage extends ByteBufMessage {
     public String deviceId;
     public String userId;
 
-    public KickUserMessage(Connection connection) {
-        super(new Packet(KICK), connection);
-    }
-
     public KickUserMessage(Packet message, Connection connection) {
         super(message, connection);
+    }
+
+    public static KickUserMessage build(Connection connection) {
+        if (connection.getSessionContext().isSecurity()) {
+            return new KickUserMessage(new Packet(KICK), connection);
+        } else {
+            return new KickUserMessage(new JsonPacket(KICK), connection);
+        }
     }
 
     @Override
@@ -52,6 +61,14 @@ public class KickUserMessage extends ByteBufMessage {
     public void encode(ByteBuf body) {
         encodeString(body, deviceId);
         encodeString(body, userId);
+    }
+
+    @Override
+    protected Map<String, Object> encodeJsonBody() {
+        Map<String, Object> body = new HashMap<>(2);
+        body.put("deviceId", deviceId);
+        body.put("userId", userId);
+        return body;
     }
 
     @Override

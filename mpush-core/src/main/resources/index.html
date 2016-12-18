@@ -9,8 +9,23 @@
 <script type="text/javascript">
     (function (window) {
         let socket, session = {}, ID_SEQ = 1;
-        let config = {listener: null, tags: null, log: console};
+        let config = {listener: null, log: console};
+
         let listener = {
+            onOpened: function (event) {
+                if (config.listener != null) {
+                    config.listener.onOpened(event);
+                }
+                handshake();
+            },
+            onClosed: function (event) {
+                if (config.listener != null) {
+                    config.listener.onClosed(event);
+                }
+                session = {};
+                ID_SEQ = 1;
+                socket = null;
+            },
             onHandshake: function () {
                 session.handshakeOk = true;
                 if (config.listener != null) {
@@ -29,6 +44,12 @@
                 if (config.listener != null) {
                     config.listener.onReceivePush(message, messageId);
                 }
+            },
+            onKickUser: function (userId, deviceId) {
+                if (config.listener != null) {
+                    config.listener.onKickUser(userId, deviceId);
+                }
+                doClose(-1, "kick user");
             }
         };
 
@@ -54,7 +75,6 @@
         }
 
         function handshake() {
-            config.log.error("Web Socket opened!");
             send(Packet(Command.HANDSHAKE, {
                     deviceId: config.deviceId,
                     osName: config.osName,
@@ -87,8 +107,7 @@
             }
         }
 
-        function dispatch(event) {
-            let packet = JSON.parse(event.data);
+        function dispatch(packet) {
             switch (packet.cmd) {
                 case Command.HANDSHAKE: {
                     config.log.debug(">>> handshake ok.");
@@ -102,6 +121,22 @@
                     }
                     break;
                 }
+                case Command.ERROR: {
+                    if (packet.body.cmd == Command.BIND) {
+                        config.log.debug(">>> bind user failure.");
+                        listener.onBindUser(false);
+                    }
+                    break;
+                }
+
+                case Command.KICK: {
+                    if (session.userId == packet.body.userId && config.deviceId == packet.body.deviceId) {
+                        config.log.debug(">>> receive kick user.");
+                        listener.onKickUser(packet.body.userId, packet.body.deviceId);
+                    }
+                    break;
+                }
+
                 case Command.PUSH: {
                     config.log.debug(">>> receive push, content=" + packet.body.content);
                     let sessionId;
@@ -116,16 +151,39 @@
             }
         }
 
-        function close(event) {
-            config.log.error("Web Socket closed!");
+        function onReceive(event) {
+            config.log.debug(">>> receive packet=" + event.data);
+            dispatch(JSON.parse(event.data))
         }
 
-        function connect(cfg) {
+        function onOpen(event) {
+            config.log.info("Web Socket opened!");
+            listener.onOpened(event);
+        }
+
+        function onClose(event) {
+            config.log.info("Web Socket closed!");
+            listener.onClosed(event);
+        }
+
+        function onError(event) {
+            config.log.info("Web Socket receive, error");
+            doClose();
+        }
+
+        function doClose(code, reason) {
+            if (socket) socket.close();
+            config.log.info("try close web socket client, reason=" + reason);
+        }
+
+        function doConnect(cfg) {
             config = copy(cfg);
             socket = new WebSocket(config.url);
-            socket.onmessage = dispatch;
-            socket.onopen = handshake;
-            socket.onclose = close;
+            socket.onmessage = onReceive;
+            socket.onopen = onOpen;
+            socket.onclose = onClose;
+            socket.onerror = onError;
+            config.log.debug("try connect to web socket server, url=" + config.url);
         }
 
         function copy(cfg) {
@@ -138,7 +196,8 @@
         }
 
         window.mpush = {
-            connect: connect,
+            connect: doConnect,
+            close: doClose,
             bindUser: bindUser
         }
     })(window);
@@ -148,8 +207,8 @@
     }
 
     let log = {
-        log: function (text) {
-            $("responseText").value += text + "\r\n";
+        log: function () {
+            $("responseText").value += (Array.prototype.join.call(arguments, "") + "\r\n");
         }
     };
     log.debug = log.info = log.warn = log.error = log.log;
@@ -182,7 +241,7 @@
     </label>
     <input type="button" value="bind" onclick="bind()">
     <h3><label for="responseText">Output</label></h3>
-    <textarea id="responseText" style="width:500px;height:300px;"></textarea>
+    <textarea id="responseText" style="width:100%;height:500px;"></textarea>
 </form>
 
 </body>

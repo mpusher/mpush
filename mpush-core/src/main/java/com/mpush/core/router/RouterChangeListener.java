@@ -87,7 +87,7 @@ public final class RouterChangeListener extends EventConsumer implements Message
     private void kickLocal(final String userId, final LocalRouter router) {
         Connection connection = router.getRouteValue();
         SessionContext context = connection.getSessionContext();
-        KickUserMessage message = new KickUserMessage(connection);
+        KickUserMessage message = KickUserMessage.build(connection);
         message.deviceId = context.deviceId;
         message.userId = userId;
         message.send(future -> {
