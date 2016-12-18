@@ -121,7 +121,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             //2.先删除远程路由, 必须是同一个设备才允许解绑
             boolean unRegisterSuccess = true;
             int clientType = context.getClientType();
-            String userId = message.userId;
+            String userId = context.userId;
             RemoteRouterManager remoteRouterManager = RouterCenter.I.getRemoteRouterManager();
             RemoteRouter remoteRouter = remoteRouterManager.lookup(userId, clientType);
             if (remoteRouter != null) {
