@@ -75,6 +75,7 @@
         }
 
         function handshake() {
+            config.log.info("<<< send handshake message, deviceId=" + config.deviceId);
             send(Packet(Command.HANDSHAKE, {
                     deviceId: config.deviceId,
                     osName: config.osName,
@@ -86,44 +87,50 @@
 
         function bindUser(userId, tags) {
             if (userId && userId != session.userId) {
+                config.log.info("<<< send bindUser message, userId=" + userId);
                 session.userId = userId;
                 session.tags = tags;
                 send(Packet(Command.BIND, {userId: userId, tags: tags}));
+            } else {
+                config.log.error("user " + userId + " already bind");
             }
         }
 
         function ack(sessionId) {
+            config.log.debug("<<< send ack message, sessionId=" + sessionId);
             send(Packet(Command.ACK, null, sessionId));
         }
 
-        function send(message) {
+        function send(packet) {
             if (!socket) {
                 return;
             }
+            let message = JSON.stringify(packet);
             if (socket.readyState == WebSocket.OPEN) {
-                socket.send(JSON.stringify(message));
+                socket.send(message);
+                config.log.debug("<<< send message to server, message=" + message);
             } else {
-                config.log.error("The socket is not open.");
+                config.log.error("The socket is not open. message=" + message);
             }
         }
 
         function dispatch(packet) {
             switch (packet.cmd) {
                 case Command.HANDSHAKE: {
-                    config.log.debug(">>> handshake ok.");
+                    config.log.info(">>> handshake ok.");
                     listener.onHandshake();
                     break;
                 }
                 case Command.OK: {
                     if (packet.body.cmd == Command.BIND) {
-                        config.log.debug(">>> bind user ok.");
+                        config.log.info(">>> bind user ok.");
                         listener.onBindUser(true);
                     }
                     break;
                 }
                 case Command.ERROR: {
                     if (packet.body.cmd == Command.BIND) {
-                        config.log.debug(">>> bind user failure.");
+                        config.log.warn(">>> bind user failure.");
                         listener.onBindUser(false);
                     }
                     break;
@@ -131,14 +138,14 @@
 
                 case Command.KICK: {
                     if (session.userId == packet.body.userId && config.deviceId == packet.body.deviceId) {
-                        config.log.debug(">>> receive kick user.");
+                        config.log.warn(">>> receive kick user.");
                         listener.onKickUser(packet.body.userId, packet.body.deviceId);
                     }
                     break;
                 }
 
                 case Command.PUSH: {
-                    config.log.debug(">>> receive push, content=" + packet.body.content);
+                    config.log.info(">>> receive push, content=" + packet.body.content);
                     let sessionId;
                     if ((packet.flags & 8) != 0) {
                         ack(packet.sessionId);
