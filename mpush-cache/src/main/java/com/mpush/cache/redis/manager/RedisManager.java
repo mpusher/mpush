@@ -42,11 +42,9 @@ public final class RedisManager {
 
     public void init() {
         Logs.REDIS.info("begin init redis...");
-        RedisClusterManager clusterManager = new ZKRedisClusterManager();
-        clusterManager.init();
         factory.setPassword(CC.mp.redis.password);
         factory.setPoolConfig(CC.mp.redis.getPoolConfig(JedisPoolConfig.class));
-        factory.setRedisServers(clusterManager.getServers());
+        factory.setRedisServers(CC.mp.redis.nodes);
         factory.setCluster(CC.mp.redis.isCluster());
         factory.init();
         test();
