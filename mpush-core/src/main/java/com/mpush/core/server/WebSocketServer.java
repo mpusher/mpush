@@ -53,7 +53,7 @@ public final class WebSocketServer extends NettyTCPServer {
 
     private ChannelHandler channelHandler;
 
-    private ConnectionManager connectionManager = new ServerConnectionManager(true);
+    private ConnectionManager connectionManager = new ServerConnectionManager(false);
 
     public static WebSocketServer I() {
         if (I == null) {
