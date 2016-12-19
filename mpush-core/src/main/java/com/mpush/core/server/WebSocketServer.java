@@ -45,9 +45,6 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketSe
  * @author ohun@live.cn (夜色)
  */
 public final class WebSocketServer extends NettyTCPServer {
-    public WebSocketServer(int port) {
-        super(port);
-    }
 
     private static WebSocketServer I;
 
