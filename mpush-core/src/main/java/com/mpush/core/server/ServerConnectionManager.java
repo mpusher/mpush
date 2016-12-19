@@ -141,6 +141,7 @@ public final class ServerConnectionManager implements ConnectionManager {
 
         private HeartbeatCheckTask(Connection connection) {
             this.connection = connection;
+            this.startTimeout();
         }
 
         void startTimeout() {
