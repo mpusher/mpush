@@ -16,6 +16,7 @@
 package com.mpush.cache.redis.connection;
 
 import com.mpush.cache.redis.RedisServer;
+import com.mpush.tools.config.data.RedisNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public class RedisConnectionFactory {
     private JedisPoolConfig poolConfig = new JedisPoolConfig();
     private int dbIndex = 0;
     private JedisCluster cluster;
-    private List<RedisServer> redisServers;
+    private List<RedisNode> redisServers;
     private boolean isCluster = false;
 
     /**
@@ -127,11 +128,11 @@ public class RedisConnectionFactory {
      * @return
      * @since 1.7
      */
-    protected JedisCluster createCluster(List<RedisServer> servers, GenericObjectPoolConfig poolConfig) {
+    protected JedisCluster createCluster(List<RedisNode> servers, GenericObjectPoolConfig poolConfig) {
 
         Set<HostAndPort> hostAndPort = servers
                 .stream()
-                .map(RedisServer::convert)
+                .map(redisNode -> new HostAndPort(redisNode.host, redisNode.port))
                 .collect(Collectors.toSet());
 
         int redirects = 5;
@@ -318,7 +319,7 @@ public class RedisConnectionFactory {
         isCluster = cluster;
     }
 
-    public void setRedisServers(List<RedisServer> redisServers) {
+    public void setRedisServers(List<RedisNode> redisServers) {
         Objects.requireNonNull(redisServers);
         this.redisServers = redisServers;
         this.hostName = redisServers.get(0).getHost();

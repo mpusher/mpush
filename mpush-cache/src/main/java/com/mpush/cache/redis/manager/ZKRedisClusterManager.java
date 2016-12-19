@@ -36,10 +36,11 @@ import java.util.stream.Collectors;
 
 import static com.mpush.zk.ZKPath.REDIS_SERVER;
 
-public class ZKRedisClusterManager implements RedisClusterManager {
+@Deprecated
+class ZKRedisClusterManager implements RedisClusterManager {
     private final ZKRedisNodeWatcher watcher = new ZKRedisNodeWatcher();
 
-    public ZKRedisClusterManager() {
+    private ZKRedisClusterManager() {
     }
 
     /**
