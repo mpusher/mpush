@@ -30,7 +30,6 @@ import io.netty.channel.ChannelFutureListener;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.LongAdder;
 
 /**
  * Created by ohun on 2015/12/28.
@@ -38,7 +37,7 @@ import java.util.concurrent.atomic.LongAdder;
  * @author ohun@live.cn
  */
 public abstract class BaseMessage implements Message {
-    private static final LongAdder ID_SEQ = new LongAdder();
+    private static final AtomicInteger ID_SEQ = new AtomicInteger();
     protected final Packet packet;
     protected final Connection connection;
 
@@ -143,8 +142,7 @@ public abstract class BaseMessage implements Message {
     }
 
     protected static int genSessionId() {
-        ID_SEQ.increment();
-        return ID_SEQ.intValue();
+        return ID_SEQ.incrementAndGet();
     }
 
     public int getSessionId() {
