@@ -24,15 +24,17 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.event.ConnectionCloseEvent;
 import com.mpush.api.event.UserOfflineEvent;
-import com.mpush.api.router.ClientType;
 import com.mpush.api.router.RouterManager;
 import com.mpush.tools.event.EventBus;
 import com.mpush.tools.event.EventConsumer;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by ohun on 2015/12/23.
@@ -40,19 +42,18 @@ import java.util.*;
  * @author ohun@live.cn
  */
 public final class LocalRouterManager extends EventConsumer implements RouterManager<LocalRouter> {
-    public static final Logger LOGGER = LoggerFactory.getLogger(LocalRouterManager.class);
-    private static final Map<Integer, LocalRouter> EMPTY = Collections.unmodifiableMap(new HashMap<>(0));
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalRouterManager.class);
+    private static final Map<Integer, LocalRouter> EMPTY = new HashMap<>(0);
 
     /**
      * 本地路由表
      */
-    private final Map<String, Map<Integer, LocalRouter>> routers = new ConcurrentHashMapV8<>();
+    private final Map<String, Map<Integer, LocalRouter>> routers = new ConcurrentHashMap<>();
 
     @Override
     public LocalRouter register(String userId, LocalRouter router) {
         LOGGER.info("register local router success userId={}, router={}", userId, router);
-        //add online userId
-        return routers.computeIfAbsent(userId, s -> new HashMap<>()).put(router.getClientType(), router);
+        return routers.computeIfAbsent(userId, s -> new HashMap<>(1)).put(router.getClientType(), router);
     }
 
     @Override
@@ -74,6 +75,10 @@ public final class LocalRouterManager extends EventConsumer implements RouterMan
         return router;
     }
 
+    public Map<String, Map<Integer, LocalRouter>> routers() {
+        return routers;
+    }
+
     /**
      * 监听链接关闭事件，清理失效的路由
      *
@@ -90,17 +95,17 @@ public final class LocalRouterManager extends EventConsumer implements RouterMan
 
         EventBus.I.post(new UserOfflineEvent(event.connection, userId));
         int clientType = context.getClientType();
-        LocalRouter router = routers.getOrDefault(userId, EMPTY).get(clientType);
-        if (router == null) return;
+        LocalRouter localRouter = routers.getOrDefault(userId, EMPTY).get(clientType);
+        if (localRouter == null) return;
 
         String connId = connection.getId();
         //2.检测下，是否是同一个链接, 如果客户端重连，老的路由会被新的链接覆盖
-        if (connId.equals(router.getRouteValue().getId())) {
+        if (connId.equals(localRouter.getRouteValue().getId())) {
             //3.删除路由
             routers.getOrDefault(userId, EMPTY).remove(clientType);
-            LOGGER.info("clean disconnected local route, userId={}, route={}", userId, router);
+            LOGGER.info("clean disconnected local route, userId={}, route={}", userId, localRouter);
         } else { //如果不相等，则log一下
-            LOGGER.info("clean disconnected local route, not clean:userId={}, route={}", userId, router);
+            LOGGER.info("clean disconnected local route, not clean:userId={}, route={}", userId, localRouter);
         }
     }
 }

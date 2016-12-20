@@ -33,10 +33,10 @@ import java.util.List;
  *
  * @author ohun@live.cn (夜色)
  */
-public class HttpConnectionPool {
+/*package*/ class HttpConnectionPool {
     private static final int maxConnPerHost = CC.mp.http.max_conn_per_host;
 
-    private final Logger LOGGER = LoggerFactory.getLogger(HttpConnectionPool.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpConnectionPool.class);
 
     private final AttributeKey<String> hostKey = AttributeKey.newInstance("host");
 
@@ -53,8 +53,8 @@ public class HttpConnectionPool {
                 LOGGER.debug("tryAcquire channel success, host={}", host);
                 channel.attr(hostKey).set(host);
                 return channel;
-            } else {//链接由于意外情况不可用了，keepAlive_timeout
-                LOGGER.error("tryAcquire channel false channel is inactive, host={}", host);
+            } else {//链接由于意外情况不可用了, 比如: keepAlive_timeout
+                LOGGER.warn("tryAcquire channel false channel is inactive, host={}", host);
             }
         }
         return null;

@@ -32,7 +32,7 @@ import java.util.Map;
  *
  * @author ohun@live.cn
  */
-public class HttpRequestMessage extends ByteBufMessage {
+public final class HttpRequestMessage extends ByteBufMessage {
     public byte method;
     public String uri;
     public Map<String, String> headers;

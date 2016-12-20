@@ -20,22 +20,19 @@
 package com.mpush.core.server;
 
 
-import com.google.common.collect.Lists;
-import com.google.common.eventbus.Subscribe;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.ConnectionManager;
-import com.mpush.api.event.HandshakeEvent;
 import com.mpush.tools.config.CC;
-import com.mpush.tools.event.EventBus;
 import com.mpush.tools.log.Logs;
+import com.mpush.tools.thread.NamedThreadFactory;
+import com.mpush.tools.thread.ThreadNames;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelId;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
-import io.netty.util.Timer;
 import io.netty.util.TimerTask;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
@@ -46,91 +43,141 @@ import java.util.concurrent.TimeUnit;
  * @author ohun@live.cn
  */
 public final class ServerConnectionManager implements ConnectionManager {
-    private final ConcurrentMap<String, Connection> connections = new ConcurrentHashMapV8<>();
+    private final ConcurrentMap<ChannelId, ConnectionHolder> connections = new ConcurrentHashMap<>();
+    private final ConnectionHolder DEFAULT = new SimpleConnectionHolder(null);
+    private final boolean heartbeatCheck;
+    private HashedWheelTimer timer;
 
-    private Timer timer;
+    public ServerConnectionManager(boolean heartbeatCheck) {
+        this.heartbeatCheck = heartbeatCheck;
+    }
 
     @Override
     public void init() {
-        //每秒钟走一步，一个心跳周期内走一圈
-        long tickDuration = 1000;//1s
-        int ticksPerWheel = (int) (CC.mp.core.max_heartbeat / tickDuration);
-        this.timer = new HashedWheelTimer(tickDuration, TimeUnit.MILLISECONDS, ticksPerWheel);
-        EventBus.I.register(this);
+        if (heartbeatCheck) {
+            long tickDuration = TimeUnit.SECONDS.toMillis(1);//1s 每秒钟走一步，一个心跳周期内大致走一圈
+            int ticksPerWheel = (int) (CC.mp.core.max_heartbeat / tickDuration);
+            this.timer = new HashedWheelTimer(
+                    new NamedThreadFactory(ThreadNames.T_CONN_TIMER),
+                    tickDuration, TimeUnit.MILLISECONDS, ticksPerWheel
+            );
+        }
     }
 
     @Override
     public void destroy() {
-        if (timer != null) timer.stop();
-        for (Connection connection : connections.values()) {
-            connection.close();
+        if (timer != null) {
+            timer.stop();
         }
+        connections.values().forEach(ConnectionHolder::close);
         connections.clear();
     }
 
     @Override
-    public Connection get(final Channel channel) {
-        return connections.get(channel.id().asShortText());
+    public Connection get(Channel channel) {
+        return connections.getOrDefault(channel.id(), DEFAULT).get();
     }
 
     @Override
     public void add(Connection connection) {
-        connections.putIfAbsent(connection.getChannel().id().asShortText(), connection);
+        if (heartbeatCheck) {
+            connections.putIfAbsent(connection.getChannel().id(), new HeartbeatCheckTask(connection));
+        } else {
+            connections.putIfAbsent(connection.getChannel().id(), new SimpleConnectionHolder(connection));
+        }
     }
 
     @Override
     public Connection removeAndClose(Channel channel) {
-        Connection connection = connections.remove(channel.id().asShortText());
-        if (connection != null) {
-            connection.close();
+        ConnectionHolder holder = connections.remove(channel.id());
+        if (holder != null) {
+            Connection connection = holder.get();
+            holder.close();
+            return connection;
         }
-        return connection;
+        return null;
     }
 
     @Override
-    public List<Connection> getConnections() {
-        return Lists.newArrayList(connections.values());
+    public int getConnNum() {
+        return connections.size();
     }
 
-    @Subscribe
-    void on(HandshakeEvent event) {
-        HeartbeatCheckTask task = new HeartbeatCheckTask(event.connection);
-        task.startTimeout();
+    private interface ConnectionHolder {
+        Connection get();
+
+        void close();
     }
 
-    private class HeartbeatCheckTask implements TimerTask {
-
-        private int timeoutTimes = 0;
+    private static class SimpleConnectionHolder implements ConnectionHolder {
         private final Connection connection;
 
-        public HeartbeatCheckTask(Connection connection) {
+        private SimpleConnectionHolder(Connection connection) {
             this.connection = connection;
         }
 
-        public void startTimeout() {
-            int timeout = connection.getSessionContext().heartbeat;
-            timer.newTimeout(this, timeout > 0 ? timeout : CC.mp.core.min_heartbeat, TimeUnit.MILLISECONDS);
+        @Override
+        public Connection get() {
+            return connection;
+        }
+
+        @Override
+        public void close() {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+    }
+
+
+    private class HeartbeatCheckTask implements ConnectionHolder, TimerTask {
+
+        private byte timeoutTimes = 0;
+        private Connection connection;
+
+        private HeartbeatCheckTask(Connection connection) {
+            this.connection = connection;
+        }
+
+        void startTimeout() {
+            if (connection != null && connection.isConnected()) {
+                int timeout = connection.getSessionContext().heartbeat;
+                timer.newTimeout(this, timeout, TimeUnit.MILLISECONDS);
+            }
         }
 
         @Override
         public void run(Timeout timeout) throws Exception {
-            if (!connection.isConnected()) {
-                Logs.HB.info("connection was disconnected, heartbeat timeout times={}, connection={}", timeoutTimes, connection);
+            if (connection == null || !connection.isConnected()) {
+                Logs.HB.info("heartbeat timeout times={}, connection disconnected, conn={}", timeoutTimes, connection);
                 return;
             }
-            if (connection.heartbeatTimeout()) {
+
+            if (connection.isReadTimeout()) {
                 if (++timeoutTimes > CC.mp.core.max_hb_timeout_times) {
                     connection.close();
-                    Logs.HB.info("client heartbeat timeout times={}, do close connection={}", timeoutTimes, connection);
+                    Logs.HB.warn("client heartbeat timeout times={}, do close conn={}", timeoutTimes, connection);
                     return;
                 } else {
                     Logs.HB.info("client heartbeat timeout times={}, connection={}", timeoutTimes, connection);
                 }
             } else {
                 timeoutTimes = 0;
-                //Logs.HB.info("client heartbeat timeout times reset 0, connection={}", connection);
             }
             startTimeout();
+        }
+
+        @Override
+        public void close() {
+            if (connection != null) {
+                connection.close();
+                connection = null;
+            }
+        }
+
+        @Override
+        public Connection get() {
+            return connection;
         }
     }
 }

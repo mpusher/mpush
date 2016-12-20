@@ -19,7 +19,7 @@
 
 package com.mpush.api.service;
 
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by yxx on 2016/5/17.
@@ -32,9 +32,13 @@ public interface Service {
 
     void stop(Listener listener);
 
-    Future<Boolean> start();
+    CompletableFuture<Boolean> start();
 
-    Future<Boolean> stop();
+    CompletableFuture<Boolean> stop();
+
+    boolean syncStart();
+
+    boolean syncStop();
 
     void init();
 

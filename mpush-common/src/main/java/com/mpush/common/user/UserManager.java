@@ -32,32 +32,32 @@ public final class UserManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
     public static final UserManager I = new UserManager();
 
-    private final String ONLINE_KEY = RedisKey.getUserOnlineKey(ConfigManager.I.getPublicIp());
+    private final String onlineUserListKey = RedisKey.getOnlineUserListKey(ConfigManager.I.getPublicIp());
 
     public void clearUserOnlineData()  {
-        RedisManager.I.del(ONLINE_KEY);
+        RedisManager.I.del(onlineUserListKey);
     }
 
-    public void recordUserOnline(String userId) {
-        RedisManager.I.zAdd(ONLINE_KEY, userId);
+    public void addToOnlineList(String userId) {
+        RedisManager.I.zAdd(onlineUserListKey, userId);
         LOGGER.info("user online {}", userId);
     }
 
-    public void recordUserOffline(String userId) {
-        RedisManager.I.zRem(ONLINE_KEY, userId);
+    public void remFormOnlineList(String userId) {
+        RedisManager.I.zRem(onlineUserListKey, userId);
         LOGGER.info("user offline {}", userId);
     }
 
     //在线用户数量
     public long getOnlineUserNum() {
-        Long value = RedisManager.I.zCard(ONLINE_KEY);
+        Long value = RedisManager.I.zCard(onlineUserListKey);
         return value == null ? 0 : value;
     }
 
     //在线用户数量
     public long getOnlineUserNum(String publicIP) {
-        String ONLINE_KEY = RedisKey.getUserOnlineKey(publicIP);
-        Long value = RedisManager.I.zCard(ONLINE_KEY);
+        String online_key = RedisKey.getOnlineUserListKey(publicIP);
+        Long value = RedisManager.I.zCard(online_key);
         return value == null ? 0 : value;
     }
 
@@ -66,6 +66,6 @@ public final class UserManager {
         if (size < 10) {
             size = 10;
         }
-        return RedisManager.I.zrange(ONLINE_KEY, start, size - 1, String.class);
+        return RedisManager.I.zrange(onlineUserListKey, start, size - 1, String.class);
     }
 }

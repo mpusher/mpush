@@ -19,8 +19,10 @@
 
 package com.mpush.api.service;
 
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -41,13 +43,13 @@ public abstract class BaseService implements Service {
         return started.get();
     }
 
-    protected void tryStart(Listener listener, Function function) {
-        listener = wrap(listener);
+    protected void tryStart(Listener l, Function function) {
+        FutureListener listener = wrap(l);
         if (started.compareAndSet(false, true)) {
             try {
                 init();
                 function.apply(listener);
-                listener.onSuccess("service " + this.getClass().getSimpleName() + " start success");
+                listener.monitor(this);
             } catch (Throwable e) {
                 listener.onFailure(e);
                 throw new ServiceException(e);
@@ -57,12 +59,12 @@ public abstract class BaseService implements Service {
         }
     }
 
-    protected void tryStop(Listener listener, Function function) {
-        listener = wrap(listener);
+    protected void tryStop(Listener l, Function function) {
+        FutureListener listener = wrap(l);
         if (started.compareAndSet(true, false)) {
             try {
                 function.apply(listener);
-                listener.onSuccess("service " + this.getClass().getSimpleName() + " stop success");
+                listener.monitor(this);
             } catch (Throwable e) {
                 listener.onFailure(e);
                 throw new ServiceException(e);
@@ -72,16 +74,26 @@ public abstract class BaseService implements Service {
         }
     }
 
-    public final Future<Boolean> start() {
+    public final CompletableFuture<Boolean> start() {
         FutureListener listener = new FutureListener();
         start(listener);
         return listener;
     }
 
-    public final Future<Boolean> stop() {
+    public final CompletableFuture<Boolean> stop() {
         FutureListener listener = new FutureListener();
         stop(listener);
         return listener;
+    }
+
+    @Override
+    public final boolean syncStart() {
+        return start().join();
+    }
+
+    @Override
+    public final boolean syncStop() {
+        return stop().join();
     }
 
     @Override
@@ -94,9 +106,13 @@ public abstract class BaseService implements Service {
         tryStop(listener, this::doStop);
     }
 
-    protected abstract void doStart(Listener listener) throws Throwable;
+    protected void doStart(Listener listener) throws Throwable {
+        listener.onSuccess();
+    }
 
-    protected abstract void doStop(Listener listener) throws Throwable;
+    protected void doStop(Listener listener) throws Throwable {
+        listener.onSuccess();
+    }
 
     protected interface Function {
         void apply(Listener l) throws Throwable;
@@ -114,33 +130,43 @@ public abstract class BaseService implements Service {
         return new FutureListener(l);
     }
 
-    protected class FutureListener extends FutureTask<Boolean> implements Listener {
+    protected class FutureListener extends CompletableFuture<Boolean> implements Listener {
         private final Listener l;// 防止Listener被重复执行
 
         public FutureListener() {
-            super(BaseService.this::isRunning);
             this.l = null;
         }
 
         public FutureListener(Listener l) {
-            super(BaseService.this::isRunning);
             this.l = l;
         }
 
         @Override
         public void onSuccess(Object... args) {
             if (isDone()) return;// 防止Listener被重复执行
-            set(started.get());
+            complete(started.get());
             if (l != null) l.onSuccess(args);
         }
 
         @Override
         public void onFailure(Throwable cause) {
             if (isDone()) return;// 防止Listener被重复执行
-            set(started.get());
-            setException(cause);
+            completeExceptionally(cause);
             if (l != null) l.onFailure(cause);
-            throw new ServiceException(cause);
+            throw cause instanceof ServiceException
+                    ? (ServiceException) cause
+                    : new ServiceException(cause);
+        }
+
+        public void monitor(BaseService service) {
+            if (isDone()) return;
+            runAsync(() -> {
+                try {
+                    this.get(10, TimeUnit.SECONDS);
+                } catch (Exception e) {
+                    this.onFailure(new ServiceException(String.format("service %s monitor timeout", service.getClass().getSimpleName())));
+                }
+            });
         }
 
         @Override

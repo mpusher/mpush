@@ -59,4 +59,9 @@ public class ZKRedisNodeCache implements ZKNodeCache<ZKRedisNode> {
     public void clear() {
         nodes = Collections.emptyList();
     }
+
+    @Override
+    public int size() {
+        return nodes.size();
+    }
 }

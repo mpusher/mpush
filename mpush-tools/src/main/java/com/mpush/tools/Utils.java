@@ -19,15 +19,11 @@
 
 package com.mpush.tools;
 
-import com.mpush.tools.common.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.Socket;
+import java.net.*;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,78 +53,80 @@ public final class Utils {
 
     public static String getLocalIp() {
         if (LOCAL_IP == null) {
-            LOCAL_IP = getInetAddress();
+            LOCAL_IP = getInetAddress(true);
         }
         return LOCAL_IP;
     }
 
+    public static NetworkInterface getLocalNetworkInterface() {
+        Enumeration<NetworkInterface> interfaces;
+        try {
+            interfaces = NetworkInterface.getNetworkInterfaces();
+        } catch (SocketException e) {
+            throw new RuntimeException("NetworkInterface not found", e);
+        }
+        while (interfaces.hasMoreElements()) {
+            NetworkInterface networkInterface = interfaces.nextElement();
+            Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
+            while (addresses.hasMoreElements()) {
+                InetAddress address = addresses.nextElement();
+                if (address.isLoopbackAddress()) continue;
+                if (address.getHostAddress().contains(":")) continue;
+                if (address.isSiteLocalAddress()) return networkInterface;
+            }
+        }
+        throw new RuntimeException("NetworkInterface not found");
+    }
+
+    public static InetAddress getInetAddress(String host) {
+        try {
+            return InetAddress.getByName(host);
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException("UnknownHost " + host, e);
+        }
+    }
+
     /**
-     * 获取本机ip
      * 只获取第一块网卡绑定的ip地址
      *
-     * @return 本机ip
+     * @param getLocal 局域网IP
+     * @return ip
      */
-    public static String getInetAddress() {
+    public static String getInetAddress(boolean getLocal) {
         try {
-            Profiler.enter("start get inet address");
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            InetAddress address;
             while (interfaces.hasMoreElements()) {
-                NetworkInterface ni = interfaces.nextElement();
-                Enumeration<InetAddress> addresses = ni.getInetAddresses();
+                Enumeration<InetAddress> addresses = interfaces.nextElement().getInetAddresses();
                 while (addresses.hasMoreElements()) {
-                    address = addresses.nextElement();
-                    if (!address.isLoopbackAddress()
-                            && address.getHostAddress().indexOf(":") == -1
-                            && address.isSiteLocalAddress()) {
-                        return address.getHostAddress();
+                    InetAddress address = addresses.nextElement();
+                    if (address.isLoopbackAddress()) continue;
+                    if (address.getHostAddress().contains(":")) continue;
+                    if (getLocal) {
+                        if (address.isSiteLocalAddress()) {
+                            return address.getHostAddress();
+                        }
+                    } else {
+                        if (!address.isSiteLocalAddress() && !address.isLoopbackAddress()) {
+                            return address.getHostAddress();
+                        }
                     }
                 }
             }
-            LOGGER.warn("getInetAddress is null");
-            return "127.0.0.1";
+            LOGGER.debug("getInetAddress is null");
+            return getLocal ? "127.0.0.1" : null;
         } catch (Throwable e) {
             LOGGER.error("getInetAddress exception", e);
-            return "127.0.0.1";
-        } finally {
-            Profiler.release();
+            return getLocal ? "127.0.0.1" : null;
         }
     }
 
     public static String getExtranetIp() {
         if (EXTRANET_IP == null) {
-            EXTRANET_IP = getExtranetAddress();
+            EXTRANET_IP = getInetAddress(false);
         }
         return EXTRANET_IP;
     }
 
-    /**
-     * 获取外网IP
-     *
-     * @return 外网IP
-     */
-    public static String getExtranetAddress() {
-        try {
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            InetAddress address;
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface ni = interfaces.nextElement();
-                Enumeration<InetAddress> addresses = ni.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    address = addresses.nextElement();
-                    if (!address.isLoopbackAddress()
-                            && address.getHostAddress().indexOf(":") == -1
-                            && !address.isSiteLocalAddress()) {
-                        return address.getHostAddress();
-                    }
-                }
-            }
-            LOGGER.warn("getExtranetAddress is null");
-        } catch (Throwable e) {
-            LOGGER.error("getExtranetAddress exception", e);
-        }
-        return null;
-    }
 
     public static String headerToString(Map<String, String> headers) {
         if (headers != null && headers.size() > 0) {

@@ -24,10 +24,13 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.protocol.Packet;
 import com.mpush.tools.common.IOUtils;
+import com.mpush.tools.common.Profiler;
 import com.mpush.tools.config.CC;
 import io.netty.channel.ChannelFutureListener;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * Created by ohun on 2015/12/28.
@@ -35,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author ohun@live.cn
  */
 public abstract class BaseMessage implements Message {
-    private static final AtomicInteger ID_SEQ = new AtomicInteger();
+    private static final LongAdder ID_SEQ = new LongAdder();
     protected final Packet packet;
     protected final Connection connection;
 
@@ -64,12 +67,16 @@ public abstract class BaseMessage implements Message {
             }
 
             packet.body = tmp;
+            Profiler.enter("time cost on [body decode]");
             decode(packet.body);
+            Profiler.release();
         }
     }
 
     protected void encodeBody() {
+        Profiler.enter("time cost on [body encode]");
         byte[] tmp = encode();
+        Profiler.release();
         if (tmp != null && tmp.length > 0) {
             //1.压缩
             if (tmp.length > CC.mp.core.compress_threshold) {
@@ -136,11 +143,17 @@ public abstract class BaseMessage implements Message {
     }
 
     protected static int genSessionId() {
-        return ID_SEQ.incrementAndGet();
+        ID_SEQ.increment();
+        return ID_SEQ.intValue();
     }
 
     public int getSessionId() {
         return packet.sessionId;
+    }
+
+    public BaseMessage setRecipient(InetSocketAddress recipient) {
+        packet.setRecipient(recipient);
+        return this;
     }
 
     @Override

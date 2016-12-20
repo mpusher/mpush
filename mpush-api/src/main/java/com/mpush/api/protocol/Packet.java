@@ -22,20 +22,25 @@ package com.mpush.api.protocol;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
+import java.net.InetSocketAddress;
+
 /**
  * Created by ohun on 2015/12/19.
  * length(4)+cmd(1)+cc(2)+flags(1)+sessionId(4)+lrc(1)+body(n)
  *
  * @author ohun@live.cn
  */
-public final class Packet {
+public class Packet {
     public static final int HEADER_LEN = 13;
+
     public static final byte FLAG_CRYPTO = 0x01;
     public static final byte FLAG_COMPRESS = 0x02;
+    public static final byte FLAG_BIZ_ACK = 0x04;
+    public static final byte FLAG_AUTO_ACK = 0x08;
 
     public static final byte HB_PACKET_BYTE = -33;
     public static final byte[] HB_PACKET_BYTES = new byte[]{HB_PACKET_BYTE};
-    public static final Packet HB_PACKE = new Packet(Command.HEARTBEAT);
+    public static final Packet HB_PACKET = new Packet(Command.HEARTBEAT);
 
     public byte cmd; //命令
     public short cc; //校验码 暂时没有用到
@@ -107,9 +112,20 @@ public final class Packet {
         return (lrc ^ calcLrc()) == 0;
     }
 
+    public InetSocketAddress sender() {
+        return null;
+    }
+
+    public void setRecipient(InetSocketAddress sender) {
+    }
+
+    public Packet response(Command command) {
+        return new Packet(command, sessionId);
+    }
+
     @Override
     public String toString() {
-        return "Packet{" +
+        return "{" +
                 "cmd=" + cmd +
                 ", cc=" + cc +
                 ", flags=" + flags +

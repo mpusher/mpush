@@ -20,19 +20,14 @@
 package com.mpush.bootstrap;
 
 
-import com.mpush.api.service.Service;
 import com.mpush.bootstrap.job.*;
 import com.mpush.core.server.AdminServer;
 import com.mpush.core.server.ConnectionServer;
 import com.mpush.core.server.GatewayServer;
-import com.mpush.monitor.service.MonitorService;
-import com.mpush.tools.config.CC;
-import com.mpush.zk.ZKClient;
-import com.mpush.zk.node.ZKServerNode;
+import com.mpush.core.server.GatewayUDPConnector;
 
-import java.util.concurrent.TimeUnit;
-
-import static com.mpush.tools.config.CC.mp.net.admin_server_port;
+import static com.mpush.tools.config.CC.mp.net.udpGateway;
+import static com.mpush.zk.node.ZKServerNode.*;
 
 /**
  * Created by yxx on 2016/5/14.
@@ -44,18 +39,13 @@ public final class ServerLauncher {
     private final BootChain chain = BootChain.chain();
 
     public ServerLauncher() {
-        ZKServerNode csNode = ZKServerNode.csNode();
-        ZKServerNode gsNode = ZKServerNode.gsNode();
-        ConnectionServer connectServer = new ConnectionServer(csNode.getPort());
-        GatewayServer gatewayServer = new GatewayServer(gsNode.getPort());
-        AdminServer adminServer = new AdminServer(admin_server_port, connectServer, gatewayServer);
-
         chain.boot()
                 .setNext(new ZKBoot())//1.启动ZK节点数据变化监听
                 .setNext(new RedisBoot())//2.注册redis sever 到ZK
-                .setNext(new ServerBoot(connectServer, csNode))//3.启动长连接服务
-                .setNext(new ServerBoot(gatewayServer, gsNode))//4.启动网关服务
-                .setNext(new ServerBoot(adminServer, null))//5.启动控制台服务
+                .setNext(new ServerBoot(ConnectionServer.I(), CS_NODE))//3.启动长连接服务
+                .setNext(new ServerBoot(udpGateway() ? GatewayUDPConnector.I() : GatewayServer.I(), GS_NODE))//4.启动网关服务
+                .setNext(new ServerBoot(AdminServer.I(), null))//5.启动控制台服务
+                .setNext(new PushCenterBoot())//6.启动http代理服务，解析dns
                 .setNext(new HttpProxyBoot())//6.启动http代理服务，解析dns
                 .setNext(new MonitorBoot())//7.启动监控
                 .setNext(new LastBoot());//8.启动结束

@@ -26,8 +26,10 @@ import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.user.UserManager;
 import com.mpush.core.router.RouterCenter;
 import com.mpush.core.server.AdminServer;
+import com.mpush.core.server.ConnectionServer;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.Utils;
+import com.mpush.tools.common.Profiler;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.config.ConfigManager;
 import com.mpush.zk.ZKClient;
@@ -52,14 +54,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminHandler.class);
 
-
     private static final String EOL = "\r\n";
-
-    private static AdminServer adminServer;
-
-    public AdminHandler(AdminServer adminServer) {
-        this.adminServer = adminServer;
-    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String request) throws Exception {
@@ -87,11 +82,12 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
             throwable.printStackTrace(new PrintWriter(writer));
             ctx.writeAndFlush(writer.toString());
         }
+        LOGGER.info("receive admin command={}", request);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.write("welcome to " + Utils.getInetAddress() + "!" + EOL);
+        ctx.write("welcome to " + Utils.getLocalIp() + "!" + EOL);
         ctx.write("It is " + new Date() + " now." + EOL + EOL);
         ctx.flush();
     }
@@ -105,20 +101,19 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
         help {
             @Override
             public String handler(ChannelHandlerContext ctx, String args) {
-                StringBuilder buf = new StringBuilder();
-                buf.append("Option                               Description" + EOL);
-                buf.append("------                               -----------" + EOL);
-                buf.append("help                                 show help" + EOL);
-                buf.append("quit                                 exit console mode" + EOL);
-                buf.append("shutdown                             stop mpush server" + EOL);
-                buf.append("restart                              restart mpush server" + EOL);
-                buf.append("zk:<redis, cs ,gs>                   query zk node" + EOL);
-                buf.append("count:<conn, online>                 count conn num or online user count" + EOL);
-                buf.append("route:<uid>                          show user route info" + EOL);
-                buf.append("push:<uid>, <msg>                    push test msg to client" + EOL);
-                buf.append("conf:[key]                           show config info" + EOL);
-                buf.append("monitor:[mxBean]                     show system monitor" + EOL);
-                return buf.toString();
+                return "Option                               Description" + EOL +
+                        "------                               -----------" + EOL +
+                        "help                                 show help" + EOL +
+                        "quit                                 exit console mode" + EOL +
+                        "shutdown                             stop mpush server" + EOL +
+                        "restart                              restart mpush server" + EOL +
+                        "zk:<redis, cs ,gs>                   query zk node" + EOL +
+                        "count:<conn, online>                 count conn num or online user count" + EOL +
+                        "route:<uid>                          show user route info" + EOL +
+                        "push:<uid>, <msg>                    push test msg to client" + EOL +
+                        "conf:[key]                           show config info" + EOL +
+                        "monitor:[mxBean]                     show system monitor" + EOL +
+                        "profile:<1,0>                        enable/disable profile" + EOL;
             }
         },
         quit {
@@ -130,21 +125,8 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
         shutdown {
             @Override
             public String handler(ChannelHandlerContext ctx, String args) {
-                ctx.writeAndFlush("try close connect server...");
-                adminServer.getConnectionServer().stop(new Listener() {
-                    @Override
-                    public void onSuccess(Object... args) {
-                        ctx.writeAndFlush("connect server close success" + EOL);
-                        adminServer.stop(null);//这个一定要在System.exit之前调用，不然jvm 会卡死 @see com.mpush.bootstrap.Main#addHook
-                        System.exit(0);
-                    }
-
-                    @Override
-                    public void onFailure(Throwable cause) {
-                        ctx.writeAndFlush("connect server close failure, msg=" + cause.getLocalizedMessage());
-                    }
-                });
-                return null;
+                new Thread(() -> System.exit(0)).start();
+                return "try close connect server...";
             }
         },
         restart {
@@ -182,7 +164,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
             public Serializable handler(ChannelHandlerContext ctx, String args) {
                 switch (args) {
                     case "conn":
-                        return adminServer.getConnectionServer().getConnectionManager().getConnections().size();
+                        return ConnectionServer.I().getConnectionManager().getConnNum();
                     case "online": {
                         return UserManager.I.getOnlineUserNum();
                     }
@@ -203,9 +185,9 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
         push {
             @Override
             public String handler(ChannelHandlerContext ctx, String... args) throws Exception {
-                Boolean success = PushSender.create().send(args[1], args[0], null).get(5, TimeUnit.SECONDS);
+                //Boolean success = PushSender.create().send(args[1], args[0], null).get(5, TimeUnit.SECONDS);
 
-                return success.toString();
+                return "unsupported";
             }
         },
         conf {
@@ -218,6 +200,18 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
                     return CC.cfg.getAnyRef(args).toString();
                 }
                 return "key [" + args + "] not find in config";
+            }
+        },
+        profile {
+            @Override
+            public String handler(ChannelHandlerContext ctx, String args) throws Exception {
+                if (args == null || "0".equals(args)) {
+                    Profiler.enable(false);
+                    return "Profiler disabled";
+                } else {
+                    Profiler.enable(true);
+                    return "Profiler enabled";
+                }
             }
         },
         rcs {
@@ -236,7 +230,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
                         LOGGER.info("delete connection server success:{}", data);
                         removeSuccess = true;
                     } else {
-                        LOGGER.info("delete connection server failed: required host:{}, but:{}", serverNode.getIp(), Utils.getInetAddress());
+                        LOGGER.info("delete connection server failed: required host:{}, but:{}", serverNode.getIp(), Utils.getLocalIp());
                     }
                 }
                 if (removeSuccess) {

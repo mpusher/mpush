@@ -64,12 +64,11 @@ public final class ErrorMessage extends ByteBufMessage {
     }
 
     public static ErrorMessage from(BaseMessage src) {
-        return new ErrorMessage(src.packet.cmd, new Packet(ERROR
-                , src.packet.sessionId), src.connection);
+        return new ErrorMessage(src.packet.cmd, src.packet.response(ERROR), src.connection);
     }
 
     public static ErrorMessage from(Packet src, Connection connection) {
-        return new ErrorMessage(src.cmd, new Packet(ERROR, src.sessionId), connection);
+        return new ErrorMessage(src.cmd, src.response(ERROR), connection);
     }
 
 

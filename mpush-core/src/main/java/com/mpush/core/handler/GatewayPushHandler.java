@@ -22,17 +22,11 @@ package com.mpush.core.handler;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 import com.mpush.common.handler.BaseMessageHandler;
-import com.mpush.common.message.ErrorMessage;
-import com.mpush.common.message.OkMessage;
-import com.mpush.common.message.PushMessage;
 import com.mpush.common.message.gateway.GatewayPushMessage;
-import com.mpush.common.router.RemoteRouter;
-import com.mpush.core.router.LocalRouter;
-import com.mpush.core.router.RouterCenter;
-import com.mpush.tools.Utils;
-import com.mpush.tools.log.Logs;
+import com.mpush.core.push.*;
+import com.mpush.tools.config.CC;
 
-import static com.mpush.common.ErrorCode.*;
+import static com.mpush.tools.config.CC.mp.push.flow_control.*;
 
 /**
  * Created by ohun on 2015/12/30.
@@ -40,6 +34,12 @@ import static com.mpush.common.ErrorCode.*;
  * @author ohun@live.cn
  */
 public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMessage> {
+
+    private final PushCenter pushCenter = PushCenter.I;
+
+    private final GlobalFlowControl globalFlowControl = new GlobalFlowControl(
+            global.limit, global.max, global.duration
+    );
 
     @Override
     public GatewayPushMessage decode(Packet packet, Connection connection) {
@@ -62,103 +62,17 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
      * 2.如果用户真在另一台机器，让PushClient清理下本地缓存后，重新推送 (解决场景1,3)
      * <p>
      *
-     * @param message
+     * @param message message
      */
     @Override
     public void handle(GatewayPushMessage message) {
-        if (!checkLocal(message)) {
-            checkRemote(message);
+        if (message.isBroadcast()) {
+            FlowControl flowControl = (message.taskId == null)
+                    ? new FastFlowControl(broadcast.limit, broadcast.max, broadcast.duration)
+                    : new RedisFlowControl(message.taskId, broadcast.max);
+            pushCenter.addTask(new BroadcastPushTask(message, flowControl));
+        } else {
+            pushCenter.addTask(new SingleUserPushTask(message, globalFlowControl));
         }
-    }
-
-    /**
-     * 检查本地路由，如果存在并且链接可用直接推送
-     * 否则要检查下远程路由
-     *
-     * @param message
-     * @return
-     */
-    private boolean checkLocal(final GatewayPushMessage message) {
-        String userId = message.userId;
-        int deviceId = message.clientType;
-        LocalRouter router = RouterCenter.I.getLocalRouterManager().lookup(userId, deviceId);
-
-        //1.如果本机不存在，再查下远程，看用户是否登陆到其他机器
-        if (router == null) return false;
-
-        Connection connection = router.getRouteValue();
-
-        //2.如果链接失效，先删除本地失效的路由，再查下远程路由，看用户是否登陆到其他机器
-        if (!connection.isConnected()) {
-
-            Logs.PUSH.info("gateway push, router in local but disconnect, message={}", message, connection);
-
-            //删除已经失效的本地路由
-            RouterCenter.I.getLocalRouterManager().unRegister(userId, deviceId);
-
-            return false;
-        }
-
-        //3.链接可用，直接下发消息到手机客户端
-        PushMessage pushMessage = new PushMessage(message.content, connection);
-
-        pushMessage.send(future -> {
-            if (future.isSuccess()) {
-                //推送成功
-                OkMessage.from(message).setData(userId + ',' + deviceId).send();
-
-                Logs.PUSH.info("gateway push message to client success, message={}", message);
-
-            } else {
-                //推送失败
-                ErrorMessage.from(message).setErrorCode(PUSH_CLIENT_FAILURE).setData(userId + ',' + deviceId).send();
-
-                Logs.PUSH.info("gateway push message to client failure, message={}", message);
-            }
-        });
-        return true;
-    }
-
-    /**
-     * 检测远程路由，
-     * 如果不存在直接返回用户已经下线
-     * 如果是本机直接删除路由信息
-     * 如果是其他机器让PushClient重推
-     *
-     * @param message
-     */
-    private void checkRemote(GatewayPushMessage message) {
-        String userId = message.userId;
-        int clientType = message.clientType;
-        RemoteRouter router = RouterCenter.I.getRemoteRouterManager().lookup(userId, clientType);
-
-        // 1.如果远程路由信息也不存在, 说明用户此时不在线，
-        if (router == null) {
-
-            ErrorMessage.from(message).setErrorCode(OFFLINE).setData(userId + ',' + clientType).send();
-
-            Logs.PUSH.info("gateway push, router not exists user offline, message={}", message);
-
-            return;
-        }
-
-        //2.如果查出的远程机器是当前机器，说明路由已经失效，此时用户已下线，需要删除失效的缓存
-        if (Utils.getLocalIp().equals(router.getRouteValue().getHost())) {
-
-            ErrorMessage.from(message).setErrorCode(OFFLINE).setData(userId + ',' + clientType).send();
-
-            //删除失效的远程缓存
-            RouterCenter.I.getRemoteRouterManager().unRegister(userId, clientType);
-
-            Logs.PUSH.info("gateway push error remote is local, userId={}, clientType={}, router={}", userId, clientType, router);
-
-            return;
-        }
-
-        //3.否则说明用户已经跑到另外一台机器上了；路由信息发生更改，让PushClient重推
-        ErrorMessage.from(message).setErrorCode(ROUTER_CHANGE).setData(userId + ',' + clientType).send();
-
-        Logs.PUSH.info("gateway push, router in remote userId={}, clientType={}, router={}", userId, clientType, router);
-
     }
 }

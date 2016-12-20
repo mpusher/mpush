@@ -20,8 +20,8 @@
 package com.mpush.core.server;
 
 import com.mpush.core.handler.AdminHandler;
-import com.mpush.netty.server.NettyServer;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
+import com.mpush.netty.server.NettyTCPServer;
+import com.mpush.tools.config.CC;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
@@ -29,35 +29,34 @@ import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
-import java.util.concurrent.Executor;
+public final class AdminServer extends NettyTCPServer {
+    private static AdminServer I;
 
-public final class AdminServer extends NettyServer {
-    private final ConnectionServer connectionServer;
-    private final GatewayServer gatewayServer;
+    private AdminHandler adminHandler;
 
-    private final AdminHandler adminHandler;
+    public static AdminServer I() {
+        if (I == null) {
+            synchronized (AdminServer.class) {
+                I = new AdminServer();
+            }
+        }
+        return I;
+    }
 
-    public AdminServer(int port, ConnectionServer connectionServer, GatewayServer gatewayServer) {
-        super(port);
-        this.connectionServer = connectionServer;
-        this.gatewayServer = gatewayServer;
-        this.adminHandler = new AdminHandler(this);
+    private AdminServer() {
+        super(CC.mp.net.admin_server_port);
+    }
+
+    @Override
+    public void init() {
+        super.init();
+        this.adminHandler = new AdminHandler();
     }
 
     @Override
     protected void initPipeline(ChannelPipeline pipeline) {
         pipeline.addLast(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
         super.initPipeline(pipeline);
-    }
-
-    @Override
-    protected Executor getBossExecutor() {
-        return ThreadPoolManager.I.getWorkExecutor();
-    }
-
-    @Override
-    protected Executor getWorkExecutor() {
-        return ThreadPoolManager.I.getWorkExecutor();
     }
 
     @Override
@@ -75,11 +74,8 @@ public final class AdminServer extends NettyServer {
         return new StringEncoder();
     }
 
-    public ConnectionServer getConnectionServer() {
-        return connectionServer;
-    }
-
-    public GatewayServer getGatewayServer() {
-        return gatewayServer;
+    @Override
+    protected int getWorkThreadNum() {
+        return 1;
     }
 }

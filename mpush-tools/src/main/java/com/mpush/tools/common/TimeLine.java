@@ -30,6 +30,7 @@ public final class TimeLine {
     private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     private final TimePoint root = new TimePoint("root");
     private final String name;
+    private int pointCount;
     private TimePoint current = root;
 
     public TimeLine() {
@@ -46,6 +47,7 @@ public final class TimeLine {
 
     public void addTimePoint(String name) {
         current = current.next = new TimePoint(name);
+        pointCount++;
     }
 
     public void end() {
@@ -60,7 +62,7 @@ public final class TimeLine {
     public String toString() {
         StringBuilder sb = new StringBuilder(name);
         if (root.next != null) {
-            sb.append('[').append(current.point - root.next.point).append(']');
+            sb.append('[').append(current.time - root.next.time).append(']');
         }
         sb.append('{');
         TimePoint next = root;
@@ -71,9 +73,20 @@ public final class TimeLine {
         return sb.toString();
     }
 
+    public Object[] getTimePoints() {
+        Object[] arrays = new Object[2 * pointCount];
+        int i = 0;
+        TimePoint next = root;
+        while ((next = next.next) != null) {
+            arrays[i++] = next.name;
+            arrays[i++] = next.time;
+        }
+        return arrays;
+    }
+
     private static class TimePoint {
         private final String name;
-        private final long point = System.currentTimeMillis();
+        private final long time = System.currentTimeMillis();
         private TimePoint next;
 
         public TimePoint(String name) {
@@ -86,9 +99,9 @@ public final class TimeLine {
 
         @Override
         public String toString() {
-            String header = name + "[" + formatter.format(new Date(point)) + "]";
+            String header = name + "[" + formatter.format(new Date(time)) + "]";
             if (next == null) return header;
-            return header + " --" + (next.point - point) + "(ms)--> ";
+            return header + " --" + (next.time - time) + "(ms)--> ";
         }
     }
 }

@@ -36,21 +36,14 @@ public class RSAUtilsTest {
     String publicKey;
     String privateKey;
 
-    String publicKey2;
-    String privateKey2;
-
     @Before
     public void setUp() throws Exception {
         try {
-            Pair<RSAPublicKey, RSAPrivateKey> pair = RSAUtils.genKeyPair();
+            Pair<RSAPublicKey, RSAPrivateKey> pair = RSAUtils.genKeyPair(RSAUtils.RAS_KEY_SIZE);
             publicKey = RSAUtils.encodeBase64(pair.key);
             privateKey = RSAUtils.encodeBase64(pair.value);
             System.out.println("公钥: \n\r" + publicKey);
             System.out.println("私钥： \n\r" + privateKey);
-
-            pair = RSAUtils.genKeyPair();
-            publicKey2 = RSAUtils.encodeBase64(pair.key);
-            privateKey2 = RSAUtils.encodeBase64(pair.value);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -65,11 +58,6 @@ public class RSAUtilsTest {
         byte[] decodedData = RSAUtils.decryptByPrivateKey(encodedData, privateKey);
         String target = new String(decodedData);
         System.out.println("解密后:\n" + target);
-
-        decodedData = RSAUtils.decryptByPrivateKey(encodedData, privateKey2);
-        target = new String(decodedData);
-        System.out.println("解密后2:\n" + target);
-
     }
 
     @Test

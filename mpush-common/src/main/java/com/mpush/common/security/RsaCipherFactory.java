@@ -20,6 +20,7 @@
 package com.mpush.common.security;
 
 import com.mpush.api.connection.Cipher;
+import com.mpush.api.spi.Spi;
 import com.mpush.api.spi.core.CipherFactory;
 
 /**
@@ -27,6 +28,7 @@ import com.mpush.api.spi.core.CipherFactory;
  *
  * @author ohun@live.cn
  */
+@Spi
 public class RsaCipherFactory implements CipherFactory {
     private static final RsaCipher RSA_CIPHER = RsaCipher.create();
 

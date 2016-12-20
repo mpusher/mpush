@@ -43,11 +43,15 @@ public abstract class ByteBufMessage extends BaseMessage {
 
     @Override
     public byte[] encode() {
-        ByteBuf body = Unpooled.buffer();
-        encode(body);
-        byte[] bytes = new byte[body.readableBytes()];
-        body.readBytes(bytes);
-        return bytes;
+        ByteBuf body = connection.getChannel().alloc().heapBuffer();
+        try {
+            encode(body);
+            byte[] bytes = new byte[body.readableBytes()];
+            body.readBytes(bytes);
+            return bytes;
+        } finally {
+            body.release();
+        }
     }
 
     public abstract void decode(ByteBuf body);

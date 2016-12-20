@@ -50,7 +50,7 @@ public final class IOUtils {
 
     public static byte[] compress(byte[] data) {
 
-        Profiler.enter("start compress");
+        Profiler.enter("time cost on [compress]");
 
         ByteArrayOutputStream out = new ByteArrayOutputStream(data.length / 4);
         DeflaterOutputStream zipOut = new DeflaterOutputStream(out);
@@ -69,7 +69,7 @@ public final class IOUtils {
     }
 
     public static byte[] decompress(byte[] data) {
-        Profiler.enter("start decompress");
+        Profiler.enter("time cost on [decompress]");
         InflaterInputStream zipIn = new InflaterInputStream(new ByteArrayInputStream(data));
         ByteArrayOutputStream out = new ByteArrayOutputStream(data.length * 4);
         byte[] buffer = new byte[1024];

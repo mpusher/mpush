@@ -15,7 +15,7 @@ REM See the License for the specific language governing permissions and
 REM limitations under the License.
 
 set MPCFGDIR=%~dp0%..\conf
-set MP_LOG_DIR=%~dp0%..
+set MP_LOG_DIR=%~dp0%..\logs
 set MP_LOG4J_PROP=INFO,CONSOLE
 
 REM for sanity sake assume Java 1.6
@@ -30,7 +30,7 @@ SET CLASSPATH=%~dp0..\*;%~dp0..\lib\*;%CLASSPATH%
 REM make it work for developers
 SET CLASSPATH=%~dp0..\build\classes;%~dp0..\build\lib\*;%CLASSPATH%
 
-set MPCFG=%MPCFGDIR%\zoo.cfg
+set MPCFG=%MPCFGDIR%\mpush.conf
 
 @REM setup java environment variables
 

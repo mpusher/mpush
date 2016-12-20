@@ -21,19 +21,12 @@ package com.mpush.bootstrap.job;
 
 import com.mpush.api.service.Listener;
 import com.mpush.api.service.Server;
-import com.mpush.core.server.AdminServer;
-import com.mpush.core.server.ConnectionServer;
-import com.mpush.core.server.GatewayServer;
-import com.mpush.tools.Jsons;
-import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
-import com.mpush.zk.ZKClient;
+import com.mpush.zk.ZKRegister;
 import com.mpush.zk.node.ZKServerNode;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Created by yxx on 2016/5/14.
@@ -57,9 +50,10 @@ public final class ServerBoot extends BootJob {
             server.start(new Listener() {
                 @Override
                 public void onSuccess(Object... args) {
-                    Logs.Console.error("start " + serverName + " success listen:" + args[0]);
-                    if (node != null) {
-                        registerServerToZk(node.getZkPath(), Jsons.toJson(node));
+                    Logs.Console.info("start {} success listen:{}", serverName, args[0]);
+                    if (node != null) {//注册应用到zk
+                        ZKRegister.build().setEphemeral(true).setNode(node).register();
+                        Logs.Console.info("register server node={} to zk path={}", node, node.getNodePath());
                     }
                     startNext();
                 }
@@ -75,16 +69,7 @@ public final class ServerBoot extends BootJob {
 
     @Override
     protected void stop() {
-        try {
-            server.stop().get(1, TimeUnit.MINUTES);
-        } catch (Exception e) {
-        }
+        server.stop().join();
         stopNext();
-    }
-
-    //注册应用到zk
-    private void registerServerToZk(String path, String value) {
-        ZKClient.I.registerEphemeralSequential(path, value);
-        Logs.Console.error("register server node=" + value + " to zk name=" + path);
     }
 }

@@ -13,12 +13,20 @@ REM distributed under the License is distributed on an "AS IS" BASIS,
 REM WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 REM See the License for the specific language governing permissions and
 REM limitations under the License.
+REM java -Dmp.conf=../conf/mpush.conf -Dmp.home=. -jar bootstrap.jar
+REM setlocal
 
-setlocal
-call "%~dp0env-mp.cmd"
+REM call "%~dp0env-mp.cmd"
 
-set MPMAIN="-jar ../boot.jar"
-echo on
-call %JAVA% "-Dmp.log.dir=%MP_LOG_DIR%" -cp "%CLASSPATH%" %MPMAIN% "%MPCFG%" %*
+REM set  MPMAIN=-jar %~dp0bootstrap.jar
 
-endlocal
+REM call %JAVA% "-Dmp.conf=%MPCFG%" "-Dmp.home=%~dp0%.." -cp "%CLASSPATH%" %MPMAIN% %*
+
+REM endlocal
+
+
+java -Dmp.conf=../conf/mpush.conf -Dmp.home=.. -jar bootstrap.jar
+
+
+
+

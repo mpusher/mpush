@@ -30,13 +30,13 @@ import org.apache.curator.framework.CuratorFrameworkFactory.Builder;
 import org.apache.curator.framework.api.ACLProvider;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class ZKClient extends BaseService {
@@ -44,27 +44,40 @@ public class ZKClient extends BaseService {
     private ZKConfig zkConfig;
     private CuratorFramework client;
     private TreeCache cache;
+    private Map<String, String> ephemeralNodes = new LinkedHashMap<>();
+
+    public static ZKClient get() {
+        return I;
+    }
 
     private synchronized static ZKClient I() {
-        if (I == null) return new ZKClient();
-        else return I;
+        return I == null ? new ZKClient() : I;
     }
 
     private ZKClient() {
     }
 
     @Override
+    public void start(Listener listener) {
+        if (isRunning()) {
+            listener.onSuccess();
+        } else {
+            super.start(listener);
+        }
+    }
+
+    @Override
     protected void doStart(Listener listener) throws Throwable {
         client.start();
-        Logs.Console.error("init zk client waiting for connected...");
+        Logs.Console.info("init zk client waiting for connected...");
         if (!client.blockUntilConnected(1, TimeUnit.MINUTES)) {
             throw new ZKException("init zk error, config=" + zkConfig);
         }
-        initLocalCache(zkConfig.getLocalCachePath());
+        initLocalCache(zkConfig.getWatchPath());
         addConnectionStateListener();
-        listener.onSuccess(zkConfig.getHosts());
         Logs.ZK.info("zk client start success, server lists is:{}", zkConfig.getHosts());
-        Logs.Console.error("init zk client success...");
+        Logs.Console.info("init zk client success...");
+        listener.onSuccess(zkConfig.getHosts());
     }
 
     @Override
@@ -72,6 +85,8 @@ public class ZKClient extends BaseService {
         if (cache != null) cache.close();
         TimeUnit.MILLISECONDS.sleep(600);
         client.close();
+        Logs.Console.info("zk client closed...");
+        listener.onSuccess();
     }
 
     /**
@@ -79,8 +94,10 @@ public class ZKClient extends BaseService {
      */
     @Override
     public void init() {
-        if (zkConfig != null) return;
-        zkConfig = ZKConfig.build();
+        if (client != null) return;
+        if (zkConfig == null) {
+            zkConfig = ZKConfig.build();
+        }
         Builder builder = CuratorFrameworkFactory
                 .builder()
                 .connectString(zkConfig.getHosts())
@@ -95,35 +112,46 @@ public class ZKClient extends BaseService {
         }
 
         if (zkConfig.getDigest() != null) {
-            builder.authorization("digest", zkConfig.getDigest().getBytes(Constants.UTF_8))
-                    .aclProvider(new ACLProvider() {
+            /*
+             * scheme对应于采用哪种方案来进行权限管理，zookeeper实现了一个pluggable的ACL方案，可以通过扩展scheme，来扩展ACL的机制。
+             * zookeeper缺省支持下面几种scheme:
+             *
+             * world: 默认方式，相当于全世界都能访问; 它下面只有一个id, 叫anyone, world:anyone代表任何人，zookeeper中对所有人有权限的结点就是属于world:anyone的
+             * auth: 代表已经认证通过的用户(cli中可以通过addauth digest user:pwd 来添加当前上下文中的授权用户); 它不需要id, 只要是通过authentication的user都有权限（zookeeper支持通过kerberos来进行authencation, 也支持username/password形式的authentication)
+             * digest: 即用户名:密码这种方式认证，这也是业务系统中最常用的;它对应的id为username:BASE64(SHA1(password))，它需要先通过username:password形式的authentication
+             * ip: 使用Ip地址认证;它对应的id为客户机的IP地址，设置的时候可以设置一个ip段，比如ip:192.168.1.0/16, 表示匹配前16个bit的IP段
+             * super: 在这种scheme情况下，对应的id拥有超级权限，可以做任何事情(cdrwa)
+             */
+            builder.authorization("digest", zkConfig.getDigest().getBytes(Constants.UTF_8));
+            builder.aclProvider(new ACLProvider() {
+                @Override
+                public List<ACL> getDefaultAcl() {
+                    return ZooDefs.Ids.CREATOR_ALL_ACL;
+                }
 
-                        @Override
-                        public List<ACL> getDefaultAcl() {
-                            return ZooDefs.Ids.CREATOR_ALL_ACL;
-                        }
-
-                        @Override
-                        public List<ACL> getAclForPath(final String path) {
-                            return ZooDefs.Ids.CREATOR_ALL_ACL;
-                        }
-                    });
+                @Override
+                public List<ACL> getAclForPath(final String path) {
+                    return ZooDefs.Ids.CREATOR_ALL_ACL;
+                }
+            });
         }
         client = builder.build();
-        Logs.Console.error("init zk client, config=" + zkConfig);
+        Logs.Console.info("init zk client, config={}", zkConfig.toString());
     }
 
     // 注册连接状态监听器
     private void addConnectionStateListener() {
-        client.getConnectionStateListenable()
-                .addListener((cli, newState)
-                        -> Logs.ZK.warn("zk connection state changed new state={}, isConnected={}",
-                        newState, newState.isConnected()));
+        client.getConnectionStateListenable().addListener((cli, newState) -> {
+            if (newState == ConnectionState.RECONNECTED) {
+                ephemeralNodes.forEach(this::reRegisterEphemeralSequential);
+            }
+            Logs.ZK.warn("zk connection state changed new state={}, isConnected={}", newState, newState.isConnected());
+        });
     }
 
     // 本地缓存
-    private void initLocalCache(String cachePath) throws Exception {
-        cache = new TreeCache(client, cachePath);
+    private void initLocalCache(String watchRootPath) throws Exception {
+        cache = new TreeCache(client, watchRootPath);
         cache.start();
     }
 
@@ -151,12 +179,14 @@ public class ZKClient extends BaseService {
      * @return
      */
     public String getFromRemote(final String key) {
-        try {
-            return new String(client.getData().forPath(key), Constants.UTF_8);
-        } catch (Exception ex) {
-            Logs.ZK.error("getFromRemote:{}", key, ex);
-            return null;
+        if (isExisted(key)) {
+            try {
+                return new String(client.getData().forPath(key), Constants.UTF_8);
+            } catch (Exception ex) {
+                Logs.ZK.error("getFromRemote:{}", key, ex);
+            }
         }
+        return null;
     }
 
     /**
@@ -167,6 +197,7 @@ public class ZKClient extends BaseService {
      */
     public List<String> getChildrenKeys(final String key) {
         try {
+            if (!isExisted(key)) return Collections.emptyList();
             List<String> result = client.getChildren().forPath(key);
             Collections.sort(result, (o1, o2) -> o2.compareTo(o1));
             return result;
@@ -252,15 +283,27 @@ public class ZKClient extends BaseService {
      * 注册临时顺序数据
      *
      * @param key
+     * @param value
+     * @param cacheNode 第一次注册时设置为true, 连接断开重新注册时设置为false
      */
-    public void registerEphemeralSequential(final String key, final String value) {
+    private void registerEphemeralSequential(final String key, final String value, boolean cacheNode) {
         try {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key, value.getBytes());
+            if (cacheNode) ephemeralNodes.put(key, value);
         } catch (Exception ex) {
             Logs.ZK.error("persistEphemeralSequential:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
     }
+
+    private void reRegisterEphemeralSequential(final String key, final String value) {
+        registerEphemeralSequential(key, value, false);
+    }
+
+    public void registerEphemeralSequential(final String key, final String value) {
+        registerEphemeralSequential(key, value, true);
+    }
+
 
     /**
      * 注册临时顺序数据
@@ -296,5 +339,10 @@ public class ZKClient extends BaseService {
 
     public ZKConfig getZKConfig() {
         return zkConfig;
+    }
+
+    public ZKClient setZKConfig(ZKConfig zkConfig) {
+        this.zkConfig = zkConfig;
+        return this;
     }
 }

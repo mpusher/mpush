@@ -19,6 +19,7 @@
 
 package com.mpush.tools.crypto;
 
+import com.mpush.tools.common.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +63,7 @@ public final class AESUtils {
 
     public static byte[] encrypt(byte[] data, IvParameterSpec zeroIv, SecretKeySpec keySpec) {
         try {
+            Profiler.enter("time cost on [aes encrypt]: data length=" + data.length);
             Cipher cipher = Cipher.getInstance(KEY_ALGORITHM_PADDING);
             cipher.init(Cipher.ENCRYPT_MODE, keySpec, zeroIv);
             return cipher.doFinal(data);
@@ -70,11 +72,14 @@ public final class AESUtils {
                     Arrays.toString(zeroIv.getIV()),
                     Arrays.toString(keySpec.getEncoded()), e);
             throw new CryptoException("AES encrypt ex", e);
+        } finally {
+            Profiler.release();
         }
     }
 
     public static byte[] decrypt(byte[] data, IvParameterSpec zeroIv, SecretKeySpec keySpec) {
         try {
+            Profiler.enter("time cost on [aes decrypt]: data length=" + data.length);
             Cipher cipher = Cipher.getInstance(KEY_ALGORITHM_PADDING);
             cipher.init(Cipher.DECRYPT_MODE, keySpec, zeroIv);
             return cipher.doFinal(data);
@@ -83,6 +88,8 @@ public final class AESUtils {
                     Arrays.toString(zeroIv.getIV()),
                     Arrays.toString(keySpec.getEncoded()), e);
             throw new CryptoException("AES decrypt ex", e);
+        } finally {
+            Profiler.release();
         }
     }
 }

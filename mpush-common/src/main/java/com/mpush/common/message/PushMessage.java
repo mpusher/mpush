@@ -19,11 +19,8 @@
 
 package com.mpush.common.message;
 
-import com.mpush.api.Constants;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
-
-import java.util.Arrays;
 
 import static com.mpush.api.protocol.Command.PUSH;
 
@@ -53,6 +50,14 @@ public final class PushMessage extends BaseMessage {
     @Override
     public byte[] encode() {
         return content;
+    }
+
+    public boolean autoAck() {
+        return packet.hasFlag(Packet.FLAG_AUTO_ACK);
+    }
+
+    public boolean needAck() {
+        return packet.hasFlag(Packet.FLAG_BIZ_ACK) || packet.hasFlag(Packet.FLAG_AUTO_ACK);
     }
 
     @Override

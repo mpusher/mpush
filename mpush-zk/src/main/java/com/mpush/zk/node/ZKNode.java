@@ -20,6 +20,7 @@
 package com.mpush.zk.node;
 
 import com.mpush.tools.Jsons;
+import com.mpush.zk.ZKPath;
 
 /**
  * Created by yxx on 2016/5/17.
@@ -29,5 +30,9 @@ import com.mpush.tools.Jsons;
 public interface ZKNode {
     default String encode() {
         return Jsons.toJson(this);
+    }
+
+    default String getNodePath() {
+        return null;
     }
 }

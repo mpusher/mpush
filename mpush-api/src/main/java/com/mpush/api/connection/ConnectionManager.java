@@ -25,6 +25,8 @@ import java.util.List;
 
 /**
  * Created by ohun on 2015/12/30.
+ *
+ * @author ohun@live.cn (夜色)
  */
 public interface ConnectionManager {
 
@@ -34,7 +36,7 @@ public interface ConnectionManager {
 
     void add(Connection connection);
 
-    List<Connection> getConnections();
+    int getConnNum();
 
     void init();
 

@@ -19,13 +19,25 @@
 
 package com.mpush.cache.redis;
 
+import com.mpush.tools.config.data.RedisNode;
+import com.mpush.zk.node.ZKRedisNode;
+import redis.clients.jedis.HostAndPort;
+
 /**
  * redis 相关的配置信息
  */
-public class RedisServer extends com.mpush.tools.config.data.RedisServer {
+public class RedisServer extends RedisNode {
 
-    public RedisServer(String ip, int port, String password) {
-        super(ip, port, password);
+    public RedisServer(String ip, int port) {
+        super(ip, port);
+    }
+
+    public HostAndPort convert() {
+        return new HostAndPort(host, port);
+    }
+
+    public static RedisServer from(ZKRedisNode node) {
+        return new RedisServer(node.host, node.port);
     }
 
 }

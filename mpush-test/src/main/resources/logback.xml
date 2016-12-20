@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+    <property name="log.root.level" value="${log.root.level}"/> <!-- 日志级别 -->
+    <!-- app log -->
+    <appender name="MPUSH_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- info log -->
+    <appender name="MPUSH_INFO_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>info</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <target>System.out</target>
+        
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- debug log -->
+    <appender name="MPUSH_DEBUG_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>debug</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <target>System.out</target>
+        
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} - [%thread] %-5level - %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- monitor log -->
+    <appender name="MONITOR_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} -[monitor]- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- connection log -->
+    <appender name="CONNECTION_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} -[connection]- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- push log -->
+    <appender name="PUSH_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} -[push]- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- heartbeat log -->
+    <appender name="HEARTBEAT_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} -[heartbeat]- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- redis log -->
+    <appender name="REDIS_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} -[redis]- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- http log -->
+    <appender name="HTTP_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} -[http]- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- zk log -->
+    <appender name="ZK_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} -[zk]- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- profile log -->
+    <appender name="PROFILE_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} -[profile]- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} -[console]- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root>
+        <level value="${log.root.level}"/>
+        <appender-ref ref="MPUSH_APPENDER"/>
+        <appender-ref ref="MPUSH_INFO_APPENDER"/>
+        <appender-ref ref="MPUSH_DEBUG_APPENDER"/>
+    </root>
+
+    <logger name="console" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <logger name="mpush.conn.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="CONNECTION_APPENDER"/>
+    </logger>
+    <logger name="mpush.heartbeat.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="HEARTBEAT_APPENDER"/>
+    </logger>
+    <logger name="mpush.http.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="HTTP_APPENDER"/>
+    </logger>
+    <logger name="mpush.monitor.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="MONITOR_APPENDER"/>
+    </logger>
+    <logger name="mpush.push.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="PUSH_APPENDER"/>
+    </logger>
+    <logger name="mpush.redis.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="REDIS_APPENDER"/>
+    </logger>
+    <logger name="mpush.zk.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="ZK_APPENDER"/>
+    </logger>
+    <logger name="mpush.profile.log" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="PROFILE_APPENDER"/>
+    </logger>
+
+    <logger name="org.apache.zookeeper.ClientCnxn" additivity="false">
+        <level value="warn"/>
+        <appender-ref ref="MPUSH_APPENDER"/>
+    </logger>
+</configuration>
+

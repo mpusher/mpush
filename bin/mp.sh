@@ -125,7 +125,6 @@ else
 fi
 
 if [ ! -w "$MP_LOG_DIR" ] ; then
-echo $MP_LOG_DIR
 mkdir -p "$MP_LOG_DIR"
 fi
 
@@ -140,8 +139,7 @@ start)
          exit 0
       fi
     fi
-    nohup "$JAVA" "-Dmp.conf=$MP_CFG" "-Dmp.log.dir=${MP_LOG_DIR}" "-Dmp.root.logger=${MP_LOG4J_PROP}" \
-    -cp "$CLASSPATH" $JVM_FLAGS $MP_MAIN > "$_MP_DAEMON_OUT" 2>&1 < /dev/null &
+    nohup "$JAVA" "-Dmp.home=$MPUSH_HOME"  "-Dmp.conf=$MP_CFG" -cp "$CLASSPATH" $JVM_FLAGS $MP_MAIN > "$_MP_DAEMON_OUT" 2>&1 < /dev/null &
     if [ $? -eq 0 ]
     then
       case "$OSTYPE" in
@@ -166,16 +164,11 @@ start)
     fi
     ;;
 start-foreground)
-    MP_CMD=(exec "$JAVA")
-    if [ "${MP_NOEXEC}" != "" ]; then
-      MP_CMD=("$JAVA")
-    fi
-    "${MP_CMD[@]}" "-Dmp.log.dir=${MP_LOG_DIR}" "-Dmp.root.logger=${MP_LOG4J_PROP}" \
-    -cp "$CLASSPATH" $JVM_FLAGS $MP_MAIN "-Dmp.conf=$MP_CFG"
+    "$JAVA" "-Dmp.home=$MPUSH_HOME" "-Dmp.conf=$MP_CFG" -cp "$CLASSPATH" $JVM_FLAGS $MP_MAIN
     ;;
 print-cmd)
     echo "\"$JAVA\" $MP_MAIN "
-    echo "\"-Dmp.conf=$MP_CFG\" -Dmp.log.dir=\"${MP_LOG_DIR}\" -Dmp.root.logger=\"${MP_LOG4J_PROP}\" "
+    echo "\"-Dmp.home=$MPUSH_HOME  -Dmp.conf=$MP_CFG\" "
     echo "$JVM_FLAGS "
     echo "-cp \"$CLASSPATH\" "
     echo "> \"$_MP_DAEMON_OUT\" 2>&1 < /dev/null"
@@ -204,7 +197,7 @@ stop)
           break
         fi
         if [ $SLEEP -gt 0 ]; then
-          echo "waiting ... $SLEEP_COUNT"
+          echo "stopping ... $SLEEP_COUNT"
           sleep 1
         fi
         if [ $SLEEP -eq 0 ]; then
@@ -224,14 +217,13 @@ stop)
 upgrade)
     shift
     echo "upgrading the servers to 3.*"
-    "$JAVA" "-Dmpush.log.dir=${MP_LOG_DIR}" "-Dmpush.root.logger=${MP_LOG4J_PROP}" \
-    -cp "$CLASSPATH" $JVM_FLAGS com.mpush.tools.upgrade.UpgradeMain ${@}
+    "$JAVA" -cp "$CLASSPATH" $JVM_FLAGS com.mpush.tools.upgrade.UpgradeMain ${@}
     echo "Upgrading ... "
     ;;
 restart)
     shift
     "$0" stop ${@}
-    sleep 5
+    sleep 1
     "$0" start ${@}
     ;;
 status)
@@ -242,18 +234,7 @@ status)
        	clientPortAddress="localhost"
     fi
     clientPort=`$GREP "^[[:space:]]*connect-server-port[^[:alpha:]]" "$MP_CFG" | sed -e 's/.*=//'`
-    STAT=`"$JAVA" "-Dmp.log.dir=${MP_LOG_DIR}" "-Dmp.root.logger=${MP_LOG4J_PROP}" \
-             -cp "$CLASSPATH" $JVM_FLAGS org.apache.mpush.client.FourLetterWordMain \
-             $clientPortAddress $clientPort srvr 2> /dev/null    \
-          | $GREP Mode`
-    if [ "x$STAT" = "x" ]
-    then
-        echo "Error contacting service. It is probably not running."
-        exit 1
-    else
-        echo $STAT
-        exit 0
-    fi
+    telnet 127.0.0.1 3002
     ;;
 *)
     echo "Usage: $0 {start|start-foreground|stop|restart|status|upgrade|print-cmd}" >&2

@@ -34,6 +34,9 @@ import com.mpush.zk.ZKPath;
  */
 public class ZKServerNode implements ZKNode {
 
+    public static final ZKServerNode CS_NODE = csNode();
+    public static final ZKServerNode GS_NODE = gsNode();
+
     private String ip;
 
     private int port;
@@ -52,14 +55,14 @@ public class ZKServerNode implements ZKNode {
         this.zkPath = zkPath;
     }
 
-    public static ZKServerNode csNode() {
+    private static ZKServerNode csNode() {
         return new ZKServerNode(Utils.getLocalIp(),
                 CC.mp.net.connect_server_port,
                 ConfigManager.I.getPublicIp(),
                 ZKPath.CONNECT_SERVER.getNodePath());
     }
 
-    public static ZKServerNode gsNode() {
+    private static ZKServerNode gsNode() {
         return new ZKServerNode(Utils.getLocalIp(),
                 CC.mp.net.gateway_server_port,
                 null,
@@ -93,13 +96,18 @@ public class ZKServerNode implements ZKNode {
         return this;
     }
 
-    public String getZkPath() {
+    @Override
+    public String getNodePath() {
         return zkPath;
     }
 
     public ZKServerNode setZkPath(String zkPath) {
         this.zkPath = zkPath;
         return this;
+    }
+
+    public String getHostAndPort() {
+        return ip + ":" + port;
     }
 
     @Override

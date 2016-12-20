@@ -13,7 +13,7 @@
     <groupId>com.github.mpusher</groupId>
     <artifactId>mpush</artifactId>
     <packaging>pom</packaging>
-    <version>1.0</version>
+    <version>0.6.1</version>
     <name>mpush</name>
     <description>MPUSH消息推送系统</description>
     <url>https://github.com/mpusher/mpush</url>
@@ -61,7 +61,7 @@
         <java.encoding>UTF-8</java.encoding>
         <java.version>1.8</java.version>
         <mpush.groupId>com.github.mpusher</mpush.groupId>
-        <mpush.version>0.0.2</mpush.version>
+        <mpush.version>0.6.1</mpush.version>
         <mpush-api-version>${mpush.version}</mpush-api-version>
         <mpush-tools-version>${mpush.version}</mpush-tools-version>
         <mpush-common-version>${mpush.version}</mpush-common-version>
@@ -138,7 +138,7 @@
                 <version>${mpush.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-core</artifactId>
                 <version>${mpush.version}</version>
             </dependency>
@@ -200,11 +200,25 @@
             <!-- ======================================== -->
             <!-- 第三方依赖 -->
             <!-- ======================================== -->
+            <!-- junit -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.10</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- apache commons -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>4.1</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.4</version>
+                <version>3.5</version>
             </dependency>
+            <!-- guava -->
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
@@ -214,7 +228,7 @@
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-recipes</artifactId>
-                <version>2.9.1</version>
+                <version>2.11.1</version><!--(client 2.x.x <==> server 3.4.x) (client 3.x.x <==> server 3.5.x)-->
                 <exclusions>
                     <exclusion>
                         <artifactId>netty</artifactId>
@@ -225,32 +239,31 @@
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-x-discovery</artifactId>
-                <version>2.9.1</version>
+                <version>2.11.1</version><!--(client 2.x.x <==> server 3.4.x) (client 3.x.x <==> server 3.5.x)-->
             </dependency>
-            <!-- redis -->
+            <!-- redis client -->
             <dependency>
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
                 <version>2.9.0</version>
             </dependency>
-            <!-- json lib-->
+            <!-- json lib -->
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
-                <version>2.7</version>
+                <version>2.8.0</version>
             </dependency>
             <!-- config -->
             <dependency>
                 <groupId>com.typesafe</groupId>
                 <artifactId>config</artifactId>
-                <version>1.3.0</version>
+                <version>1.3.1</version>
             </dependency>
-            <!-- junit -->
+            <!-- javassist -->
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.10</version>
-                <scope>test</scope>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.21.0-GA</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -265,7 +278,6 @@
 
     <!-- 编译配置 -->
     <build>
-        <!-- 指定编译时的Resource目录 -->
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -292,7 +304,6 @@
     </build>
 
     <profiles>
-
         <profile>
             <id>dev</id>
             <activation>

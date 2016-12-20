@@ -24,9 +24,11 @@ import com.mpush.api.PacketReceiver;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.ConnectionManager;
 import com.mpush.api.event.ConnectionCloseEvent;
+import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.netty.connection.NettyConnection;
 import com.mpush.tools.common.Profiler;
+import com.mpush.tools.config.CC;
 import com.mpush.tools.event.EventBus;
 import com.mpush.tools.log.Logs;
 import io.netty.channel.ChannelHandler;
@@ -45,10 +47,9 @@ public final class ServerChannelHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerChannelHandler.class);
 
-    /**
-     * 是否启用加密
-     */
-    private final boolean security;
+    private static final long profile_slowly_limit = CC.mp.monitor.profile_slowly_duration.toMillis();
+
+    private final boolean security; //是否启用加密
     private final ConnectionManager connectionManager;
     private final PacketReceiver receiver;
 
@@ -60,17 +61,19 @@ public final class ServerChannelHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        Packet packet = (Packet) msg;
+        byte cmd = packet.cmd;
+
         try {
-            Profiler.start("channel read:");
+            Profiler.start("time cost on [channel read]: " + packet.toString());
             Connection connection = connectionManager.get(ctx.channel());
-            LOGGER.debug("channelRead channel={}, connection={}, packet={}", ctx.channel(), connection, msg);
+            LOGGER.debug("channelRead conn={}, packet={}", ctx.channel(), connection.getSessionContext(), msg);
             connection.updateLastReadTime();
-            receiver.onReceive((Packet) msg, connection);
+            receiver.onReceive(packet, connection);
         } finally {
             Profiler.release();
-            long duration = Profiler.getDuration();
-            if (duration > 80) {
-                LOGGER.error("channel read busy:" + duration + "," + Profiler.dump());
+            if (Profiler.getDuration() > profile_slowly_limit) {
+                Logs.PROFILE.info("Read Packet[cmd={}] Slowly: \n{}", Command.toCMD(cmd), Profiler.dump());
             }
             Profiler.reset();
         }
@@ -79,13 +82,13 @@ public final class ServerChannelHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         Connection connection = connectionManager.removeAndClose(ctx.channel());
-        Logs.Conn.error("client exceptionCaught channel={}, connection={}", ctx.channel(), connection);
-        LOGGER.error("caught an ex, channel={}, connection={}", ctx.channel(), connection, cause);
+        Logs.CONN.error("client caught ex, conn={}", connection);
+        LOGGER.error("caught an ex, channel={}, conn={}", ctx.channel(), connection, cause);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        Logs.Conn.info("client connect channel={}", ctx.channel());
+        Logs.CONN.info("client connected conn={}", ctx.channel());
         Connection connection = new NettyConnection();
         connection.init(ctx.channel(), security);
         connectionManager.add(connection);
@@ -95,6 +98,6 @@ public final class ServerChannelHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Connection connection = connectionManager.removeAndClose(ctx.channel());
         EventBus.I.post(new ConnectionCloseEvent(connection));
-        Logs.Conn.info("client disconnect channel={}, connection={}", ctx.channel(), connection);
+        Logs.CONN.info("client disconnected conn={}", connection);
     }
 }

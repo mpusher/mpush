@@ -26,6 +26,7 @@ import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.common.message.ErrorMessage;
 import com.mpush.tools.common.Profiler;
+import com.mpush.tools.log.Logs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +43,20 @@ import static com.mpush.common.ErrorCode.UNSUPPORTED_CMD;
  * @author ohun@live.cn
  */
 public final class MessageDispatcher implements PacketReceiver {
-    public static final Logger LOGGER = LoggerFactory.getLogger(MessageDispatcher.class);
+    public static final int POLICY_REJECT = 2;
+    public static final int POLICY_LOG = 1;
+    public static final int POLICY_IGNORE = 0;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageDispatcher.class);
     private final Map<Byte, MessageHandler> handlers = new HashMap<>();
+    private final int unsupportedPolicy;
+
+    public MessageDispatcher() {
+        unsupportedPolicy = POLICY_REJECT;
+    }
+
+    public MessageDispatcher(int unsupportedPolicy) {
+        this.unsupportedPolicy = unsupportedPolicy;
+    }
 
     public void register(Command command, MessageHandler handler) {
         handlers.put(command.cmd, handler);
@@ -53,12 +66,14 @@ public final class MessageDispatcher implements PacketReceiver {
     public void onReceive(Packet packet, Connection connection) {
         MessageHandler handler = handlers.get(packet.cmd);
         if (handler != null) {
+            Profiler.enter("time cost on [dispatch]");
             try {
-                Profiler.enter("start handle:" + handler.getClass().getSimpleName());
                 handler.handle(packet, connection);
             } catch (Throwable throwable) {
                 LOGGER.error("dispatch message ex, packet={}, connect={}, body={}"
                         , packet, connection, Arrays.toString(packet.body), throwable);
+                Logs.CONN.error("dispatch message ex, packet={}, connect={}, body={}, error={}"
+                        , packet, connection, Arrays.toString(packet.body), throwable.getMessage());
                 ErrorMessage
                         .from(packet, connection)
                         .setErrorCode(DISPATCH_ERROR)
@@ -67,12 +82,16 @@ public final class MessageDispatcher implements PacketReceiver {
                 Profiler.release();
             }
         } else {
-            LOGGER.error("dispatch message failure unsupported cmd, packet={}, connect={}, body={}"
-                    , packet, connection);
-            ErrorMessage
-                    .from(packet, connection)
-                    .setErrorCode(UNSUPPORTED_CMD)
-                    .close();
+            if (unsupportedPolicy > POLICY_IGNORE) {
+                Logs.CONN.error("dispatch message failure, cmd={} unsupported, packet={}, connect={}, body={}"
+                        , Command.toCMD(packet.cmd), packet, connection);
+                if (unsupportedPolicy == POLICY_REJECT) {
+                    ErrorMessage
+                            .from(packet, connection)
+                            .setErrorCode(UNSUPPORTED_CMD)
+                            .close();
+                }
+            }
         }
     }
 }

@@ -37,14 +37,14 @@ public abstract class BaseMessageHandler<T extends Message> implements MessageHa
     public abstract void handle(T message);
 
     public void handle(Packet packet, Connection connection) {
+        Profiler.enter("time cost on [message decode]");
         T t = decode(packet, connection);
+        Profiler.release();
+
         if (t != null) {
-            try {
-                Profiler.enter("start handle");
-                handle(t);
-            } finally {
-                Profiler.release();
-            }
+            Profiler.enter("time cost on [handle]");
+            handle(t);
+            Profiler.release();
         }
     }
 }

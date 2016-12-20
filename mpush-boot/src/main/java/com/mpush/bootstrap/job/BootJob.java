@@ -35,14 +35,14 @@ public abstract class BootJob {
 
     public void startNext() {
         if (next != null) {
-            Logs.Console.error("start next bootstrap job [" + next.getClass().getSimpleName() + "]");
+            Logs.Console.info("start next bootstrap job [{}]", next.getClass().getSimpleName());
             next.start();
         }
     }
 
     public void stopNext() {
         if (next != null) {
-            Logs.Console.error("stop next bootstrap job [" + next.getClass().getSimpleName() + "]");
+            Logs.Console.info("stop next bootstrap job [{}]", next.getClass().getSimpleName());
             next.stop();
         }
     }

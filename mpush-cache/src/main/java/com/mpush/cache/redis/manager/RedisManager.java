@@ -19,17 +19,18 @@
 
 package com.mpush.cache.redis.manager;
 
-import com.google.common.collect.Sets;
-import com.mpush.cache.redis.RedisClient;
-import com.mpush.cache.redis.RedisGroup;
-import com.mpush.cache.redis.RedisServer;
+import com.google.common.collect.Lists;
+import com.mpush.cache.redis.connection.RedisConnectionFactory;
 import com.mpush.tools.Jsons;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPubSub;
+import com.mpush.tools.config.CC;
+import com.mpush.tools.log.Logs;
+import com.mpush.tools.thread.pool.ThreadPoolManager;
+import redis.clients.jedis.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * redis 对外封装接口
@@ -37,39 +38,87 @@ import java.util.Set;
 public final class RedisManager {
     public static final RedisManager I = new RedisManager();
 
-    private final RedisClusterManager clusterManager = ZKRedisClusterManager.I;
+    private RedisConnectionFactory factory = new RedisConnectionFactory();
 
     public void init() {
-        ZKRedisClusterManager.I.init();
-        test(clusterManager.getGroupList());
+        Logs.Console.info("begin init redis...");
+        RedisClusterManager clusterManager = new ZKRedisClusterManager();
+        clusterManager.init();
+        factory.setPassword(CC.mp.redis.password);
+        factory.setPoolConfig(CC.mp.redis.getPoolConfig(JedisPoolConfig.class));
+        factory.setRedisServers(clusterManager.getServers());
+        factory.setCluster(CC.mp.redis.isCluster());
+        factory.init();
+        test();
+        Logs.Console.info("init redis success...");
     }
 
-    public long incr(String key, Integer time) {
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        return RedisClient.incr(nodeList, key, time);
+
+    private <R> R call(Function<JedisCommands, R> function, R d) {
+        if (factory.isCluster()) {
+            try {
+                return function.apply(factory.getClusterConnection());
+            } catch (Exception e) {
+                Logs.REDIS.error("redis ex", e);
+            }
+        } else {
+            try (Jedis jedis = factory.getJedisConnection()) {
+                return function.apply(jedis);
+            } catch (Exception e) {
+                Logs.REDIS.error("redis ex", e);
+            }
+        }
+        return d;
+    }
+
+    private void call(Consumer<JedisCommands> consumer) {
+        if (factory.isCluster()) {
+            try {
+                consumer.accept(factory.getClusterConnection());
+            } catch (Exception e) {
+                Logs.REDIS.error("redis ex", e);
+            }
+        } else {
+            try (Jedis jedis = factory.getJedisConnection()) {
+                consumer.accept(jedis);
+            } catch (Exception e) {
+                Logs.REDIS.error("redis ex", e);
+            }
+        }
+    }
+
+    public long incr(String key) {
+        return call(jedis -> jedis.incr(key), 0L);
     }
 
     public long incrBy(String key, long delt) {
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        return RedisClient.incrBy(nodeList, key, delt);
+        return call(jedis -> jedis.incrBy(key, delt), 0L);
     }
 
-    /*********************
-     * k v redis start
-     ********************************/
-
+    /********************* k v redis start ********************************/
+    /**
+     * @param key
+     * @param clazz
+     * @return
+     */
+    @SuppressWarnings("unchecked")
     public <T> T get(String key, Class<T> clazz) {
-        RedisServer node = clusterManager.randomGetRedisNode(key);
-        return RedisClient.get(node, key, clazz);
+        String value = call(jedis -> jedis.get(key), null);
+        if (value == null) return null;
+        if (clazz == String.class) return (T) value;
+        return Jsons.fromJson(value, clazz);
+    }
+
+    public void set(String key, String value) {
+        set(key, value, 0);
     }
 
     public <T> void set(String key, T value) {
-        set(key, value, null);
+        set(key, value, 0);
     }
 
-    public <T> void set(String key, T value, Integer time) {
-        String jsonValue = Jsons.toJson(value);
-        set(key, jsonValue, time);
+    public <T> void set(String key, T value, int time) {
+        set(key, Jsons.toJson(value), time);
     }
 
     /**
@@ -77,67 +126,64 @@ public final class RedisManager {
      * @param value
      * @param time  seconds
      */
-    public void set(String key, String value, Integer time) {
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        RedisClient.set(nodeList, key, value, time);
+    public void set(String key, String value, int time) {
+        call(jedis -> {
+            jedis.set(key, value);
+            if (time > 0) {
+                jedis.expire(key, time);
+            }
+        });
     }
 
     public void del(String key) {
-
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        RedisClient.del(nodeList, key);
-
+        call(jedis -> jedis.del(key));
     }
 
-    /*********************k v redis end********************************/
-
+    /********************* k v redis end ********************************/
 
     /*********************
      * hash redis start
      ********************************/
     public void hset(String key, String field, String value) {
-
-        List<RedisServer> nodeList = clusterManager.hashSet(field);
-        RedisClient.hset(nodeList, key, field, value);
-
+        call(jedis -> jedis.hset(key, field, value));
     }
 
     public <T> void hset(String key, String field, T value) {
         hset(key, field, Jsons.toJson(value));
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T hget(String key, String field, Class<T> clazz) {
-
-        RedisServer node = clusterManager.randomGetRedisNode(key);
-        return RedisClient.hget(node, key, field, clazz);
-
+        String value = call(jedis -> jedis.hget(key, field), null);
+        if (value == null) return null;
+        if (clazz == String.class) return (T) value;
+        return Jsons.fromJson(value, clazz);
     }
 
     public void hdel(String key, String field) {
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        RedisClient.hdel(nodeList, key, field);
+        call(jedis -> jedis.hdel(key, field));
     }
 
     public Map<String, String> hgetAll(String key) {
-
-        RedisServer node = clusterManager.randomGetRedisNode(key);
-        return RedisClient.hgetAll(node, key);
-
+        return call(jedis -> jedis.hgetAll(key), Collections.<String, String>emptyMap());
     }
 
     public <T> Map<String, T> hgetAll(String key, Class<T> clazz) {
-        RedisServer node = clusterManager.randomGetRedisNode(key);
-        return RedisClient.hgetAll(node, key, clazz);
+        Map<String, String> result = hgetAll(key);
+        if (result.isEmpty()) return Collections.emptyMap();
+        Map<String, T> newMap = new HashMap<>(result.size());
+        result.forEach((k, v) -> newMap.put(k, Jsons.fromJson(v, clazz)));
+        return newMap;
     }
 
     /**
      * 返回 key 指定的哈希集中所有字段的名字。
      *
+     * @param key
      * @return
      */
     public Set<String> hkeys(String key) {
-        RedisServer node = clusterManager.randomGetRedisNode(key);
-        return RedisClient.hkeys(node, key);
+        return call(jedis -> jedis.hkeys(key), Collections.<String>emptySet());
     }
 
     /**
@@ -148,36 +194,45 @@ public final class RedisManager {
      * @return
      */
     public <T> List<T> hmget(String key, Class<T> clazz, String... fields) {
-        RedisServer node = clusterManager.randomGetRedisNode(key);
-        return RedisClient.hmget(node, key, clazz, fields);
+        return call(jedis -> jedis.hmget(key, fields), Collections.<String>emptyList())
+                .stream()
+                .map(s -> Jsons.fromJson(s, clazz))
+                .collect(Collectors.toList());
+
     }
 
     /**
-     * 设置 key 指定的哈希集中指定字段的值。该命令将重写所有在哈希集中存在的字段。如果 key 指定的哈希集不存在，会创建一个新的哈希集并与 key 关联
+     * 设置 key 指定的哈希集中指定字段的值。该命令将重写所有在哈希集中存在的字段。如果 key 指定的哈希集不存在，会创建一个新的哈希集并与 key
+     * 关联
      *
      * @param hash
      * @param time
      */
-    public void hmset(String key, Map<String, String> hash, Integer time) {
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        RedisClient.hmset(nodeList, key, hash, time);
+    public void hmset(String key, Map<String, String> hash, int time) {
+        call(jedis -> {
+            jedis.hmset(key, hash);
+            if (time > 0) {
+                jedis.expire(key, time);
+            }
+        });
     }
 
     public void hmset(String key, Map<String, String> hash) {
-        hmset(key, hash, null);
+        hmset(key, hash, 0);
     }
 
+    public long hincrBy(String key, String field, long value) {
+        return call(jedis -> jedis.hincrBy(key, field, value), 0L);
+    }
 
-    /*********************hash redis end********************************/
+    /********************* hash redis end ********************************/
 
-
-    /*********************list redis start********************************/
+    /********************* list redis start ********************************/
     /**
      * 从队列的左边入队
      */
     public void lpush(String key, String value) {
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        RedisClient.lpush(nodeList, key, value);
+        call(jedis -> jedis.lpush(key, value));
     }
 
     public <T> void lpush(String key, T value) {
@@ -188,8 +243,7 @@ public final class RedisManager {
      * 从队列的右边入队
      */
     public void rpush(String key, String value) {
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        RedisClient.rpush(nodeList, key, value);
+        call(jedis -> jedis.lpush(key, value));
     }
 
     public <T> void rpush(String key, T value) {
@@ -199,124 +253,176 @@ public final class RedisManager {
     /**
      * 移除并且返回 key 对应的 list 的第一个元素
      */
+    @SuppressWarnings("unchecked")
     public <T> T lpop(String key, Class<T> clazz) {
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        return RedisClient.lpop(nodeList, key, clazz);
+        String value = call(jedis -> jedis.lpop(key), null);
+        if (value == null) return null;
+        if (clazz == String.class) return (T) value;
+        return Jsons.fromJson(value, clazz);
     }
 
     /**
      * 从队列的右边出队一个元素
      */
+    @SuppressWarnings("unchecked")
     public <T> T rpop(String key, Class<T> clazz) {
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        return RedisClient.rpop(nodeList, key, clazz);
+        String value = call(jedis -> jedis.rpop(key), null);
+        if (value == null) return null;
+        if (clazz == String.class) return (T) value;
+        return Jsons.fromJson(value, clazz);
     }
 
-
     /**
-     * 从列表中获取指定返回的元素
-     * start 和 end 偏移量都是基于0的下标，即list的第一个元素下标是0（list的表头），第二个元素下标是1，以此类推。
+     * 从列表中获取指定返回的元素 start 和 end
+     * 偏移量都是基于0的下标，即list的第一个元素下标是0（list的表头），第二个元素下标是1，以此类推。
      * 偏移量也可以是负数，表示偏移量是从list尾部开始计数。 例如， -1 表示列表的最后一个元素，-2 是倒数第二个，以此类推。
      */
     public <T> List<T> lrange(String key, int start, int end, Class<T> clazz) {
-        RedisServer node = clusterManager.randomGetRedisNode(key);
-        return RedisClient.lrange(node, key, start, end, clazz);
+        return call(jedis -> jedis.lrange(key, start, end), Collections.<String>emptyList())
+                .stream()
+                .map(s -> Jsons.fromJson(s, clazz))
+                .collect(Collectors.toList());
     }
 
     /**
-     * 返回存储在 key 里的list的长度。 如果 key 不存在，那么就被看作是空list，并且返回长度为 0。 当存储在 key 里的值不是一个list的话，会返回error。
+     * 返回存储在 key 里的list的长度。 如果 key 不存在，那么就被看作是空list，并且返回长度为 0。 当存储在 key
+     * 里的值不是一个list的话，会返回error。
      */
     public long llen(String key) {
-        RedisServer node = clusterManager.randomGetRedisNode(key);
-        return RedisClient.llen(node, key);
+        return call(jedis -> jedis.llen(key), 0L);
     }
 
-    public <T> void lrem(String key, T value) {
-        String jsonValue = Jsons.toJson(value);
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        RedisClient.lRem(nodeList, key, jsonValue);
+    /**
+     * 移除表中所有与 value 相等的值
+     *
+     * @param key
+     * @param value
+     */
+    public void lRem(String key, String value) {
+        call(jedis -> jedis.lrem(key, 0, value));
     }
+
+    /********************* list redis end ********************************/
+
+    /*********************
+     * mq redis start
+     ********************************/
+
 
     public <T> void publish(String channel, T message) {
-
-        RedisServer node = clusterManager.randomGetRedisNode(channel);
-        RedisClient.publish(node, channel, message);
-
+        String msg = message instanceof String ? (String) message : Jsons.toJson(message);
+        call(jedis -> {
+            if (jedis instanceof MultiKeyCommands) {
+                ((MultiKeyCommands) jedis).publish(channel, msg);
+            } else if (jedis instanceof MultiKeyJedisClusterCommands) {
+                ((MultiKeyJedisClusterCommands) jedis).publish(channel, msg);
+            }
+        });
     }
 
-    public void subscribe(JedisPubSub pubsub, String... channels) {
-
-        Set<RedisServer> set = Sets.newHashSet();
-        for (String channel : channels) {
-            List<RedisServer> nodeList = clusterManager.hashSet(channel);
-            set.addAll(nodeList);
-        }
-
-        RedisClient.subscribe(set, pubsub, channels);
+    public void subscribe(final JedisPubSub pubsub, final String channel) {
+        ThreadPoolManager.I.newThread(channel,
+                () -> call(jedis -> {
+                    if (jedis instanceof MultiKeyCommands) {
+                        ((MultiKeyCommands) jedis).subscribe(pubsub, channel);
+                    } else if (jedis instanceof MultiKeyJedisClusterCommands) {
+                        ((MultiKeyJedisClusterCommands) jedis).subscribe(pubsub, channel);
+                    }
+                })
+        ).start();
     }
 
-    public <T> void sAdd(String key, T value) {
-        String jsonValue = Jsons.toJson(value);
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        RedisClient.sAdd(nodeList, key, jsonValue);
+    /*********************
+     * set redis start
+     ********************************/
+    /**
+     * @param key
+     * @param value
+     */
+    public void sAdd(String key, String value) {
+        call(jedis -> jedis.sadd(key, value));
     }
 
-    public Long sCard(String key) {
-        RedisServer node = clusterManager.randomGetRedisNode(key);
-        return RedisClient.sCard(node, key);
+    /**
+     * @param key
+     * @return
+     */
+    public long sCard(String key) {
+        return call(jedis -> jedis.scard(key), 0L);
     }
 
-    public <T> void sRem(String key, T value) {
-        String jsonValue = Jsons.toJson(value);
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        RedisClient.sRem(nodeList, key, jsonValue);
+    public void sRem(String key, String value) {
+        call(jedis -> jedis.srem(key, value));
     }
 
-    public <T> List<T> sScan(String key, int start, Class<T> clazz) {
-        RedisServer node = clusterManager.randomGetRedisNode(key);
-        return RedisClient.sScan(node, key, clazz, start);
+    /**
+     * 默认使用每页10个
+     *
+     * @param key
+     * @param clazz
+     * @return
+     */
+    public <T> List<T> sScan(String key, Class<T> clazz, int start) {
+        List<String> list = call(jedis -> jedis.sscan(key, Integer.toString(start), new ScanParams().count(10)).getResult(), null);
+        return toList(list, clazz);
     }
 
-    public <T> void zAdd(String key, T value) {
-        String jsonValue = Jsons.toJson(value);
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        RedisClient.zAdd(nodeList, key, jsonValue);
+    /*********************
+     * sorted set
+     ********************************/
+    /**
+     * @param key
+     * @param value
+     */
+    public void zAdd(String key, String value) {
+        call(jedis -> jedis.zadd(key, 0, value));
     }
 
+    /**
+     * @param key
+     * @return
+     */
     public Long zCard(String key) {
-        RedisServer node = clusterManager.randomGetRedisNode(key);
-        return RedisClient.zCard(node, key);
+        return call(jedis -> jedis.zcard(key), 0L);
     }
 
-    public <T> void zRem(String key, T value) {
-        String jsonValue = Jsons.toJson(value);
-        List<RedisServer> nodeList = clusterManager.hashSet(key);
-        RedisClient.zRem(nodeList, key, jsonValue);
+    public void zRem(String key, String value) {
+        call(jedis -> jedis.zrem(key, value));
     }
 
+    /**
+     * 从列表中获取指定返回的元素 start 和 end
+     * 偏移量都是基于0的下标，即list的第一个元素下标是0（list的表头），第二个元素下标是1，以此类推。
+     * 偏移量也可以是负数，表示偏移量是从list尾部开始计数。 例如， -1 表示列表的最后一个元素，-2 是倒数第二个，以此类推。
+     */
     public <T> List<T> zrange(String key, int start, int end, Class<T> clazz) {
-        RedisServer node = clusterManager.randomGetRedisNode(key);
-        return RedisClient.zrange(node, key, start, end, clazz);
+        Set<String> value = call(jedis -> jedis.zrange(key, start, end), null);
+        return toList(value, clazz);
     }
 
-    public void test(List<RedisGroup> groupList) {
-        if (groupList == null || groupList.isEmpty()) {
-            throw new RuntimeException("init redis sever error.");
-        }
-        for (RedisGroup group : groupList) {
-            List<RedisServer> list = group.getRedisServerList();
-            if (list == null || list.isEmpty()) {
-                throw new RuntimeException("init redis sever error.");
+    private <T> List<T> toList(Collection<String> value, Class<T> clazz) {
+        if (value != null) {
+            List<T> newValue = Lists.newArrayList();
+            for (String temp : value) {
+                newValue.add(Jsons.fromJson(temp, clazz));
             }
-            for (RedisServer node : list) {
-                Jedis jedis = RedisClient.getClient(node);
-                if (jedis == null) throw new RuntimeException("init redis sever error.");
-                jedis.close();
-            }
+            return newValue;
         }
+        return null;
     }
 
-    public void close() {
-        RedisClient.destroy();
+    public void destroy() {
+        if (factory != null) factory.destroy();
+    }
+
+    public void test() {
+        if (factory.isCluster()) {
+            JedisCluster cluster = factory.getClusterConnection();
+            if (cluster == null) throw new RuntimeException("init redis cluster error.");
+        } else {
+            Jedis jedis = factory.getJedisConnection();
+            if (jedis == null) throw new RuntimeException("init redis error, can not get connection.");
+            jedis.close();
+        }
     }
 }
