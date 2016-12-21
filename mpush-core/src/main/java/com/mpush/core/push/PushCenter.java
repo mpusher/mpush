@@ -54,9 +54,9 @@ public final class PushCenter extends BaseService {
         logger.debug("add new task to push center, count={}, task={}", count, task);
     }
 
-    public void delayTask(int delay, PushTask task) {
+    public void delayTask(long delay, PushTask task) {
         long count = taskNum.incrementAndGet();
-        executor.schedule(task, delay, TimeUnit.MILLISECONDS);
+        executor.schedule(task, delay, TimeUnit.NANOSECONDS);
         logger.debug("delay task to push center, count={}, task={}", count, task);
     }
 

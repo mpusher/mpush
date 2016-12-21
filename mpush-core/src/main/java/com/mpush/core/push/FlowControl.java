@@ -34,7 +34,9 @@ public interface FlowControl {
 
     default void end(){};
 
-    int getRemaining();
+    long getRemaining();
+
+    int qps();
 
     String report();
 
