@@ -24,9 +24,10 @@ import com.mpush.api.push.*;
 import com.mpush.tools.log.Logs;
 import org.junit.Test;
 
+import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -46,32 +47,76 @@ public class PushClientTestMain {
         PushSender sender = PushSender.create();
         sender.start().join();
         Thread.sleep(1000);
+        Executor executor = Executors.newFixedThreadPool(10);
+        Statistics statistics = new Statistics();
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        service.scheduleAtFixedRate(
+                () -> {
+                    statistics.limitCount.set(1000);
+                    System.out.println("====================" + LocalTime.now() + ":" + statistics.qps() + ":" + statistics.sendCount.get());
+                }
+                , 1, 1, TimeUnit.SECONDS
+        );
+        for (int k = 0; k < 100; k++) {
+            for (int i = 0; i < 1000; i++) {
+                executor.execute(new PushTask(sender, i, statistics));
+            }
+        }
 
-        for (int i = 0; i < 10; i++) {
 
+        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(30000));
+    }
+
+    private static class PushTask implements Runnable {
+        PushSender sender;
+        private int i;
+        Statistics statistics;
+
+        public PushTask(PushSender sender, int i, Statistics statistics) {
+            this.sender = sender;
+            this.i = i;
+            this.statistics = statistics;
+        }
+
+        @Override
+        public void run() {
+            while (statistics.limitCount.get() <= 0) {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+
+                }
+            }
             PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
             msg.setMsgId("msgId_" + i);
 
             PushContext context = PushContext.build(msg)
-                    .setAckModel(AckModel.AUTO_ACK)
+                    .setAckModel(AckModel.NO_ACK)
                     .setUserId("user-" + i)
                     .setBroadcast(false)
                     //.setTags(Sets.newHashSet("test"))
                     //.setCondition("tags&&tags.indexOf('test')!=-1")
                     //.setUserIds(Arrays.asList("user-0", "user-1"))
-                    .setTimeout(2000)
+                    .setTimeout(60000)
                     .setCallback(new PushCallback() {
                         @Override
                         public void onResult(PushResult result) {
-                            System.err.println("\n\n" + result);
+                           //System.err.println("\n\n" + result);
                         }
                     });
             FutureTask<PushResult> future = sender.send(context);
-
-            //System.err.println("\n\n" + future.get());
+            statistics.sendCount.incrementAndGet();
+            statistics.limitCount.decrementAndGet();
         }
-
-        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(30));
     }
 
+    private static class Statistics {
+        AtomicInteger sendCount = new AtomicInteger();
+        AtomicInteger limitCount = new AtomicInteger(3000);
+        long start = System.nanoTime();
+
+        public long qps() {
+            return sendCount.get() / (TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start));
+        }
+    }
 }

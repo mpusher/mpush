@@ -100,6 +100,7 @@ public abstract class NettyUDPConnector extends BaseService implements Server {
         NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(
                 0, new DefaultThreadFactory(ThreadNames.T_GATEWAY_WORKER)
         );
+        eventLoopGroup.setIoRatio(100);
         createServer(listener, eventLoopGroup, () -> new NioDatagramChannel(IPv4));//默认是根据机器情况创建Channel,如果机器支持ipv6,则无法使用ipv4的地址加入组播
     }
 
@@ -108,6 +109,7 @@ public abstract class NettyUDPConnector extends BaseService implements Server {
         EpollEventLoopGroup eventLoopGroup = new EpollEventLoopGroup(
                 0, new DefaultThreadFactory(ThreadNames.T_GATEWAY_WORKER)
         );
+        eventLoopGroup.setIoRatio(100);
         createServer(listener, eventLoopGroup, EpollDatagramChannel::new);
     }
 

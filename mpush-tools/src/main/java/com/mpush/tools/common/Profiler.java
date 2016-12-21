@@ -20,6 +20,7 @@
 package com.mpush.tools.common;
 
 
+import com.mpush.tools.config.CC;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
@@ -32,7 +33,7 @@ import java.util.List;
  */
 @SuppressWarnings(value = {"rawtypes", "unchecked"})
 public class Profiler {
-    private static volatile boolean enabled = true;
+    private static volatile boolean enabled = CC.mp.monitor.profile_enabled;
 
     private static final ThreadLocal entryStack = new ThreadLocal();
     public static final String EMPTY_STRING = "";

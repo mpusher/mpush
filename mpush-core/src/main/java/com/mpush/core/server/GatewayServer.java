@@ -26,6 +26,7 @@ import com.mpush.core.handler.GatewayPushHandler;
 import com.mpush.netty.server.NettyTCPServer;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
+import com.mpush.tools.thread.ThreadNames;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
@@ -98,6 +99,16 @@ public final class GatewayServer extends NettyTCPServer {
     }
 
     @Override
+    protected String getBossThreadName() {
+        return ThreadNames.T_GATEWAY_BOSS;
+    }
+
+    @Override
+    protected String getWorkThreadName() {
+        return ThreadNames.T_GATEWAY_WORKER;
+    }
+
+    @Override
     protected void initPipeline(ChannelPipeline pipeline) {
         super.initPipeline(pipeline);
         if (trafficShapingHandler != null) {
@@ -108,7 +119,8 @@ public final class GatewayServer extends NettyTCPServer {
     @Override
     protected void initOptions(ServerBootstrap b) {
         super.initOptions(b);
-
+        //b.childOption(ChannelOption.SO_SNDBUF, 64 * 1024);
+        //b.childOption(ChannelOption.SO_RCVBUF, 64 * 1024);
         /**
          * 这个坑其实也不算坑，只是因为懒，该做的事情没做。一般来讲我们的业务如果比较小的时候我们用同步处理，等业务到一定规模的时候，一个优化手段就是异步化。
          * 异步化是提高吞吐量的一个很好的手段。但是，与异步相比，同步有天然的负反馈机制，也就是如果后端慢了，前面也会跟着慢起来，可以自动的调节。

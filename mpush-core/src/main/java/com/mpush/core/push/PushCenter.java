@@ -26,8 +26,11 @@ import com.mpush.tools.thread.pool.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalTime;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by ohun on 16/10/24.
@@ -38,18 +41,23 @@ public final class PushCenter extends BaseService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     public static final PushCenter I = new PushCenter();
 
+    private final AtomicLong taskNum = new AtomicLong();
+
     private ScheduledExecutorService executor;
 
     private PushCenter() {
     }
 
     public void addTask(PushTask task) {
+        long count = taskNum.incrementAndGet();
         executor.execute(task);
-        logger.debug("add new task to push center, task={}", task);
+        logger.debug("add new task to push center, count={}, task={}", count, task);
     }
 
     public void delayTask(int delay, PushTask task) {
+        long count = taskNum.incrementAndGet();
         executor.schedule(task, delay, TimeUnit.MILLISECONDS);
+        logger.debug("delay task to push center, count={}, task={}", count, task);
     }
 
     @Override
