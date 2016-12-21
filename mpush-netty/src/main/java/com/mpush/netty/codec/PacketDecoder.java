@@ -56,7 +56,7 @@ public final class PacketDecoder extends ByteToMessageDecoder {
         }
     }
 
-    private void decodeFrames(ByteBuf in, List<Object> out) throws Exception {
+    private void decodeFrames(ByteBuf in, List<Object> out) {
         if (in.readableBytes() >= Packet.HEADER_LEN) {
             //1.记录当前读取位置位置.如果读取到非完整的frame,要恢复到该位置,便于下次读取
             in.markReaderIndex();
@@ -71,7 +71,7 @@ public final class PacketDecoder extends ByteToMessageDecoder {
         }
     }
 
-    private Packet decodeFrame(ByteBuf in) throws Exception {
+    private Packet decodeFrame(ByteBuf in) {
         int readableBytes = in.readableBytes();
         int bodyLength = in.readInt();
         if (readableBytes < (bodyLength + Packet.HEADER_LEN)) {
@@ -80,7 +80,7 @@ public final class PacketDecoder extends ByteToMessageDecoder {
         return readPacket(new Packet(in.readByte()), in, bodyLength);
     }
 
-    public static Packet decodeFrame(DatagramPacket datagram) throws Exception {
+    public static Packet decodeFrame(DatagramPacket datagram) {
         ByteBuf in = datagram.content();
         int readableBytes = in.readableBytes();
         int bodyLength = in.readInt();
