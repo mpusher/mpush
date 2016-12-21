@@ -23,8 +23,9 @@ public final class ThreadNames {
     public static final String NS = "mp";
     public static final String THREAD_NAME_PREFIX = NS + "-t";
     public static final String T_BOSS = NS + "-boss";
-    public static final String T_WORKER = NS + "-boss";
+    public static final String T_WORKER = NS + "-work";
     public static final String T_CONN_BOSS = NS + "-conn-boss";
+    public static final String T_GATEWAY_BOSS = NS + "-gateway-boss";
     public static final String T_ADMIN_BOSS = NS + "-admin-boss";
     public static final String T_CONN_WORKER = NS + "-conn-work";
     public static final String T_ADMIN_WORKER = NS + "-admin-work";

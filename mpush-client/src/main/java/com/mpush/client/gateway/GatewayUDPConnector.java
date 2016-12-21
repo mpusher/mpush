@@ -84,6 +84,7 @@ public final class GatewayUDPConnector extends NettyUDPConnector {
         super.initOptions(b);
         b.option(ChannelOption.IP_MULTICAST_LOOP_DISABLED, true);
         b.option(ChannelOption.IP_MULTICAST_TTL, 255);
+        //b.option(ChannelOption.SO_SNDBUF, 32*1024);
     }
 
     @Override

@@ -26,12 +26,10 @@ import redis.clients.jedis.JedisPubSub;
 
 public final class Subscriber extends JedisPubSub {
 
-    private ListenerDispatcher dispatcher = ListenerDispatcher.I();
-
     @Override
     public void onMessage(String channel, String message) {
         Logs.REDIS.info("onMessage:{},{}", channel, message);
-        dispatcher.onMessage(channel, message);
+        ListenerDispatcher.I().onMessage(channel, message);
         super.onMessage(channel, message);
     }
 
