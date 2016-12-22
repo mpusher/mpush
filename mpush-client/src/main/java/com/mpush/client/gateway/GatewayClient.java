@@ -27,8 +27,13 @@ import com.mpush.client.gateway.handler.GatewayErrorHandler;
 import com.mpush.client.gateway.handler.GatewayOKHandler;
 import com.mpush.common.MessageDispatcher;
 import com.mpush.netty.client.NettyTCPClient;
+import com.mpush.tools.config.CC;
+import com.mpush.tools.config.CC.mp.net.rcv_buf;
+import com.mpush.tools.config.CC.mp.net.snd_buf;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 
@@ -88,5 +93,12 @@ public class GatewayClient extends NettyTCPClient {
             trafficShapingExecutor.shutdown();
         }
         super.doStop(listener);
+    }
+
+    @Override
+    protected void initOptions(Bootstrap b) {
+        super.initOptions(b);
+        if (snd_buf.gateway_client > 0) b.option(ChannelOption.SO_SNDBUF, snd_buf.gateway_client);
+        if (rcv_buf.gateway_client > 0) b.option(ChannelOption.SO_RCVBUF, rcv_buf.gateway_client);
     }
 }

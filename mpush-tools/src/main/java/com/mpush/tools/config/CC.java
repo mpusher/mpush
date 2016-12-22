@@ -109,6 +109,20 @@ public interface CC {
                 }
             }
 
+            interface snd_buf {
+                Config cfg = net.cfg.getObject("snd_buf").toConfig();
+                int connect_server = (int) cfg.getMemorySize("connect-server").toBytes();
+                int gateway_server = (int) cfg.getMemorySize("gateway-server").toBytes();
+                int gateway_client = (int) cfg.getMemorySize("gateway-client").toBytes();
+            }
+
+            interface rcv_buf {
+                Config cfg = net.cfg.getObject("rcv_buf").toConfig();
+                int connect_server = (int) cfg.getMemorySize("connect-server").toBytes();
+                int gateway_server = (int) cfg.getMemorySize("gateway-server").toBytes();
+                int gateway_client = (int) cfg.getMemorySize("gateway-client").toBytes();
+            }
+
             interface traffic_shaping {
                 Config cfg = net.cfg.getObject("traffic-shaping").toConfig();
 

@@ -48,10 +48,12 @@ public class PushClientTestMain2 {
         PushSender sender = PushSender.create();
         sender.start().join();
         Thread.sleep(1000);
-        Statistics statistics = new Statistics();
-        FlowControl flowControl = new GlobalFlowControl(3000, Integer.MAX_VALUE, 1000);// qps=1000
 
-        ScheduledExecutorService service = Executors.newScheduledThreadPool(2);
+
+        Statistics statistics = new Statistics();
+        FlowControl flowControl = new GlobalFlowControl(100000, Integer.MAX_VALUE, 1000);// qps=1000
+
+        ScheduledThreadPoolExecutor service = new ScheduledThreadPoolExecutor(4);
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             System.out.println("time=" + LocalTime.now()
                     + ", flowControl=" + flowControl.report()
@@ -60,32 +62,10 @@ public class PushClientTestMain2 {
         }, 1, 1, TimeUnit.SECONDS);
 
         for (int k = 0; k < 100; k++) {
-            for (int i = 0; i < 1000; i++) {
-                service.execute(new PushTask(sender, i, service, flowControl, statistics));
-            }
-        }
+            for (int i = 0; i < 1; i++) {
 
-        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(30000));
-    }
+                while (service.getQueue().size() > 1000) Thread.sleep(1); // 防止内存溢出
 
-    private static class PushTask implements Runnable {
-        PushSender sender;
-        private int i;
-        FlowControl flowControl;
-        Statistics statistics;
-        ScheduledExecutorService executor;
-
-        public PushTask(PushSender sender, int i, ScheduledExecutorService executor, FlowControl flowControl, Statistics statistics) {
-            this.sender = sender;
-            this.i = i;
-            this.flowControl = flowControl;
-            this.executor = executor;
-            this.statistics = statistics;
-        }
-
-        @Override
-        public void run() {
-            if (flowControl.checkQps()) {
                 PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
                 msg.setMsgId("msgId_" + i);
 
@@ -100,6 +80,35 @@ public class PushClientTestMain2 {
                                 statistics.add(result.resultCode);
                             }
                         });
+                service.execute(new PushTask(sender, context, service, flowControl, statistics));
+            }
+        }
+
+        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(30000));
+    }
+
+    private static class PushTask implements Runnable {
+        PushSender sender;
+        FlowControl flowControl;
+        Statistics statistics;
+        ScheduledExecutorService executor;
+        PushContext context;
+
+        public PushTask(PushSender sender,
+                        PushContext context,
+                        ScheduledExecutorService executor,
+                        FlowControl flowControl,
+                        Statistics statistics) {
+            this.sender = sender;
+            this.context = context;
+            this.flowControl = flowControl;
+            this.executor = executor;
+            this.statistics = statistics;
+        }
+
+        @Override
+        public void run() {
+            if (flowControl.checkQps()) {
                 FutureTask<PushResult> future = sender.send(context);
             } else {
                 executor.schedule(this, flowControl.getRemaining(), TimeUnit.NANOSECONDS);

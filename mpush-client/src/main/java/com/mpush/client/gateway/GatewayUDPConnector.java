@@ -29,6 +29,8 @@ import com.mpush.netty.udp.UDPChannelHandler;
 import com.mpush.netty.udp.NettyUDPConnector;
 import com.mpush.tools.Utils;
 import com.mpush.tools.config.CC;
+import com.mpush.tools.config.CC.mp.net.rcv_buf;
+import com.mpush.tools.config.CC.mp.net.snd_buf;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
@@ -84,7 +86,8 @@ public final class GatewayUDPConnector extends NettyUDPConnector {
         super.initOptions(b);
         b.option(ChannelOption.IP_MULTICAST_LOOP_DISABLED, true);
         b.option(ChannelOption.IP_MULTICAST_TTL, 255);
-        //b.option(ChannelOption.SO_SNDBUF, 32*1024);
+        if (snd_buf.gateway_client > 0) b.option(ChannelOption.SO_SNDBUF, snd_buf.gateway_client);
+        if (rcv_buf.gateway_client > 0) b.option(ChannelOption.SO_RCVBUF, rcv_buf.gateway_client);
     }
 
     @Override

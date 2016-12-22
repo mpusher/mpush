@@ -99,11 +99,11 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
             //return channel.newPromise().setFailure(new RuntimeException("send data too busy"));
             return future.awaitUninterruptibly();
         } else {
-            if (listener != null) {
+            /*if (listener != null) {
                 channel.newPromise()
                         .addListener(listener)
                         .setFailure(new RuntimeException("connection is disconnected"));
-            }
+            }*/
             return this.close();
         }
     }
