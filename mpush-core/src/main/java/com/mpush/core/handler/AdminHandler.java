@@ -43,6 +43,11 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -55,6 +60,8 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminHandler.class);
 
     private static final String EOL = "\r\n";
+
+    private final LocalDateTime startTime = LocalDateTime.now();
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String request) throws Exception {
@@ -87,7 +94,8 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.write("welcome to " + Utils.getLocalIp() + "!" + EOL);
+        ctx.write("Welcome to MPush Console [" + Utils.getLocalIp() + "]!" + EOL);
+        ctx.write("since " + startTime + " has running " + startTime.until(LocalDateTime.now(), ChronoUnit.HOURS) + "(h)" + EOL + EOL);
         ctx.write("It is " + new Date() + " now." + EOL + EOL);
         ctx.flush();
     }
