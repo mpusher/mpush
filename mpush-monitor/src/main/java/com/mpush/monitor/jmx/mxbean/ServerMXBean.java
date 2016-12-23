@@ -31,7 +31,7 @@ public interface ServerMXBean {
     String getClientPort();
 
     /**
-     * @return the zookeeper server version
+     * @return the server version
      */
     String getVersion();
 

@@ -21,10 +21,6 @@
             <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-monitor</artifactId>
-        </dependency>
     </dependencies>
 
     <build>

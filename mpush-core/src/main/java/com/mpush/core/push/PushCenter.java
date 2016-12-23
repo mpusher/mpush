@@ -22,6 +22,9 @@ package com.mpush.core.push;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
 import com.mpush.core.ack.AckTaskQueue;
+import com.mpush.monitor.jmx.MBeanInfo;
+import com.mpush.monitor.jmx.MBeanRegistry;
+import com.mpush.monitor.jmx.mxbean.PushCenterBean;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import org.slf4j.Logger;
@@ -45,6 +48,7 @@ public final class PushCenter extends BaseService {
     private PushTaskExecutor executor;
 
     private PushCenter() {
+        MBeanRegistry.getInstance().register(new PushCenterBean(taskNum), null);
     }
 
     public void addTask(PushTask task) {
@@ -65,7 +69,6 @@ public final class PushCenter extends BaseService {
             executor = new CustomJDKExecutor(ThreadPoolManager.I.getPushTaskTimer());
             //executor = new NettyEventLoopExecutor();
         }
-
         AckTaskQueue.I.start();
         logger.info("push center start success");
         listener.onSuccess();

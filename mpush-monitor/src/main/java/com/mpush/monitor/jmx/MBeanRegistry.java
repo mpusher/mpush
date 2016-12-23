@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 public class MBeanRegistry {
-    public static final String DOMAIN = "com.mpush.MPushService";
+    public static final String DOMAIN = "com.mpush";
     private static final Logger LOG = LoggerFactory.getLogger(MBeanRegistry.class);
 
     private static MBeanRegistry instance = new MBeanRegistry();
