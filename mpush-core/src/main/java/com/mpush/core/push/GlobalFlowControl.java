@@ -37,6 +37,10 @@ public final class GlobalFlowControl implements FlowControl {
     private final long start0 = System.nanoTime();
     private volatile long start;
 
+    public GlobalFlowControl(int qps) {
+        this(qps, Integer.MAX_VALUE, 1000);
+    }
+
     public GlobalFlowControl(int limit, int maxLimit, int duration) {
         this.limit = limit;
         this.maxLimit = maxLimit;
@@ -72,7 +76,7 @@ public final class GlobalFlowControl implements FlowControl {
     }
 
     @Override
-    public long getRemaining() {
+    public long getDelay() {
         return duration - (System.nanoTime() - start);
     }
 

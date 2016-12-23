@@ -21,6 +21,7 @@ package com.mpush.common.message;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
+import io.netty.channel.ChannelFutureListener;
 
 import static com.mpush.api.protocol.Command.PUSH;
 
@@ -58,6 +59,12 @@ public final class PushMessage extends BaseMessage {
 
     public boolean needAck() {
         return packet.hasFlag(Packet.FLAG_BIZ_ACK) || packet.hasFlag(Packet.FLAG_AUTO_ACK);
+    }
+
+    @Override
+    public void send(ChannelFutureListener listener) {
+        super.send(listener);
+        this.content = null;//释放内存
     }
 
     @Override

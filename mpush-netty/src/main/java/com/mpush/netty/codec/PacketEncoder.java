@@ -63,5 +63,6 @@ public final class PacketEncoder extends MessageToByteEncoder<Packet> {
                 out.writeBytes(packet.body);
             }
         }
+        packet.body = null;
     }
 }

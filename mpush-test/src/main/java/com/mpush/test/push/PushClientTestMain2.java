@@ -22,7 +22,6 @@ package com.mpush.test.push;
 import com.mpush.api.push.*;
 import com.mpush.core.push.FlowControl;
 import com.mpush.core.push.GlobalFlowControl;
-import com.mpush.core.push.OverFlowException;
 import com.mpush.tools.log.Logs;
 import org.junit.Test;
 
@@ -51,7 +50,7 @@ public class PushClientTestMain2 {
 
 
         Statistics statistics = new Statistics();
-        FlowControl flowControl = new GlobalFlowControl(100000, Integer.MAX_VALUE, 1000);// qps=1000
+        FlowControl flowControl = new GlobalFlowControl(10000);// qps=1000
 
         ScheduledThreadPoolExecutor service = new ScheduledThreadPoolExecutor(4);
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
@@ -61,8 +60,8 @@ public class PushClientTestMain2 {
             );
         }, 1, 1, TimeUnit.SECONDS);
 
-        for (int k = 0; k < 100; k++) {
-            for (int i = 0; i < 1; i++) {
+        for (int k = 0; k < 1000; k++) {
+            for (int i = 0; i < 1000; i++) {
 
                 while (service.getQueue().size() > 1000) Thread.sleep(1); // 防止内存溢出
 
@@ -111,7 +110,7 @@ public class PushClientTestMain2 {
             if (flowControl.checkQps()) {
                 FutureTask<PushResult> future = sender.send(context);
             } else {
-                executor.schedule(this, flowControl.getRemaining(), TimeUnit.NANOSECONDS);
+                executor.schedule(this, flowControl.getDelay(), TimeUnit.NANOSECONDS);
             }
         }
     }

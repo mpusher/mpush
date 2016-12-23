@@ -69,6 +69,7 @@ public abstract class BaseMessage implements Message {
             Profiler.enter("time cost on [body decode]");
             decode(packet.body);
             Profiler.release();
+            packet.body = null;// 释放内存
         }
     }
 

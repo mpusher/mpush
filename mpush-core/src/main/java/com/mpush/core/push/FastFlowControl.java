@@ -35,16 +35,15 @@ public final class FastFlowControl implements FlowControl {
     private int total;
     private long start;
 
+
     public FastFlowControl(int limit, int maxLimit, int duration) {
         this.limit = limit;
         this.maxLimit = maxLimit;
         this.duration = TimeUnit.MILLISECONDS.toNanos(duration);
     }
 
-    public FastFlowControl(int limit) {
-        this.limit = limit;
-        this.maxLimit = limit * 100;
-        this.duration = 1000;//1s
+    public FastFlowControl(int qps) {
+        this(qps, Integer.MAX_VALUE, 1000);
     }
 
     @Override
@@ -77,7 +76,7 @@ public final class FastFlowControl implements FlowControl {
     }
 
     @Override
-    public long getRemaining() {
+    public long getDelay() {
         return duration - (System.nanoTime() - start);
     }
 

@@ -111,6 +111,11 @@ public final class GatewayServer extends NettyTCPServer {
     }
 
     @Override
+    protected int getIoRate() {
+        return 70;
+    }
+
+    @Override
     protected void initPipeline(ChannelPipeline pipeline) {
         super.initPipeline(pipeline);
         if (trafficShapingHandler != null) {

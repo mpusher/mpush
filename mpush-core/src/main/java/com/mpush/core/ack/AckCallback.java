@@ -25,7 +25,7 @@ package com.mpush.core.ack;
  * @author ohun@live.cn (夜色)
  */
 public interface AckCallback {
-    void onSuccess(AckContext context);
+    void onSuccess(AckTask context);
 
-    void onTimeout(AckContext context);
+    void onTimeout(AckTask context);
 }

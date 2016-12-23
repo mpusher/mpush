@@ -40,6 +40,10 @@ public final class RedisFlowControl implements FlowControl {
     private int total;
     private long start;
 
+    public RedisFlowControl(String taskId) {
+        this(taskId, Integer.MAX_VALUE);
+    }
+
     public RedisFlowControl(String taskId, int maxLimit) {
         this.controller = new RedisBroadcastController(taskId);
         this.limit = controller.qps();
@@ -93,8 +97,8 @@ public final class RedisFlowControl implements FlowControl {
     }
 
     @Override
-    public long getRemaining() {
-        return duration - (int) (System.nanoTime() - start);
+    public long getDelay() {
+        return duration - (System.nanoTime() - start);
     }
 
     @Override
