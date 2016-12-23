@@ -19,48 +19,58 @@
 
 package com.mpush.core.ack;
 
+import com.mpush.api.Message;
+
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Created by ohun on 16/9/5.
  *
  * @author ohun@live.cn (夜色)
  */
-public final class AckContext implements Runnable {
+public final class AckTask implements Runnable {
+    final int ackMessageId;
+    private final Message message;
+
     private AckCallback callback;
+    private Future<?> timeoutFuture;
 
-    private int sessionId;
-    private Future<?> future;
-
-    public AckContext() {
+    public AckTask(Message message, int ackMessageId) {
+        this.message = message;
+        this.ackMessageId = ackMessageId;
     }
 
-    public void setSessionId(int sessionId) {
-        this.sessionId = sessionId;
+    public static AckTask from(Message message, int ackMessageId) {
+        return new AckTask(message, ackMessageId);
     }
 
     public void setFuture(Future<?> future) {
-        this.future = future;
+        this.timeoutFuture = future;
     }
 
-    public AckContext setCallback(AckCallback callback) {
+    public ScheduledExecutorService getExecutor() {
+        return message.getConnection().getChannel().eventLoop();
+    }
+
+    public AckTask setCallback(AckCallback callback) {
         this.callback = callback;
         return this;
     }
 
     private boolean tryDone() {
-        return future.cancel(true);
+        return timeoutFuture.cancel(true);
     }
 
-    public void success() {
+    public void onResponse() {
         if (tryDone()) {
             callback.onSuccess(this);
             callback = null;
         }
     }
 
-    public void timeout() {
-        AckContext context = AckMessageQueue.I.getAndRemove(sessionId);
+    public void onTimeout() {
+        AckTask context = AckTaskQueue.I.getAndRemove(ackMessageId);
         if (context != null && tryDone()) {
             callback.onTimeout(this);
             callback = null;
@@ -69,13 +79,13 @@ public final class AckContext implements Runnable {
 
     @Override
     public String toString() {
-        return "AckContext{" +
-                ", sessionId=" + sessionId +
+        return "{" +
+                ", ackMessageId=" + ackMessageId +
                 '}';
     }
 
     @Override
     public void run() {
-        timeout();
+        onTimeout();
     }
 }

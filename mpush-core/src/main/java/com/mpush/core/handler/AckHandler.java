@@ -23,12 +23,9 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.AckMessage;
-import com.mpush.common.message.OkMessage;
-import com.mpush.core.ack.AckContext;
-import com.mpush.core.ack.AckMessageQueue;
+import com.mpush.core.ack.AckTask;
+import com.mpush.core.ack.AckTaskQueue;
 import com.mpush.tools.log.Logs;
-
-import static com.mpush.api.protocol.Command.OK;
 
 /**
  * Created by ohun on 16/9/5.
@@ -44,12 +41,12 @@ public final class AckHandler extends BaseMessageHandler<AckMessage> {
 
     @Override
     public void handle(AckMessage message) {
-        AckContext context = AckMessageQueue.I.getAndRemove(message.getSessionId());
-        if (context == null) {
-            Logs.PUSH.info("receive client ack, but timeout message={}", message);
+        AckTask task = AckTaskQueue.I.getAndRemove(message.getSessionId());
+        if (task == null) {//ack 超时了
+            Logs.PUSH.info("receive client ack, but task timeout message={}", message);
             return;
         }
 
-        context.success();
+        task.onResponse();//成功收到客户的ACK响应
     }
 }

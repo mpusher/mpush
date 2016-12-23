@@ -19,6 +19,8 @@
 
 package com.mpush.core.push;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by ohun on 16/10/24.
  *
@@ -27,27 +29,27 @@ package com.mpush.core.push;
 public final class FastFlowControl implements FlowControl {
     private final int limit;
     private final int maxLimit;
-    private final int duration;
+    private final long duration;
+    private final long start0 = System.nanoTime();
     private int count;
     private int total;
     private long start;
 
+
     public FastFlowControl(int limit, int maxLimit, int duration) {
         this.limit = limit;
         this.maxLimit = maxLimit;
-        this.duration = duration;
+        this.duration = TimeUnit.MILLISECONDS.toNanos(duration);
     }
 
-    public FastFlowControl(int limit) {
-        this.limit = limit;
-        this.maxLimit = limit * 100;
-        this.duration = 1000;//1s
+    public FastFlowControl(int qps) {
+        this(qps, Integer.MAX_VALUE, 1000);
     }
 
     @Override
     public void reset() {
         count = 0;
-        start = System.currentTimeMillis();
+        start = System.nanoTime();
     }
 
     @Override
@@ -65,7 +67,7 @@ public final class FastFlowControl implements FlowControl {
 
         if (total > maxLimit) throw new OverFlowException(true);
 
-        if (System.currentTimeMillis() - start > duration) {
+        if (System.nanoTime() - start > duration) {
             reset();
             total++;
             return true;
@@ -74,13 +76,17 @@ public final class FastFlowControl implements FlowControl {
     }
 
     @Override
-    public int getRemaining() {
-        return duration - (int) (System.currentTimeMillis() - start);
+    public long getDelay() {
+        return duration - (System.nanoTime() - start);
     }
 
     @Override
     public String report() {
-        return "total:d%, count:%d, qps:d%";
+        return String.format("total:%d, count:%d, qps:%d", total, count, qps());
     }
 
+    @Override
+    public int qps() {
+        return (int) (TimeUnit.SECONDS.toNanos(total) / (System.nanoTime() - start0));
+    }
 }

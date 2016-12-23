@@ -22,6 +22,8 @@ package com.mpush.core.push;
 import com.mpush.api.push.BroadcastController;
 import com.mpush.common.push.RedisBroadcastController;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by ohun on 16/10/25.
  *
@@ -30,13 +32,17 @@ import com.mpush.common.push.RedisBroadcastController;
 public final class RedisFlowControl implements FlowControl {
 
     private final BroadcastController controller;
-
-    private final int duration = 1000;
+    private final long start0 = System.nanoTime();
+    private final long duration = TimeUnit.SECONDS.toNanos(1);
     private final int maxLimit;
     private int limit;
     private int count;
     private int total;
     private long start;
+
+    public RedisFlowControl(String taskId) {
+        this(taskId, Integer.MAX_VALUE);
+    }
 
     public RedisFlowControl(String taskId, int maxLimit) {
         this.controller = new RedisBroadcastController(taskId);
@@ -47,7 +53,7 @@ public final class RedisFlowControl implements FlowControl {
     @Override
     public void reset() {
         count = 0;
-        start = System.currentTimeMillis();
+        start = System.nanoTime();
     }
 
     @Override
@@ -67,7 +73,7 @@ public final class RedisFlowControl implements FlowControl {
             throw new OverFlowException(true);
         }
 
-        if (System.currentTimeMillis() - start > duration) {
+        if (System.nanoTime() - start > duration) {
             reset();
             total++;
             return true;
@@ -91,12 +97,17 @@ public final class RedisFlowControl implements FlowControl {
     }
 
     @Override
-    public int getRemaining() {
-        return duration - (int) (System.currentTimeMillis() - start);
+    public long getDelay() {
+        return duration - (System.nanoTime() - start);
     }
 
     @Override
     public String report() {
-        return "";
+        return String.format("total:%d, count:%d, qps:%d", total, count, qps());
+    }
+
+    @Override
+    public int qps() {
+        return (int) (TimeUnit.SECONDS.toNanos(total) / (System.nanoTime() - start0));
     }
 }

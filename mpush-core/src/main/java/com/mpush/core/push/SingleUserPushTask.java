@@ -27,13 +27,13 @@ import com.mpush.common.message.PushMessage;
 import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.core.ack.AckCallback;
-import com.mpush.core.ack.AckContext;
-import com.mpush.core.ack.AckMessageQueue;
+import com.mpush.core.ack.AckTask;
+import com.mpush.core.ack.AckTaskQueue;
 import com.mpush.core.router.LocalRouter;
 import com.mpush.core.router.RouterCenter;
-import com.mpush.tools.Utils;
-import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
+
+import java.util.concurrent.ScheduledExecutorService;
 
 import static com.mpush.common.ErrorCode.OFFLINE;
 import static com.mpush.common.ErrorCode.PUSH_CLIENT_FAILURE;
@@ -53,6 +53,11 @@ public final class SingleUserPushTask implements PushTask {
     public SingleUserPushTask(GatewayPushMessage message, FlowControl flowControl) {
         this.flowControl = flowControl;
         this.message = message;
+    }
+
+    @Override
+    public ScheduledExecutorService getExecutor() {
+        return message.getConnection().getChannel().eventLoop();
     }
 
     @Override
@@ -98,16 +103,17 @@ public final class SingleUserPushTask implements PushTask {
             return true;
         }
 
+        //4. 检测qps, 是否超过流控限制，如果超过则进队列延后发送
         if (flowControl.checkQps()) {
-            //4.链接可用，直接下发消息到手机客户端
+            //5.链接可用，直接下发消息到手机客户端
             PushMessage pushMessage = PushMessage.build(connection).setContent(message.content);
             pushMessage.getPacket().addFlag(message.getPacket().flags);
 
             pushMessage.send(future -> {
                 if (future.isSuccess()) {//推送成功
 
-                    if (message.needAck()) {//需要客户端ACK, 消息进队列等待客户端响应ACK
-                        AckMessageQueue.I.add(pushMessage.getSessionId(), buildAckContext(message), message.timeout);
+                    if (message.needAck()) {//需要客户端ACK, 添加等待客户端响应ACK的任务
+                        addAckTask(message, pushMessage.getSessionId());
                     } else {
                         OkMessage.from(message).setData(userId + ',' + clientType).sendRaw();
                     }
@@ -121,8 +127,8 @@ public final class SingleUserPushTask implements PushTask {
                     Logs.PUSH.error("[SingleUserPush] push message to client failure, message={}, conn={}", message, connection);
                 }
             });
-        } else {
-            PushCenter.I.delayTask(flowControl.getRemaining(), this);
+        } else {//超过流控限制, 进队列延后发送
+            PushCenter.I.delayTask(flowControl.getDelay(), this);
         }
         return true;
     }
@@ -171,36 +177,55 @@ public final class SingleUserPushTask implements PushTask {
 
     }
 
-
-    private AckContext buildAckContext(GatewayPushMessage message) {
+    /**
+     * 添加ACK任务到队列, 等待客户端响应
+     *
+     * @param message   网关消息
+     * @param messageId 下发到客户端待ack的消息的sessionId
+     */
+    private static void addAckTask(GatewayPushMessage message, int messageId) {
+        // 因为要进队列，可以提前释放一些比较占用内存的字段，便于垃圾回收
         message.getPacket().body = null;//内存释放
         message.content = null;//内存释放
-        return new AckContext().setCallback(new AckCallback() {
-            @Override
-            public void onSuccess(AckContext ctx) {
-                if (!message.getConnection().isConnected()) {
-                    Logs.PUSH.warn("receive client ack, gateway connection is closed, context={}", ctx);
-                    return;
-                }
 
-                OkMessage okMessage = OkMessage.from(message);
-                okMessage.setData(message.userId + ',' + message.clientType);
-                okMessage.sendRaw();
-                Logs.PUSH.info("receive client ack and response gateway client success, context={}", ctx);
+        AckTask task = AckTask
+                .from(message, messageId)
+                .setCallback(new GatewayPushAckCallback(message));
+        AckTaskQueue.I.add(task, message.timeout);
+    }
+
+    private static class GatewayPushAckCallback implements AckCallback {
+        private final GatewayPushMessage message;
+
+        private GatewayPushAckCallback(GatewayPushMessage message) {
+            this.message = message;
+        }
+
+        @Override
+        public void onSuccess(AckTask task) {
+
+            if (!message.getConnection().isConnected()) {
+                Logs.PUSH.warn("receive client ack, gateway connection is closed, task={}", task);
+                return;
             }
 
-            @Override
-            public void onTimeout(AckContext ctx) {
-                if (!message.getConnection().isConnected()) {
-                    Logs.PUSH.warn("push message timeout client not ack, gateway connection is closed, context={}", ctx);
-                    return;
-                }
-                ErrorMessage errorMessage = ErrorMessage.from(message);
-                errorMessage.setData(message.userId + ',' + message.clientType);
-                errorMessage.setErrorCode(ErrorCode.ACK_TIMEOUT);
-                errorMessage.sendRaw();
-                Logs.PUSH.warn("push message timeout client not ack, context={}", ctx);
+            OkMessage okMessage = OkMessage.from(message);
+            okMessage.setData(message.userId + ',' + message.clientType);
+            okMessage.sendRaw();
+            Logs.PUSH.info("receive client ack and response gateway client success, task={}", task);
+        }
+
+        @Override
+        public void onTimeout(AckTask task) {
+            if (!message.getConnection().isConnected()) {
+                Logs.PUSH.warn("push message timeout client not ack, gateway connection is closed, task={}", task);
+                return;
             }
-        });
+            ErrorMessage errorMessage = ErrorMessage.from(message);
+            errorMessage.setData(message.userId + ',' + message.clientType);
+            errorMessage.setErrorCode(ErrorCode.ACK_TIMEOUT);
+            errorMessage.sendRaw();
+            Logs.PUSH.warn("push message timeout client not ack, task={}", task);
+        }
     }
 }

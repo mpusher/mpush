@@ -31,6 +31,7 @@ import io.netty.channel.ChannelFutureListener;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by ohun on 2015/12/28.
@@ -40,7 +41,7 @@ import java.util.concurrent.atomic.LongAdder;
 public abstract class BaseMessage implements Message {
     private static final byte STATUS_DECODED = 1;
     private static final byte STATUS_ENCODED = 2;
-    private static final LongAdder ID_SEQ = new LongAdder();
+    private static final AtomicInteger ID_SEQ = new AtomicInteger();
     transient protected Packet packet;
     transient protected Connection connection;
     transient private byte status = 0;
@@ -101,6 +102,7 @@ public abstract class BaseMessage implements Message {
         Profiler.enter("time cost on [body decode]");
         decode(packet.body);
         Profiler.release();
+        packet.body = null;// 释放内存
     }
 
     private void encodeBinaryBody0() {
@@ -198,8 +200,7 @@ public abstract class BaseMessage implements Message {
     }
 
     protected static int genSessionId() {
-        ID_SEQ.increment();
-        return ID_SEQ.intValue();
+        return ID_SEQ.incrementAndGet();
     }
 
     public int getSessionId() {

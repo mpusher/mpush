@@ -164,6 +164,7 @@ public class Packet {
                 out.writeBytes(packet.body);
             }
         }
+        packet.body = null;
     }
 
     @Override

@@ -35,6 +35,7 @@ import io.netty.channel.ChannelFutureListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -54,6 +55,7 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
 
     private final Condition condition;
 
+    //使用Iterator, 记录任务遍历到的位置，因为有流控，一次任务可能会被分批发送，而且还有在推送过程中上/下线的用户
     private final Iterator<Map.Entry<String, Map<Integer, LocalRouter>>> iterator;
 
     public BroadcastPushTask(GatewayPushMessage message, FlowControl flowControl) {
@@ -67,12 +69,12 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
     public void run() {
         flowControl.reset();
         boolean done = broadcast();
-        if (done) {//done
+        if (done) {//done 广播结束
             if (finishTasks.addAndGet(flowControl.total()) == 0) {
                 report();
             }
         } else {//没有结束，就延时进行下次任务 TODO 考虑优先级问题
-            PushCenter.I.delayTask(flowControl.getRemaining(), this);
+            PushCenter.I.delayTask(flowControl.getDelay(), this);
         }
         flowControl.end();
     }
@@ -94,6 +96,7 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
                                         .build(connection)
                                         .setContent(message.content)
                                         .send(this);
+                                //4. 检测qps, 是否超过流控限制，如果超过则结束当前循环直接进入catch
                                 if (!flowControl.checkQps()) {
                                     throw new OverFlowException(false);
                                 }
@@ -142,5 +145,10 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
         if (finishTasks.decrementAndGet() == 0) {
             report();
         }
+    }
+
+    @Override
+    public ScheduledExecutorService getExecutor() {
+        return message.getConnection().getChannel().eventLoop();
     }
 }

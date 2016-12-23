@@ -29,6 +29,7 @@ import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.ThreadNames;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -65,7 +66,6 @@ public abstract class NettyTCPClient extends BaseService implements Client {
                 .option(ChannelOption.TCP_NODELAY, true)//
                 .option(ChannelOption.SO_REUSEADDR, true)//
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)//
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 4000)
                 .channel(clazz);
         b.handler(new ChannelInitializer<SocketChannel>() { // (4)
             @Override
@@ -73,7 +73,7 @@ public abstract class NettyTCPClient extends BaseService implements Client {
                 initPipeline(ch.pipeline());
             }
         });
-
+        initOptions(b);
         ChannelFuture future = b.connect(new InetSocketAddress(host, port));
         future.addListener(f -> {
             if (f.isSuccess()) {
@@ -150,6 +150,10 @@ public abstract class NettyTCPClient extends BaseService implements Client {
         }
         LOGGER.error("netty client [{}] stopped.", this.getClass().getSimpleName());
         listener.onSuccess();
+    }
+
+    protected void initOptions(Bootstrap b) {
+        b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 4000);
     }
 
     public String getHost() {

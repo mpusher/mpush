@@ -35,28 +35,31 @@ import java.util.concurrent.TimeUnit;
  *
  * @author ohun@live.cn (夜色)
  */
-public final class AckMessageQueue extends BaseService {
-    private final Logger logger = LoggerFactory.getLogger(AckMessageQueue.class);
+public final class AckTaskQueue extends BaseService {
+    private final Logger logger = LoggerFactory.getLogger(AckTaskQueue.class);
 
     private static final int DEFAULT_TIMEOUT = 3000;
-    public static final AckMessageQueue I = new AckMessageQueue();
+    public static final AckTaskQueue I = new AckTaskQueue();
 
-    private final ConcurrentMap<Integer, AckContext> queue = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Integer, AckTask> queue = new ConcurrentHashMap<>();
     private ScheduledExecutorService scheduledExecutor;
 
-    private AckMessageQueue() {
+    private AckTaskQueue() {
     }
 
-    public void add(int sessionId, AckContext context, int timeout) {
-        queue.put(sessionId, context);
-        context.setSessionId(sessionId);
-        context.setFuture(scheduledExecutor.schedule(context,
+    public void add(AckTask task, int timeout) {
+        queue.put(task.ackMessageId, task);
+
+        //使用 task.getExecutor() 并没更快
+        task.setFuture(scheduledExecutor.schedule(task,
                 timeout > 0 ? timeout : DEFAULT_TIMEOUT,
                 TimeUnit.MILLISECONDS
         ));
+
+        logger.debug("one ack task add to queue, task={}, timeout={}", task, timeout);
     }
 
-    public AckContext getAndRemove(int sessionId) {
+    public AckTask getAndRemove(int sessionId) {
         return queue.remove(sessionId);
     }
 

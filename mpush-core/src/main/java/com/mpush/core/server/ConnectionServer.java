@@ -28,6 +28,8 @@ import com.mpush.common.MessageDispatcher;
 import com.mpush.core.handler.*;
 import com.mpush.netty.server.NettyTCPServer;
 import com.mpush.tools.config.CC;
+import com.mpush.tools.config.CC.mp.net.rcv_buf;
+import com.mpush.tools.config.CC.mp.net.snd_buf;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
 import com.mpush.tools.thread.ThreadNames;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
@@ -153,8 +155,8 @@ public final class ConnectionServer extends NettyTCPServer {
          * 在Netty中分别对应ChannelOption的SO_SNDBUF和SO_RCVBUF，
          * 需要根据推送消息的大小，合理设置，对于海量长连接，通常32K是个不错的选择。
          */
-        b.childOption(ChannelOption.SO_SNDBUF, 32 * 1024);
-        b.childOption(ChannelOption.SO_RCVBUF, 32 * 1024);
+        if (snd_buf.connect_server > 0) b.childOption(ChannelOption.SO_SNDBUF, snd_buf.connect_server);
+        if (rcv_buf.connect_server > 0) b.childOption(ChannelOption.SO_RCVBUF, rcv_buf.connect_server);
 
         /**
          * 这个坑其实也不算坑，只是因为懒，该做的事情没做。一般来讲我们的业务如果比较小的时候我们用同步处理，等业务到一定规模的时候，一个优化手段就是异步化。
