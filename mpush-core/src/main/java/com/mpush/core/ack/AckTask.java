@@ -31,26 +31,20 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public final class AckTask implements Runnable {
     final int ackMessageId;
-    private final Message message;
 
     private AckCallback callback;
     private Future<?> timeoutFuture;
 
-    public AckTask(Message message, int ackMessageId) {
-        this.message = message;
+    public AckTask(int ackMessageId) {
         this.ackMessageId = ackMessageId;
     }
 
-    public static AckTask from(Message message, int ackMessageId) {
-        return new AckTask(message, ackMessageId);
+    public static AckTask from(int ackMessageId) {
+        return new AckTask(ackMessageId);
     }
 
     public void setFuture(Future<?> future) {
         this.timeoutFuture = future;
-    }
-
-    public ScheduledExecutorService getExecutor() {
-        return message.getConnection().getChannel().eventLoop();
     }
 
     public AckTask setCallback(AckCallback callback) {

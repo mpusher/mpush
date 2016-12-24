@@ -17,22 +17,19 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.common.condition;
+package com.mpush.api.spi.push;
 
-import com.mpush.api.common.Condition;
-
-import java.util.Map;
+import com.mpush.api.spi.Factory;
+import com.mpush.api.spi.SpiLoader;
 
 /**
- * Created by ohun on 16/10/24.
+ * Created by ohun on 2016/12/24.
  *
  * @author ohun@live.cn (夜色)
  */
-public final class AwaysPassCondition implements Condition {
-    public static final Condition I = new AwaysPassCondition();
+public interface MessagePusherFactory extends Factory<MessagePusher> {
 
-    @Override
-    public boolean test(Map<String, Object> env) {
-        return true;
+    static MessagePusher create() {
+        return SpiLoader.load(MessagePusherFactory.class).get();
     }
 }

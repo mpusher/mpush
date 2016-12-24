@@ -19,8 +19,7 @@
 
 package com.mpush.common.condition;
 
-import com.mpush.tools.Jsons;
-import com.mpush.tools.log.Logs;
+import com.mpush.api.common.Condition;
 
 import java.util.Map;
 import java.util.Set;

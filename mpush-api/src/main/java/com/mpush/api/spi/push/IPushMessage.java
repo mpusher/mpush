@@ -17,31 +17,37 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.core.push;
+package com.mpush.api.spi.push;
+
+import com.mpush.api.common.Condition;
 
 /**
- * Created by ohun on 16/10/24.
+ * Created by ohun on 2016/12/24.
  *
  * @author ohun@live.cn (夜色)
  */
-public final class OverFlowException extends RuntimeException {
+public interface IPushMessage {
 
-    private boolean overMaxLimit = false;
+    boolean isBroadcast();
 
-    public OverFlowException() {
-        super(null, null, false, false);
+    String getUserId();
+
+    int getClientType();
+
+    byte[] getContent();
+
+    boolean isNeedAck();
+
+    byte getFlags();
+
+    int getTimeoutMills();
+
+    String getTaskId();
+
+    Condition getCondition();
+
+    default void finalized() {
+
     }
 
-    public OverFlowException(boolean overMaxLimit) {
-        super(null, null, false, false);
-        this.overMaxLimit = overMaxLimit;
-    }
-
-    public OverFlowException(String message) {
-        super(message, null, false, false);
-    }
-
-    public boolean isOverMaxLimit() {
-        return overMaxLimit;
-    }
 }

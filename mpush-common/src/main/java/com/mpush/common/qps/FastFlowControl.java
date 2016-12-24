@@ -17,37 +17,33 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.core.push;
-
-import com.mpush.api.push.BroadcastController;
-import com.mpush.common.push.RedisBroadcastController;
+package com.mpush.common.qps;
 
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by ohun on 16/10/25.
+ * Created by ohun on 16/10/24.
  *
  * @author ohun@live.cn (夜色)
  */
-public final class RedisFlowControl implements FlowControl {
-
-    private final BroadcastController controller;
-    private final long start0 = System.nanoTime();
-    private final long duration = TimeUnit.SECONDS.toNanos(1);
+public final class FastFlowControl implements FlowControl {
+    private final int limit;
     private final int maxLimit;
-    private int limit;
+    private final long duration;
+    private final long start0 = System.nanoTime();
     private int count;
     private int total;
     private long start;
 
-    public RedisFlowControl(String taskId) {
-        this(taskId, Integer.MAX_VALUE);
+
+    public FastFlowControl(int limit, int maxLimit, int duration) {
+        this.limit = limit;
+        this.maxLimit = maxLimit;
+        this.duration = TimeUnit.MILLISECONDS.toNanos(duration);
     }
 
-    public RedisFlowControl(String taskId, int maxLimit) {
-        this.controller = new RedisBroadcastController(taskId);
-        this.limit = controller.qps();
-        this.maxLimit = maxLimit;
+    public FastFlowControl(int qps) {
+        this(qps, Integer.MAX_VALUE, 1000);
     }
 
     @Override
@@ -62,38 +58,21 @@ public final class RedisFlowControl implements FlowControl {
     }
 
     @Override
-    public boolean checkQps() throws OverFlowException {
+    public boolean checkQps() {
         if (count < limit) {
             count++;
             total++;
             return true;
         }
 
-        if (total() > maxLimit) {
-            throw new OverFlowException(true);
-        }
+        if (total > maxLimit) throw new OverFlowException(true);
 
         if (System.nanoTime() - start > duration) {
             reset();
             total++;
             return true;
         }
-
-        if (controller.isCancelled()) {
-            throw new OverFlowException(true);
-        } else {
-            limit = controller.qps();
-        }
         return false;
-    }
-
-    @Override
-    public void end() {
-        int t = total;
-        if (total > 0) {
-            total = 0;
-            controller.incSendCount(t);
-        }
     }
 
     @Override

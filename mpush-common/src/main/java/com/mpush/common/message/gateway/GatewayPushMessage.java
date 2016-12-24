@@ -20,8 +20,10 @@
 package com.mpush.common.message.gateway;
 
 import com.google.gson.reflect.TypeToken;
+import com.mpush.api.common.Condition;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
+import com.mpush.api.spi.push.IPushMessage;
 import com.mpush.common.condition.*;
 import com.mpush.common.memory.PacketFactory;
 import com.mpush.common.message.ByteBufMessage;
@@ -38,7 +40,7 @@ import static com.mpush.api.protocol.Command.GATEWAY_PUSH;
  *
  * @author ohun@live.cn
  */
-public final class GatewayPushMessage extends ByteBufMessage {
+public final class GatewayPushMessage extends ByteBufMessage implements IPushMessage {
     public String userId;
     public int clientType;
     public int timeout;
@@ -127,12 +129,63 @@ public final class GatewayPushMessage extends ByteBufMessage {
         return this;
     }
 
+    @Override
     public boolean isBroadcast() {
         return userId == null;
     }
 
-    public boolean needAck() {
+    @Override
+    public String getUserId() {
+        return userId;
+    }
+
+    @Override
+    public int getClientType() {
+        return clientType;
+    }
+
+    @Override
+    public int getTimeoutMills() {
+        return timeout;
+    }
+
+    @Override
+    public String getTaskId() {
+        return taskId;
+    }
+
+    @Override
+    public byte[] getContent() {
+        return content;
+    }
+
+    @Override
+    public boolean isNeedAck() {
         return packet.hasFlag(Packet.FLAG_BIZ_ACK) || packet.hasFlag(Packet.FLAG_AUTO_ACK);
+    }
+
+    @Override
+    public byte getFlags() {
+        return packet.flags;
+    }
+
+    @Override
+    public Condition getCondition() {
+        if (condition != null) {
+            return new ScriptCondition(condition);
+        }
+        if (tags != null) {
+            return new TagsCondition(tags);
+        }
+        return AwaysPassCondition.I;
+    }
+
+
+    @Override
+    public void finalized() {
+        this.content = null;
+        this.condition = null;
+        this.tags = null;
     }
 
     @Override
@@ -143,16 +196,6 @@ public final class GatewayPushMessage extends ByteBufMessage {
     @Override
     public void send(ChannelFutureListener listener) {
         super.sendRaw(listener);
-    }
-
-    public Condition getCondition() {
-        if (condition != null) {
-            return new ScriptCondition(condition);
-        }
-        if (tags != null) {
-            return new TagsCondition(tags);
-        }
-        return AwaysPassCondition.I;
     }
 
     @Override
