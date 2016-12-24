@@ -42,9 +42,13 @@ public interface IPushMessage {
 
     int getTimeoutMills();
 
-    String getTaskId();
+    default String getTaskId() {
+        return null;
+    }
 
-    Condition getCondition();
+    default Condition getCondition() {
+        return null;
+    }
 
     default void finalized() {
 
