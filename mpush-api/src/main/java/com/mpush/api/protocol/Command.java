@@ -48,6 +48,7 @@ public enum Command {
     GROUP(21),
     GATEWAY_GROUP(22),
     ACK(23),
+    NACK(24),
     UNKNOWN(-1);
 
     Command(int cmd) {
