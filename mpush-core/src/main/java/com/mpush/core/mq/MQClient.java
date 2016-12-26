@@ -19,43 +19,29 @@
 
 package com.mpush.core.mq;
 
-import com.mpush.api.spi.push.MessagePusher;
-import com.mpush.api.spi.push.MessagePusherFactory;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
- * Created by ohun on 2016/12/24.
+ * Created by ohun on 2016/12/26.
  *
  * @author ohun@live.cn (夜色)
  */
-public final class MQPushMessageReceiver {
-
-    public MessagePusher pusher = MessagePusherFactory.create();
+public final class MQClient {
 
     public void init() {
 
     }
 
-    //receiver message form mq
-    public void onMessage(MQPushMessage message) {
-        pusher.push(message);
+    public void subscribe(String topic, MQMessageReceiver listener) {
+
     }
 
-    //fetch message form mq
-    public MQPushMessage fetch() {
-        return new MQPushMessage();
+    public void publish(String topic, MQPushMessage message) {
+
     }
 
-    public void dispatch() {
-        while (true) {
-            MQPushMessage message = fetch();
-            if (message == null) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                }
-                continue;
-            }
-            onMessage(message);
-        }
+    public Collection<MQPushMessage> take(String topic) {
+        return Collections.emptyList();
     }
 }
