@@ -216,7 +216,7 @@
 
     let log = {
         log: function () {
-            $("responseText").value += (Array.prototype.join.call(arguments, "") + "\r\n");
+            $("responseText").value += (new Date().toLocaleString() + " " + (Array.prototype.join.call(arguments, "") + "\r\n"));
         }
     };
     log.debug = log.info = log.warn = log.error = log.log;
