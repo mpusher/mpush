@@ -29,6 +29,7 @@ import com.mpush.tools.config.CC;
 import io.netty.channel.ChannelFutureListener;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -153,6 +154,14 @@ public abstract class BaseMessage implements Message {
     public BaseMessage setRecipient(InetSocketAddress recipient) {
         packet.setRecipient(recipient);
         return this;
+    }
+
+    public ExecutorService getExecutor() {
+        return connection.getChannel().eventLoop();
+    }
+
+    public void runInRequestThread(Runnable runnable) {
+        connection.getChannel().eventLoop().execute(runnable);
     }
 
     @Override

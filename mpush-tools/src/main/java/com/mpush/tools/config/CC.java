@@ -94,6 +94,7 @@ public interface CC {
             String gateway_server_net = cfg.getString("gateway-server-net");
             String gateway_server_multicast = cfg.getString("gateway-server-multicast");
             String gateway_client_multicast = cfg.getString("gateway-client-multicast");
+            int gateway_client_num = cfg.getInt("gateway-client-num");
 
             static boolean tcpGateway() {
                 return "tcp".equals(gateway_server_net);
@@ -133,6 +134,14 @@ public interface CC {
                 int connect_server = (int) cfg.getMemorySize("connect-server").toBytes();
                 int gateway_server = (int) cfg.getMemorySize("gateway-server").toBytes();
                 int gateway_client = (int) cfg.getMemorySize("gateway-client").toBytes();
+            }
+
+            interface write_buffer_water_mark {
+                Config cfg = net.cfg.getObject("write-buffer-water-mark").toConfig();
+                int connect_server_low = (int) cfg.getMemorySize("connect-server-low").toBytes();
+                int connect_server_high = (int) cfg.getMemorySize("connect-server-high").toBytes();
+                int gateway_server_low = (int) cfg.getMemorySize("gateway-server-low").toBytes();
+                int gateway_server_high = (int) cfg.getMemorySize("gateway-server-high").toBytes();
             }
 
             interface traffic_shaping {
@@ -195,6 +204,7 @@ public interface CC {
                 int push_task = cfg.getInt("push-task");
                 int push_client = cfg.getInt("push-client");
                 int ack_timer = cfg.getInt("ack-timer");
+                int gateway_work = cfg.getInt("gateway-work");
 
                 interface event_bus {
                     Config cfg = pool.cfg.getObject("event-bus").toConfig();

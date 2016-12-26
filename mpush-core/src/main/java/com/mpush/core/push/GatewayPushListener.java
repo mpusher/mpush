@@ -41,10 +41,11 @@ public final class GatewayPushListener implements PushListener<GatewayPushMessag
     @Override
     public void onSuccess(GatewayPushMessage message) {
         if (message.getConnection().isConnected()) {
-            OkMessage
+            message.runInRequestThread(() -> OkMessage
                     .from(message)
                     .setData(message.userId + ',' + message.clientType)
-                    .sendRaw();
+                    .sendRaw()
+            );
         } else {
             Logs.PUSH.warn("push message to client success, but gateway connection is closed, message={}", message);
         }
@@ -53,10 +54,11 @@ public final class GatewayPushListener implements PushListener<GatewayPushMessag
     @Override
     public void onAckSuccess(GatewayPushMessage message) {
         if (message.getConnection().isConnected()) {
-            OkMessage
+            message.runInRequestThread(() -> OkMessage
                     .from(message)
                     .setData(message.userId + ',' + message.clientType)
-                    .sendRaw();
+                    .sendRaw()
+            );
         } else {
             Logs.PUSH.warn("client ack success, but gateway connection is closed, message={}", message);
         }
@@ -65,9 +67,10 @@ public final class GatewayPushListener implements PushListener<GatewayPushMessag
     @Override
     public void onBroadcastComplete(GatewayPushMessage message) {
         if (message.getConnection().isConnected()) {
-            OkMessage
+            message.runInRequestThread(() -> OkMessage
                     .from(message)
-                    .sendRaw();
+                    .sendRaw()
+            );
         } else {
             Logs.PUSH.warn("broadcast to client finish, but gateway connection is closed, message={}", message);
         }
@@ -76,11 +79,13 @@ public final class GatewayPushListener implements PushListener<GatewayPushMessag
     @Override
     public void onFailure(GatewayPushMessage message) {
         if (message.getConnection().isConnected()) {
-            ErrorMessage
-                    .from(message)
-                    .setErrorCode(PUSH_CLIENT_FAILURE)
-                    .setData(message.userId + ',' + message.clientType)
-                    .sendRaw();
+            message.runInRequestThread(() ->
+                    ErrorMessage
+                            .from(message)
+                            .setErrorCode(PUSH_CLIENT_FAILURE)
+                            .setData(message.userId + ',' + message.clientType)
+                            .sendRaw()
+            );
         } else {
             Logs.PUSH.warn("push message to client failure, but gateway connection is closed, message={}", message);
         }
@@ -89,11 +94,12 @@ public final class GatewayPushListener implements PushListener<GatewayPushMessag
     @Override
     public void onOffline(GatewayPushMessage message) {
         if (message.getConnection().isConnected()) {
-            ErrorMessage
+            message.runInRequestThread(() -> ErrorMessage
                     .from(message)
                     .setErrorCode(OFFLINE)
                     .setData(message.userId + ',' + message.clientType)
-                    .sendRaw();
+                    .sendRaw()
+            );
         } else {
             Logs.PUSH.warn("push message to client offline, but gateway connection is closed, message={}", message);
         }
@@ -102,11 +108,12 @@ public final class GatewayPushListener implements PushListener<GatewayPushMessag
     @Override
     public void onRedirect(GatewayPushMessage message) {
         if (message.getConnection().isConnected()) {
-            ErrorMessage
+            message.runInRequestThread(() -> ErrorMessage
                     .from(message)
                     .setErrorCode(ROUTER_CHANGE)
                     .setData(message.userId + ',' + message.clientType)
-                    .sendRaw();
+                    .sendRaw()
+            );
         } else {
             Logs.PUSH.warn("push message to client redirect, but gateway connection is closed, message={}", message);
         }
@@ -116,11 +123,12 @@ public final class GatewayPushListener implements PushListener<GatewayPushMessag
     @Override
     public void onAckTimeout(GatewayPushMessage message) {
         if (message.getConnection().isConnected()) {
-            ErrorMessage
+            message.runInRequestThread(() -> ErrorMessage
                     .from(message)
                     .setData(message.userId + ',' + message.clientType)
                     .setErrorCode(ErrorCode.ACK_TIMEOUT)
-                    .sendRaw();
+                    .sendRaw()
+            );
         } else {
             Logs.PUSH.warn("push message to client ackTimeout, but gateway connection is closed, message={}", message);
         }

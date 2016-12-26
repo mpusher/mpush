@@ -81,7 +81,7 @@ public abstract class NettyTCPClient extends BaseService implements Client {
 
     private void createNioClient(Listener listener) {
         NioEventLoopGroup workerGroup = new NioEventLoopGroup(
-                1, new DefaultThreadFactory(ThreadNames.T_TCP_CLIENT), getSelectorProvider()
+                getWorkThreadNum(), new DefaultThreadFactory(ThreadNames.T_TCP_CLIENT), getSelectorProvider()
         );
         workerGroup.setIoRatio(getIoRate());
         createClient(listener, workerGroup, getChannelFactory());
@@ -89,7 +89,7 @@ public abstract class NettyTCPClient extends BaseService implements Client {
 
     private void createEpollClient(Listener listener) {
         EpollEventLoopGroup workerGroup = new EpollEventLoopGroup(
-                1, new DefaultThreadFactory(ThreadNames.T_TCP_CLIENT)
+                getWorkThreadNum(), new DefaultThreadFactory(ThreadNames.T_TCP_CLIENT)
         );
         workerGroup.setIoRatio(getIoRate());
         createClient(listener, workerGroup, EpollSocketChannel::new);
@@ -111,6 +111,10 @@ public abstract class NettyTCPClient extends BaseService implements Client {
 
     protected int getIoRate() {
         return 50;
+    }
+
+    protected int getWorkThreadNum() {
+        return 1;
     }
 
     public abstract ChannelHandler getChannelHandler();

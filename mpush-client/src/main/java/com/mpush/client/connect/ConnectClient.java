@@ -44,4 +44,8 @@ public class ConnectClient extends NettyTCPClient {
         this.stop();
     }
 
+    @Override
+    protected int getWorkThreadNum() {
+        return 1;
+    }
 }
