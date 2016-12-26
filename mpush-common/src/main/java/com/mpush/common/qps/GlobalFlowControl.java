@@ -17,11 +17,10 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.core.push;
+package com.mpush.common.qps;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by ohun on 16/10/24.

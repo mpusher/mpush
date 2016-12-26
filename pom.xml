@@ -110,6 +110,16 @@
                 <artifactId>netty-handler</artifactId>
                 <version>${netty.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport-udt</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport-sctp</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
             <!-- ======================================== -->
             <!-- 子项目依赖 -->
             <!-- ======================================== -->

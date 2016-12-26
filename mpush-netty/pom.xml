@@ -44,5 +44,13 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-udt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-sctp</artifactId>
+        </dependency>
     </dependencies>
 </project>

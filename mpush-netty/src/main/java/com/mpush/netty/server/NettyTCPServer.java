@@ -36,10 +36,12 @@ import io.netty.channel.epoll.Native;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.udt.nio.NioUdtProvider;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.channels.spi.SelectorProvider;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -103,7 +105,7 @@ public abstract class NettyTCPServer extends BaseService implements Server {
         }
     }
 
-    private void createServer(Listener listener, EventLoopGroup boss, EventLoopGroup work, Class<? extends ServerChannel> clazz) {
+    private void createServer(Listener listener, EventLoopGroup boss, EventLoopGroup work, ChannelFactory<? extends ServerChannel> channelFactory) {
         /***
          * NioEventLoopGroup 是用来处理I/O操作的多线程事件循环器，
          * Netty提供了许多不同的EventLoopGroup的实现用来处理不同传输协议。
@@ -133,7 +135,7 @@ public abstract class NettyTCPServer extends BaseService implements Server {
              * ServerSocketChannel以NIO的selector为基础进行实现的，用来接收新的连接
              * 这里告诉Channel如何获取新的连接.
              */
-            b.channel(clazz);
+            b.channelFactory(channelFactory);
 
 
             /***
@@ -145,9 +147,9 @@ public abstract class NettyTCPServer extends BaseService implements Server {
              * 当你的程序变的复杂时，可能你会增加更多的处理类到pipeline上，
              * 然后提取这些匿名类到最顶层的类上。
              */
-            b.childHandler(new ChannelInitializer<SocketChannel>() { // (4)
+            b.childHandler(new ChannelInitializer<Channel>() { // (4)
                 @Override
-                public void initChannel(SocketChannel ch) throws Exception {//每连上一个链接调用一次
+                public void initChannel(Channel ch) throws Exception {//每连上一个链接调用一次
                     initPipeline(ch.pipeline());
                 }
             });
@@ -179,18 +181,18 @@ public abstract class NettyTCPServer extends BaseService implements Server {
         EventLoopGroup workerGroup = getWorkerGroup();
 
         if (bossGroup == null) {
-            NioEventLoopGroup nioEventLoopGroup = new NioEventLoopGroup(getBossThreadNum(), getBossThreadFactory());
+            NioEventLoopGroup nioEventLoopGroup = new NioEventLoopGroup(getBossThreadNum(), getBossThreadFactory(), getSelectorProvider());
             nioEventLoopGroup.setIoRatio(100);
             bossGroup = nioEventLoopGroup;
         }
 
         if (workerGroup == null) {
-            NioEventLoopGroup nioEventLoopGroup = new NioEventLoopGroup(getWorkThreadNum(), getWorkThreadFactory());
+            NioEventLoopGroup nioEventLoopGroup = new NioEventLoopGroup(getWorkThreadNum(), getWorkThreadFactory(), getSelectorProvider());
             nioEventLoopGroup.setIoRatio(getIoRate());
             workerGroup = nioEventLoopGroup;
         }
 
-        createServer(listener, bossGroup, workerGroup, NioServerSocketChannel.class);
+        createServer(listener, bossGroup, workerGroup, getChannelFactory());
     }
 
     private void createEpollServer(Listener listener) {
@@ -209,7 +211,7 @@ public abstract class NettyTCPServer extends BaseService implements Server {
             workerGroup = epollEventLoopGroup;
         }
 
-        createServer(listener, bossGroup, workerGroup, EpollServerSocketChannel.class);
+        createServer(listener, bossGroup, workerGroup, EpollServerSocketChannel::new);
     }
 
     /***
@@ -310,5 +312,13 @@ public abstract class NettyTCPServer extends BaseService implements Server {
 
     public EventLoopGroup getWorkerGroup() {
         return workerGroup;
+    }
+
+    public ChannelFactory<? extends ServerChannel> getChannelFactory() {
+        return NioServerSocketChannel::new;
+    }
+
+    public SelectorProvider getSelectorProvider() {
+        return SelectorProvider.provider();
     }
 }

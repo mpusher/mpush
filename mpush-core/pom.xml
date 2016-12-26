@@ -27,5 +27,9 @@
             <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${mpush.groupId}</groupId>
+            <artifactId>mpush-monitor</artifactId>
+        </dependency>
     </dependencies>
 </project>

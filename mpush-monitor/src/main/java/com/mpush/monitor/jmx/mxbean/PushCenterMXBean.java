@@ -17,22 +17,13 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.common.condition;
-
-import com.mpush.api.common.Condition;
-
-import java.util.Map;
+package com.mpush.monitor.jmx.mxbean;
 
 /**
- * Created by ohun on 16/10/24.
+ * Created by ohun on 2016/12/23.
  *
  * @author ohun@live.cn (夜色)
  */
-public final class AwaysPassCondition implements Condition {
-    public static final Condition I = new AwaysPassCondition();
-
-    @Override
-    public boolean test(Map<String, Object> env) {
-        return true;
-    }
+public interface PushCenterMXBean {
+    long getTaskNum();
 }

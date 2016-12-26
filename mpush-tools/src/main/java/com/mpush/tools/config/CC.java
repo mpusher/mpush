@@ -97,12 +97,24 @@ public interface CC {
             int ws_server_port = cfg.getInt("ws-server-port");
             String ws_path = cfg.getString("ws-path");
 
+            static boolean tcpGateway() {
+                return "tcp".equals(gateway_server_net);
+            }
+
             static boolean udpGateway() {
                 return "udp".equals(gateway_server_net);
             }
 
             static boolean wsEnabled() {
                 return ws_server_port > 0;
+            }
+
+            static boolean udtGateway() {
+                return "udt".equals(gateway_server_net);
+            }
+
+            static boolean sctpGateway() {
+                return "sctp".equals(gateway_server_net);
             }
 
 

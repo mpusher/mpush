@@ -30,12 +30,13 @@ import com.mpush.tools.config.CC.mp.net.snd_buf;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
 import com.mpush.tools.thread.ThreadNames;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.WriteBufferWaterMark;
+import io.netty.channel.*;
+import io.netty.channel.sctp.SctpServerChannel;
+import io.netty.channel.sctp.nio.NioSctpServerChannel;
+import io.netty.channel.udt.nio.NioUdtProvider;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 
+import java.nio.channels.spi.SelectorProvider;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -152,5 +153,21 @@ public final class GatewayServer extends NettyTCPServer {
     @Override
     public ChannelHandler getChannelHandler() {
         return channelHandler;
+    }
+
+    @Override
+    public ChannelFactory<? extends ServerChannel> getChannelFactory() {
+        if (CC.mp.net.tcpGateway()) return super.getChannelFactory();
+        if (CC.mp.net.udtGateway()) return NioUdtProvider.BYTE_ACCEPTOR;
+        if (CC.mp.net.sctpGateway()) return NioSctpServerChannel::new;
+        return super.getChannelFactory();
+    }
+
+    @Override
+    public SelectorProvider getSelectorProvider() {
+        if (CC.mp.net.tcpGateway()) return super.getSelectorProvider();
+        if (CC.mp.net.udtGateway()) return NioUdtProvider.BYTE_PROVIDER;
+        if (CC.mp.net.sctpGateway()) return super.getSelectorProvider();
+        return super.getSelectorProvider();
     }
 }

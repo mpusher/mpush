@@ -19,6 +19,8 @@
 
 package com.mpush.common.condition;
 
+import com.mpush.api.common.Condition;
+
 import javax.script.*;
 import java.util.Map;
 

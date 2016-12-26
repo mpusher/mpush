@@ -19,13 +19,15 @@
 
 package com.mpush.core.push;
 
+import com.mpush.api.Message;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
+import com.mpush.api.spi.push.IPushMessage;
 import com.mpush.common.condition.AwaysPassCondition;
-import com.mpush.common.condition.Condition;
-import com.mpush.common.message.OkMessage;
+import com.mpush.api.common.Condition;
 import com.mpush.common.message.PushMessage;
-import com.mpush.common.message.gateway.GatewayPushMessage;
+import com.mpush.common.qps.FlowControl;
+import com.mpush.common.qps.OverFlowException;
 import com.mpush.core.router.LocalRouter;
 import com.mpush.core.router.RouterCenter;
 import com.mpush.tools.log.Logs;
@@ -51,14 +53,14 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
 
     private final FlowControl flowControl;
 
-    private final GatewayPushMessage message;
+    private final IPushMessage message;
 
     private final Condition condition;
 
     //使用Iterator, 记录任务遍历到的位置，因为有流控，一次任务可能会被分批发送，而且还有在推送过程中上/下线的用户
     private final Iterator<Map.Entry<String, Map<Integer, LocalRouter>>> iterator;
 
-    public BroadcastPushTask(GatewayPushMessage message, FlowControl flowControl) {
+    public BroadcastPushTask(IPushMessage message, FlowControl flowControl) {
         this.message = message;
         this.flowControl = flowControl;
         this.condition = message.getCondition();
@@ -94,7 +96,7 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
                             if (connection.getChannel().isWritable()) { //检测TCP缓冲区是否已满且写队列超过最高阀值
                                 PushMessage
                                         .build(connection)
-                                        .setContent(message.content)
+                                        .setContent(message.getContent())
                                         .send(this);
                                 //4. 检测qps, 是否超过流控限制，如果超过则结束当前循环直接进入catch
                                 if (!flowControl.checkQps()) {
@@ -102,7 +104,7 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
                                 }
                             }
                         } else { //2.如果链接失效，先删除本地失效的路由，再查下远程路由，看用户是否登陆到其他机器
-                            Logs.PUSH.warn("[broadcast] find router in local but conn disconnect, message={}, conn={}", message, connection);
+                            Logs.PUSH.warn("[Broadcast] find router in local but conn disconnect, message={}, conn={}", message, connection);
                             //删除已经失效的本地路由
                             RouterCenter.I.getLocalRouterManager().unRegister(userId, clientType);
                         }
@@ -119,8 +121,8 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
     }
 
     private void report() {
-        Logs.PUSH.info("[broadcast] task finished, cost={}, message={}", (System.currentTimeMillis() - begin), message);
-        OkMessage.from(message).sendRaw();//通知发送方，广播推送完毕
+        Logs.PUSH.info("[Broadcast] task finished, cost={}, message={}", (System.currentTimeMillis() - begin), message);
+        PushCenter.I.getPushListener().onBroadcastComplete(message);//通知发送方，广播推送完毕
     }
 
     private boolean checkCondition(Condition condition, Connection connection) {
@@ -138,9 +140,9 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
     @Override
     public void operationComplete(ChannelFuture future) throws Exception {
         if (future.isSuccess()) {//推送成功
-            Logs.PUSH.info("[broadcast] push message to client success, userId={}, message={}", message.userId, message);
+            Logs.PUSH.info("[Broadcast] push message to client success, userId={}, message={}", message.getUserId(), message);
         } else {//推送失败
-            Logs.PUSH.warn("[broadcast] push message to client failure, userId={}, message={}, conn={}", message.userId, message, future.channel());
+            Logs.PUSH.warn("[Broadcast] push message to client failure, userId={}, message={}, conn={}", message.getUserId(), message, future.channel());
         }
         if (finishTasks.decrementAndGet() == 0) {
             report();
@@ -149,6 +151,6 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
 
     @Override
     public ScheduledExecutorService getExecutor() {
-        return message.getConnection().getChannel().eventLoop();
+        return ((Message) message).getConnection().getChannel().eventLoop();
     }
 }

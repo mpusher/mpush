@@ -17,22 +17,32 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.common.condition;
+package com.mpush.monitor.jmx.mxbean;
 
-import com.mpush.api.common.Condition;
+import com.mpush.monitor.jmx.MBeanInfo;
 
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Created by ohun on 16/10/24.
+ * Created by ohun on 2016/12/23.
  *
  * @author ohun@live.cn (夜色)
  */
-public final class AwaysPassCondition implements Condition {
-    public static final Condition I = new AwaysPassCondition();
+public final class PushCenterBean implements PushCenterMXBean, MBeanInfo {
+    private final AtomicLong taskNum;
+
+    public PushCenterBean(AtomicLong taskNum) {
+        this.taskNum = taskNum;
+    }
 
     @Override
-    public boolean test(Map<String, Object> env) {
-        return true;
+    public String getName() {
+        return "PushCenter";
+    }
+
+    @Override
+    public long getTaskNum() {
+        return taskNum.get();
     }
 }

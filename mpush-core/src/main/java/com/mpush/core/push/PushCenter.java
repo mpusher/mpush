@@ -19,9 +19,17 @@
 
 package com.mpush.core.push;
 
+import com.mpush.api.spi.Spi;
+import com.mpush.api.spi.push.*;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
 import com.mpush.core.ack.AckTaskQueue;
+import com.mpush.common.qps.FastFlowControl;
+import com.mpush.common.qps.FlowControl;
+import com.mpush.common.qps.GlobalFlowControl;
+import com.mpush.common.qps.RedisFlowControl;
+import com.mpush.monitor.jmx.MBeanRegistry;
+import com.mpush.monitor.jmx.mxbean.PushCenterBean;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 import org.slf4j.Logger;
@@ -30,21 +38,42 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.mpush.tools.config.CC.mp.push.flow_control.broadcast.duration;
+import static com.mpush.tools.config.CC.mp.push.flow_control.broadcast.limit;
+import static com.mpush.tools.config.CC.mp.push.flow_control.broadcast.max;
+
 /**
  * Created by ohun on 16/10/24.
  *
  * @author ohun@live.cn (夜色)
  */
-public final class PushCenter extends BaseService {
+@Spi(order = -1)
+public final class PushCenter extends BaseService implements MessagePusher, MessagePusherFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final PushCenter I = new PushCenter();
 
+    private final GlobalFlowControl globalFlowControl = new GlobalFlowControl(
+            CC.mp.push.flow_control.global.limit, CC.mp.push.flow_control.global.max, CC.mp.push.flow_control.global.duration
+    );
+
+
     private final AtomicLong taskNum = new AtomicLong();
+
+    private final PushListener<IPushMessage> pushListener = PushListenerFactory.create();
 
     private PushTaskExecutor executor;
 
-    private PushCenter() {
+    @Override
+    public void push(IPushMessage message) {
+        if (message.isBroadcast()) {
+            FlowControl flowControl = (message.getTaskId() == null)
+                    ? new FastFlowControl(limit, max, duration)
+                    : new RedisFlowControl(message.getTaskId(), max);
+            addTask(new BroadcastPushTask(message, flowControl));
+        } else {
+            addTask(new SingleUserPushTask(message, globalFlowControl));
+        }
     }
 
     public void addTask(PushTask task) {
@@ -66,6 +95,7 @@ public final class PushCenter extends BaseService {
             //executor = new NettyEventLoopExecutor();
         }
 
+        MBeanRegistry.getInstance().register(new PushCenterBean(taskNum), null);
         AckTaskQueue.I.start();
         logger.info("push center start success");
         listener.onSuccess();
@@ -78,6 +108,16 @@ public final class PushCenter extends BaseService {
         logger.info("push center stop success");
         listener.onSuccess();
     }
+
+    public PushListener<IPushMessage> getPushListener() {
+        return pushListener;
+    }
+
+    @Override
+    public MessagePusher get() {
+        return this;
+    }
+
 
     /**
      * TCP 模式直接使用GatewayServer work 线程池

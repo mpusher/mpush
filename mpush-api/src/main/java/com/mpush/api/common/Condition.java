@@ -17,22 +17,15 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.common.condition;
-
-import com.mpush.api.common.Condition;
+package com.mpush.api.common;
 
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * Created by ohun on 16/10/24.
  *
  * @author ohun@live.cn (夜色)
  */
-public final class AwaysPassCondition implements Condition {
-    public static final Condition I = new AwaysPassCondition();
-
-    @Override
-    public boolean test(Map<String, Object> env) {
-        return true;
-    }
+public interface Condition extends Predicate<Map<String, Object>> {
 }

@@ -30,8 +30,6 @@ import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
-import java.util.concurrent.ThreadFactory;
-
 public final class AdminServer extends NettyTCPServer {
     private static AdminServer I;
 
