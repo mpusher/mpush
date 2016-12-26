@@ -26,8 +26,11 @@ import com.mpush.api.service.Client;
 import com.mpush.api.service.Listener;
 import com.mpush.client.gateway.GatewayClient;
 import com.mpush.common.message.BaseMessage;
+import com.mpush.tools.config.CC;
 import com.mpush.zk.node.ZKServerNode;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -39,12 +42,16 @@ import java.util.function.Function;
  */
 public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
 
-    private final Map<String, GatewayClient> ip_client = Maps.newConcurrentMap();
+    private final int connNum = CC.mp.net.gateway_client_num;
+
+    private final Map<String, List<GatewayClient>> ip_client = Maps.newConcurrentMap();
 
     @Override
     public void put(String fullPath, ZKServerNode node) {
         super.put(fullPath, node);
-        addClient(node.getIp(), node.getPort());
+        for (int i = 0; i < connNum; i++) {
+            addClient(node.getIp(), node.getPort());
+        }
     }
 
     @Override
@@ -58,14 +65,21 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     @Override
     public void clear() {
         super.clear();
-        ip_client.values().forEach(BaseService::stop);
+        ip_client.values().forEach(l -> l.forEach(GatewayClient::stop));
     }
 
     @Override
     public Connection getConnection(String hostAndPort) {
-        GatewayClient client = ip_client.get(hostAndPort);
-        if (client == null) {
+        List<GatewayClient> clients = ip_client.get(hostAndPort);
+        if (clients == null || clients.isEmpty()) {
             return null;//TODO create client
+        }
+        int L = clients.size();
+        GatewayClient client;
+        if (L == 1) {
+            client = clients.get(0);
+        } else {
+            client = clients.get((int) (Math.random() * L % L));
         }
         Connection connection = client.getConnection();
         if (connection.isConnected()) {
@@ -88,12 +102,12 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     @Override
     public <M extends BaseMessage> boolean broadcast(Function<Connection, M> creator, Consumer<M> sender) {
         if (ip_client.isEmpty()) return false;
-        ip_client.forEach((s, client) -> sender.accept(creator.apply(client.getConnection())));
+        ip_client.forEach((s, clients) -> sender.accept(creator.apply(clients.get(0).getConnection())));
         return true;
     }
 
     private void restartClient(final GatewayClient client) {
-        ip_client.remove(client.getHostAndPort());
+        ip_client.get(client.getHostAndPort()).remove(client);
         client.stop(new Listener() {
             @Override
             public void onSuccess(Object... args) {
@@ -109,9 +123,9 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
 
     private void removeClient(ZKServerNode node) {
         if (node != null) {
-            Client client = ip_client.remove(node.getHostAndPort());
-            if (client != null) {
-                client.stop(null);
+            List<GatewayClient> clients = ip_client.remove(node.getHostAndPort());
+            if (clients != null) {
+                clients.forEach(GatewayClient::stop);
             }
         }
     }
@@ -121,7 +135,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
         client.start(new Listener() {
             @Override
             public void onSuccess(Object... args) {
-                ip_client.put(client.getHostAndPort(), client);
+                ip_client.computeIfAbsent(client.getHostAndPort(), s -> new ArrayList<>(connNum)).add(client);
             }
 
             @Override
