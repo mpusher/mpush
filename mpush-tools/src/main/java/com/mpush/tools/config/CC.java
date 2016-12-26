@@ -95,8 +95,20 @@ public interface CC {
             String gateway_server_multicast = cfg.getString("gateway-server-multicast");
             String gateway_client_multicast = cfg.getString("gateway-client-multicast");
 
+            static boolean tcpGateway() {
+                return "tcp".equals(gateway_server_net);
+            }
+
             static boolean udpGateway() {
                 return "udp".equals(gateway_server_net);
+            }
+
+            static boolean udtGateway() {
+                return "udt".equals(gateway_server_net);
+            }
+
+            static boolean sctpGateway() {
+                return "sctp".equals(gateway_server_net);
             }
 
 

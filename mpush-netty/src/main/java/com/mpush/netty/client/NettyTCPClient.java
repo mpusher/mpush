@@ -22,30 +22,24 @@ package com.mpush.netty.client;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Client;
 import com.mpush.api.service.Listener;
-import com.mpush.api.service.ServiceException;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.ThreadNames;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.epoll.Native;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executor;
+import java.nio.channels.spi.SelectorProvider;
 
 public abstract class NettyTCPClient extends BaseService implements Client {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyTCPClient.class);
@@ -59,17 +53,16 @@ public abstract class NettyTCPClient extends BaseService implements Client {
         this.port = port;
     }
 
-    private void createClient(Listener listener, EventLoopGroup workerGroup, Class<? extends SocketChannel> clazz) {
+    private void createClient(Listener listener, EventLoopGroup workerGroup, ChannelFactory<? extends Channel> channelFactory) {
         this.workerGroup = workerGroup;
         Bootstrap b = new Bootstrap();
         b.group(workerGroup)//
-                .option(ChannelOption.TCP_NODELAY, true)//
                 .option(ChannelOption.SO_REUSEADDR, true)//
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)//
-                .channel(clazz);
-        b.handler(new ChannelInitializer<SocketChannel>() { // (4)
+                .channelFactory(channelFactory);
+        b.handler(new ChannelInitializer<Channel>() { // (4)
             @Override
-            public void initChannel(SocketChannel ch) throws Exception {
+            public void initChannel(Channel ch) throws Exception {
                 initPipeline(ch.pipeline());
             }
         });
@@ -88,10 +81,10 @@ public abstract class NettyTCPClient extends BaseService implements Client {
 
     private void createNioClient(Listener listener) {
         NioEventLoopGroup workerGroup = new NioEventLoopGroup(
-                1, new DefaultThreadFactory(ThreadNames.T_TCP_CLIENT)
+                1, new DefaultThreadFactory(ThreadNames.T_TCP_CLIENT), getSelectorProvider()
         );
         workerGroup.setIoRatio(getIoRate());
-        createClient(listener, workerGroup, NioSocketChannel.class);
+        createClient(listener, workerGroup, getChannelFactory());
     }
 
     private void createEpollClient(Listener listener) {
@@ -99,7 +92,7 @@ public abstract class NettyTCPClient extends BaseService implements Client {
                 1, new DefaultThreadFactory(ThreadNames.T_TCP_CLIENT)
         );
         workerGroup.setIoRatio(getIoRate());
-        createClient(listener, workerGroup, EpollSocketChannel.class);
+        createClient(listener, workerGroup, EpollSocketChannel::new);
     }
 
     protected void initPipeline(ChannelPipeline pipeline) {
@@ -154,6 +147,15 @@ public abstract class NettyTCPClient extends BaseService implements Client {
 
     protected void initOptions(Bootstrap b) {
         b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 4000);
+        b.option(ChannelOption.TCP_NODELAY, true);
+    }
+
+    public ChannelFactory<? extends Channel> getChannelFactory() {
+        return NioSocketChannel::new;
+    }
+
+    public SelectorProvider getSelectorProvider() {
+        return SelectorProvider.provider();
     }
 
     public String getHost() {
