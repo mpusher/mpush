@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,33 +14,25 @@
  * limitations under the License.
  *
  * Contributors:
- *   ohun@live.cn (夜色)
+ *     ohun@live.cn (夜色)
  */
 
-package com.mpush.client.push;
+package com.mpush.cache.redis.mq;
 
-import com.mpush.api.push.PushSender;
 import com.mpush.api.spi.Spi;
-import com.mpush.api.spi.client.PusherFactory;
+import com.mpush.api.spi.common.MQClient;
+import com.mpush.api.spi.common.MQClientFactory;
 
 /**
- * Created by yxx on 2016/5/18.
+ * Created by ohun on 2016/12/27.
  *
- * @author ohun@live.cn
+ * @author ohun@live.cn (夜色)
  */
-@Spi
-public class PushClientFactory implements PusherFactory {
-    private volatile PushClient client;
+@Spi(order = 1)
+public final class RedisMQClientFactory implements MQClientFactory {
 
     @Override
-    public PushSender get() {
-        if (client == null) {
-            synchronized (PushClientFactory.class) {
-                if (client == null) {
-                    client = new PushClient();
-                }
-            }
-        }
-        return client;
+    public MQClient get() {
+        return ListenerDispatcher.I();
     }
 }

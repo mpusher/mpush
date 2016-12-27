@@ -19,7 +19,6 @@
 
 package com.mpush.cache.redis.mq;
 
-import com.mpush.cache.redis.listener.ListenerDispatcher;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.log.Logs;
 import redis.clients.jedis.JedisPubSub;

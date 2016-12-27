@@ -19,8 +19,8 @@
 
 package com.mpush.client.user;
 
-import com.mpush.cache.redis.listener.ListenerDispatcher;
-import com.mpush.cache.redis.listener.MessageListener;
+import com.mpush.api.spi.common.MQClientFactory;
+import com.mpush.api.spi.common.MQMessageReceiver;
 import com.mpush.tools.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,22 +33,22 @@ import static com.mpush.api.event.Topics.ONLINE_CHANNEL;
  *
  * @author ohun@live.cn
  */
-public class UserStatusChangeListener implements MessageListener {
+public class UserStatusChangeListener implements MQMessageReceiver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserStatusChangeListener.class);
 
     //只需要一台机器注册online、offline 消息通道
     public UserStatusChangeListener() {
         if ("127.0.0.1".equals(Utils.getLocalIp())) {
-            ListenerDispatcher.I().subscribe(ONLINE_CHANNEL, this);
-            ListenerDispatcher.I().subscribe(OFFLINE_CHANNEL, this);
+            MQClientFactory.create().subscribe(ONLINE_CHANNEL, this);
+            MQClientFactory.create().subscribe(OFFLINE_CHANNEL, this);
         } else {
             LOGGER.error("UserChangeListener is not localhost,required:{}, but:{}", "127.0.0.1", Utils.getLocalIp());
         }
     }
 
     @Override
-    public void onMessage(String channel, String message) {
+    public void receive(String channel, Object message) {
 
     }
 }

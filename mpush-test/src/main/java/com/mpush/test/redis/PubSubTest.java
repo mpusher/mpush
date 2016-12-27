@@ -19,9 +19,8 @@
 
 package com.mpush.test.redis;
 
-import com.mpush.cache.redis.listener.ListenerDispatcher;
+import com.mpush.cache.redis.mq.ListenerDispatcher;
 import com.mpush.cache.redis.manager.RedisManager;
-import com.mpush.cache.redis.mq.Subscriber;
 import org.junit.Before;
 import org.junit.Test;
 

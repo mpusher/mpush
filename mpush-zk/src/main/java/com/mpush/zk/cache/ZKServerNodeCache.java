@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class ZKServerNodeCache implements ZKNodeCache<ZKServerNode> {
 
-    private final Logger logger = LoggerFactory.getLogger(ZKServerNodeCache.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected final Map<String, ZKServerNode> nodes = Maps.newConcurrentMap();
 

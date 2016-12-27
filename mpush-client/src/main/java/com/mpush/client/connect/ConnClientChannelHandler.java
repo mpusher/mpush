@@ -26,6 +26,8 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.event.ConnectionCloseEvent;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
+import com.mpush.api.spi.common.CacheManager;
+import com.mpush.api.spi.common.CacheManagerFactory;
 import com.mpush.cache.redis.RedisKey;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.common.message.*;
@@ -55,8 +57,10 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
     private static final Timer HASHED_WHEEL_TIMER = new HashedWheelTimer(new NamedPoolThreadFactory(ThreadNames.T_CONN_TIMER));
     public static final AttributeKey<ClientConfig> CONFIG_KEY = AttributeKey.newInstance("clientConfig");
     public static final TestStatistics STATISTICS = new TestStatistics();
+    private static CacheManager cacheManager = CacheManagerFactory.create();
 
     private final Connection connection = new NettyConnection();
+
     private ClientConfig clientConfig;
     private boolean perfTest;
     private int hbTimeoutTimes;
@@ -235,13 +239,13 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
         map.put("expireTime", expireTime + "");
         map.put("cipherStr", connection.getSessionContext().cipher.toString());
         String key = RedisKey.getDeviceIdKey(client.getDeviceId());
-        RedisManager.I.set(key, map, 60 * 5); //5分钟
+        cacheManager.set(key, map, 60 * 5); //5分钟
     }
 
     @SuppressWarnings("unchecked")
     private Map<String, String> getFastConnectionInfo(String deviceId) {
         String key = RedisKey.getDeviceIdKey(deviceId);
-        return RedisManager.I.get(key, Map.class);
+        return cacheManager.get(key, Map.class);
     }
 
     private void handshake() {

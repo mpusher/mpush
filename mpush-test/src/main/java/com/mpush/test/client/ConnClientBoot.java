@@ -22,6 +22,8 @@ package com.mpush.test.client;
 import com.google.common.collect.Lists;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
+import com.mpush.api.spi.common.CacheManager;
+import com.mpush.api.spi.common.CacheManagerFactory;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.client.connect.ClientConfig;
 import com.mpush.client.connect.ConnClientChannelHandler;
@@ -56,19 +58,9 @@ public final class ConnClientBoot extends BaseService {
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        ZKClient.I.start(new Listener() {
-            @Override
-            public void onSuccess(Object... args) {
-                RedisManager.I.init();
-                watcher.watch();
-                listener.onSuccess();
-            }
-
-            @Override
-            public void onFailure(Throwable cause) {
-                listener.onFailure(cause);
-            }
-        });
+        ZKClient.I.start().join();
+        CacheManagerFactory.create().init();
+        watcher.watch();
 
         this.workerGroup = new NioEventLoopGroup();
         this.bootstrap = new Bootstrap();
@@ -88,6 +80,8 @@ public final class ConnClientBoot extends BaseService {
                 ch.pipeline().addLast("handler", new ConnClientChannelHandler());
             }
         });
+
+        listener.onSuccess();
     }
 
     @Override

@@ -19,7 +19,7 @@
 
 package com.mpush.bootstrap.job;
 
-import com.mpush.cache.redis.manager.RedisManager;
+import com.mpush.api.spi.common.CacheManagerFactory;
 import com.mpush.common.user.UserManager;
 
 /**
@@ -31,14 +31,14 @@ public final class RedisBoot extends BootJob {
 
     @Override
     protected void start() {
-        RedisManager.I.init();
+        CacheManagerFactory.create().init();
         UserManager.I.clearUserOnlineData();
         startNext();
     }
 
     @Override
     protected void stop() {
-        RedisManager.I.destroy();
+        CacheManagerFactory.create().destroy();
         UserManager.I.clearUserOnlineData();
         stopNext();
     }

@@ -17,12 +17,13 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.cache.redis.listener;
+package com.mpush.cache.redis.mq;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mpush.api.spi.common.MQClient;
+import com.mpush.api.spi.common.MQMessageReceiver;
 import com.mpush.cache.redis.manager.RedisManager;
-import com.mpush.cache.redis.mq.Subscriber;
 import com.mpush.tools.log.Logs;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 
@@ -30,16 +31,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-public class ListenerDispatcher implements MessageListener {
+public final class ListenerDispatcher implements MQClient {
 
     private static ListenerDispatcher I;
 
-    private final Map<String, List<MessageListener>> subscribes = Maps.newTreeMap();
+    private final Map<String, List<MQMessageReceiver>> subscribes = Maps.newTreeMap();
 
     private final Executor executor = ThreadPoolManager.I.getRedisExecutor();
 
     private final Subscriber subscriber = new Subscriber();
-
 
     public static ListenerDispatcher I() {
         if (I == null) {
@@ -55,21 +55,25 @@ public class ListenerDispatcher implements MessageListener {
     private ListenerDispatcher() {
     }
 
-    @Override
     public void onMessage(final String channel, final String message) {
-        List<MessageListener> listeners = subscribes.get(channel);
+        List<MQMessageReceiver> listeners = subscribes.get(channel);
         if (listeners == null) {
             Logs.REDIS.info("cannot find listener:%s,%s", channel, message);
             return;
         }
-        for (final MessageListener listener : listeners) {
-            executor.execute(() -> listener.onMessage(channel, message));
+        for (final MQMessageReceiver listener : listeners) {
+            executor.execute(() -> listener.receive(channel, message));
         }
     }
 
-    public void subscribe(String channel, MessageListener listener) {
+    public void subscribe(String channel, MQMessageReceiver listener) {
         subscribes.computeIfAbsent(channel, k -> Lists.newArrayList()).add(listener);
         RedisManager.I.subscribe(subscriber, channel);
+    }
+
+    @Override
+    public void publish(String topic, Object message) {
+        RedisManager.I.publish(topic, message);
     }
 
     public Subscriber getSubscriber() {
