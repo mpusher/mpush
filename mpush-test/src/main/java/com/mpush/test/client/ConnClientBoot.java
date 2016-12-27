@@ -77,6 +77,7 @@ public final class ConnClientBoot extends BaseService {
                 .option(ChannelOption.SO_REUSEADDR, true)//
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)//
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60 * 1000)
+                .option(ChannelOption.SO_RCVBUF, 5 * 1024 * 1024)
                 .channel(NioSocketChannel.class);
 
         bootstrap.handler(new ChannelInitializer<SocketChannel>() { // (4)
