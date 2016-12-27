@@ -146,7 +146,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     private void addConnection(String host, int port) {
         client.connect(host, port).addListener(f -> {
             if (!f.isSuccess()) {
-                logger.error("create gateway connection ex, hostAndPort={}", getHostAndPort(host, port), f.cause());
+                logger.error("create gateway connection ex, host={}, port", host, port, f.cause());
             }
         });
     }
