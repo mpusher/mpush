@@ -166,4 +166,18 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
         return channel;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        NettyConnection that = (NettyConnection) o;
+
+        return channel.id().equals(that.channel.id());
+    }
+
+    @Override
+    public int hashCode() {
+        return channel.id().hashCode();
+    }
 }

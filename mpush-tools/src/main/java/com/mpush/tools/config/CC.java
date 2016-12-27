@@ -204,7 +204,8 @@ public interface CC {
                 int push_task = cfg.getInt("push-task");
                 int push_client = cfg.getInt("push-client");
                 int ack_timer = cfg.getInt("ack-timer");
-                int gateway_work = cfg.getInt("gateway-work");
+                int gateway_server_work = cfg.getInt("gateway-server-work");
+                int gateway_client_work = cfg.getInt("gateway-client-work");
 
                 interface event_bus {
                     Config cfg = pool.cfg.getObject("event-bus").toConfig();

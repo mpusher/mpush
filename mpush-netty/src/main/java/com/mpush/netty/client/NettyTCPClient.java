@@ -44,31 +44,32 @@ import java.nio.channels.spi.SelectorProvider;
 public abstract class NettyTCPClient extends BaseService implements Client {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyTCPClient.class);
 
-    private final String host;
-    private final int port;
     private EventLoopGroup workerGroup;
-
-    public NettyTCPClient(String host, int port) {
-        this.host = host;
-        this.port = port;
-    }
+    protected Bootstrap bootstrap;
 
     private void createClient(Listener listener, EventLoopGroup workerGroup, ChannelFactory<? extends Channel> channelFactory) {
         this.workerGroup = workerGroup;
-        Bootstrap b = new Bootstrap();
-        b.group(workerGroup)//
+        this.bootstrap = new Bootstrap();
+        bootstrap.group(workerGroup)//
                 .option(ChannelOption.SO_REUSEADDR, true)//
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)//
                 .channelFactory(channelFactory);
-        b.handler(new ChannelInitializer<Channel>() { // (4)
+        bootstrap.handler(new ChannelInitializer<Channel>() { // (4)
             @Override
             public void initChannel(Channel ch) throws Exception {
                 initPipeline(ch.pipeline());
             }
         });
-        initOptions(b);
-        ChannelFuture future = b.connect(new InetSocketAddress(host, port));
-        future.addListener(f -> {
+        initOptions(bootstrap);
+        listener.onSuccess();
+    }
+
+    public ChannelFuture connect(String host, int port) {
+        return bootstrap.connect(new InetSocketAddress(host, port));
+    }
+
+    public ChannelFuture connect(String host, int port, Listener listener) {
+        return bootstrap.connect(new InetSocketAddress(host, port)).addListener(f -> {
             if (f.isSuccess()) {
                 if (listener != null) listener.onSuccess(port);
                 LOGGER.info("start netty client success, host={}, port={}", host, port);
@@ -162,23 +163,9 @@ public abstract class NettyTCPClient extends BaseService implements Client {
         return SelectorProvider.provider();
     }
 
-    public String getHost() {
-        return host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public String getHostAndPort() {
-        return host + ":" + port;
-    }
-
     @Override
     public String toString() {
         return "NettyClient{" +
-                "host='" + host + '\'' +
-                ", port=" + port +
                 ", name=" + this.getClass().getSimpleName() +
                 '}';
     }

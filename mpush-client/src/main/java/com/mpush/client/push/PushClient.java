@@ -80,9 +80,9 @@ import static com.mpush.zk.ZKPath.GATEWAY_SERVER;
     protected void doStart(Listener listener) throws Throwable {
         ZKClient.I.syncStart();
         RedisManager.I.init();
-        ZKServerNodeWatcher.build(GATEWAY_SERVER, factory).watch();
         PushRequestBus.I.syncStart();
         factory.init(listener);
+        ZKServerNodeWatcher.build(GATEWAY_SERVER, factory).watch();
     }
 
     @Override

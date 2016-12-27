@@ -120,7 +120,7 @@ public final class GatewayServer extends NettyTCPServer {
 
     @Override
     protected int getWorkThreadNum() {
-        return CC.mp.thread.pool.gateway_work;
+        return CC.mp.thread.pool.gateway_server_work;
     }
 
     @Override
