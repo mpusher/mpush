@@ -18,11 +18,16 @@
 
 JVM_FLAGS="-Dio.netty.leakDetection.level=advanced"
 
-#2. 开启远程调试
+#JMX
+
+JMXDISABLE=true
+#JMXPORT=1099
+
+#3. 开启远程调试
 
 #JVM_FLAGS="$JVM_FLAGS -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8008"
 
-#3. GC配置
+#4. GC配置
 
 #运行模式 整个堆内存大小 GC算法
 #JVM_FLAGS="$JVM_FLAGS -server -Xmx1024m -Xms1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
