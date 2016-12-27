@@ -27,13 +27,10 @@ import com.mpush.api.event.ConnectionConnectEvent;
 import com.mpush.api.service.Listener;
 import com.mpush.client.gateway.GatewayClient;
 import com.mpush.common.message.BaseMessage;
-import com.mpush.tools.config.CC;
 import com.mpush.tools.event.EventBus;
 import com.mpush.zk.node.ZKServerNode;
-import io.netty.channel.ChannelFuture;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +46,7 @@ import static com.mpush.tools.config.CC.mp.net.gateway_client_num;
  */
 public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
 
-    private final Map<String, List<Connection>> ip_client = Maps.newConcurrentMap();
+    private final Map<String, List<Connection>> connections = Maps.newConcurrentMap();
 
     private GatewayClient client;
 
@@ -80,30 +77,34 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     @Override
     public void clear() {
         super.clear();
-        ip_client.values().forEach(l -> l.forEach(Connection::close));
+        connections.values().forEach(l -> l.forEach(Connection::close));
         if (client != null) {
-            client.stop();
+            client.stop().join();
         }
     }
 
     @Override
     public Connection getConnection(String hostAndPort) {
-        List<Connection> connections = ip_client.get(hostAndPort);
+        List<Connection> connections = this.connections.get(hostAndPort);
         if (connections == null || connections.isEmpty()) {
             return null;//TODO create client
         }
+
         int L = connections.size();
+
         Connection connection;
         if (L == 1) {
             connection = connections.get(0);
         } else {
             connection = connections.get((int) (Math.random() * L % L));
         }
+
         if (connection.isConnected()) {
             return connection;
         }
+
         reconnect(connection, hostAndPort);
-        return null;
+        return getConnection(hostAndPort);
     }
 
     @Override
@@ -117,8 +118,8 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
 
     @Override
     public <M extends BaseMessage> boolean broadcast(Function<Connection, M> creator, Consumer<M> sender) {
-        if (ip_client.isEmpty()) return false;
-        ip_client
+        if (connections.isEmpty()) return false;
+        connections
                 .values()
                 .stream()
                 .filter(connections -> connections.size() > 0)
@@ -127,15 +128,15 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     }
 
     private void reconnect(Connection connection, String hostAndPort) {
-        HostAndPort h_p = HostAndPort.fromHost(hostAndPort);
-        ip_client.get(getHostAndPort(h_p.getHostText(), h_p.getPort())).remove(connection);
+        HostAndPort h_p = HostAndPort.fromString(hostAndPort);
+        connections.get(hostAndPort).remove(connection);
         connection.close();
         addConnection(h_p.getHostText(), h_p.getPort());
     }
 
     private void removeClient(ZKServerNode node) {
         if (node != null) {
-            List<Connection> clients = ip_client.remove(node.getHostAndPort());
+            List<Connection> clients = connections.remove(node.getHostAndPort());
             if (clients != null) {
                 clients.forEach(Connection::close);
             }
@@ -143,11 +144,9 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     }
 
     private void addConnection(String host, int port) {
-        String hostAndPort = getHostAndPort(host, port);
-        ChannelFuture future = client.connect(host, port);
-        future.addListener(f -> {
+        client.connect(host, port).addListener(f -> {
             if (!f.isSuccess()) {
-                logger.error("create gateway connection ex, hostAndPort={}", hostAndPort, f.cause());
+                logger.error("create gateway connection ex, hostAndPort={}", getHostAndPort(host, port), f.cause());
             }
         });
     }
@@ -157,7 +156,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
         Connection connection = event.connection;
         InetSocketAddress address = (InetSocketAddress) connection.getChannel().remoteAddress();
         String hostAndPort = getHostAndPort(address.getHostName(), address.getPort());
-        ip_client.computeIfAbsent(hostAndPort, key -> new ArrayList<>(gateway_client_num)).add(connection);
+        connections.computeIfAbsent(hostAndPort, key -> new ArrayList<>(gateway_client_num)).add(connection);
     }
 
     private static String getHostAndPort(String host, int port) {
