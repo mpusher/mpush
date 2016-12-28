@@ -25,10 +25,12 @@ import com.google.common.net.HostAndPort;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.event.ConnectionConnectEvent;
 import com.mpush.api.service.Listener;
+import com.mpush.api.spi.common.ServiceDiscoveryFactory;
+import com.mpush.api.srd.ServiceDiscovery;
+import com.mpush.api.srd.ServiceNode;
 import com.mpush.client.gateway.GatewayClient;
 import com.mpush.common.message.BaseMessage;
 import com.mpush.tools.event.EventBus;
-import com.mpush.zk.node.ZKServerNode;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -37,6 +39,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static com.mpush.api.srd.ServiceNames.GATEWAY_SERVER;
 import static com.mpush.tools.config.CC.mp.net.gateway_client_num;
 
 /**
@@ -55,32 +58,36 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
         EventBus.I.register(this);
         client = new GatewayClient();
         client.start().join();
+
+        ServiceDiscovery discovery = ServiceDiscoveryFactory.create();
+        discovery.subscribe(GATEWAY_SERVER, this);
+        discovery.lookup(GATEWAY_SERVER).forEach(this::add);
         listener.onSuccess();
     }
 
     @Override
-    public void put(String fullPath, ZKServerNode node) {
-        super.put(fullPath, node);
-        for (int i = 0; i < gateway_client_num; i++) {
-            addConnection(node.getIp(), node.getPort());
-        }
+    public void onServiceAdded(String path, ServiceNode node) {
+        add(node);
     }
 
     @Override
-    public ZKServerNode remove(String fullPath) {
-        ZKServerNode node = super.remove(fullPath);
+    public void onServiceUpdated(String path, ServiceNode node) {
+        removeClient(node);
+        add(node);
+    }
+
+    @Override
+    public void onServiceRemoved(String path, ServiceNode node) {
         removeClient(node);
         logger.warn("Gateway Server zkNode={} was removed.", node);
-        return node;
     }
 
-    @Override
     public void clear() {
-        super.clear();
         connections.values().forEach(l -> l.forEach(Connection::close));
         if (client != null) {
             client.stop().join();
         }
+        ServiceDiscoveryFactory.create().unsubscribe(GATEWAY_SERVER, this);
     }
 
     @Override
@@ -134,12 +141,18 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
         addConnection(h_p.getHostText(), h_p.getPort());
     }
 
-    private void removeClient(ZKServerNode node) {
+    private void removeClient(ServiceNode node) {
         if (node != null) {
-            List<Connection> clients = connections.remove(node.getHostAndPort());
+            List<Connection> clients = connections.remove(getHostAndPort(node.getHost(), node.getPort()));
             if (clients != null) {
                 clients.forEach(Connection::close);
             }
+        }
+    }
+
+    private void add(ServiceNode node) {
+        for (int i = 0; i < gateway_client_num; i++) {
+            addConnection(node.getHost(), node.getPort());
         }
     }
 

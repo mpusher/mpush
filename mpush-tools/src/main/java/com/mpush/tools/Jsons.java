@@ -19,15 +19,13 @@
 
 package com.mpush.tools;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.alibaba.fastjson.JSON;
 import com.mpush.api.Constants;
 import com.mpush.tools.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,12 +37,10 @@ import java.util.Map;
  */
 public final class Jsons {
     private static final Logger LOGGER = LoggerFactory.getLogger(Jsons.class);
-    public static final Gson GSON = new GsonBuilder().create();
 
     public static String toJson(Object bean) {
-
         try {
-            return GSON.toJson(bean);
+            return JSON.toJSONString(bean);
         } catch (Exception e) {
             LOGGER.error("Jsons.toJson ex, bean=" + bean, e);
         }
@@ -54,7 +50,7 @@ public final class Jsons {
     public static <T> T fromJson(String json, Class<T> clazz) {
 
         try {
-            return GSON.fromJson(json, clazz);
+            return JSON.parseObject(json, clazz);
         } catch (Exception e) {
             LOGGER.error("Jsons.fromJson ex, json=" + json + ", clazz=" + clazz, e);
         }
@@ -65,11 +61,9 @@ public final class Jsons {
         return fromJson(new String(json, Constants.UTF_8), clazz);
     }
 
-    public static <T> List<T> fromJsonToList(String json, Class<T[]> type) {
+    public static <T> List<T> fromJsonToList(String json, Class<T> type) {
         try {
-            T[] list = GSON.fromJson(json, type);
-            if (list == null) return null;
-            return Arrays.asList(list);
+            return JSON.parseArray(json, type);
         } catch (Exception e) {
             LOGGER.error("Jsons.fromJsonToList ex, json=" + json + ", type=" + type, e);
         }
@@ -78,7 +72,7 @@ public final class Jsons {
 
     public static <T> T fromJson(String json, Type type) {
         try {
-            return GSON.fromJson(json, type);
+            return JSON.parseObject(json, type);
         } catch (Exception e) {
             LOGGER.error("Jsons.fromJson ex, json=" + json + ", type=" + type, e);
         }

@@ -22,7 +22,6 @@ package com.mpush.netty;
 import com.mpush.tools.Utils;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;

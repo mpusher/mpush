@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,35 +14,25 @@
  * limitations under the License.
  *
  * Contributors:
- *   ohun@live.cn (夜色)
+ *     ohun@live.cn (夜色)
  */
 
-package com.mpush.zk.cache;
+package com.mpush.api.srd;
 
-import com.mpush.zk.node.ZKNode;
+import com.mpush.api.service.Service;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
- * ZK节点缓存方案, 不同等节点应该有不同实现
- * <p>
- * Created by yxx on 2016/5/18.
+ * Created by ohun on 2016/12/19.
  *
- * @author ohun@live.cn
+ * @author ohun@live.cn (夜色)
  */
-public interface ZKNodeCache<T extends ZKNode> {
+public interface ServiceDiscovery extends Service {
 
-    void addAll(List<T> list);
+    List<ServiceNode> lookup(String path);
 
-    void put(String fullPath, T node);
+    void subscribe(String path, ServiceListener listener);
 
-    T remove(String fullPath);
-
-    Collection<T> values();
-
-    void clear();
-
-    int size();
-
+    void unsubscribe(String path, ServiceListener listener);
 }

@@ -24,31 +24,34 @@ import com.google.common.collect.Maps;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
 import com.mpush.api.spi.Spi;
+import com.mpush.api.spi.common.ServiceDiscoveryFactory;
 import com.mpush.api.spi.net.DnsMapping;
 import com.mpush.api.spi.net.DnsMappingManager;
+import com.mpush.api.srd.ServiceDiscovery;
+import com.mpush.api.srd.ServiceListener;
+import com.mpush.api.srd.ServiceNode;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
 import com.mpush.tools.thread.ThreadNames;
-import com.mpush.zk.cache.ZKDnsNodeCache;
-import com.mpush.zk.listener.ZKDnsNodeWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static com.mpush.api.srd.ServiceNames.DNS_MAPPING;
 import static com.mpush.tools.Utils.checkHealth;
 
 @Spi(order = 1)
-public class HttpProxyDnsMappingManager extends BaseService implements DnsMappingManager, Runnable {
+public class HttpProxyDnsMappingManager extends BaseService implements DnsMappingManager, Runnable, ServiceListener {
     private final Logger logger = LoggerFactory.getLogger(HttpProxyDnsMappingManager.class);
-    private final ZKDnsNodeWatcher watcher = new ZKDnsNodeWatcher();
-    private final ZKDnsNodeCache cache = watcher.getCache();
+
+    protected final Map<String, List<DnsMapping>> mappings = Maps.newConcurrentMap();
 
     private final Map<String, List<DnsMapping>> all = Maps.newConcurrentMap();
     private Map<String, List<DnsMapping>> available = Maps.newConcurrentMap();
@@ -57,7 +60,10 @@ public class HttpProxyDnsMappingManager extends BaseService implements DnsMappin
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        watcher.watch();
+        ServiceDiscovery discovery = ServiceDiscoveryFactory.create();
+        discovery.subscribe(DNS_MAPPING, this);
+        discovery.lookup(DNS_MAPPING).forEach(this::add);
+
         if (all.size() > 0) {
             executorService = Executors.newSingleThreadScheduledExecutor(
                     new NamedPoolThreadFactory(ThreadNames.T_HTTP_DNS_TIMER)
@@ -95,7 +101,7 @@ public class HttpProxyDnsMappingManager extends BaseService implements DnsMappin
     }
 
     public DnsMapping lookup(String origin) {
-        List<? extends DnsMapping> list = cache.get(origin);
+        List<DnsMapping> list = mappings.get(origin);
 
         if (list == null || list.isEmpty()) {
             if (available.isEmpty()) return null;
@@ -125,5 +131,26 @@ public class HttpProxyDnsMappingManager extends BaseService implements DnsMappin
             available.put(key, okList);
         });
         this.update(available);
+    }
+
+    @Override
+    public void onServiceAdded(String path, ServiceNode node) {
+        add(node);
+    }
+
+    @Override
+    public void onServiceUpdated(String path, ServiceNode node) {
+        add(node);
+    }
+
+    @Override
+    public void onServiceRemoved(String path, ServiceNode node) {
+        mappings.computeIfAbsent(node.getAttr("origin"), k -> new ArrayList<>())
+                .remove(new DnsMapping(node.getHost(), node.getPort()));
+    }
+
+    private void add(ServiceNode node){
+        mappings.computeIfAbsent(node.getAttr("origin"), k -> new ArrayList<>())
+                .add(new DnsMapping(node.getHost(), node.getPort()));
     }
 }

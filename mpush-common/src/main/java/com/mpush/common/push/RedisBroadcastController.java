@@ -22,7 +22,7 @@ package com.mpush.common.push;
 import com.mpush.api.push.BroadcastController;
 import com.mpush.api.spi.common.CacheManager;
 import com.mpush.api.spi.common.CacheManagerFactory;
-import com.mpush.cache.redis.RedisKey;
+import com.mpush.common.CacheKeys;
 
 import java.util.List;
 
@@ -46,7 +46,7 @@ public final class RedisBroadcastController implements BroadcastController {
 
     public RedisBroadcastController(String taskId) {
         this.taskId = taskId;
-        this.taskKey = RedisKey.getPushTaskKey(taskId);
+        this.taskKey = CacheKeys.getPushTaskKey(taskId);
         this.taskSuccessUIDKey = taskId + ':' + TASK_SUCCESS_USER_ID;
     }
 

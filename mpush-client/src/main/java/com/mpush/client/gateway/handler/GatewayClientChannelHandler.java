@@ -27,7 +27,6 @@ import com.mpush.api.event.ConnectionCloseEvent;
 import com.mpush.api.event.ConnectionConnectEvent;
 import com.mpush.api.protocol.Packet;
 import com.mpush.netty.connection.NettyConnection;
-import com.mpush.netty.connection.NettyConnectionManager;
 import com.mpush.tools.event.EventBus;
 import com.mpush.tools.log.Logs;
 import io.netty.channel.ChannelHandler;

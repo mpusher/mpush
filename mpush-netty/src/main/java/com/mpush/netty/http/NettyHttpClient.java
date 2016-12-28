@@ -24,7 +24,6 @@ import com.mpush.api.service.Listener;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.NamedThreadFactory;
 import com.mpush.tools.thread.ThreadNames;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;

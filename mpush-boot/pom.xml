@@ -21,6 +21,14 @@
             <groupId>${mpush.groupId}</groupId>
             <artifactId>mpush-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${mpush.groupId}</groupId>
+            <artifactId>mpush-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${mpush.groupId}</groupId>
+            <artifactId>mpush-zk</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

@@ -58,7 +58,7 @@ public final class ListenerDispatcher implements MQClient {
     public void onMessage(final String channel, final String message) {
         List<MQMessageReceiver> listeners = subscribes.get(channel);
         if (listeners == null) {
-            Logs.REDIS.info("cannot find listener:%s,%s", channel, message);
+            Logs.CACHE.info("cannot find listener:%s,%s", channel, message);
             return;
         }
         for (final MQMessageReceiver listener : listeners) {

@@ -17,24 +17,29 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.zk.node;
+package com.mpush.bootstrap.job;
 
-import com.mpush.tools.config.data.RedisNode;
+import com.mpush.api.spi.common.ServiceRegistryFactory;
+import com.mpush.tools.log.Logs;
 
 /**
- * Redis 节点配置
- * Created by yxx on 2016/5/18.
+ * Created by yxx on 2016/5/14.
  *
  * @author ohun@live.cn
  */
-public class ZKRedisNode extends RedisNode implements ZKNode {
-    private transient String zkPath;
+public final class ServiceRegistryBoot extends BootJob {
 
-    public String getZkPath() {
-        return zkPath;
+    @Override
+    protected void start() {
+        Logs.Console.info("init service registry waiting for connected...");
+        ServiceRegistryFactory.create().syncStart();
+        startNext();
     }
 
-    public void setZkPath(String zkPath) {
-        this.zkPath = zkPath;
+    @Override
+    protected void stop() {
+        ServiceRegistryFactory.create().syncStop();
+        Logs.Console.info("service registry closed...");
+        stopNext();
     }
 }

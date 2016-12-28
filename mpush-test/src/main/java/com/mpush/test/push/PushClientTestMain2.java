@@ -20,8 +20,8 @@
 package com.mpush.test.push;
 
 import com.mpush.api.push.*;
-import com.mpush.common.qps.ExactFlowControl;
 import com.mpush.common.qps.FlowControl;
+import com.mpush.common.qps.GlobalFlowControl;
 import com.mpush.tools.log.Logs;
 import org.junit.Test;
 
@@ -50,7 +50,7 @@ public class PushClientTestMain2 {
 
 
         Statistics statistics = new Statistics();
-        FlowControl flowControl = new ExactFlowControl(1000);// qps=1000
+        FlowControl flowControl = new GlobalFlowControl(1000);// qps=1000
 
         ScheduledThreadPoolExecutor service = new ScheduledThreadPoolExecutor(4);
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {

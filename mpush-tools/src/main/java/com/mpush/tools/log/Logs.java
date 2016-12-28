@@ -55,9 +55,9 @@ public interface Logs {
 
     HB = LoggerFactory.getLogger("mpush.heartbeat.log"),
 
-    REDIS = LoggerFactory.getLogger("mpush.redis.log"),
+    CACHE = LoggerFactory.getLogger("mpush.cache.log"),
 
-    ZK = LoggerFactory.getLogger("mpush.zk.log"),
+    RSD = LoggerFactory.getLogger("mpush.srd.log"),
 
     HTTP = LoggerFactory.getLogger("mpush.http.log"),
 

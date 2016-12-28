@@ -19,7 +19,7 @@
 
 package com.mpush.common.message.gateway;
 
-import com.google.gson.reflect.TypeToken;
+import com.alibaba.fastjson.TypeReference;
 import com.mpush.api.common.Condition;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
@@ -85,7 +85,7 @@ public final class GatewayPushMessage extends ByteBufMessage implements IPushMes
     private Set<String> decodeSet(ByteBuf body) {
         String json = decodeString(body);
         if (json == null) return null;
-        return Jsons.fromJson(json, new TypeToken<Set<String>>() {
+        return Jsons.fromJson(json, new TypeReference<Set<String>>() {
         }.getType());
     }
 

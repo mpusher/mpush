@@ -21,7 +21,7 @@ package com.mpush.common.user;
 
 import com.mpush.api.spi.common.CacheManager;
 import com.mpush.api.spi.common.CacheManagerFactory;
-import com.mpush.cache.redis.RedisKey;
+import com.mpush.common.CacheKeys;
 import com.mpush.tools.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ public final class UserManager {
     private final CacheManager cacheManager = CacheManagerFactory.create();
 
 
-    private final String onlineUserListKey = RedisKey.getOnlineUserListKey(ConfigManager.I.getPublicIp());
+    private final String onlineUserListKey = CacheKeys.getOnlineUserListKey(ConfigManager.I.getPublicIp());
 
     public void clearUserOnlineData() {
         cacheManager.del(onlineUserListKey);
@@ -60,7 +60,7 @@ public final class UserManager {
 
     //在线用户数量
     public long getOnlineUserNum(String publicIP) {
-        String online_key = RedisKey.getOnlineUserListKey(publicIP);
+        String online_key = CacheKeys.getOnlineUserListKey(publicIP);
         Long value = cacheManager.zCard(online_key);
         return value == null ? 0 : value;
     }

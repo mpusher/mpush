@@ -19,19 +19,17 @@
 
 package com.mpush.test.client;
 
-import com.google.common.collect.Lists;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
-import com.mpush.api.spi.common.CacheManager;
 import com.mpush.api.spi.common.CacheManagerFactory;
+import com.mpush.api.spi.common.ServiceDiscoveryFactory;
+import com.mpush.api.srd.ServiceNames;
+import com.mpush.api.srd.ServiceNode;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.client.connect.ClientConfig;
 import com.mpush.client.connect.ConnClientChannelHandler;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
-import com.mpush.zk.ZKClient;
-import com.mpush.zk.listener.ZKServerNodeWatcher;
-import com.mpush.zk.node.ZKServerNode;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -51,16 +49,14 @@ import static com.mpush.client.connect.ConnClientChannelHandler.CONFIG_KEY;
 public final class ConnClientBoot extends BaseService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnClientBoot.class);
 
-    private final ZKServerNodeWatcher watcher = ZKServerNodeWatcher.buildConnect();
     private Bootstrap bootstrap;
     private NioEventLoopGroup workerGroup;
 
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        ZKClient.I.start().join();
+        ServiceDiscoveryFactory.create().syncStart();
         CacheManagerFactory.create().init();
-        watcher.watch();
 
         this.workerGroup = new NioEventLoopGroup();
         this.bootstrap = new Bootstrap();
@@ -87,13 +83,13 @@ public final class ConnClientBoot extends BaseService {
     @Override
     protected void doStop(Listener listener) throws Throwable {
         if (workerGroup != null) workerGroup.shutdownGracefully();
-        ZKClient.I.syncStop();
+        ServiceDiscoveryFactory.create().syncStop();
         RedisManager.I.destroy();
         listener.onSuccess();
     }
 
-    public List<ZKServerNode> getServers() {
-        return Lists.newArrayList(watcher.getCache().values());
+    public List<ServiceNode> getServers() {
+        return ServiceDiscoveryFactory.create().lookup(ServiceNames.CONN_SERVER);
     }
 
 

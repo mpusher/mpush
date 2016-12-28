@@ -20,7 +20,6 @@
 package com.mpush.cache.redis;
 
 import com.mpush.tools.config.data.RedisNode;
-import com.mpush.zk.node.ZKRedisNode;
 import redis.clients.jedis.HostAndPort;
 
 /**
@@ -34,10 +33,6 @@ public class RedisServer extends RedisNode {
 
     public HostAndPort convert() {
         return new HostAndPort(host, port);
-    }
-
-    public static RedisServer from(ZKRedisNode node) {
-        return new RedisServer(node.host, node.port);
     }
 
 }

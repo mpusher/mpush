@@ -28,8 +28,7 @@ import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.api.spi.common.CacheManager;
 import com.mpush.api.spi.common.CacheManagerFactory;
-import com.mpush.cache.redis.RedisKey;
-import com.mpush.cache.redis.manager.RedisManager;
+import com.mpush.common.CacheKeys;
 import com.mpush.common.message.*;
 import com.mpush.common.security.AesCipher;
 import com.mpush.common.security.CipherBox;
@@ -238,13 +237,13 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
         map.put("sessionId", sessionId);
         map.put("expireTime", expireTime + "");
         map.put("cipherStr", connection.getSessionContext().cipher.toString());
-        String key = RedisKey.getDeviceIdKey(client.getDeviceId());
+        String key = CacheKeys.getDeviceIdKey(client.getDeviceId());
         cacheManager.set(key, map, 60 * 5); //5分钟
     }
 
     @SuppressWarnings("unchecked")
     private Map<String, String> getFastConnectionInfo(String deviceId) {
-        String key = RedisKey.getDeviceIdKey(deviceId);
+        String key = CacheKeys.getDeviceIdKey(deviceId);
         return cacheManager.get(key, Map.class);
     }
 

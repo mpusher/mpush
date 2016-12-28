@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,25 +14,40 @@
  * limitations under the License.
  *
  * Contributors:
- *   ohun@live.cn (夜色)
+ *     ohun@live.cn (夜色)
  */
 
-package com.mpush.zk.node;
-
-import com.mpush.tools.Jsons;
-import com.mpush.zk.ZKPath;
+package com.mpush.api.srd;
 
 /**
- * Created by yxx on 2016/5/17.
+ * Created by ohun on 2016/12/19.
  *
- * @author ohun@live.cn
+ * @author ohun@live.cn (夜色)
  */
-public interface ZKNode {
-    default String encode() {
-        return Jsons.toJson(this);
+public interface ServiceNode {
+
+    String serviceName();
+
+    String nodeId();
+
+    String getHost();
+
+    int getPort();
+
+    default String getAttr(String name) {
+        return null;
+    }
+
+    default boolean isPersistent() {
+        return false;
+    }
+
+    default String getHostAndPort() {
+        return getHost() + ":" + getPort();
     }
 
     default String getNodePath() {
-        return null;
+        return serviceName() + '/' + nodeId();
     }
+
 }

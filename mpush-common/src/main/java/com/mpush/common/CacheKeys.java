@@ -17,9 +17,9 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.cache.redis;
+package com.mpush.common;
 
-public final class RedisKey {
+public final class CacheKeys {
 
     private static final String USER_PREFIX = "mp:ur:";//用户路由
 

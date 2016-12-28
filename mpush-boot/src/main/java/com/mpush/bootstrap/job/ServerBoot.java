@@ -21,12 +21,9 @@ package com.mpush.bootstrap.job;
 
 import com.mpush.api.service.Listener;
 import com.mpush.api.service.Server;
+import com.mpush.api.spi.common.ServiceRegistryFactory;
+import com.mpush.api.srd.ServiceNode;
 import com.mpush.tools.log.Logs;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
-import com.mpush.zk.ZKRegister;
-import com.mpush.zk.node.ZKServerNode;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by yxx on 2016/5/14.
@@ -35,9 +32,9 @@ import java.util.concurrent.TimeUnit;
  */
 public final class ServerBoot extends BootJob {
     private final Server server;
-    private final ZKServerNode node;
+    private final ServiceNode node;
 
-    public ServerBoot(Server server, ZKServerNode node) {
+    public ServerBoot(Server server, ServiceNode node) {
         this.server = server;
         this.node = node;
     }
@@ -50,8 +47,8 @@ public final class ServerBoot extends BootJob {
             public void onSuccess(Object... args) {
                 Logs.Console.info("start {} success on:{}", server.getClass().getSimpleName(), args[0]);
                 if (node != null) {//注册应用到zk
-                    ZKRegister.build().setEphemeral(true).setNode(node).register();
-                    Logs.ZK.info("register {} to zk server success.", node);
+                    ServiceRegistryFactory.create().register(node);
+                    Logs.RSD.info("register {} to srd success.", node);
                 }
                 startNext();
             }
@@ -66,6 +63,9 @@ public final class ServerBoot extends BootJob {
 
     @Override
     protected void stop() {
+        if (node != null) {
+            ServiceRegistryFactory.create().deregister(node);
+        }
         Logs.Console.info("try shutdown {}...", this.getClass().getSimpleName());
         server.stop().join();
         Logs.Console.info("{} shutdown success.", this.getClass().getSimpleName());

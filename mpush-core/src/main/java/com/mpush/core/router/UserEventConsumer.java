@@ -24,7 +24,6 @@ import com.mpush.api.event.UserOfflineEvent;
 import com.mpush.api.event.UserOnlineEvent;
 import com.mpush.api.spi.common.MQClient;
 import com.mpush.api.spi.common.MQClientFactory;
-import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.common.user.UserManager;
 import com.mpush.tools.event.EventConsumer;
 

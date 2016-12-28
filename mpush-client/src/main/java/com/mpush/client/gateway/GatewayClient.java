@@ -19,7 +19,6 @@
 
 package com.mpush.client.gateway;
 
-import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.ConnectionManager;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.service.Listener;
@@ -36,7 +35,6 @@ import com.mpush.tools.thread.NamedPoolThreadFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.sctp.nio.NioSctpChannel;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.udt.nio.NioUdtProvider;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 

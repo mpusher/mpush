@@ -87,8 +87,8 @@
         </encoder>
     </appender>
 
-    <!-- redis log -->
-    <appender name="REDIS_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- cache log -->
+    <appender name="CACHE_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
@@ -109,8 +109,8 @@
         </encoder>
     </appender>
 
-    <!-- zk log -->
-    <appender name="ZK_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- srd log -->
+    <appender name="SRD_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
@@ -172,13 +172,13 @@
         <level value="debug"/>
         <appender-ref ref="PUSH_APPENDER"/>
     </logger>
-    <logger name="mpush.redis.log" additivity="false">
+    <logger name="mpush.cache.log" additivity="false">
         <level value="debug"/>
-        <appender-ref ref="REDIS_APPENDER"/>
+        <appender-ref ref="CACHE_APPENDER"/>
     </logger>
-    <logger name="mpush.zk.log" additivity="false">
+    <logger name="mpush.srd.log" additivity="false">
         <level value="debug"/>
-        <appender-ref ref="ZK_APPENDER"/>
+        <appender-ref ref="SRD_APPENDER"/>
     </logger>
     <logger name="mpush.profile.log" additivity="false">
         <level value="debug"/>

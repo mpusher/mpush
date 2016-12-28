@@ -19,7 +19,7 @@
 
 package com.mpush.core.router;
 
-import com.mpush.common.net.KickRemoteMsg;
+import com.mpush.common.router.KickRemoteMsg;
 
 /**
  * Created by ohun on 16/10/23.

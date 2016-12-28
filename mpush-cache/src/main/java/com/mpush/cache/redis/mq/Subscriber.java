@@ -27,51 +27,51 @@ public final class Subscriber extends JedisPubSub {
 
     @Override
     public void onMessage(String channel, String message) {
-        Logs.REDIS.info("onMessage:{},{}", channel, message);
+        Logs.CACHE.info("onMessage:{},{}", channel, message);
         ListenerDispatcher.I().onMessage(channel, message);
         super.onMessage(channel, message);
     }
 
     @Override
     public void onPMessage(String pattern, String channel, String message) {
-        Logs.REDIS.info("onPMessage:{},{},{}", pattern, channel, message);
+        Logs.CACHE.info("onPMessage:{},{},{}", pattern, channel, message);
         super.onPMessage(pattern, channel, message);
     }
 
     @Override
     public void onPSubscribe(String pattern, int subscribedChannels) {
-        Logs.REDIS.info("onPSubscribe:{},{}", pattern, subscribedChannels);
+        Logs.CACHE.info("onPSubscribe:{},{}", pattern, subscribedChannels);
         super.onPSubscribe(pattern, subscribedChannels);
     }
 
     @Override
     public void onPUnsubscribe(String pattern, int subscribedChannels) {
-        Logs.REDIS.info("onPUnsubscribe:{},{}", pattern, subscribedChannels);
+        Logs.CACHE.info("onPUnsubscribe:{},{}", pattern, subscribedChannels);
         super.onPUnsubscribe(pattern, subscribedChannels);
     }
 
     @Override
     public void onSubscribe(String channel, int subscribedChannels) {
-        Logs.REDIS.info("onSubscribe:{},{}", channel, subscribedChannels);
+        Logs.CACHE.info("onSubscribe:{},{}", channel, subscribedChannels);
         super.onSubscribe(channel, subscribedChannels);
     }
 
     @Override
     public void onUnsubscribe(String channel, int subscribedChannels) {
-        Logs.REDIS.info("onUnsubscribe:{},{}", channel, subscribedChannels);
+        Logs.CACHE.info("onUnsubscribe:{},{}", channel, subscribedChannels);
         super.onUnsubscribe(channel, subscribedChannels);
     }
 
 
     @Override
     public void unsubscribe() {
-        Logs.REDIS.info("unsubscribe");
+        Logs.CACHE.info("unsubscribe");
         super.unsubscribe();
     }
 
     @Override
     public void unsubscribe(String... channels) {
-        Logs.REDIS.info("unsubscribe:{}", Jsons.toJson(channels));
+        Logs.CACHE.info("unsubscribe:{}", Jsons.toJson(channels));
         super.unsubscribe(channels);
     }
 

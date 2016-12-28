@@ -21,15 +21,12 @@ package com.mpush.client.gateway.connection;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.service.Listener;
-import com.mpush.api.spi.Factory;
+import com.mpush.api.srd.ServiceListener;
 import com.mpush.common.message.BaseMessage;
-import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.tools.config.CC;
-import com.mpush.zk.cache.ZKServerNodeCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -38,7 +35,7 @@ import java.util.function.Function;
  *
  * @author ohun@live.cn
  */
-public abstract class GatewayConnectionFactory extends ZKServerNodeCache {
+public abstract class GatewayConnectionFactory implements ServiceListener {
 
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -49,6 +46,8 @@ public abstract class GatewayConnectionFactory extends ZKServerNodeCache {
     public void init(Listener listener) {
         listener.onSuccess();
     }
+
+    abstract public void clear();
 
     abstract public Connection getConnection(String hostAndPort);
 

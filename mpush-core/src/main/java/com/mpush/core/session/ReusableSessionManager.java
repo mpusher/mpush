@@ -22,8 +22,7 @@ package com.mpush.core.session;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.spi.common.CacheManager;
 import com.mpush.api.spi.common.CacheManagerFactory;
-import com.mpush.cache.redis.RedisKey;
-import com.mpush.cache.redis.manager.RedisManager;
+import com.mpush.common.CacheKeys;
 import com.mpush.tools.common.Strings;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.crypto.MD5Utils;
@@ -39,13 +38,13 @@ public final class ReusableSessionManager {
     private final CacheManager cacheManager = CacheManagerFactory.create();
 
     public boolean cacheSession(ReusableSession session) {
-        String key = RedisKey.getSessionKey(session.sessionId);
+        String key = CacheKeys.getSessionKey(session.sessionId);
         cacheManager.set(key, ReusableSession.encode(session.context), expiredTime);
         return true;
     }
 
     public ReusableSession querySession(String sessionId) {
-        String key = RedisKey.getSessionKey(sessionId);
+        String key = CacheKeys.getSessionKey(sessionId);
         String value = cacheManager.get(key, String.class);
         if (Strings.isBlank(value)) return null;
         return ReusableSession.decode(value);
