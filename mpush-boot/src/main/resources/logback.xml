@@ -113,12 +113,12 @@
         </encoder>
     </appender>
 
-    <!-- redis log -->
-    <appender name="REDIS_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.home}/redis-mpush.log</file>
+    <!-- cache log -->
+    <appender name="CACHE_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.home}/cache-mpush.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.home}/redis-mpush.log.%d{yyyy-MM-dd}
+            <fileNamePattern>${log.home}/cache-mpush.log.%d{yyyy-MM-dd}
             </fileNamePattern>
             <maxHistory>5</maxHistory>
         </rollingPolicy>
@@ -141,12 +141,12 @@
         </encoder>
     </appender>
 
-    <!-- zk log -->
-    <appender name="ZK_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.home}/zk-mpush.log</file>
+    <!-- SRD log -->
+    <appender name="SRD_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.home}/srd-mpush.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.home}/zk-mpush.log.%d{yyyy-MM-dd}
+            <fileNamePattern>${log.home}/srd-mpush.log.%d{yyyy-MM-dd}
             </fileNamePattern>
             <maxHistory>10</maxHistory>
         </rollingPolicy>
@@ -210,13 +210,13 @@
         <level value="debug"/>
         <appender-ref ref="PUSH_APPENDER"/>
     </logger>
-    <logger name="mpush.redis.log" additivity="false">
+    <logger name="mpush.cache.log" additivity="false">
         <level value="debug"/>
-        <appender-ref ref="REDIS_APPENDER"/>
+        <appender-ref ref="CACHE_APPENDER"/>
     </logger>
-    <logger name="mpush.zk.log" additivity="false">
+    <logger name="mpush.srd.log" additivity="false">
         <level value="debug"/>
-        <appender-ref ref="ZK_APPENDER"/>
+        <appender-ref ref="SRD_APPENDER"/>
     </logger>
     <logger name="mpush.profile.log" additivity="false">
         <level value="debug"/>

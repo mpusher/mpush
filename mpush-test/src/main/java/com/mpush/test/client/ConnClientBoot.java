@@ -19,17 +19,17 @@
 
 package com.mpush.test.client;
 
-import com.google.common.collect.Lists;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
+import com.mpush.api.spi.common.CacheManagerFactory;
+import com.mpush.api.spi.common.ServiceDiscoveryFactory;
+import com.mpush.api.srd.ServiceNames;
+import com.mpush.api.srd.ServiceNode;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.client.connect.ClientConfig;
 import com.mpush.client.connect.ConnClientChannelHandler;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
-import com.mpush.zk.ZKClient;
-import com.mpush.zk.listener.ZKServerNodeWatcher;
-import com.mpush.zk.node.ZKServerNode;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -49,26 +49,14 @@ import static com.mpush.client.connect.ConnClientChannelHandler.CONFIG_KEY;
 public final class ConnClientBoot extends BaseService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnClientBoot.class);
 
-    private final ZKServerNodeWatcher watcher = ZKServerNodeWatcher.buildConnect();
     private Bootstrap bootstrap;
     private NioEventLoopGroup workerGroup;
 
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        ZKClient.I.start(new Listener() {
-            @Override
-            public void onSuccess(Object... args) {
-                RedisManager.I.init();
-                watcher.watch();
-                listener.onSuccess();
-            }
-
-            @Override
-            public void onFailure(Throwable cause) {
-                listener.onFailure(cause);
-            }
-        });
+        ServiceDiscoveryFactory.create().syncStart();
+        CacheManagerFactory.create().init();
 
         this.workerGroup = new NioEventLoopGroup();
         this.bootstrap = new Bootstrap();
@@ -77,6 +65,7 @@ public final class ConnClientBoot extends BaseService {
                 .option(ChannelOption.SO_REUSEADDR, true)//
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)//
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60 * 1000)
+                .option(ChannelOption.SO_RCVBUF, 5 * 1024 * 1024)
                 .channel(NioSocketChannel.class);
 
         bootstrap.handler(new ChannelInitializer<SocketChannel>() { // (4)
@@ -87,18 +76,20 @@ public final class ConnClientBoot extends BaseService {
                 ch.pipeline().addLast("handler", new ConnClientChannelHandler());
             }
         });
+
+        listener.onSuccess();
     }
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
         if (workerGroup != null) workerGroup.shutdownGracefully();
-        ZKClient.I.syncStop();
+        ServiceDiscoveryFactory.create().syncStop();
         RedisManager.I.destroy();
         listener.onSuccess();
     }
 
-    public List<ZKServerNode> getServers() {
-        return Lists.newArrayList(watcher.getCache().values());
+    public List<ServiceNode> getServers() {
+        return ServiceDiscoveryFactory.create().lookup(ServiceNames.CONN_SERVER);
     }
 
 

@@ -20,6 +20,7 @@
 package com.mpush.cache.redis.manager;
 
 import com.google.common.collect.Lists;
+import com.mpush.api.spi.common.*;
 import com.mpush.cache.redis.connection.RedisConnectionFactory;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.config.CC;
@@ -35,35 +36,34 @@ import java.util.stream.Collectors;
 /**
  * redis 对外封装接口
  */
-public final class RedisManager {
+public final class RedisManager implements CacheManager {
     public static final RedisManager I = new RedisManager();
 
-    private RedisConnectionFactory factory = new RedisConnectionFactory();
+    private final RedisConnectionFactory factory = new RedisConnectionFactory();
 
     public void init() {
-        Logs.REDIS.info("begin init redis...");
+        Logs.CACHE.info("begin init redis...");
         factory.setPassword(CC.mp.redis.password);
         factory.setPoolConfig(CC.mp.redis.getPoolConfig(JedisPoolConfig.class));
         factory.setRedisServers(CC.mp.redis.nodes);
         factory.setCluster(CC.mp.redis.isCluster());
         factory.init();
         test();
-        Logs.REDIS.info("init redis success...");
+        Logs.CACHE.info("init redis success...");
     }
-
 
     private <R> R call(Function<JedisCommands, R> function, R d) {
         if (factory.isCluster()) {
             try {
                 return function.apply(factory.getClusterConnection());
             } catch (Exception e) {
-                Logs.REDIS.error("redis ex", e);
+                Logs.CACHE.error("redis ex", e);
             }
         } else {
             try (Jedis jedis = factory.getJedisConnection()) {
                 return function.apply(jedis);
             } catch (Exception e) {
-                Logs.REDIS.error("redis ex", e);
+                Logs.CACHE.error("redis ex", e);
             }
         }
         return d;
@@ -74,13 +74,13 @@ public final class RedisManager {
             try {
                 consumer.accept(factory.getClusterConnection());
             } catch (Exception e) {
-                Logs.REDIS.error("redis ex", e);
+                Logs.CACHE.error("redis ex", e);
             }
         } else {
             try (Jedis jedis = factory.getJedisConnection()) {
                 consumer.accept(jedis);
             } catch (Exception e) {
-                Logs.REDIS.error("redis ex", e);
+                Logs.CACHE.error("redis ex", e);
             }
         }
     }
@@ -111,11 +111,11 @@ public final class RedisManager {
         set(key, value, 0);
     }
 
-    public <T> void set(String key, T value) {
+    public void set(String key, Object value) {
         set(key, value, 0);
     }
 
-    public <T> void set(String key, T value, int time) {
+    public void set(String key, Object value, int time) {
         set(key, Jsons.toJson(value), time);
     }
 
@@ -146,7 +146,7 @@ public final class RedisManager {
         call(jedis -> jedis.hset(key, field, value));
     }
 
-    public <T> void hset(String key, String field, T value) {
+    public void hset(String key, String field, Object value) {
         hset(key, field, Jsons.toJson(value));
     }
 
@@ -233,7 +233,7 @@ public final class RedisManager {
         call(jedis -> jedis.lpush(key, value));
     }
 
-    public <T> void lpush(String key, T value) {
+    public void lpush(String key, Object value) {
         lpush(key, Jsons.toJson(value));
     }
 
@@ -244,7 +244,7 @@ public final class RedisManager {
         call(jedis -> jedis.lpush(key, value));
     }
 
-    public <T> void rpush(String key, T value) {
+    public void rpush(String key, Object value) {
         rpush(key, Jsons.toJson(value));
     }
 
@@ -307,7 +307,7 @@ public final class RedisManager {
      ********************************/
 
 
-    public <T> void publish(String channel, T message) {
+    public void publish(String channel, Object message) {
         String msg = message instanceof String ? (String) message : Jsons.toJson(message);
         call(jedis -> {
             if (jedis instanceof MultiKeyCommands) {

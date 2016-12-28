@@ -32,6 +32,5 @@ public interface Constants {
     byte[] EMPTY_BYTES = new byte[0];
     String HTTP_HEAD_READ_TIMEOUT = "readTimeout";
     String EMPTY_STRING = "";
-    String PARAM_PERSISTENT = "persistent";
     String ANY_HOST = "0.0.0.0";
 }

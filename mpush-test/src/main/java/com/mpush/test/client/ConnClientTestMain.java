@@ -19,11 +19,11 @@
 
 package com.mpush.test.client;
 
+import com.mpush.api.srd.ServiceNode;
 import com.mpush.client.connect.ClientConfig;
 import com.mpush.client.connect.ConnClientChannelHandler;
 import com.mpush.common.security.CipherBox;
 import com.mpush.tools.log.Logs;
-import com.mpush.zk.node.ZKServerNode;
 import io.netty.channel.ChannelFuture;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.Test;
@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
+
+import static com.mpush.api.srd.ServiceNames.ATTR_PUBLIC_IP;
 
 public class ConnClientTestMain {
 
@@ -71,7 +73,7 @@ public class ConnClientTestMain {
         ConnClientBoot boot = new ConnClientBoot();
         boot.start().get();
 
-        List<ZKServerNode> serverList = boot.getServers();
+        List<ServiceNode> serverList = boot.getServers();
         if (serverList.isEmpty()) {
             boot.stop();
             System.out.println("no mpush server.");
@@ -106,9 +108,9 @@ public class ConnClientTestMain {
 
             int L = serverList.size();
             int index = (int) ((Math.random() % L) * L);
-            ZKServerNode server = serverList.get(index);
+            ServiceNode node = serverList.get(index);
 
-            ChannelFuture future = boot.connect(server.getExtranetIp(), server.getPort(), config);
+            ChannelFuture future = boot.connect(node.getAttr(ATTR_PUBLIC_IP), node.getPort(), config);
             if (sync) future.awaitUninterruptibly();
         }
     }

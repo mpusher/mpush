@@ -29,7 +29,6 @@ import com.mpush.tools.log.Logs;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelPromise;
 import io.netty.channel.socket.DatagramPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +94,8 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
 
             //阻塞调用线程还是抛异常？
             //return channel.newPromise().setFailure(new RuntimeException("send data too busy"));
-            return future.awaitUninterruptibly();
+            future.awaitUninterruptibly(100);
+            return future;
         } else {
             /*if (listener != null) {
                 channel.newPromise()
@@ -163,4 +163,18 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
         return channel;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        NettyConnection that = (NettyConnection) o;
+
+        return channel.id().equals(that.channel.id());
+    }
+
+    @Override
+    public int hashCode() {
+        return channel.id().hashCode();
+    }
 }

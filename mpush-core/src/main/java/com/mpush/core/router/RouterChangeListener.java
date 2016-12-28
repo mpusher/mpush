@@ -25,12 +25,13 @@ import com.mpush.api.connection.SessionContext;
 import com.mpush.api.event.RouterChangeEvent;
 import com.mpush.api.router.ClientLocation;
 import com.mpush.api.router.Router;
-import com.mpush.cache.redis.listener.ListenerDispatcher;
-import com.mpush.cache.redis.listener.MessageListener;
-import com.mpush.cache.redis.manager.RedisManager;
+import com.mpush.api.spi.common.MQClient;
+import com.mpush.api.spi.common.MQClientFactory;
+import com.mpush.api.spi.common.MQMessageReceiver;
+import com.mpush.common.ServerNodes;
 import com.mpush.common.message.KickUserMessage;
 import com.mpush.common.message.gateway.GatewayKickUserMessage;
-import com.mpush.common.net.KickRemoteMsg;
+import com.mpush.common.router.KickRemoteMsg;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.core.server.GatewayUDPConnector;
 import com.mpush.tools.Jsons;
@@ -41,21 +42,24 @@ import com.mpush.tools.log.Logs;
 
 import java.net.InetSocketAddress;
 
-import static com.mpush.zk.node.ZKServerNode.GS_NODE;
+import static com.mpush.common.ServerNodes.GS;
+
 
 /**
  * Created by ohun on 2016/1/4.
  *
  * @author ohun@live.cn
  */
-public final class RouterChangeListener extends EventConsumer implements MessageListener {
+public final class RouterChangeListener extends EventConsumer implements MQMessageReceiver {
     public static final String KICK_CHANNEL_ = "/mpush/kick/";
-    private final String kick_channel = KICK_CHANNEL_ + GS_NODE.getHostAndPort();
+    private final String kick_channel = KICK_CHANNEL_ + GS.getHostAndPort();
     private final boolean udpGateway = CC.mp.net.udpGateway();
+    private MQClient mqClient;
 
     public RouterChangeListener() {
         if (!udpGateway) {
-            ListenerDispatcher.I().subscribe(getKickChannel(), this);
+            mqClient = MQClientFactory.create();
+            mqClient.subscribe(getKickChannel(), this);
         }
     }
 
@@ -111,7 +115,7 @@ public final class RouterChangeListener extends EventConsumer implements Message
     private void kickRemote(String userId, RemoteRouter remoteRouter) {
         ClientLocation location = remoteRouter.getRouteValue();
         //1.如果目标机器是当前机器，就不要再发送广播了，直接忽略
-        if (location.isThisPC(GS_NODE.getIp(), GS_NODE.getPort())) {
+        if (location.isThisPC(GS.getHost(), GS.getPort())) {
             Logs.CONN.debug("kick remote router in local pc, ignore remote broadcast, userId={}", userId);
             return;
         }
@@ -137,7 +141,7 @@ public final class RouterChangeListener extends EventConsumer implements Message
                     .setDeviceId(location.getDeviceId())
                     .setTargetServer(location.getHost())
                     .setTargetPort(location.getPort());
-            RedisManager.I.publish(getKickChannel(location.getHostAndPort()), message);
+            mqClient.publish(getKickChannel(location.getHostAndPort()), message);
         }
     }
 
@@ -177,16 +181,16 @@ public final class RouterChangeListener extends EventConsumer implements Message
     }
 
     @Override
-    public void onMessage(String channel, String message) {
-        if (getKickChannel().equals(channel)) {
-            KickRemoteMsg msg = Jsons.fromJson(message, KickRemoteMsg.class);
+    public void receive(String topic, Object message) {
+        if (getKickChannel().equals(topic)) {
+            KickRemoteMsg msg = Jsons.fromJson(message.toString(), RedisKickRemoteMessage.class);
             if (msg != null) {
                 onReceiveKickRemoteMsg(msg);
             } else {
                 Logs.CONN.warn("receive an error kick message={}", message);
             }
         } else {
-            Logs.CONN.warn("receive an error redis channel={}", channel);
+            Logs.CONN.warn("receive an error redis channel={}", topic);
         }
     }
 }

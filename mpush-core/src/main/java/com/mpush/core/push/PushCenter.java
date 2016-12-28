@@ -47,8 +47,7 @@ import static com.mpush.tools.config.CC.mp.push.flow_control.broadcast.max;
  *
  * @author ohun@live.cn (夜色)
  */
-@Spi(order = -1)
-public final class PushCenter extends BaseService implements MessagePusher, MessagePusherFactory {
+public final class PushCenter extends BaseService implements MessagePusher {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final PushCenter I = new PushCenter();
@@ -56,7 +55,6 @@ public final class PushCenter extends BaseService implements MessagePusher, Mess
     private final GlobalFlowControl globalFlowControl = new GlobalFlowControl(
             CC.mp.push.flow_control.global.limit, CC.mp.push.flow_control.global.max, CC.mp.push.flow_control.global.duration
     );
-
 
     private final AtomicLong taskNum = new AtomicLong();
 
@@ -111,11 +109,6 @@ public final class PushCenter extends BaseService implements MessagePusher, Mess
 
     public PushListener<IPushMessage> getPushListener() {
         return pushListener;
-    }
-
-    @Override
-    public MessagePusher get() {
-        return this;
     }
 
 
@@ -173,5 +166,13 @@ public final class PushCenter extends BaseService implements MessagePusher, Mess
         void addTask(PushTask task);
 
         void delayTask(long delay, PushTask task);
+    }
+
+    @Spi(order = -1)
+    public static final class CoreMessagePusherFactory implements MessagePusherFactory {
+        @Override
+        public MessagePusher get() {
+            return PushCenter.I;
+        }
     }
 }

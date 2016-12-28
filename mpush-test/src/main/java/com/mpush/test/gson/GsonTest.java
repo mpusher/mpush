@@ -44,16 +44,8 @@ public class GsonTest {
 
     @Test
     public void test2() {
-        ValueMap map = new ValueMap("1122", "value2");
 
-        PushMsg content = PushMsg.build(MsgType.MESSAGE, Jsons.toJson(map));
-
-
-        System.out.println(Jsons.toJson(content));
-
-        PushMsg newContetn = Jsons.fromJson(Jsons.toJson(content), PushMsg.class);
-
-        System.out.println(newContetn.getContent());
+        System.out.println(Jsons.toJson(new ValueMap("xxx")));
 
 
     }
@@ -62,10 +54,15 @@ public class GsonTest {
 
         private String key1;
         private String key2;
+        transient private boolean key3;
 
         public ValueMap(String key1, String key2) {
             this.key1 = key1;
             this.key2 = key2;
+        }
+
+        public ValueMap(String key1) {
+            this.key1 = key1;
         }
 
         public String getKey1() {
@@ -77,6 +74,14 @@ public class GsonTest {
         }
 
 
+        public boolean isKey3() {
+            return key3;
+        }
+
+        public ValueMap setKey3(boolean key3) {
+            this.key3 = key3;
+            return this;
+        }
     }
 
 }

@@ -20,11 +20,10 @@
 package com.mpush.common.message.gateway;
 
 import com.mpush.api.connection.Connection;
-import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.common.memory.PacketFactory;
 import com.mpush.common.message.ByteBufMessage;
-import com.mpush.common.net.KickRemoteMsg;
+import com.mpush.common.router.KickRemoteMsg;
 import io.netty.buffer.ByteBuf;
 
 import static com.mpush.api.protocol.Command.GATEWAY_KICK;

@@ -25,8 +25,9 @@ import com.mpush.api.connection.SessionContext;
 import com.mpush.api.event.ConnectionCloseEvent;
 import com.mpush.api.router.ClientLocation;
 import com.mpush.api.router.RouterManager;
-import com.mpush.cache.redis.RedisKey;
-import com.mpush.cache.redis.manager.RedisManager;
+import com.mpush.api.spi.common.CacheManager;
+import com.mpush.api.spi.common.CacheManagerFactory;
+import com.mpush.common.CacheKeys;
 import com.mpush.tools.event.EventConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +45,14 @@ import java.util.stream.Collectors;
 public class RemoteRouterManager extends EventConsumer implements RouterManager<RemoteRouter> {
     public static final Logger LOGGER = LoggerFactory.getLogger(RemoteRouterManager.class);
 
+    private final CacheManager cacheManager = CacheManagerFactory.create();
+
     @Override
     public RemoteRouter register(String userId, RemoteRouter router) {
-        String key = RedisKey.getUserRouteKey(userId);
+        String key = CacheKeys.getUserRouteKey(userId);
         String field = Integer.toString(router.getRouteValue().getClientType());
-        ClientLocation old = RedisManager.I.hget(key, field, ClientLocation.class);
-        RedisManager.I.hset(key, field, router.getRouteValue());
+        ClientLocation old = cacheManager.hget(key, field, ClientLocation.class);
+        cacheManager.hset(key, field, router.getRouteValue());
         LOGGER.info("register remote router success userId={}, newRouter={}, oldRoute={}", userId, router, old);
         return old == null ? null : new RemoteRouter(old);
     }
@@ -64,28 +67,28 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
      */
     @Override
     public boolean unRegister(String userId, int clientType) {
-        String key = RedisKey.getUserRouteKey(userId);
+        String key = CacheKeys.getUserRouteKey(userId);
         String field = Integer.toString(clientType);
-        ClientLocation location = RedisManager.I.hget(key, field, ClientLocation.class);
+        ClientLocation location = cacheManager.hget(key, field, ClientLocation.class);
         if (location == null || location.isOffline()) return true;
-        RedisManager.I.hset(key, field, location.offline());
+        cacheManager.hset(key, field, location.offline());
         LOGGER.info("unRegister remote router success userId={}, route={}", userId, location);
         return true;
     }
 
     @Override
     public Set<RemoteRouter> lookupAll(String userId) {
-        String key = RedisKey.getUserRouteKey(userId);
-        Map<String, ClientLocation> values = RedisManager.I.hgetAll(key, ClientLocation.class);
+        String key = CacheKeys.getUserRouteKey(userId);
+        Map<String, ClientLocation> values = cacheManager.hgetAll(key, ClientLocation.class);
         if (values == null || values.isEmpty()) return Collections.emptySet();
         return values.values().stream().map(RemoteRouter::new).collect(Collectors.toSet());
     }
 
     @Override
     public RemoteRouter lookup(String userId, int clientType) {
-        String key = RedisKey.getUserRouteKey(userId);
+        String key = CacheKeys.getUserRouteKey(userId);
         String field = Integer.toString(clientType);
-        ClientLocation location = RedisManager.I.hget(key, field, ClientLocation.class);
+        ClientLocation location = cacheManager.hget(key, field, ClientLocation.class);
         LOGGER.info("lookup remote router userId={}, router={}", userId, location);
         return location == null ? null : new RemoteRouter(location);
     }
@@ -102,15 +105,15 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
         SessionContext context = connection.getSessionContext();
         String userId = context.userId;
         if (userId == null) return;
-        String key = RedisKey.getUserRouteKey(userId);
+        String key = CacheKeys.getUserRouteKey(userId);
         String field = Integer.toString(context.getClientType());
-        ClientLocation location = RedisManager.I.hget(key, field, ClientLocation.class);
+        ClientLocation location = cacheManager.hget(key, field, ClientLocation.class);
         if (location == null || location.isOffline()) return;
 
         String connId = connection.getId();
         //2.检测下，是否是同一个链接, 如果客户端重连，老的路由会被新的链接覆盖
         if (connId.equals(location.getConnId())) {
-            RedisManager.I.hset(key, field, location.offline());
+            cacheManager.hset(key, field, location.offline());
             LOGGER.info("clean disconnected remote route, userId={}, route={}", userId, location);
         } else {
             LOGGER.info("clean disconnected remote route, not clean:userId={}, route={}", userId, location);

@@ -22,6 +22,7 @@ package com.mpush.core.push;
 import com.mpush.api.Message;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.spi.push.IPushMessage;
+import com.mpush.common.ServerNodes;
 import com.mpush.common.message.PushMessage;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.core.ack.AckTask;
@@ -35,7 +36,8 @@ import io.netty.channel.ChannelFutureListener;
 
 import java.util.concurrent.ScheduledExecutorService;
 
-import static com.mpush.zk.node.ZKServerNode.GS_NODE;
+import static com.mpush.common.ServerNodes.GS;
+
 
 /**
  * Created by ohun on 16/10/24.
@@ -152,7 +154,7 @@ public final class SingleUserPushTask implements PushTask {
         }
 
         //2.如果查出的远程机器是当前机器，说明路由已经失效，此时用户已下线，需要删除失效的缓存
-        if (remoteRouter.getRouteValue().isThisPC(GS_NODE.getIp(), GS_NODE.getPort())) {
+        if (remoteRouter.getRouteValue().isThisPC(GS.getHost(), GS.getPort())) {
 
             PushCenter.I.getPushListener().onOffline(message);
 

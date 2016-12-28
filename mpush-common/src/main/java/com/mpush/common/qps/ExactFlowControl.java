@@ -34,6 +34,7 @@ public final class ExactFlowControl implements FlowControl {
     private static final long DELAY_100_MS = TimeUnit.MILLISECONDS.toNanos(1);
     private final RollingNumber rollingNumber;
     private final int qps_pre_10_mills;
+    private final long start0 = System.nanoTime();
 
     public ExactFlowControl(int qps) {
         int timeInMilliseconds = 1000;// 1s
@@ -83,6 +84,8 @@ public final class ExactFlowControl implements FlowControl {
 
     @Override
     public String report() {
-        return String.format("total:%d, count:%d, qps:%d", total(), rollingNumber.getValueOfLatestBucket(SUCCESS), qps());
+        return String.format("total:%d, count:%d, qps:%d, avg_qps:%d",
+                total(), rollingNumber.getValueOfLatestBucket(SUCCESS), qps(),
+                TimeUnit.SECONDS.toNanos(total()) / (System.nanoTime() - start0));
     }
 }

@@ -19,8 +19,8 @@
 
 package com.mpush.core.mq;
 
-import com.mpush.api.spi.push.PushListener;
 import com.mpush.api.spi.Spi;
+import com.mpush.api.spi.push.PushListener;
 import com.mpush.api.spi.push.PushListenerFactory;
 
 /**
@@ -30,41 +30,53 @@ import com.mpush.api.spi.push.PushListenerFactory;
  */
 @Spi(order = 2)
 public final class MQPushListener implements PushListener<MQPushMessage>, PushListenerFactory<MQPushMessage> {
+    private final MQClient mqClient = new MQClient();
 
+    public MQPushListener() {
+        mqClient.init();
+        MQMessageReceiver.subscribe(mqClient);
+    }
 
     @Override
     public void onSuccess(MQPushMessage message) {
         //publish messageId to mq:[success/queue]
+        mqClient.publish("/mpush/push/success", message);
     }
 
     @Override
     public void onAckSuccess(MQPushMessage message) {
         //publish messageId to mq:[success/queue]
+        mqClient.publish("/mpush/push/success", message);
     }
 
     @Override
     public void onBroadcastComplete(MQPushMessage message) {
         //publish messageId to mq:[broadcast/finish/queue]
+        mqClient.publish("/mpush/push/broadcast_finish", message);
     }
 
     @Override
     public void onFailure(MQPushMessage message) {
         //publish messageId to mq:[failure/queue], client can retry
+        mqClient.publish("/mpush/push/failure", message);
     }
 
     @Override
     public void onOffline(MQPushMessage message) {
         //publish messageId to mq:[offline/queue], client persist offline message to db
+        mqClient.publish("/mpush/push/offline", message);
     }
 
     @Override
     public void onRedirect(MQPushMessage message) {
         //publish messageId to mq:[route/change/queue], client should be try again
+        mqClient.publish("/mpush/push/route_change", message);
     }
 
     @Override
     public void onAckTimeout(MQPushMessage message) {
         //publish messageId to mq:[ack/timeout/queue], client can retry
+        mqClient.publish("/mpush/push/ack_timeout", message);
     }
 
     @Override

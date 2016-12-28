@@ -22,11 +22,12 @@ package com.mpush.client.gateway.connection;
 import com.google.common.collect.Maps;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.service.Listener;
+import com.mpush.api.spi.common.ServiceDiscoveryFactory;
+import com.mpush.api.srd.ServiceDiscovery;
+import com.mpush.api.srd.ServiceNode;
 import com.mpush.client.gateway.GatewayUDPConnector;
 import com.mpush.common.message.BaseMessage;
-import com.mpush.tools.common.Holder;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
-import com.mpush.zk.node.ZKServerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static com.mpush.api.srd.ServiceNames.GATEWAY_SERVER;
 import static com.mpush.tools.config.CC.mp.net.gateway_server_multicast;
 import static com.mpush.tools.config.CC.mp.net.gateway_server_port;
 
@@ -56,24 +58,32 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
     @Override
     public void init(Listener listener) {
         ThreadPoolManager.I.newThread("udp-client", () -> connector.start(listener)).start();
+        ServiceDiscovery discovery = ServiceDiscoveryFactory.create();
+        discovery.subscribe(GATEWAY_SERVER, this);
+        discovery.lookup(GATEWAY_SERVER).forEach(this::add);
     }
 
     @Override
-    public void put(String fullPath, ZKServerNode node) {
-        super.put(fullPath, node);
-        ip_address.put(node.getHostAndPort(), new InetSocketAddress(node.getIp(), node.getPort()));
+    public void onServiceAdded(String path, ServiceNode node) {
+        add(node);
     }
 
     @Override
-    public ZKServerNode remove(String fullPath) {
-        ZKServerNode node = super.remove(fullPath);
+    public void onServiceUpdated(String path, ServiceNode node) {
+        add(node);
+    }
+
+    @Override
+    public void onServiceRemoved(String path, ServiceNode node) {
+        ip_address.remove(node.getHostAndPort());
         logger.warn("Gateway Server zkNode={} was removed.", node);
-        return node;
     }
 
-    @Override
+    private void add(ServiceNode node) {
+        ip_address.put(node.getHostAndPort(), new InetSocketAddress(node.getHost(), node.getPort()));
+    }
+
     public void clear() {
-        super.clear();
         ip_address.clear();
         connector.stop();
     }

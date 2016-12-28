@@ -20,21 +20,14 @@
 package com.mpush.core.handler;
 
 import com.google.common.base.Strings;
-import com.mpush.api.push.PushSender;
-import com.mpush.api.service.Listener;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.user.UserManager;
 import com.mpush.core.router.RouterCenter;
-import com.mpush.core.server.AdminServer;
 import com.mpush.core.server.ConnectionServer;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.Utils;
 import com.mpush.tools.common.Profiler;
 import com.mpush.tools.config.CC;
-import com.mpush.tools.config.ConfigManager;
-import com.mpush.zk.ZKClient;
-import com.mpush.zk.ZKPath;
-import com.mpush.zk.node.ZKServerNode;
 import com.typesafe.config.ConfigRenderOptions;
 import io.netty.channel.*;
 import org.slf4j.Logger;
@@ -43,16 +36,11 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.time.Clock;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 @ChannelHandler.Sharable
 public final class AdminHandler extends SimpleChannelInboundHandler<String> {
@@ -143,30 +131,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
                 return "unsupported";
             }
         },
-        zk {
-            @Override
-            public String handler(ChannelHandlerContext ctx, String args) {
-                switch (args) {
-                    case "redis":
-                        return ZKClient.I.get(ZKPath.REDIS_SERVER.getRootPath());
-                    case "cs":
-                        return getNodeData(ZKPath.CONNECT_SERVER);
-                    case "gs":
-                        return getNodeData(ZKPath.GATEWAY_SERVER);
 
-                }
-                return "[" + args + "] unsupported, try help.";
-            }
-
-            private String getNodeData(ZKPath path) {
-                List<String> rawData = ZKClient.I.getChildrenKeys(path.getRootPath());
-                StringBuilder sb = new StringBuilder();
-                for (String raw : rawData) {
-                    sb.append(ZKClient.I.get(path.getFullPath(raw))).append('\n');
-                }
-                return sb.toString();
-            }
-        },
         count {
             @Override
             public Serializable handler(ChannelHandlerContext ctx, String args) {
@@ -219,32 +184,6 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
                 } else {
                     Profiler.enable(true);
                     return "Profiler enabled";
-                }
-            }
-        },
-        rcs {
-            @Override
-            public String handler(ChannelHandlerContext ctx, String args) {
-
-                List<String> rawData = ZKClient.I.getChildrenKeys(ZKPath.CONNECT_SERVER.getRootPath());
-                boolean removeSuccess = false;
-                String localIp = ConfigManager.I.getLocalIp();
-                for (String raw : rawData) {
-                    String dataPath = ZKPath.CONNECT_SERVER.getFullPath(raw);
-                    String data = ZKClient.I.get(dataPath);
-                    ZKServerNode serverNode = Jsons.fromJson(data, ZKServerNode.class);
-                    if (serverNode.getIp().equals(localIp)) {
-                        ZKClient.I.remove(dataPath);
-                        LOGGER.info("delete connection server success:{}", data);
-                        removeSuccess = true;
-                    } else {
-                        LOGGER.info("delete connection server failed: required host:{}, but:{}", serverNode.getIp(), Utils.getLocalIp());
-                    }
-                }
-                if (removeSuccess) {
-                    return "removeAndClose success.";
-                } else {
-                    return "removeAndClose false.";
                 }
             }
         };

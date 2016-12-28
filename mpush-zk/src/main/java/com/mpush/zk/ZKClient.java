@@ -23,23 +23,20 @@ import com.mpush.api.Constants;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
 import com.mpush.tools.log.Logs;
-import com.mpush.zk.listener.ZKNodeCacheWatcher;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.CuratorFrameworkFactory.Builder;
 import org.apache.curator.framework.api.ACLProvider;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.curator.framework.recipes.cache.TreeCacheListener;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class ZKClient extends BaseService {
@@ -48,10 +45,6 @@ public class ZKClient extends BaseService {
     private CuratorFramework client;
     private TreeCache cache;
     private Map<String, String> ephemeralNodes = new LinkedHashMap<>();
-
-    public static ZKClient get() {
-        return I;
-    }
 
     private synchronized static ZKClient I() {
         return I == null ? new ZKClient() : I;
@@ -72,13 +65,13 @@ public class ZKClient extends BaseService {
     @Override
     protected void doStart(Listener listener) throws Throwable {
         client.start();
-        Logs.ZK.info("init zk client waiting for connected...");
+        Logs.RSD.info("init zk client waiting for connected...");
         if (!client.blockUntilConnected(1, TimeUnit.MINUTES)) {
             throw new ZKException("init zk error, config=" + zkConfig);
         }
         initLocalCache(zkConfig.getWatchPath());
         addConnectionStateListener();
-        Logs.ZK.info("zk client start success, server lists is:{}", zkConfig.getHosts());
+        Logs.RSD.info("zk client start success, server lists is:{}", zkConfig.getHosts());
         listener.onSuccess(zkConfig.getHosts());
     }
 
@@ -87,7 +80,7 @@ public class ZKClient extends BaseService {
         if (cache != null) cache.close();
         TimeUnit.MILLISECONDS.sleep(600);
         client.close();
-        Logs.ZK.info("zk client closed...");
+        Logs.RSD.info("zk client closed...");
         listener.onSuccess();
     }
 
@@ -138,7 +131,7 @@ public class ZKClient extends BaseService {
             });
         }
         client = builder.build();
-        Logs.ZK.info("init zk client, config={}", zkConfig.toString());
+        Logs.RSD.info("init zk client, config={}", zkConfig.toString());
     }
 
     // 注册连接状态监听器
@@ -147,7 +140,7 @@ public class ZKClient extends BaseService {
             if (newState == ConnectionState.RECONNECTED) {
                 ephemeralNodes.forEach(this::reRegisterEphemeralSequential);
             }
-            Logs.ZK.warn("zk connection state changed new state={}, isConnected={}", newState, newState.isConnected());
+            Logs.RSD.warn("zk connection state changed new state={}, isConnected={}", newState, newState.isConnected());
         });
     }
 
@@ -185,7 +178,7 @@ public class ZKClient extends BaseService {
             try {
                 return new String(client.getData().forPath(key), Constants.UTF_8);
             } catch (Exception ex) {
-                Logs.ZK.error("getFromRemote:{}", key, ex);
+                Logs.RSD.error("getFromRemote:{}", key, ex);
             }
         }
         return null;
@@ -201,10 +194,10 @@ public class ZKClient extends BaseService {
         try {
             if (!isExisted(key)) return Collections.emptyList();
             List<String> result = client.getChildren().forPath(key);
-            Collections.sort(result, (o1, o2) -> o2.compareTo(o1));
+            result.sort(Comparator.reverseOrder());
             return result;
         } catch (Exception ex) {
-            Logs.ZK.error("getChildrenKeys:{}", key, ex);
+            Logs.RSD.error("getChildrenKeys:{}", key, ex);
             return Collections.emptyList();
         }
     }
@@ -219,7 +212,7 @@ public class ZKClient extends BaseService {
         try {
             return null != client.checkExists().forPath(key);
         } catch (Exception ex) {
-            Logs.ZK.error("isExisted:{}", key, ex);
+            Logs.RSD.error("isExisted:{}", key, ex);
             return false;
         }
     }
@@ -238,7 +231,7 @@ public class ZKClient extends BaseService {
                 client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(key, value.getBytes());
             }
         } catch (Exception ex) {
-            Logs.ZK.error("persist:{},{}", key, value, ex);
+            Logs.RSD.error("persist:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
     }
@@ -258,7 +251,7 @@ public class ZKClient extends BaseService {
             );*/
             client.inTransaction().check().forPath(key).and().setData().forPath(key, value.getBytes(Constants.UTF_8)).and().commit();
         } catch (Exception ex) {
-            Logs.ZK.error("update:{},{}", key, value, ex);
+            Logs.RSD.error("update:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
     }
@@ -276,7 +269,7 @@ public class ZKClient extends BaseService {
             }
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(key, value.getBytes(Constants.UTF_8));
         } catch (Exception ex) {
-            Logs.ZK.error("persistEphemeral:{},{}", key, value, ex);
+            Logs.RSD.error("persistEphemeral:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
     }
@@ -293,7 +286,7 @@ public class ZKClient extends BaseService {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key, value.getBytes());
             if (cacheNode) ephemeralNodes.put(key, value);
         } catch (Exception ex) {
-            Logs.ZK.error("persistEphemeralSequential:{},{}", key, value, ex);
+            Logs.RSD.error("persistEphemeralSequential:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
     }
@@ -316,7 +309,7 @@ public class ZKClient extends BaseService {
         try {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key);
         } catch (Exception ex) {
-            Logs.ZK.error("persistEphemeralSequential:{}", key, ex);
+            Logs.RSD.error("persistEphemeralSequential:{}", key, ex);
             throw new ZKException(ex);
         }
     }
@@ -330,12 +323,12 @@ public class ZKClient extends BaseService {
         try {
             client.delete().deletingChildrenIfNeeded().forPath(key);
         } catch (Exception ex) {
-            Logs.ZK.error("removeAndClose:{}", key, ex);
+            Logs.RSD.error("removeAndClose:{}", key, ex);
             throw new ZKException(ex);
         }
     }
 
-    public void registerListener(ZKNodeCacheWatcher listener) {
+    public void registerListener(TreeCacheListener listener) {
         cache.getListenable().addListener(listener);
     }
 
@@ -346,5 +339,9 @@ public class ZKClient extends BaseService {
     public ZKClient setZKConfig(ZKConfig zkConfig) {
         this.zkConfig = zkConfig;
         return this;
+    }
+
+    public CuratorFramework getClient() {
+        return client;
     }
 }

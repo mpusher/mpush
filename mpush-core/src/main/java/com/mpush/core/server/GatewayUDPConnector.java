@@ -21,7 +21,6 @@ package com.mpush.core.server;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Command;
-import com.mpush.api.service.Listener;
 import com.mpush.common.MessageDispatcher;
 import com.mpush.core.handler.GatewayKickUserHandler;
 import com.mpush.core.handler.GatewayPushHandler;

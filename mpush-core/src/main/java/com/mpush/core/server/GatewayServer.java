@@ -31,7 +31,6 @@ import com.mpush.tools.thread.NamedPoolThreadFactory;
 import com.mpush.tools.thread.ThreadNames;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
-import io.netty.channel.sctp.SctpServerChannel;
 import io.netty.channel.sctp.nio.NioSctpServerChannel;
 import io.netty.channel.udt.nio.NioUdtProvider;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
@@ -41,6 +40,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static com.mpush.tools.config.CC.mp.net.traffic_shaping.gateway_server.*;
+import static com.mpush.tools.config.CC.mp.net.write_buffer_water_mark.gateway_server_high;
+import static com.mpush.tools.config.CC.mp.net.write_buffer_water_mark.gateway_server_low;
 import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
 
 /**
@@ -113,7 +114,12 @@ public final class GatewayServer extends NettyTCPServer {
 
     @Override
     protected int getIoRate() {
-        return 70;
+        return 100;
+    }
+
+    @Override
+    protected int getWorkThreadNum() {
+        return CC.mp.thread.pool.gateway_server_work;
     }
 
     @Override
@@ -147,7 +153,11 @@ public final class GatewayServer extends NettyTCPServer {
          * 当buffer的大小低于低水位线的时候，isWritable就会变成true。所以应用应该判断isWritable，如果是false就不要再写数据了。
          * 高水位线和低水位线是字节数，默认高水位是64K，低水位是32K，我们可以根据我们的应用需要支持多少连接数和系统资源进行合理规划。
          */
-        b.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(32 * 1024, 1024 * 1024));
+        if (gateway_server_low > 0 && gateway_server_high > 0) {
+            b.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(
+                    gateway_server_low, gateway_server_high
+            ));
+        }
     }
 
     @Override

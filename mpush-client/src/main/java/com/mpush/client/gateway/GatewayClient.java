@@ -19,7 +19,7 @@
 
 package com.mpush.client.gateway;
 
-import com.mpush.api.connection.Connection;
+import com.mpush.api.connection.ConnectionManager;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.service.Listener;
 import com.mpush.client.gateway.handler.GatewayClientChannelHandler;
@@ -27,6 +27,7 @@ import com.mpush.client.gateway.handler.GatewayErrorHandler;
 import com.mpush.client.gateway.handler.GatewayOKHandler;
 import com.mpush.common.MessageDispatcher;
 import com.mpush.netty.client.NettyTCPClient;
+import com.mpush.netty.connection.NettyConnectionManager;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.config.CC.mp.net.rcv_buf;
 import com.mpush.tools.config.CC.mp.net.snd_buf;
@@ -34,7 +35,6 @@ import com.mpush.tools.thread.NamedPoolThreadFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.sctp.nio.NioSctpChannel;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.udt.nio.NioUdtProvider;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 
@@ -54,13 +54,13 @@ public class GatewayClient extends NettyTCPClient {
     private final GatewayClientChannelHandler handler;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
     private ScheduledExecutorService trafficShapingExecutor;
+    private final ConnectionManager connectionManager = new NettyConnectionManager();
 
-    public GatewayClient(String host, int port) {
-        super(host, port);
+    public GatewayClient() {
         MessageDispatcher dispatcher = new MessageDispatcher();
         dispatcher.register(Command.OK, new GatewayOKHandler());
         dispatcher.register(Command.ERROR, new GatewayErrorHandler());
-        this.handler = new GatewayClientChannelHandler(dispatcher);
+        handler = new GatewayClientChannelHandler(connectionManager, dispatcher);
         if (enabled) {
             trafficShapingExecutor = Executors.newSingleThreadScheduledExecutor(new NamedPoolThreadFactory(T_TRAFFIC_SHAPING));
             trafficShapingHandler = new GlobalChannelTrafficShapingHandler(
@@ -74,10 +74,6 @@ public class GatewayClient extends NettyTCPClient {
     @Override
     public ChannelHandler getChannelHandler() {
         return handler;
-    }
-
-    public Connection getConnection() {
-        return handler.getConnection();
     }
 
     @Override
@@ -118,5 +114,14 @@ public class GatewayClient extends NettyTCPClient {
         if (CC.mp.net.udtGateway()) return NioUdtProvider.BYTE_PROVIDER;
         if (CC.mp.net.sctpGateway()) return super.getSelectorProvider();
         return super.getSelectorProvider();
+    }
+
+    @Override
+    protected int getWorkThreadNum() {
+        return CC.mp.thread.pool.gateway_client_work;
+    }
+
+    public ConnectionManager getConnectionManager() {
+        return connectionManager;
     }
 }

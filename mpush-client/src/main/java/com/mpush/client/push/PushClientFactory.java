@@ -30,15 +30,17 @@ import com.mpush.api.spi.client.PusherFactory;
  */
 @Spi
 public class PushClientFactory implements PusherFactory {
-    private static PushClient CLIENT;
+    private volatile PushClient client;
 
     @Override
     public PushSender get() {
-        if (CLIENT == null) {
+        if (client == null) {
             synchronized (PushClientFactory.class) {
-                CLIENT = new PushClient();
+                if (client == null) {
+                    client = new PushClient();
+                }
             }
         }
-        return CLIENT;
+        return client;
     }
 }

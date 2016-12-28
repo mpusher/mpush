@@ -29,7 +29,6 @@ public class ConnectClient extends NettyTCPClient {
     private final ConnClientChannelHandler handler;
 
     public ConnectClient(String host, int port, ClientConfig config) {
-        super(host, port);
         handler = new ConnClientChannelHandler(config);
         EventBus.I.register(this);
     }
@@ -44,4 +43,8 @@ public class ConnectClient extends NettyTCPClient {
         this.stop();
     }
 
+    @Override
+    protected int getWorkThreadNum() {
+        return 1;
+    }
 }
