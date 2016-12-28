@@ -47,6 +47,24 @@ public final class ZKServiceRegistryAndDiscovery extends BaseService implements 
     }
 
     @Override
+    public void start(Listener listener) {
+        if (isRunning()) {
+            listener.onSuccess();
+        } else {
+            super.start(listener);
+        }
+    }
+
+    @Override
+    public void stop(Listener listener) {
+        if (isRunning()) {
+            super.stop(listener);
+        } else {
+            listener.onSuccess();
+        }
+    }
+
+    @Override
     protected void doStart(Listener listener) throws Throwable {
         client.start(listener);
     }
@@ -59,16 +77,16 @@ public final class ZKServiceRegistryAndDiscovery extends BaseService implements 
     @Override
     public void register(ServiceNode node) {
         if (node.isPersistent()) {
-            client.registerPersist(node.getNodePath(), Jsons.toJson(node));
+            client.registerPersist(node.nodePath(), Jsons.toJson(node));
         } else {
-            client.registerEphemeral(node.getNodePath(), Jsons.toJson(node));
+            client.registerEphemeral(node.nodePath(), Jsons.toJson(node));
         }
     }
 
     @Override
     public void deregister(ServiceNode node) {
         if (client.isRunning()) {
-            client.remove(node.getNodePath());
+            client.remove(node.nodePath());
         }
     }
 

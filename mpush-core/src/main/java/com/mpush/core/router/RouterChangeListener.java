@@ -28,7 +28,6 @@ import com.mpush.api.router.Router;
 import com.mpush.api.spi.common.MQClient;
 import com.mpush.api.spi.common.MQClientFactory;
 import com.mpush.api.spi.common.MQMessageReceiver;
-import com.mpush.common.ServerNodes;
 import com.mpush.common.message.KickUserMessage;
 import com.mpush.common.message.gateway.GatewayKickUserMessage;
 import com.mpush.common.router.KickRemoteMsg;
@@ -52,7 +51,7 @@ import static com.mpush.common.ServerNodes.GS;
  */
 public final class RouterChangeListener extends EventConsumer implements MQMessageReceiver {
     public static final String KICK_CHANNEL_ = "/mpush/kick/";
-    private final String kick_channel = KICK_CHANNEL_ + GS.getHostAndPort();
+    private final String kick_channel = KICK_CHANNEL_ + GS.hostAndPort();
     private final boolean udpGateway = CC.mp.net.udpGateway();
     private MQClient mqClient;
 

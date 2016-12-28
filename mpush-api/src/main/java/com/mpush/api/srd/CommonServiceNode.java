@@ -54,7 +54,7 @@ public final class CommonServiceNode implements ServiceNode {
         this.persistent = persistent;
     }
 
-    public void setName(String name) {
+    public void setServiceName(String name) {
         this.name = name;
     }
 
@@ -78,7 +78,7 @@ public final class CommonServiceNode implements ServiceNode {
     }
 
     @Override
-    public String getHostAndPort() {
+    public String hostAndPort() {
         return host + ":" + port;
     }
 
@@ -119,7 +119,6 @@ public final class CommonServiceNode implements ServiceNode {
                 "host='" + host + '\'' +
                 ", port=" + port +
                 ", attrs=" + attrs +
-                ", name='" + name + '\'' +
                 ", persistent=" + persistent +
                 '}';
     }

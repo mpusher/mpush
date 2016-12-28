@@ -42,11 +42,11 @@ public interface ServiceNode {
         return false;
     }
 
-    default String getHostAndPort() {
+    default String hostAndPort() {
         return getHost() + ":" + getPort();
     }
 
-    default String getNodePath() {
+    default String nodePath() {
         return serviceName() + '/' + nodeId();
     }
 

@@ -75,12 +75,12 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
 
     @Override
     public void onServiceRemoved(String path, ServiceNode node) {
-        ip_address.remove(node.getHostAndPort());
+        ip_address.remove(node.hostAndPort());
         logger.warn("Gateway Server zkNode={} was removed.", node);
     }
 
     private void add(ServiceNode node) {
-        ip_address.put(node.getHostAndPort(), new InetSocketAddress(node.getHost(), node.getPort()));
+        ip_address.put(node.hostAndPort(), new InetSocketAddress(node.getHost(), node.getPort()));
     }
 
     public void clear() {

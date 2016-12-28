@@ -26,8 +26,6 @@ import com.mpush.tools.Utils;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.config.ConfigManager;
 
-import java.util.UUID;
-
 import static com.mpush.api.srd.ServiceNames.ATTR_PUBLIC_IP;
 
 /**
@@ -46,7 +44,7 @@ public class ServerNodes {
         node.setHost(Utils.getLocalIp());
         node.setPort(CC.mp.net.connect_server_port);
         node.setPersistent(false);
-        node.setName(ServiceNames.CONN_SERVER);
+        node.setServiceName(ServiceNames.CONN_SERVER);
         node.addAttr(ATTR_PUBLIC_IP, ConfigManager.I.getPublicIp());
         return node;
     }
@@ -56,7 +54,7 @@ public class ServerNodes {
         node.setHost(Utils.getLocalIp());
         node.setPort(CC.mp.net.ws_server_port);
         node.setPersistent(false);
-        node.setName(ServiceNames.WS_SERVER);
+        node.setServiceName(ServiceNames.WS_SERVER);
         node.addAttr(ATTR_PUBLIC_IP, ConfigManager.I.getPublicIp());
         return node;
     }
@@ -66,7 +64,7 @@ public class ServerNodes {
         node.setHost(Utils.getLocalIp());
         node.setPort(CC.mp.net.gateway_server_port);
         node.setPersistent(false);
-        node.setName(ServiceNames.GATEWAY_SERVER);
+        node.setServiceName(ServiceNames.GATEWAY_SERVER);
         return node;
     }
 }
