@@ -1,3 +1,28 @@
+#### v0.7.0
+
+1. 网关新增udp, sctp协议支持，目前支持的协议有tcp/udp/sctp/udt, 推荐tcp
+2. 增加websocket接入层，和原接入层共享线程资源，增加websocket js client
+3. 抽象出cache层，不再直接依赖redis模块，支持自定义缓存实现
+4. 抽象出服务注册与发现层，不再直接依赖Zookeeper模块, 支持自定义服务注册发现
+5. 推送中心模块重构，支持不同的消息来源，支持自定义消息来源，编写从MQ订阅消息demo
+6. Gateway Client代码重构，支持多线程，多连接数配置
+7. 线程池优化，重新设计各模块线程配置方式，EventBus使用动态线程池，增加Netty线程池监控
+8. PushClient任务超时代码优化, 优化Timer任务线程池，在任务取消后直接从队列里删除
+9. PushSender同步调用直接返回PushResult不再兼容老的返回Boolean类型
+10. 修改TimeLine多线程bug，优化PushRequest多线程下代码 
+11. 修复ID_SEQ在高并发下重复的问题，不再使用LongAdder
+12. 代码优化，内存优化，修复推送超时问题
+13. 增加推送压测代码，增加推送统计及流控QPS监控等
+14. 增加tcp/udp 发送接收缓冲区配置
+15. 增netty write-buffer-water-mark配置
+16. 代码优化, 内存优化，及时释放无用的对象
+17. 流控调优，默认关闭流量整形
+18. 增加jmx监控统计, 脚本加入JMX设置，jvm设置
+
+
+
+
+
 #### v0.6.1
 
 1. 产品版本策略修改，主版本前移一位，最后一位用于小版本bug fix
