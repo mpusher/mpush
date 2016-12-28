@@ -17,7 +17,7 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.netty;
+package com.mpush.test.udp;
 
 import com.mpush.tools.Utils;
 import org.junit.Test;
