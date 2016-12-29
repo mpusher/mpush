@@ -97,7 +97,9 @@ public final class NettyConnection implements Connection, ChannelFutureListener 
 
             //阻塞调用线程还是抛异常？
             //return channel.newPromise().setFailure(new RuntimeException("send data too busy"));
-            future.awaitUninterruptibly(100);
+            if (!future.channel().eventLoop().inEventLoop()) {
+                future.awaitUninterruptibly(100);
+            }
             return future;
         } else {
             /*if (listener != null) {
