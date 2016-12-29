@@ -19,7 +19,10 @@
 
 package com.mpush.bootstrap.job;
 
+import com.mpush.api.event.ServerShutdownEvent;
+import com.mpush.api.event.ServerStartupEvent;
 import com.mpush.api.spi.core.ServerEventListenerFactory;
+import com.mpush.tools.event.EventBus;
 import com.mpush.tools.log.Logs;
 
 /**
@@ -35,13 +38,23 @@ import com.mpush.tools.log.Logs;
 
     @Override
     public void start() {
-        Logs.Console.info("begin start bootstrap chain...");
+        Logs.Console.info("bootstrap chain starting...");
         startNext();
+        EventBus.I.post(new ServerStartupEvent());
+        Logs.Console.info("bootstrap chain started.");
+        Logs.Console.info("===================================================================");
+        Logs.Console.info("====================MPUSH SERVER START SUCCESS=====================");
+        Logs.Console.info("===================================================================");
     }
 
     @Override
     protected void stop() {
-        Logs.Console.info("begin stop bootstrap chain...");
+        Logs.Console.info("bootstrap chain stopping...");
         stopNext();
+        EventBus.I.post(new ServerShutdownEvent());
+        Logs.Console.info("bootstrap chain stopped.");
+        Logs.Console.info("===================================================================");
+        Logs.Console.info("====================MPUSH SERVER STOPPED SUCCESS===================");
+        Logs.Console.info("===================================================================");
     }
 }

@@ -19,6 +19,8 @@
 
 package com.mpush.bootstrap.job;
 
+import java.util.function.Supplier;
+
 /**
  * Created by yxx on 2016/5/15.
  *
@@ -26,6 +28,8 @@ package com.mpush.bootstrap.job;
  */
 public final class BootChain {
     private final BootJob first = new FirstBoot();
+
+    private BootJob last = first;
 
     public void start() {
         first.start();
@@ -39,7 +43,15 @@ public final class BootChain {
         return new BootChain();
     }
 
-    public BootJob boot() {
-        return first;
+    public BootChain setNext(BootJob bootJob) {
+        this.last = last.setNext(bootJob);
+        return this;
+    }
+
+    public BootChain setNext(Supplier<BootJob> next, boolean enabled) {
+        if (enabled) {
+            return setNext(next.get());
+        }
+        return this;
     }
 }

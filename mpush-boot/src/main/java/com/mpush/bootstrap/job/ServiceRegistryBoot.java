@@ -38,8 +38,8 @@ public final class ServiceRegistryBoot extends BootJob {
 
     @Override
     protected void stop() {
+        stopNext();
         ServiceRegistryFactory.create().syncStop();
         Logs.Console.info("service registry closed...");
-        stopNext();
     }
 }

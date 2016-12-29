@@ -47,7 +47,7 @@ public final class FileSrd extends BaseService implements ServiceRegistry, Servi
 
     @Override
     public void deregister(ServiceNode node) {
-        FileCacheManger.I.del(node.nodePath());
+        FileCacheManger.I.hdel(node.serviceName(), node.nodeId());
     }
 
     @Override

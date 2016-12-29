@@ -27,7 +27,7 @@ import com.mpush.common.user.UserManager;
  *
  * @author ohun@live.cn
  */
-public final class RedisBoot extends BootJob {
+public final class CacheManagerBoot extends BootJob {
 
     @Override
     protected void start() {
@@ -38,8 +38,8 @@ public final class RedisBoot extends BootJob {
 
     @Override
     protected void stop() {
+        stopNext();
         CacheManagerFactory.create().destroy();
         UserManager.I.clearUserOnlineData();
-        stopNext();
     }
 }

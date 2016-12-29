@@ -51,6 +51,8 @@ public interface CacheManager {
 
     <T> T hget(String key, String field, Class<T> tClass);
 
+    void hdel(String key, String field);
+
     <T> Map<String, T> hgetAll(String key, Class<T> clazz);
 
     void zAdd(String key, String value);

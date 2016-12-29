@@ -35,7 +35,7 @@ public final class MonitorBoot extends BootJob {
 
     @Override
     protected void stop() {
-        MonitorService.I.stop();
         stopNext();
+        MonitorService.I.stop();
     }
 }

@@ -92,19 +92,22 @@ public final class ConnClientBoot extends BaseService {
         return ServiceDiscoveryFactory.create().lookup(ServiceNames.CONN_SERVER);
     }
 
-
-    public ChannelFuture connect(String host, int port, ClientConfig clientConfig) {
-        ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
+    public ChannelFuture connect(InetSocketAddress remote, InetSocketAddress local, ClientConfig clientConfig) {
+        ChannelFuture future = local != null ? bootstrap.connect(remote, local) : bootstrap.connect(remote);
         if (future.channel() != null) future.channel().attr(CONFIG_KEY).set(clientConfig);
         future.addListener(f -> {
             if (f.isSuccess()) {
                 future.channel().attr(CONFIG_KEY).set(clientConfig);
-                LOGGER.info("start netty client success, host={}, port={}", host, port);
+                LOGGER.info("start netty client success, remote={}, local={}", remote, local);
             } else {
-                LOGGER.error("start netty client failure, host={}, port={}", host, port, f.cause());
+                LOGGER.error("start netty client failure, remote={}, local={}", remote, local, f.cause());
             }
         });
         return future;
+    }
+
+    public ChannelFuture connect(String host, int port, ClientConfig clientConfig) {
+        return connect(new InetSocketAddress(host, port), null, clientConfig);
     }
 
     public Bootstrap getBootstrap() {

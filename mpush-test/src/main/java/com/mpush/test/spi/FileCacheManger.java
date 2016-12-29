@@ -128,6 +128,14 @@ public final class FileCacheManger implements CacheManager {
     }
 
     @Override
+    public void hdel(String key, String field) {
+        Object map = cache.get(key);
+        if (map != null) {
+            ((Map) map).remove(field);
+        }
+    }
+
+    @Override
     public <T> Map<String, T> hgetAll(String key, Class<T> clazz) {
         Map<String, Object> m = (Map) cache.get(key);
         if (m == null || m.isEmpty()) return Collections.emptyMap();

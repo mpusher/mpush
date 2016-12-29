@@ -63,13 +63,13 @@ public final class ServerBoot extends BootJob {
 
     @Override
     protected void stop() {
+        stopNext();
         if (node != null) {
             ServiceRegistryFactory.create().deregister(node);
         }
-        Logs.Console.info("try shutdown {}...", this.getClass().getSimpleName());
+        Logs.Console.info("try shutdown {}...", server.getClass().getSimpleName());
         server.stop().join();
-        Logs.Console.info("{} shutdown success.", this.getClass().getSimpleName());
-        stopNext();
+        Logs.Console.info("{} shutdown success.", server.getClass().getSimpleName());
     }
 
     @Override

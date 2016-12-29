@@ -35,7 +35,7 @@ public final class PushCenterBoot extends BootJob {
 
     @Override
     protected void stop() {
-        PushCenter.I.stop();
         stopNext();
+        PushCenter.I.stop();
     }
 }

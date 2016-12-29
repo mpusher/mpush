@@ -42,10 +42,10 @@ public final class HttpProxyBoot extends BootJob {
 
     @Override
     protected void stop() {
+        stopNext();
         if (CC.mp.http.proxy_enabled) {
             NettyHttpClient.I().syncStop();
             DnsMappingManager.create().stop();
         }
-        stopNext();
     }
 }
