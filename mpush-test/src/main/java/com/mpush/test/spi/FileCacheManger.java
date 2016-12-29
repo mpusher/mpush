@@ -30,9 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * Created by ohun on 2016/12/28.
@@ -42,17 +40,31 @@ import java.util.concurrent.Executors;
 @SuppressWarnings("unchecked")
 public final class FileCacheManger implements CacheManager {
     public static final FileCacheManger I = new FileCacheManger();
-    private Map<String, Object> cache = new HashMap<>();
-    private final Executor executor = Executors.newSingleThreadScheduledExecutor();
+    private Map<String, Object> cache = new ConcurrentHashMap<>();
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private long lastModified = 0;
+    private Path cacheFile;
 
     @Override
     public void init() {
+        try {
+            Path dir = Paths.get(this.getClass().getResource("/").toURI());
+            this.cacheFile = Paths.get(dir.toString(), "cache.dat");
+
+            if (!Files.exists(cacheFile)) {
+                Files.createFile(cacheFile);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         loadFormFile();
+        executor.scheduleAtFixedRate(this::loadFormFile, 0, 1, TimeUnit.SECONDS);
     }
 
     @Override
     public void destroy() {
-        cache.clear();
+        executor.shutdown();
     }
 
     @Override
@@ -67,26 +79,26 @@ public final class FileCacheManger implements CacheManager {
         Number num = (Number) fields.get(field);
         long result = num.longValue() + 1;
         fields.put(field, result);
-        writeToFile();
+        executor.execute(this::writeToFile);
         return result;
     }
 
     @Override
     public void set(String key, String value) {
         cache.put(key, value);
-        writeToFile();
+        executor.execute(this::writeToFile);
     }
 
     @Override
     public void set(String key, String value, int expireTime) {
         cache.put(key, value);
-        writeToFile();
+        executor.execute(this::writeToFile);
     }
 
     @Override
     public void set(String key, Object value, int expireTime) {
         cache.put(key, value);
-        writeToFile();
+        executor.execute(this::writeToFile);
     }
 
     @Override
@@ -99,13 +111,13 @@ public final class FileCacheManger implements CacheManager {
     @Override
     public void hset(String key, String field, String value) {
         ((Map) cache.computeIfAbsent(key, k -> new ConcurrentHashMap<>())).put(field, value);
-        writeToFile();
+        executor.execute(this::writeToFile);
     }
 
     @Override
     public void hset(String key, String field, Object value) {
         ((Map) cache.computeIfAbsent(key, k -> new ConcurrentHashMap<>())).put(field, value);
-        writeToFile();
+        executor.execute(this::writeToFile);
     }
 
     @Override
@@ -157,32 +169,35 @@ public final class FileCacheManger implements CacheManager {
         return Collections.emptyList();
     }
 
-    private void loadFormFile() {
+    private synchronized void loadFormFile() {
         try {
-            Path dir = Paths.get(this.getClass().getResource("/").toURI());
-            Path data = Paths.get(dir.toString(), "cache.dat");
-            if (Files.exists(data)) {
-                byte[] bytes = Files.readAllBytes(data);
+            long lastModified = Files.getLastModifiedTime(cacheFile).toMillis();
+            if (this.lastModified < lastModified) {
+                byte[] bytes = Files.readAllBytes(cacheFile);
                 if (bytes != null && bytes.length > 0) {
-                    cache = Jsons.fromJson(bytes, Map.class);
+                    cache = Jsons.fromJson(bytes, ConcurrentHashMap.class);
                 }
+                this.lastModified = lastModified;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void writeToFile() {
+    private synchronized void writeToFile() {
         try {
-            Path dir = Paths.get(this.getClass().getResource("/").toURI());
-            Path data = Paths.get(dir.toString(), "cache.dat");
-            if (!Files.exists(dir)) {
-                Files.createDirectories(dir);
-            }
-            Files.deleteIfExists(data);
-            Files.write(data, Jsons.toJson(cache).getBytes(Constants.UTF_8));
+            Files.write(cacheFile, Jsons.toJson(cache).getBytes(Constants.UTF_8));
+            this.lastModified = Files.getLastModifiedTime(cacheFile).toMillis();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        FileCacheManger cacheManger = new FileCacheManger();
+        cacheManger.init();
+        cacheManger.set("1", "1");
+        cacheManger.set("2", "2");
+        cacheManger.destroy();
     }
 }
