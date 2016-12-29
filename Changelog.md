@@ -20,7 +20,7 @@
 18. 流控调优，默认关闭流量整形
 19. 增加jmx监控统计, 脚本加入JMX设置，jvm设置
 20. 增加PushCenter消息流转时间线, 方便监控消息的各个生命周期的耗时(PushClient -> GatewayClient -> GatewayServer -> PushCenter -> ConnServer -> Client)
-
+21. 服务启动/停止流程优化，boot chain正序启动，逆序停止，启动流程日志优化
 
 
 
