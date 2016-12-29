@@ -19,7 +19,7 @@
 17. 代码优化, 内存优化，及时释放无用的对象
 18. 流控调优，默认关闭流量整形
 19. 增加jmx监控统计, 脚本加入JMX设置，jvm设置
-20. 其他bug fix及代码优化
+20. 增加PushCenter消息流转时间线, 方便监控消息的各个生命周期的耗时(PushClient -> GatewayClient -> GatewayServer -> PushCenter -> ConnServer -> Client)
 
 
 

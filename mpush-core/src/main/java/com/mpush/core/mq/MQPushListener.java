@@ -38,43 +38,43 @@ public final class MQPushListener implements PushListener<MQPushMessage>, PushLi
     }
 
     @Override
-    public void onSuccess(MQPushMessage message) {
+    public void onSuccess(MQPushMessage message, Object[] timePoints) {
         //publish messageId to mq:[success/queue]
         mqClient.publish("/mpush/push/success", message);
     }
 
     @Override
-    public void onAckSuccess(MQPushMessage message) {
+    public void onAckSuccess(MQPushMessage message, Object[] timePoints) {
         //publish messageId to mq:[success/queue]
         mqClient.publish("/mpush/push/success", message);
     }
 
     @Override
-    public void onBroadcastComplete(MQPushMessage message) {
+    public void onBroadcastComplete(MQPushMessage message, Object[] timePoints) {
         //publish messageId to mq:[broadcast/finish/queue]
         mqClient.publish("/mpush/push/broadcast_finish", message);
     }
 
     @Override
-    public void onFailure(MQPushMessage message) {
+    public void onFailure(MQPushMessage message, Object[] timePoints) {
         //publish messageId to mq:[failure/queue], client can retry
         mqClient.publish("/mpush/push/failure", message);
     }
 
     @Override
-    public void onOffline(MQPushMessage message) {
+    public void onOffline(MQPushMessage message, Object[] timePoints) {
         //publish messageId to mq:[offline/queue], client persist offline message to db
         mqClient.publish("/mpush/push/offline", message);
     }
 
     @Override
-    public void onRedirect(MQPushMessage message) {
+    public void onRedirect(MQPushMessage message, Object[] timePoints) {
         //publish messageId to mq:[route/change/queue], client should be try again
         mqClient.publish("/mpush/push/route_change", message);
     }
 
     @Override
-    public void onAckTimeout(MQPushMessage message) {
+    public void onTimeout(MQPushMessage message, Object[] timePoints) {
         //publish messageId to mq:[ack/timeout/queue], client can retry
         mqClient.publish("/mpush/push/ack_timeout", message);
     }

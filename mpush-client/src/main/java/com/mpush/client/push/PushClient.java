@@ -44,7 +44,7 @@ import java.util.concurrent.FutureTask;
         } else {
             Set<RemoteRouter> remoteRouters = CachedRemoteRouterManager.I.lookupAll(ctx.getUserId());
             if (remoteRouters == null || remoteRouters.isEmpty()) {
-                return PushRequest.build(factory, ctx).offline();
+                return PushRequest.build(factory, ctx).onOffline();
             }
             FutureTask<PushResult> task = null;
             for (RemoteRouter remoteRouter : remoteRouters) {
