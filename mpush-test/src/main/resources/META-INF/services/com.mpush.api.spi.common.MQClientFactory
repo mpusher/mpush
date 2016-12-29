@@ -1,1 +1,1 @@
-com.mpush.test.spi.TestMQClientFactory
+com.mpush.test.spi.SimpleMQClientFactory

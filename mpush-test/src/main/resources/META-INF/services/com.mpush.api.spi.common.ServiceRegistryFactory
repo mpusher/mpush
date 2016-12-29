@@ -1,1 +1,1 @@
-com.mpush.test.spi.FileRegistryFactory
+com.mpush.test.spi.SimpleRegistryFactory

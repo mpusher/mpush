@@ -20,8 +20,8 @@
 package com.mpush.test.spi;
 
 import com.mpush.api.spi.Spi;
-import com.mpush.api.spi.common.ServiceRegistryFactory;
-import com.mpush.api.srd.ServiceRegistry;
+import com.mpush.api.spi.common.CacheManager;
+import com.mpush.api.spi.common.CacheManagerFactory;
 
 /**
  * Created by ohun on 2016/12/28.
@@ -29,9 +29,9 @@ import com.mpush.api.srd.ServiceRegistry;
  * @author ohun@live.cn (夜色)
  */
 @Spi(order = 2)
-public final class FileRegistryFactory implements ServiceRegistryFactory {
+public final class SimpleCacheMangerFactory implements CacheManagerFactory {
     @Override
-    public ServiceRegistry get() {
-        return FileSrd.I;
+    public CacheManager get() {
+        return FileCacheManger.I;
     }
 }

@@ -20,8 +20,8 @@
 package com.mpush.test.spi;
 
 import com.mpush.api.spi.Spi;
-import com.mpush.api.spi.common.ServiceDiscoveryFactory;
-import com.mpush.api.srd.ServiceDiscovery;
+import com.mpush.api.spi.common.MQClient;
+import com.mpush.api.spi.common.MQMessageReceiver;
 
 /**
  * Created by ohun on 2016/12/28.
@@ -29,9 +29,21 @@ import com.mpush.api.srd.ServiceDiscovery;
  * @author ohun@live.cn (夜色)
  */
 @Spi(order = 2)
-public final class FileDiscoveryFactory implements ServiceDiscoveryFactory {
+public final class SimpleMQClientFactory implements com.mpush.api.spi.common.MQClientFactory {
+    private MQClient mqClient = new MQClient() {
+        @Override
+        public void subscribe(String topic, MQMessageReceiver receiver) {
+            System.err.println("subscribe " + topic);
+        }
+
+        @Override
+        public void publish(String topic, Object message) {
+            System.err.println("publish " + topic + " " + message);
+        }
+    };
+
     @Override
-    public ServiceDiscovery get() {
-        return FileSrd.I;
+    public MQClient get() {
+        return mqClient;
     }
 }

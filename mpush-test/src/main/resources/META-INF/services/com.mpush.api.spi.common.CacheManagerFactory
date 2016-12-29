@@ -1,1 +1,1 @@
-com.mpush.test.spi.FileCacheMangerFactory
+com.mpush.test.spi.SimpleCacheMangerFactory
