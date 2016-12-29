@@ -24,6 +24,7 @@ import com.mpush.api.push.*;
 import com.mpush.api.router.ClientLocation;
 import com.mpush.client.gateway.connection.GatewayConnectionFactory;
 import com.mpush.common.message.gateway.GatewayPushMessage;
+import com.mpush.common.push.GatewayPushResult;
 import com.mpush.common.router.CachedRemoteRouterManager;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.tools.Jsons;
@@ -165,22 +166,6 @@ public final class PushRequest extends FutureTask<PushResult> {
         return this;
     }
 
-    public void redirect() {
-        timeLine.addTimePoint("redirect");
-        LOGGER.warn("user route has changed, userId={}, location={}", userId, location);
-        CachedRemoteRouterManager.I.invalidateLocalCache(userId);
-        if (status.get() == Status.init) {//表示任务还没有完成，还可以重新发送
-            RemoteRouter remoteRouter = CachedRemoteRouterManager.I.lookup(userId, location.getClientType());
-            send(remoteRouter);
-        }
-    }
-
-    public FutureTask<PushResult> offline() {
-        CachedRemoteRouterManager.I.invalidateLocalCache(userId);
-        submit(Status.offline);
-        return this;
-    }
-
     public FutureTask<PushResult> broadcast() {
         timeLine.begin();
 
@@ -220,18 +205,47 @@ public final class PushRequest extends FutureTask<PushResult> {
         return this;
     }
 
-    public void timeout() {
+    private void offline() {
+        CachedRemoteRouterManager.I.invalidateLocalCache(userId);
+        submit(Status.offline);
+    }
+
+    private void timeout() {
         if (PushRequestBus.I.getAndRemove(sessionId) != null) {
             submit(Status.timeout);
         }
     }
 
-    public void success() {
+    private void success() {
         submit(Status.success);
     }
 
-    public void failure() {
+    private void failure() {
         submit(Status.failure);
+    }
+
+    public void onFailure() {
+        failure();
+    }
+
+    public void onRedirect() {
+        timeLine.addTimePoint("redirect");
+        LOGGER.warn("user route has changed, userId={}, location={}", userId, location);
+        CachedRemoteRouterManager.I.invalidateLocalCache(userId);
+        if (status.get() == Status.init) {//表示任务还没有完成，还可以重新发送
+            RemoteRouter remoteRouter = CachedRemoteRouterManager.I.lookup(userId, location.getClientType());
+            send(remoteRouter);
+        }
+    }
+
+    public FutureTask<PushResult> onOffline() {
+        offline();
+        return this;
+    }
+
+    public void onSuccess(GatewayPushResult result) {
+        if (result != null) timeLine.addTimePoints(result.timePoints);
+        submit(Status.success);
     }
 
     public long getTimeout() {

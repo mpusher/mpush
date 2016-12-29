@@ -8,47 +8,47 @@ public interface PushListener<T extends IPushMessage> {
      *
      * @param message 要下发的消息
      */
-    void onSuccess(T message);
+    void onSuccess(T message, Object[] timePoints);
 
     /**
      * 收到客户端ACK后回调
      *
      * @param message 要下发的消息
      */
-    void onAckSuccess(T message);
+    void onAckSuccess(T message, Object[] timePoints);
 
     /**
      * 广播消息推送全部结束后回调
      *
      * @param message 要下发的消息
      */
-    void onBroadcastComplete(T message);
+    void onBroadcastComplete(T message, Object[] timePoints);
 
     /**
      * 消息下发失败后回调
      *
      * @param message 要下发的消息
      */
-    void onFailure(T message);
+    void onFailure(T message, Object[] timePoints);
 
     /**
      * 推送消息发现用户不在线时回调
      *
      * @param message 要下发的消息
      */
-    void onOffline(T message);
+    void onOffline(T message, Object[] timePoints);
 
     /**
      * 推送消息发现用户不在当前机器时回调
      *
      * @param message 要下发的消息
      */
-    void onRedirect(T message);
+    void onRedirect(T message, Object[] timePoints);
 
     /**
-     * 等待客户端ACK超时时回调
+     * 发送消息超时或等待客户端ACK超时时回调
      *
      * @param message 要下发的消息
      */
-    void onAckTimeout(T message);
+    void onTimeout(T message, Object[] timePoints);
 }

@@ -30,6 +30,7 @@ import io.netty.channel.ChannelFutureListener;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -156,7 +157,7 @@ public abstract class BaseMessage implements Message {
         return this;
     }
 
-    public ExecutorService getExecutor() {
+    public ScheduledExecutorService getExecutor() {
         return connection.getChannel().eventLoop();
     }
 

@@ -30,6 +30,7 @@ import com.mpush.common.qps.FlowControl;
 import com.mpush.common.qps.OverFlowException;
 import com.mpush.core.router.LocalRouter;
 import com.mpush.core.router.RouterCenter;
+import com.mpush.tools.common.TimeLine;
 import com.mpush.tools.log.Logs;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -57,6 +58,8 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
 
     private final Condition condition;
 
+    private final TimeLine timeLine = new TimeLine();
+
     //使用Iterator, 记录任务遍历到的位置，因为有流控，一次任务可能会被分批发送，而且还有在推送过程中上/下线的用户
     private final Iterator<Map.Entry<String, Map<Integer, LocalRouter>>> iterator;
 
@@ -65,6 +68,7 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
         this.flowControl = flowControl;
         this.condition = message.getCondition();
         this.iterator = RouterCenter.I.getLocalRouterManager().routers().entrySet().iterator();
+        this.timeLine.begin("push-center-begin");
     }
 
     @Override
@@ -120,7 +124,7 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
 
     private void report() {
         Logs.PUSH.info("[Broadcast] task finished, cost={}, message={}", (System.currentTimeMillis() - begin), message);
-        PushCenter.I.getPushListener().onBroadcastComplete(message);//通知发送方，广播推送完毕
+        PushCenter.I.getPushListener().onBroadcastComplete(message, timeLine.end().getTimePoints());//通知发送方，广播推送完毕
     }
 
     private boolean checkCondition(Condition condition, Connection connection) {
