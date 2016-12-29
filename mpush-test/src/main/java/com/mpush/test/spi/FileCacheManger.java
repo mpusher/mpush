@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Created by ohun on 2016/12/28.
@@ -40,7 +42,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings("unchecked")
 public final class FileCacheManger implements CacheManager {
     public static final FileCacheManger I = new FileCacheManger();
-    private Map<String, Object> map = new HashMap<>();
+    private Map<String, Object> cache = new HashMap<>();
+    private final Executor executor = Executors.newSingleThreadScheduledExecutor();
 
     @Override
     public void init() {
@@ -49,18 +52,18 @@ public final class FileCacheManger implements CacheManager {
 
     @Override
     public void destroy() {
-
+        cache.clear();
     }
 
     @Override
     public void del(String key) {
-        map.remove(key);
+        cache.remove(key);
         writeToFile();
     }
 
     @Override
     public long hincrBy(String key, String field, long value) {
-        Map fields = ((Map) map.computeIfAbsent(key, k -> new ConcurrentHashMap<>()));
+        Map fields = ((Map) cache.computeIfAbsent(key, k -> new ConcurrentHashMap<>()));
         Number num = (Number) fields.get(field);
         long result = num.longValue() + 1;
         fields.put(field, result);
@@ -70,51 +73,51 @@ public final class FileCacheManger implements CacheManager {
 
     @Override
     public void set(String key, String value) {
-        map.put(key, value);
+        cache.put(key, value);
         writeToFile();
     }
 
     @Override
     public void set(String key, String value, int expireTime) {
-        map.put(key, value);
+        cache.put(key, value);
         writeToFile();
     }
 
     @Override
     public void set(String key, Object value, int expireTime) {
-        map.put(key, value);
+        cache.put(key, value);
         writeToFile();
     }
 
     @Override
     public <T> T get(String key, Class<T> tClass) {
-        Object obj = map.get(key);
+        Object obj = cache.get(key);
         if (obj == null) return null;
         return Jsons.fromJson(obj.toString(), tClass);
     }
 
     @Override
     public void hset(String key, String field, String value) {
-        ((Map) map.computeIfAbsent(key, k -> new ConcurrentHashMap<>())).put(field, value);
+        ((Map) cache.computeIfAbsent(key, k -> new ConcurrentHashMap<>())).put(field, value);
         writeToFile();
     }
 
     @Override
     public void hset(String key, String field, Object value) {
-        ((Map) map.computeIfAbsent(key, k -> new ConcurrentHashMap<>())).put(field, value);
+        ((Map) cache.computeIfAbsent(key, k -> new ConcurrentHashMap<>())).put(field, value);
         writeToFile();
     }
 
     @Override
     public <T> T hget(String key, String field, Class<T> tClass) {
-        Object obj = ((Map) map.computeIfAbsent(key, k -> new ConcurrentHashMap<>())).get(field);
+        Object obj = ((Map) cache.computeIfAbsent(key, k -> new ConcurrentHashMap<>())).get(field);
         if (obj == null) return null;
         return Jsons.fromJson(obj.toString(), tClass);
     }
 
     @Override
     public <T> Map<String, T> hgetAll(String key, Class<T> clazz) {
-        Map<String, Object> m = (Map) map.get(key);
+        Map<String, Object> m = (Map) cache.get(key);
         if (m == null || m.isEmpty()) return Collections.emptyMap();
 
         Map<String, T> result = new HashMap<>();
@@ -161,7 +164,7 @@ public final class FileCacheManger implements CacheManager {
             if (Files.exists(data)) {
                 byte[] bytes = Files.readAllBytes(data);
                 if (bytes != null && bytes.length > 0) {
-                    map = Jsons.fromJson(bytes, Map.class);
+                    cache = Jsons.fromJson(bytes, Map.class);
                 }
             }
         } catch (Exception e) {
@@ -177,7 +180,7 @@ public final class FileCacheManger implements CacheManager {
                 Files.createDirectories(dir);
             }
             Files.deleteIfExists(data);
-            Files.write(data, Jsons.toJson(map).getBytes(Constants.UTF_8));
+            Files.write(data, Jsons.toJson(cache).getBytes(Constants.UTF_8));
         } catch (Exception e) {
             e.printStackTrace();
         }
