@@ -25,6 +25,8 @@ import com.mpush.api.spi.core.ServerEventListenerFactory;
 import com.mpush.tools.event.EventBus;
 import com.mpush.tools.log.Logs;
 
+import java.util.function.Supplier;
+
 /**
  * Created by yxx on 2016/5/15.
  *
@@ -40,18 +42,11 @@ public final class BootChain {
         protected void start() {
             Logs.Console.info("bootstrap chain starting...");
             startNext();
-            EventBus.I.post(new ServerStartupEvent());
-            Logs.Console.info("bootstrap chain started.");
-            Logs.Console.info("===================================================================");
-            Logs.Console.info("====================MPUSH SERVER START SUCCESS=====================");
-            Logs.Console.info("===================================================================");
         }
 
         @Override
         protected void stop() {
-            Logs.Console.info("bootstrap chain stopping...");
             stopNext();
-            EventBus.I.post(new ServerShutdownEvent());
             Logs.Console.info("bootstrap chain stopped.");
             Logs.Console.info("===================================================================");
             Logs.Console.info("====================MPUSH SERVER STOPPED SUCCESS===================");
@@ -59,6 +54,7 @@ public final class BootChain {
         }
     };
 
+    private BootJob last = boot;
 
     public void start() {
         boot.start();
@@ -72,7 +68,43 @@ public final class BootChain {
         return new BootChain();
     }
 
-    public BootJob boot() {
-        return boot;
+    public BootChain boot() {
+        return this;
+    }
+
+    public void end() {
+        setNext(new BootJob() {
+            @Override
+            protected void start() {
+                EventBus.I.post(new ServerStartupEvent());
+                Logs.Console.info("bootstrap chain started.");
+                Logs.Console.info("===================================================================");
+                Logs.Console.info("====================MPUSH SERVER START SUCCESS=====================");
+                Logs.Console.info("===================================================================");
+            }
+
+            @Override
+            protected void stop() {
+                Logs.Console.info("bootstrap chain stopping...");
+                EventBus.I.post(new ServerShutdownEvent());
+            }
+
+            @Override
+            protected String getName() {
+                return "LastBoot";
+            }
+        });
+    }
+
+    public BootChain setNext(BootJob bootJob) {
+        this.last = last.setNext(bootJob);
+        return this;
+    }
+
+    public BootChain setNext(Supplier<BootJob> next, boolean enabled) {
+        if (enabled) {
+            return setNext(next.get());
+        }
+        return this;
     }
 }

@@ -48,7 +48,8 @@ public final class ServerLauncher {
                 .setNext(new ServerBoot(AdminServer.I(), null))//7.启动控制台服务
                 .setNext(new PushCenterBoot())//8.启动推送中心组件
                 .setNext(new HttpProxyBoot())//9.启动http代理服务，dns解析服务
-                .setNext(new MonitorBoot());//10.启动监控服务
+                .setNext(new MonitorBoot())//10.启动监控服务
+                .end();
     }
 
     public void start() {

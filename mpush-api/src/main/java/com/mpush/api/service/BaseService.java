@@ -20,9 +20,6 @@
 package com.mpush.api.service;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -75,13 +72,13 @@ public abstract class BaseService implements Service {
     }
 
     public final CompletableFuture<Boolean> start() {
-        FutureListener listener = new FutureListener();
+        FutureListener listener = new FutureListener(started);
         start(listener);
         return listener;
     }
 
     public final CompletableFuture<Boolean> stop() {
-        FutureListener listener = new FutureListener();
+        FutureListener listener = new FutureListener(started);
         stop(listener);
         return listener;
     }
@@ -125,53 +122,8 @@ public abstract class BaseService implements Service {
      * @return
      */
     public FutureListener wrap(Listener l) {
-        if (l == null) return new FutureListener();
+        if (l == null) return new FutureListener(started);
         if (l instanceof FutureListener) return (FutureListener) l;
-        return new FutureListener(l);
-    }
-
-    protected class FutureListener extends CompletableFuture<Boolean> implements Listener {
-        private final Listener l;// 防止Listener被重复执行
-
-        public FutureListener() {
-            this.l = null;
-        }
-
-        public FutureListener(Listener l) {
-            this.l = l;
-        }
-
-        @Override
-        public void onSuccess(Object... args) {
-            if (isDone()) return;// 防止Listener被重复执行
-            complete(started.get());
-            if (l != null) l.onSuccess(args);
-        }
-
-        @Override
-        public void onFailure(Throwable cause) {
-            if (isDone()) return;// 防止Listener被重复执行
-            completeExceptionally(cause);
-            if (l != null) l.onFailure(cause);
-            throw cause instanceof ServiceException
-                    ? (ServiceException) cause
-                    : new ServiceException(cause);
-        }
-
-        public void monitor(BaseService service) {
-            if (isDone()) return;
-            runAsync(() -> {
-                try {
-                    this.get(10, TimeUnit.SECONDS);
-                } catch (Exception e) {
-                    this.onFailure(new ServiceException(String.format("service %s monitor timeout", service.getClass().getSimpleName())));
-                }
-            });
-        }
-
-        @Override
-        public boolean cancel(boolean mayInterruptIfRunning) {
-            throw new UnsupportedOperationException();
-        }
+        return new FutureListener(l, started);
     }
 }
