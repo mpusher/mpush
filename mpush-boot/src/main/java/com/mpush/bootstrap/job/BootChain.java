@@ -19,7 +19,11 @@
 
 package com.mpush.bootstrap.job;
 
-import java.util.function.Supplier;
+import com.mpush.api.event.ServerShutdownEvent;
+import com.mpush.api.event.ServerStartupEvent;
+import com.mpush.api.spi.core.ServerEventListenerFactory;
+import com.mpush.tools.event.EventBus;
+import com.mpush.tools.log.Logs;
 
 /**
  * Created by yxx on 2016/5/15.
@@ -27,31 +31,48 @@ import java.util.function.Supplier;
  * @author ohun@live.cn
  */
 public final class BootChain {
-    private final BootJob first = new FirstBoot();
+    private final BootJob boot = new BootJob() {
+        {
+            ServerEventListenerFactory.create();// 初始化服务监听
+        }
 
-    private BootJob last = first;
+        @Override
+        protected void start() {
+            Logs.Console.info("bootstrap chain starting...");
+            startNext();
+            EventBus.I.post(new ServerStartupEvent());
+            Logs.Console.info("bootstrap chain started.");
+            Logs.Console.info("===================================================================");
+            Logs.Console.info("====================MPUSH SERVER START SUCCESS=====================");
+            Logs.Console.info("===================================================================");
+        }
+
+        @Override
+        protected void stop() {
+            Logs.Console.info("bootstrap chain stopping...");
+            stopNext();
+            EventBus.I.post(new ServerShutdownEvent());
+            Logs.Console.info("bootstrap chain stopped.");
+            Logs.Console.info("===================================================================");
+            Logs.Console.info("====================MPUSH SERVER STOPPED SUCCESS===================");
+            Logs.Console.info("===================================================================");
+        }
+    };
+
 
     public void start() {
-        first.start();
+        boot.start();
     }
 
     public void stop() {
-        first.stop();
+        boot.stop();
     }
 
     public static BootChain chain() {
         return new BootChain();
     }
 
-    public BootChain setNext(BootJob bootJob) {
-        this.last = last.setNext(bootJob);
-        return this;
-    }
-
-    public BootChain setNext(Supplier<BootJob> next, boolean enabled) {
-        if (enabled) {
-            return setNext(next.get());
-        }
-        return this;
+    public BootJob boot() {
+        return boot;
     }
 }
