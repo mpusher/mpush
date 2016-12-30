@@ -32,6 +32,9 @@ public final class GatewayPushResult {
     public Integer clientType;
     public Object[] timePoints;
 
+    public GatewayPushResult() {
+    }
+
     public GatewayPushResult(String userId, Integer clientType, Object[] timePoints) {
         this.userId = userId;
         this.timePoints = timePoints;
