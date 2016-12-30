@@ -86,11 +86,10 @@ public final class PushCenter extends BaseService implements MessagePusher {
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        if (CC.mp.net.udpGateway()) {
+        if (CC.mp.net.udpGateway() || CC.mp.thread.pool.push_task > 0) {
             executor = new CustomJDKExecutor(ThreadPoolManager.I.getPushTaskTimer());
         } else {//实际情况使用EventLoo并没有更快，还有待测试
-            executor = new CustomJDKExecutor(ThreadPoolManager.I.getPushTaskTimer());
-            //executor = new NettyEventLoopExecutor();
+            executor = new NettyEventLoopExecutor();
         }
 
         MBeanRegistry.getInstance().register(new PushCenterBean(taskNum), null);
