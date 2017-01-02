@@ -80,6 +80,8 @@ public final class RSAUtils {
     /**
      * 生成公钥和私钥
      *
+     * @param rsaKeySize key size
+     *
      * @return 公钥和私钥
      */
     public static Pair<RSAPublicKey, RSAPrivateKey> genKeyPair(int rsaKeySize) {

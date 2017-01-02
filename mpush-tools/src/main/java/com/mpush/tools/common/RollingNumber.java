@@ -41,7 +41,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>
  * See UnitTest for usage and expected behavior examples.
  *
- * @ThreadSafe
  */
 public class RollingNumber {
 

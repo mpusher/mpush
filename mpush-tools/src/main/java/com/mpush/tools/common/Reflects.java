@@ -10,11 +10,6 @@ import java.util.List;
 
 public class Reflects {
 
-    /**
-     * 获得超类的参数类型，取第一个参数类型
-     *
-     * @param clazz 超类类型
-     */
     public static Class getSuperClassGenericType(final Class<?> clazz, int index) {
         return getGenericType(clazz.getGenericSuperclass(), index);
     }

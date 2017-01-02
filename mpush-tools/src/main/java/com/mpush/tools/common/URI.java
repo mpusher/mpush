@@ -705,7 +705,7 @@ public final class URI {
     /**
      * Add parameters to a new url.
      *
-     * @param parameters
+     * @param parameters parameters
      * @return A new URL
      */
     public URI addParameters(Map<String, String> parameters) {

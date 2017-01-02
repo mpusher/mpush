@@ -55,6 +55,10 @@ public final class NamedThreadFactory implements ThreadFactory {
      * 2）、 在Daemon线程中产生的新线程也是Daemon的。
      * <p>
      * 3）、不是所有的应用都可以分配给Daemon线程来进行服务，比如读写操作或者计算逻辑。因为在Daemon Thread还没来的及进行操作时，虚拟机可能已经退出了。
+     *
+     * @param name name
+     * @param r    runnable
+     * @return new Thread
      */
     public Thread newThread(String name, Runnable r) {
         Thread thread = new Thread(group, r, namePrefix + "-" + threadNumber.getAndIncrement() + "-" + name);
