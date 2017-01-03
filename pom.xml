@@ -121,7 +121,7 @@
                 <version>${netty.version}</version>
             </dependency>
             <!-- ======================================== -->
-            <!-- 子项目依赖 -->
+            <!-- 子模块依赖 -->
             <!-- ======================================== -->
             <dependency>
                 <groupId>${mpush.groupId}</groupId>
