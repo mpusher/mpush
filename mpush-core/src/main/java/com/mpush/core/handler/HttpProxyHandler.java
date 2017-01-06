@@ -34,6 +34,9 @@ import com.mpush.netty.http.RequestContext;
 import com.mpush.tools.common.Profiler;
 import com.mpush.tools.log.Logs;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,9 +84,8 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
 
             Profiler.enter("time cost on [create FullHttpRequest]");
             //3.包装成HTTP request
-            FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.valueOf(method), uri);
+            FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.valueOf(method), uri, getBody(message));
             setHeaders(request, message);//处理header
-            setBody(request, message);//处理body
 
             Profiler.enter("time cost on [HttpClient.request]");
             //4.发送请求
@@ -179,18 +181,19 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                 httpHeaders.add(entry.getKey(), entry.getValue());
             }
         }
+
+        if (message.body != null && message.body.length > 0) {
+            request.headers().add(CONTENT_LENGTH, Integer.toString(message.body.length));
+        }
+
         InetSocketAddress remoteAddress = (InetSocketAddress) message.getConnection().getChannel().remoteAddress();
         String remoteIp = remoteAddress.getAddress().getHostAddress();//这个要小心，不要使用getHostName,不然会耗时比较大
         request.headers().add("x-forwarded-for", remoteIp);
         request.headers().add("x-forwarded-port", Integer.toString(remoteAddress.getPort()));
     }
 
-    private void setBody(FullHttpRequest request, HttpRequestMessage message) {
-        byte[] body = message.body;
-        if (body != null && body.length > 0) {
-            request.content().writeBytes(body);
-            request.headers().add(CONTENT_LENGTH, Integer.toString(body.length));
-        }
+    private ByteBuf getBody(HttpRequestMessage message) {
+        return message.body == null ? Unpooled.EMPTY_BUFFER : Unpooled.wrappedBuffer(message.body);
     }
 
     private String doDnsMapping(String url) {

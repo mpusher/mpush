@@ -47,7 +47,7 @@ import java.net.URLDecoder;
                         String location = getRedirectLocation(context.request, response);
                         if (location != null && location.length() > 0) {
                             context.cancelled.set(false);
-                            context.request = context.request.copy().setUri(location);
+                            context.request.setUri(location);
                             client.request(context);
                             return;
                         }
