@@ -170,7 +170,7 @@ public final class ClientLocation {
     @Override
     public String toString() {
         return "ClientLocation{" +
-                "host='" + host + '\'' +
+                "host='" + host + ":" + port + "\'" +
                 ", osName='" + osName + '\'' +
                 ", clientVersion='" + clientVersion + '\'' +
                 ", deviceId='" + deviceId + '\'' +

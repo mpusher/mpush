@@ -30,10 +30,15 @@ import com.mpush.api.srd.ServiceDiscovery;
 import com.mpush.api.srd.ServiceNode;
 import com.mpush.client.gateway.GatewayClient;
 import com.mpush.common.message.BaseMessage;
+import com.mpush.tools.Utils;
 import com.mpush.tools.event.EventBus;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -168,7 +173,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     void on(ConnectionConnectEvent event) {
         Connection connection = event.connection;
         InetSocketAddress address = (InetSocketAddress) connection.getChannel().remoteAddress();
-        String hostAndPort = getHostAndPort(address.getHostName(), address.getPort());
+        String hostAndPort = getHostAndPort(address.getAddress().getHostAddress(), address.getPort());
         connections.computeIfAbsent(hostAndPort, key -> new ArrayList<>(gateway_client_num)).add(connection);
     }
 
