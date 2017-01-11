@@ -36,7 +36,7 @@ import static com.mpush.api.srd.ServiceNames.ATTR_PUBLIC_IP;
 public class ServerNodes {
     public static final ServiceNode CS = cs();
     public static final ServiceNode GS = gs();
-    public static final ServiceNode WS = gs();
+    public static final ServiceNode WS = ws();
 
 
     private static ServiceNode cs() {
