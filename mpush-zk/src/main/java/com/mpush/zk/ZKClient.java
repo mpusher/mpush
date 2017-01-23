@@ -44,7 +44,8 @@ public class ZKClient extends BaseService {
     private ZKConfig zkConfig;
     private CuratorFramework client;
     private TreeCache cache;
-    private Map<String, String> ephemeralNodes = new LinkedHashMap<>();
+    private Map<String, String> ephemeralNodes = new LinkedHashMap<>(4);
+    private Map<String, String> ephemeralSequentialNodes = new LinkedHashMap<>(1);
 
     private synchronized static ZKClient I() {
         return I == null ? new ZKClient() : I;
@@ -138,7 +139,8 @@ public class ZKClient extends BaseService {
     private void addConnectionStateListener() {
         client.getConnectionStateListenable().addListener((cli, newState) -> {
             if (newState == ConnectionState.RECONNECTED) {
-                ephemeralNodes.forEach(this::reRegisterEphemeralSequential);
+                ephemeralNodes.forEach(this::reRegisterEphemeral);
+                ephemeralSequentialNodes.forEach(this::reRegisterEphemeralSequential);
             }
             Logs.RSD.warn("zk connection state changed new state={}, isConnected={}", newState, newState.isConnected());
         });
@@ -262,16 +264,37 @@ public class ZKClient extends BaseService {
      * @param key
      * @param value
      */
-    public void registerEphemeral(final String key, final String value) {
+    public void registerEphemeral(final String key, final String value, boolean cacheNode) {
         try {
             if (isExisted(key)) {
                 client.delete().deletingChildrenIfNeeded().forPath(key);
             }
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(key, value.getBytes(Constants.UTF_8));
+            if (cacheNode) ephemeralNodes.put(key, value);
         } catch (Exception ex) {
             Logs.RSD.error("persistEphemeral:{},{}", key, value, ex);
             throw new ZKException(ex);
         }
+    }
+
+    /**
+     * 注册临时数据
+     *
+     * @param key
+     * @param value
+     */
+    public void reRegisterEphemeral(final String key, final String value) {
+        registerEphemeral(key, value, false);
+    }
+
+    /**
+     * 注册临时数据
+     *
+     * @param key
+     * @param value
+     */
+    public void registerEphemeral(final String key, final String value) {
+        registerEphemeral(key, value, true);
     }
 
     /**
@@ -284,7 +307,7 @@ public class ZKClient extends BaseService {
     private void registerEphemeralSequential(final String key, final String value, boolean cacheNode) {
         try {
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(key, value.getBytes());
-            if (cacheNode) ephemeralNodes.put(key, value);
+            if (cacheNode) ephemeralSequentialNodes.put(key, value);
         } catch (Exception ex) {
             Logs.RSD.error("persistEphemeralSequential:{},{}", key, value, ex);
             throw new ZKException(ex);
