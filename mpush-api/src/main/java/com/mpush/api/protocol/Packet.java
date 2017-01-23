@@ -31,6 +31,7 @@ import java.net.InetSocketAddress;
  *
  * @author ohun@live.cn
  */
+@SuppressWarnings("unchecked")
 public class Packet {
     public static final int HEADER_LEN = 13;
 

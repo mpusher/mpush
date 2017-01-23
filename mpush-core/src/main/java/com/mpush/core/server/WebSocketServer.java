@@ -54,7 +54,7 @@ public final class WebSocketServer extends NettyTCPServer {
 
     public static WebSocketServer I() {
         if (I == null) {
-            synchronized (ConnectionServer.class) {
+            synchronized (WebSocketServer.class) {
                 if (I == null) {
                     I = new WebSocketServer();
                 }

@@ -143,14 +143,14 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
         HostAndPort h_p = HostAndPort.fromString(hostAndPort);
         connections.get(hostAndPort).remove(connection);
         connection.close();
-        addConnection(h_p.getHostText(), h_p.getPort());
+        addConnection(h_p.getHost(), h_p.getPort());
     }
 
     private void removeClient(ServiceNode node) {
         if (node != null) {
-            List<Connection> clients = connections.remove(getHostAndPort(node.getHost(), node.getPort()));
-            if (clients != null) {
-                clients.forEach(Connection::close);
+            List<Connection> list = connections.remove(getHostAndPort(node.getHost(), node.getPort()));
+            if (list != null) {
+                list.forEach(Connection::close);
             }
         }
     }
@@ -175,6 +175,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
         InetSocketAddress address = (InetSocketAddress) connection.getChannel().remoteAddress();
         String hostAndPort = getHostAndPort(address.getAddress().getHostAddress(), address.getPort());
         connections.computeIfAbsent(hostAndPort, key -> new ArrayList<>(gateway_client_num)).add(connection);
+        logger.info("one gateway conn connect, hostAndPort={}, conn={}", hostAndPort, connection);
     }
 
     private static String getHostAndPort(String host, int port) {

@@ -112,7 +112,7 @@ public final class Utils {
                     }
                 }
             }
-            LOGGER.debug("getInetAddress is null");
+            LOGGER.debug("getInetAddress is null, getLocal={}", getLocal);
             return getLocal ? "127.0.0.1" : null;
         } catch (Throwable e) {
             LOGGER.error("getInetAddress exception", e);
