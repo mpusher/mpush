@@ -24,7 +24,7 @@ import java.net.URLDecoder;
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        RequestContext context = ctx.channel().attr(client.requestKey).getAndRemove();
+        RequestContext context = ctx.channel().attr(client.requestKey).getAndSet(null);
         try {
             if (context != null && context.tryDone()) {
                 context.onException(cause);
@@ -37,7 +37,7 @@ import java.net.URLDecoder;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        RequestContext context = ctx.channel().attr(client.requestKey).getAndRemove();
+        RequestContext context = ctx.channel().attr(client.requestKey).getAndSet(null);
         try {
             if (context != null && context.tryDone()) {
                 LOGGER.debug("receive server response, request={}, response={}", context, msg);

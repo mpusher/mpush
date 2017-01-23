@@ -61,7 +61,7 @@ import java.util.List;
     }
 
     public synchronized void tryRelease(Channel channel) {
-        String host = channel.attr(hostKey).getAndRemove();
+        String host = channel.attr(hostKey).getAndSet(null);
         List<Channel> channels = channelPool.get(host);
         if (channels == null || channels.size() < maxConnPerHost) {
             LOGGER.debug("tryRelease channel success, host={}", host);

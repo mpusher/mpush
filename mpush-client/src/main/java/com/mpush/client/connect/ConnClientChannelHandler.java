@@ -167,7 +167,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
 
         for (int i = 0; i < 3; i++) {
             if (clientConfig != null) break;
-            clientConfig = ctx.channel().attr(CONFIG_KEY).getAndRemove();
+            clientConfig = ctx.channel().attr(CONFIG_KEY).getAndSet(null);
             if (clientConfig == null) TimeUnit.SECONDS.sleep(1);
         }
 

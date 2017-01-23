@@ -73,7 +73,7 @@
         <mpush-boot-version>${mpush.version}</mpush-boot-version>
         <mpush-test-version>${mpush.version}</mpush-test-version>
         <mpush-zk-version>${mpush.version}</mpush-zk-version>
-        <netty.version>4.1.4.Final</netty.version>
+        <netty.version>4.1.7.Final</netty.version>
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
         <org.mapstruct.version>1.1.0.Final</org.mapstruct.version>
     </properties>
@@ -184,17 +184,17 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.21</version>
+                <version>1.7.22</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
-                <version>1.7.21</version>
+                <version>1.7.22</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.1.7</version>
+                <version>1.1.8</version>
             </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>
@@ -228,7 +228,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>19.0</version>
+                <version>21.0</version>
             </dependency>
             <!-- json lib -->
             <dependency>

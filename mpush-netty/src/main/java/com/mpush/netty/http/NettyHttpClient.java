@@ -118,7 +118,7 @@ public class NettyHttpClient extends BaseService implements HttpClient {
         pool.attachHost(context.host, channel);
         channel.writeAndFlush(context.request).addListener((ChannelFutureListener) future -> {
             if (!future.isSuccess()) {
-                RequestContext info = future.channel().attr(requestKey).getAndRemove();
+                RequestContext info = future.channel().attr(requestKey).getAndSet(null);
                 info.tryDone();
                 info.onFailure(503, "Service Unavailable");
                 LOGGER.debug("request failure request={}", info);
