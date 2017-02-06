@@ -228,7 +228,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>21.0</version>
+                <version>20.0</version>
             </dependency>
             <!-- json lib -->
             <dependency>

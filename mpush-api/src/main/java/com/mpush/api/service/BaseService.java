@@ -40,7 +40,7 @@ public abstract class BaseService implements Service {
         return started.get();
     }
 
-    protected void tryStart(Listener l, Function function) {
+    protected void tryStart(Listener l, FunctionEx function) {
         FutureListener listener = wrap(l);
         if (started.compareAndSet(false, true)) {
             try {
@@ -56,7 +56,7 @@ public abstract class BaseService implements Service {
         }
     }
 
-    protected void tryStop(Listener l, Function function) {
+    protected void tryStop(Listener l, FunctionEx function) {
         FutureListener listener = wrap(l);
         if (started.compareAndSet(true, false)) {
             try {
@@ -111,7 +111,7 @@ public abstract class BaseService implements Service {
         listener.onSuccess();
     }
 
-    protected interface Function {
+    protected interface FunctionEx {
         void apply(Listener l) throws Throwable;
     }
 

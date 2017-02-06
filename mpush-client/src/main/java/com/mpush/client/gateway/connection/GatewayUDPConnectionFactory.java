@@ -56,21 +56,21 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
     private final InetSocketAddress multicastRecipient = new InetSocketAddress(gateway_server_multicast, gateway_server_port);
 
     @Override
-    public void init(Listener listener) {
+    protected void doStart(Listener listener) throws Throwable {
         ThreadPoolManager.I.newThread("udp-client", () -> connector.start(listener)).start();
         ServiceDiscovery discovery = ServiceDiscoveryFactory.create();
         discovery.subscribe(GATEWAY_SERVER, this);
-        discovery.lookup(GATEWAY_SERVER).forEach(this::add);
+        discovery.lookup(GATEWAY_SERVER).forEach(this::addConnection);
     }
 
     @Override
     public void onServiceAdded(String path, ServiceNode node) {
-        add(node);
+        addConnection(node);
     }
 
     @Override
     public void onServiceUpdated(String path, ServiceNode node) {
-        add(node);
+        addConnection(node);
     }
 
     @Override
@@ -79,11 +79,12 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
         logger.warn("Gateway Server zkNode={} was removed.", node);
     }
 
-    private void add(ServiceNode node) {
+    private void addConnection(ServiceNode node) {
         ip_address.put(node.hostAndPort(), new InetSocketAddress(node.getHost(), node.getPort()));
     }
 
-    public void clear() {
+    @Override
+    public void doStop(Listener listener) throws Throwable {
         ip_address.clear();
         connector.stop();
     }

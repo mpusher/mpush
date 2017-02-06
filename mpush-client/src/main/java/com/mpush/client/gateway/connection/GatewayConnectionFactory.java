@@ -20,7 +20,7 @@
 package com.mpush.client.gateway.connection;
 
 import com.mpush.api.connection.Connection;
-import com.mpush.api.service.Listener;
+import com.mpush.api.service.BaseService;
 import com.mpush.api.srd.ServiceListener;
 import com.mpush.common.message.BaseMessage;
 import com.mpush.tools.config.CC;
@@ -35,19 +35,13 @@ import java.util.function.Function;
  *
  * @author ohun@live.cn
  */
-public abstract class GatewayConnectionFactory implements ServiceListener {
+public abstract class GatewayConnectionFactory extends BaseService implements ServiceListener {
 
-    final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static GatewayConnectionFactory create() {
         return CC.mp.net.udpGateway() ? new GatewayUDPConnectionFactory() : new GatewayTCPConnectionFactory();
     }
-
-    public void init(Listener listener) {
-        listener.onSuccess();
-    }
-
-    abstract public void clear();
 
     abstract public Connection getConnection(String hostAndPort);
 

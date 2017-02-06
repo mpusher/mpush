@@ -76,15 +76,15 @@ import java.util.concurrent.FutureTask;
         ServiceDiscoveryFactory.create().syncStart();
         CacheManagerFactory.create().init();
         PushRequestBus.I.syncStart();
-        factory.init(listener);
+        factory.start(listener);
     }
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
-        ServiceDiscoveryFactory.create().syncStart();
+        ServiceDiscoveryFactory.create().syncStop();
         CacheManagerFactory.create().destroy();
-        PushRequestBus.I.stop(listener);
-        factory.clear();
+        PushRequestBus.I.syncStop();
+        factory.stop(listener);
     }
 
     @Override
