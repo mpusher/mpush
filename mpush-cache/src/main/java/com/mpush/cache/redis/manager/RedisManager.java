@@ -398,8 +398,12 @@ public final class RedisManager implements CacheManager {
         return toList(value, clazz);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> List<T> toList(Collection<String> value, Class<T> clazz) {
         if (value != null) {
+            if (clazz == String.class) {
+                return (List<T>) new ArrayList<>(value);
+            }
             List<T> newValue = Lists.newArrayList();
             for (String temp : value) {
                 newValue.add(Jsons.fromJson(temp, clazz));
