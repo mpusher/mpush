@@ -23,6 +23,8 @@ import com.mpush.api.Message;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.protocol.Packet;
+import com.mpush.api.spi.common.Json;
+import com.mpush.tools.Jsons;
 import com.mpush.tools.common.IOUtils;
 import com.mpush.tools.common.Profiler;
 import com.mpush.tools.config.CC;
@@ -140,6 +142,14 @@ public abstract class BaseMessage implements Message {
 
     private void encodeJsonBody0() {
         packet.setBody(encodeJsonBody());
+    }
+
+    private void encodeJsonStringBody0() {
+        packet.setBody(encodeJsonStringBody());
+    }
+
+    protected String encodeJsonStringBody() {
+        return Jsons.toJson(this);
     }
 
     private void encodeBodyRaw() {

@@ -66,10 +66,8 @@ public final class UserManager {
     }
 
     //在线用户列表
-    public List<String> getOnlineUserList(int start, int size) {
-        if (size < 10) {
-            size = 10;
-        }
-        return cacheManager.zrange(onlineUserListKey, start, size - 1, String.class);
+    public List<String> getOnlineUserList(String publicIP, int start, int end) {
+        String key = CacheKeys.getOnlineUserListKey(publicIP);
+        return cacheManager.zrange(key, start, end, String.class);
     }
 }
