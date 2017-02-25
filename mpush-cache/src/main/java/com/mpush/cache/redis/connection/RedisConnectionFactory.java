@@ -320,11 +320,11 @@ public class RedisConnectionFactory {
     }
 
     public void setRedisServers(List<RedisNode> redisServers) {
-        Objects.requireNonNull(redisServers);
+        if (redisServers == null || redisServers.isEmpty()) {
+            throw new IllegalArgumentException("redis server node can not be empty, please check your conf.");
+        }
         this.redisServers = redisServers;
         this.hostName = redisServers.get(0).getHost();
         this.port = redisServers.get(0).getPort();
     }
-
-
 }

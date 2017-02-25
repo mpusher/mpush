@@ -22,6 +22,12 @@ package com.mpush.bootstrap;
 import com.mpush.tools.log.Logs;
 
 public class Main {
+
+    /**
+     * 源码启动请不要直接运行此方法，负载不能正确加载配置文件
+     *
+     * @param args 启动参数
+     */
     public static void main(String[] args) {
         Logs.init();
         Logs.Console.info("launch mpush server...");
