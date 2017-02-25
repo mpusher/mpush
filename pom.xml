@@ -13,7 +13,7 @@
     <groupId>com.github.mpusher</groupId>
     <artifactId>mpush</artifactId>
     <packaging>pom</packaging>
-    <version>0.7.0</version>
+    <version>0.7.1</version>
     <name>mpush</name>
     <description>MPUSH消息推送系统</description>
     <url>https://github.com/mpusher/mpush</url>
@@ -61,7 +61,7 @@
         <java.encoding>UTF-8</java.encoding>
         <java.version>1.8</java.version>
         <mpush.groupId>com.github.mpusher</mpush.groupId>
-        <mpush.version>0.7.0</mpush.version>
+        <mpush.version>0.7.1</mpush.version>
         <mpush-api-version>${mpush.version}</mpush-api-version>
         <mpush-tools-version>${mpush.version}</mpush-tools-version>
         <mpush-common-version>${mpush.version}</mpush-common-version>
@@ -73,7 +73,7 @@
         <mpush-boot-version>${mpush.version}</mpush-boot-version>
         <mpush-test-version>${mpush.version}</mpush-test-version>
         <mpush-zk-version>${mpush.version}</mpush-zk-version>
-        <netty.version>4.1.7.Final</netty.version>
+        <netty.version>4.1.8.Final</netty.version>
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
         <org.mapstruct.version>1.1.0.Final</org.mapstruct.version>
     </properties>
