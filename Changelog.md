@@ -4,7 +4,8 @@
 2. 修复ZK临时节点在连接断开未重新注册bug
 3. PushClient代码优化，依赖服务启动／停止顺序优化
 4. 增加查询在线用户列表接口，修复Json转换bug
-5. 依赖类库升级，日志优化，及其他bug fix
+5. 修改http代理request.copy引用计数bug
+6. 依赖类库升级，日志优化，及其他bug fix
 
 
 
