@@ -27,13 +27,12 @@ import com.mpush.tools.config.CC.mp.net.public_ip_mapping;
  *
  * @author ohun@live.cn
  */
-public class ConfigManager {
-    public static final ConfigManager I = new ConfigManager();
+public final class ConfigTools {
 
-    private ConfigManager() {
+    private ConfigTools() {
     }
 
-    public int getHeartbeat(int min, int max) {
+    public static int getHeartbeat(int min, int max) {
         return Math.max(
                 CC.mp.core.min_heartbeat,
                 Math.min(max, CC.mp.core.max_heartbeat)
@@ -45,8 +44,11 @@ public class ConfigManager {
      *
      * @return 内网IP地址
      */
-    public String getLocalIp() {
-        return Utils.getLocalIp();
+    public static String getLocalIp() {
+        if (CC.mp.net.local_ip.length() > 0) {
+            return CC.mp.net.local_ip;
+        }
+        return Utils.lookupLocalIp();
     }
 
     /**
@@ -54,14 +56,18 @@ public class ConfigManager {
      *
      * @return 外网IP地址
      */
-    public String getPublicIp() {
+    public static String getPublicIp() {
 
-        String localIp = Utils.getLocalIp();
+        if (CC.mp.net.public_ip.length() > 0) {
+            return CC.mp.net.public_ip;
+        }
+
+        String localIp = getLocalIp();
 
         String remoteIp = public_ip_mapping.getString(localIp);
 
         if (remoteIp == null) {
-            remoteIp = Utils.getExtranetIp();
+            remoteIp = Utils.lookupExtranetIp();
         }
 
         return remoteIp == null ? localIp : remoteIp;

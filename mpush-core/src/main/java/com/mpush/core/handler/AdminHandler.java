@@ -28,6 +28,7 @@ import com.mpush.tools.Jsons;
 import com.mpush.tools.Utils;
 import com.mpush.tools.common.Profiler;
 import com.mpush.tools.config.CC;
+import com.mpush.tools.config.ConfigTools;
 import com.typesafe.config.ConfigRenderOptions;
 import io.netty.channel.*;
 import org.slf4j.Logger;
@@ -82,7 +83,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.write("Welcome to MPush Console [" + Utils.getLocalIp() + "]!" + EOL);
+        ctx.write("Welcome to MPush Console [" + ConfigTools.getLocalIp() + "]!" + EOL);
         ctx.write("since " + startTime + " has running " + startTime.until(LocalDateTime.now(), ChronoUnit.HOURS) + "(h)" + EOL + EOL);
         ctx.write("It is " + new Date() + " now." + EOL + EOL);
         ctx.flush();

@@ -28,7 +28,7 @@ import com.mpush.common.message.FastConnectOkMessage;
 import com.mpush.core.session.ReusableSession;
 import com.mpush.core.session.ReusableSessionManager;
 import com.mpush.tools.common.Profiler;
-import com.mpush.tools.config.ConfigManager;
+import com.mpush.tools.config.ConfigTools;
 import com.mpush.tools.log.Logs;
 
 /**
@@ -61,7 +61,7 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
                     , message.deviceId, session.context, message.getConnection().getChannel());
         } else {
             //3.校验成功，重新计算心跳，完成快速重连
-            int heartbeat = ConfigManager.I.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
+            int heartbeat = ConfigTools.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
 
             session.context.setHeartbeat(heartbeat);
             message.getConnection().setSessionContext(session.context);

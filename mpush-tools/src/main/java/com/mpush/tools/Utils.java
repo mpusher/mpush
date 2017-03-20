@@ -51,7 +51,7 @@ public final class Utils {
                 || (LOCAL_IP_PATTERN.matcher(host).matches());
     }
 
-    public static String getLocalIp() {
+    public static String lookupLocalIp() {
         if (LOCAL_IP == null) {
             LOCAL_IP = getInetAddress(true);
         }
@@ -120,7 +120,7 @@ public final class Utils {
         }
     }
 
-    public static String getExtranetIp() {
+    public static String lookupExtranetIp() {
         if (EXTRANET_IP == null) {
             EXTRANET_IP = getInetAddress(false);
         }

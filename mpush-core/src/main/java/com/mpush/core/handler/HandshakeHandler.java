@@ -31,7 +31,7 @@ import com.mpush.common.security.AesCipher;
 import com.mpush.common.security.CipherBox;
 import com.mpush.core.session.ReusableSession;
 import com.mpush.core.session.ReusableSessionManager;
-import com.mpush.tools.config.ConfigManager;
+import com.mpush.tools.config.ConfigTools;
 import com.mpush.tools.log.Logs;
 
 /**
@@ -85,7 +85,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
         ReusableSession session = ReusableSessionManager.I.genSession(context);
 
         //5.计算心跳时间
-        int heartbeat = ConfigManager.I.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
+        int heartbeat = ConfigTools.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
 
         //6.响应握手成功消息
         HandshakeOkMessage

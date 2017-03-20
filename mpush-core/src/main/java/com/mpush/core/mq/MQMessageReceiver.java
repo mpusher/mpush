@@ -22,6 +22,7 @@ package com.mpush.core.mq;
 import com.mpush.api.spi.push.MessagePusher;
 import com.mpush.api.spi.push.MessagePusherFactory;
 import com.mpush.tools.Utils;
+import com.mpush.tools.config.ConfigTools;
 import com.mpush.tools.thread.pool.ThreadPoolManager;
 
 import java.util.Collection;
@@ -33,7 +34,7 @@ import java.util.Collection;
  */
 public final class MQMessageReceiver {
 
-    private final static String TOPIC = "/mpush/push/" + Utils.getLocalIp();
+    private final static String TOPIC = "/mpush/push/" + ConfigTools.getLocalIp();
 
     public final MessagePusher pusher = MessagePusherFactory.create();
 

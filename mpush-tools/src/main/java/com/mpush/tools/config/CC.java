@@ -20,7 +20,6 @@
 package com.mpush.tools.config;
 
 import com.mpush.api.spi.net.DnsMapping;
-import com.mpush.tools.common.Profiler;
 import com.mpush.tools.config.data.RedisNode;
 import com.typesafe.config.*;
 
@@ -85,6 +84,9 @@ public interface CC {
 
         interface net {
             Config cfg = mp.cfg.getObject("net").toConfig();
+
+            String local_ip = cfg.getString("local-ip");
+            String public_ip = cfg.getString("public-ip");
 
             int connect_server_port = cfg.getInt("connect-server-port");
             int gateway_server_port = cfg.getInt("gateway-server-port");

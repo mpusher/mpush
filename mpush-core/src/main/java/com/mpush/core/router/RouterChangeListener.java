@@ -36,6 +36,7 @@ import com.mpush.core.server.GatewayUDPConnector;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.Utils;
 import com.mpush.tools.config.CC;
+import com.mpush.tools.config.ConfigTools;
 import com.mpush.tools.event.EventConsumer;
 import com.mpush.tools.log.Logs;
 
@@ -155,7 +156,7 @@ public final class RouterChangeListener extends EventConsumer implements MQMessa
     public void onReceiveKickRemoteMsg(KickRemoteMsg msg) {
         //1.如果当前机器不是目标机器，直接忽略
         if (!msg.isTargetPC()) {
-            Logs.CONN.error("receive kick remote msg, target server error, localIp={}, msg={}", Utils.getLocalIp(), msg);
+            Logs.CONN.error("receive kick remote msg, target server error, localIp={}, msg={}", ConfigTools.getLocalIp(), msg);
             return;
         }
 

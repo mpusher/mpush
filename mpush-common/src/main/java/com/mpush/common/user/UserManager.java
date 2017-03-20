@@ -22,7 +22,7 @@ package com.mpush.common.user;
 import com.mpush.api.spi.common.CacheManager;
 import com.mpush.api.spi.common.CacheManagerFactory;
 import com.mpush.common.CacheKeys;
-import com.mpush.tools.config.ConfigManager;
+import com.mpush.tools.config.ConfigTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public final class UserManager {
     private final CacheManager cacheManager = CacheManagerFactory.create();
 
 
-    private final String onlineUserListKey = CacheKeys.getOnlineUserListKey(ConfigManager.I.getPublicIp());
+    private final String onlineUserListKey = CacheKeys.getOnlineUserListKey(ConfigTools.getPublicIp());
 
     public void clearUserOnlineData() {
         cacheManager.del(onlineUserListKey);

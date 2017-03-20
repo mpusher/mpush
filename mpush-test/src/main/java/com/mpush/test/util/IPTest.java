@@ -30,8 +30,8 @@ import org.junit.Test;
 public class IPTest {
     @Test
     public void getLocalIP() throws Exception {
-        System.out.println(Utils.getLocalIp());
-        System.out.println(Utils.getExtranetIp());
+        System.out.println(Utils.lookupLocalIp());
+        System.out.println(Utils.lookupExtranetIp());
 
     }
 }
