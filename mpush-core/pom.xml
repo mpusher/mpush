@@ -20,15 +20,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-netty</artifactId>
         </dependency>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-monitor</artifactId>
         </dependency>
     </dependencies>

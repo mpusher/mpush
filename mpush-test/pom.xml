@@ -18,27 +18,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-netty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-tools</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-boot</artifactId>
         </dependency>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-client</artifactId>
         </dependency>
         <dependency>

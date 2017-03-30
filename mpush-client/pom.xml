@@ -20,19 +20,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-netty</artifactId>
         </dependency>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-cache</artifactId>
         </dependency>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-zk</artifactId>
         </dependency>
     </dependencies>

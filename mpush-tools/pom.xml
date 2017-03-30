@@ -37,7 +37,7 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-api</artifactId>
         </dependency>
         <dependency>

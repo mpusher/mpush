@@ -27,15 +27,25 @@
     </licenses>
 
     <scm>
-        <tag>master</tag>
-        <url>git@github.com:mpusher/mpush.git</url>
-        <connection>scm:git@github.com:mpusher/mpush.git</connection>
-        <developerConnection>scm:git@github.com:mpusher/mpush.git</developerConnection>
+        <tag>v${project.version}</tag>
+        <url>https://github.com/mpusher/mpush</url>
+        <connection>scm:git:git://github.com/mpusher/mpush.git</connection>
+        <developerConnection>scm:git:ssh://github.com/mpusher/mpush.git</developerConnection>
     </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/mpusher/mpush/issues</url>
+    </issueManagement>
+
+    <organization>
+        <name>MPusher, Inc.</name>
+        <url>https://mpusher.io</url>
+    </organization>
 
     <developers>
         <developer>
-            <name>ohun</name>
+            <name>夜色</name>
             <email>ohun@live.cn</email>
             <organization>mpusher</organization>
         </developer>
@@ -60,8 +70,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.encoding>UTF-8</java.encoding>
         <java.version>1.8</java.version>
-        <mpush.groupId>com.github.mpusher</mpush.groupId>
-        <mpush.version>0.7.1</mpush.version>
         <netty.version>4.1.8.Final</netty.version>
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
     </properties>
@@ -112,59 +120,59 @@
             <!-- 子模块依赖 -->
             <!-- ======================================== -->
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-test</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-api</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-tools</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-common</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-netty</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-core</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-client</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-monitor</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-boot</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-zk</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-cache</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <!-- ================================================= -->
             <!-- 日志 -->

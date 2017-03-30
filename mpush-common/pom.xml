@@ -18,7 +18,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-tools</artifactId>
         </dependency>
     </dependencies>
