@@ -6,11 +6,11 @@
         <artifactId>mpush</artifactId>
         <groupId>com.github.mpusher</groupId>
         <version>0.7.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mpush-common</artifactId>
-    <version>${mpush.version}</version>
     <packaging>jar</packaging>
     <name>mpush-common</name>
     <description>MPUSH消息推送系统基础模块</description>

@@ -7,10 +7,10 @@
         <artifactId>mpush</artifactId>
         <groupId>com.github.mpusher</groupId>
         <version>0.7.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>mpush-boot</artifactId>
-    <version>${mpush-boot-version}</version>
     <packaging>jar</packaging>
     <name>mpush-boot</name>
     <description>MPUSH消息推送系统启动模块</description>

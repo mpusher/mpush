@@ -9,10 +9,10 @@
         <artifactId>mpush</artifactId>
         <groupId>com.github.mpusher</groupId>
         <version>0.7.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>mpush-zk</artifactId>
-    <version>${mpush-zk-version}</version>
     <packaging>jar</packaging>
     <name>mpush-zookeeper</name>
     <description>MPUSH消息推送系统zookeeper集群控制模块</description>

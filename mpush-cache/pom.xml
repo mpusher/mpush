@@ -8,10 +8,10 @@
         <artifactId>mpush</artifactId>
         <groupId>com.github.mpusher</groupId>
         <version>0.7.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>mpush-cache</artifactId>
-    <version>${mpush.version}</version>
     <packaging>jar</packaging>
     <name>mpush-cache</name>
     <description>MPUSH消息推送系统缓存模块</description>

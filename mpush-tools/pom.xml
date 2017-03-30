@@ -8,10 +8,10 @@
         <artifactId>mpush</artifactId>
         <groupId>com.github.mpusher</groupId>
         <version>0.7.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>mpush-tools</artifactId>
-    <version>${mpush-tools-version}</version>
     <packaging>jar</packaging>
     <name>mpush-tools</name>
     <description>MPUSH消息推送系统工具库</description>

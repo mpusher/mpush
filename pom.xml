@@ -36,7 +36,7 @@
     <developers>
         <developer>
             <name>ohun</name>
-            <email>ohun@live.cm</email>
+            <email>ohun@live.cn</email>
             <organization>mpusher</organization>
         </developer>
     </developers>
@@ -62,20 +62,8 @@
         <java.version>1.8</java.version>
         <mpush.groupId>com.github.mpusher</mpush.groupId>
         <mpush.version>0.7.1</mpush.version>
-        <mpush-api-version>${mpush.version}</mpush-api-version>
-        <mpush-tools-version>${mpush.version}</mpush-tools-version>
-        <mpush-common-version>${mpush.version}</mpush-common-version>
-        <mpush-netty-version>${mpush.version}</mpush-netty-version>
-        <mpush-core-version>${mpush.version}</mpush-core-version>
-        <mpush-client-version>${mpush.version}</mpush-client-version>
-        <mpush-monitor-version>${mpush.version}</mpush-monitor-version>
-        <mpush-log-version>${mpush.version}</mpush-log-version>
-        <mpush-boot-version>${mpush.version}</mpush-boot-version>
-        <mpush-test-version>${mpush.version}</mpush-test-version>
-        <mpush-zk-version>${mpush.version}</mpush-zk-version>
         <netty.version>4.1.8.Final</netty.version>
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
-        <org.mapstruct.version>1.1.0.Final</org.mapstruct.version>
     </properties>
 
 
@@ -287,28 +275,23 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${java.encoding}</encoding>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${org.mapstruct.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
                 <configuration>
                     <encoding>${java.encoding}</encoding>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
@@ -331,56 +314,6 @@
             <properties>
                 <deploy.env>pub</deploy.env>
             </properties>
-        </profile>
-        <profile>
-            <id>release</id>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-                </snapshotRepository>
-            </distributionManagement>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>

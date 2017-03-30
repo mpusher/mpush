@@ -9,10 +9,10 @@
         <artifactId>mpush</artifactId>
         <groupId>com.github.mpusher</groupId>
         <version>0.7.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>mpush-netty</artifactId>
-    <version>${mpush-netty-version}</version>
     <packaging>jar</packaging>
     <name>mpush-netty</name>
     <description>MPUSH消息推送系统Netty模块</description>
