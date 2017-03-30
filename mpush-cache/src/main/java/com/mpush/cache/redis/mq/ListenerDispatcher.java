@@ -33,7 +33,7 @@ import java.util.concurrent.Executor;
 
 public final class ListenerDispatcher implements MQClient {
 
-    private static ListenerDispatcher I;
+    private volatile static ListenerDispatcher I;
 
     private final Map<String, List<MQMessageReceiver>> subscribes = Maps.newTreeMap();
 
@@ -55,13 +55,14 @@ public final class ListenerDispatcher implements MQClient {
     private ListenerDispatcher() {
     }
 
-    public void onMessage(final String channel, final String message) {
+    public void onMessage(String channel, String message) {
         List<MQMessageReceiver> listeners = subscribes.get(channel);
         if (listeners == null) {
-            Logs.CACHE.info("cannot find listener:%s,%s", channel, message);
+            Logs.CACHE.info("cannot find listener:{}, {}", channel, message);
             return;
         }
-        for (final MQMessageReceiver listener : listeners) {
+
+        for (MQMessageReceiver listener : listeners) {
             executor.execute(() -> listener.receive(channel, message));
         }
     }

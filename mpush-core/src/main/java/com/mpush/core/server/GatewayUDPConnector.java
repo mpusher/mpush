@@ -43,7 +43,7 @@ import static com.mpush.common.MessageDispatcher.POLICY_LOG;
  */
 public final class GatewayUDPConnector extends NettyUDPConnector {
 
-    private static GatewayUDPConnector I;
+    private static volatile GatewayUDPConnector I;
 
     private UDPChannelHandler channelHandler;
 

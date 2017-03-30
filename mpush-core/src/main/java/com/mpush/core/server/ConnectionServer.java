@@ -54,7 +54,7 @@ import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
  * @author ohun@live.cn (夜色)
  */
 public final class ConnectionServer extends NettyTCPServer {
-    private static ConnectionServer I;
+    private volatile static ConnectionServer I;
 
     private ServerChannelHandler channelHandler;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;

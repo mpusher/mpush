@@ -31,7 +31,7 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
 public final class AdminServer extends NettyTCPServer {
-    private static AdminServer I;
+    private volatile static AdminServer I;
 
     private AdminHandler adminHandler;
 

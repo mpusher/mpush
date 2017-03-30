@@ -46,7 +46,7 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketSe
  */
 public final class WebSocketServer extends NettyTCPServer {
 
-    private static WebSocketServer I;
+    private static volatile WebSocketServer I;
 
     private ChannelHandler channelHandler;
 

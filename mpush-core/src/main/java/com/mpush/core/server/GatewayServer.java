@@ -50,7 +50,7 @@ import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
  * @author ohun@live.cn
  */
 public final class GatewayServer extends NettyTCPServer {
-    private static GatewayServer I;
+    private volatile static GatewayServer I;
 
     private ServerChannelHandler channelHandler;
     private ServerConnectionManager connectionManager;
