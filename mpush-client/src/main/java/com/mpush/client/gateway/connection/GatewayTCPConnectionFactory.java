@@ -53,6 +53,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     private final AttributeKey<String> attrKey = AttributeKey.valueOf("host_port");
     private final Map<String, List<Connection>> connections = Maps.newConcurrentMap();
 
+    private ServiceDiscovery discovery;
     private GatewayClient client;
 
     @Override
@@ -61,10 +62,9 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
 
         client = new GatewayClient();
         client.start().join();
-
-        ServiceDiscovery discovery = ServiceDiscoveryFactory.create();
+        discovery = ServiceDiscoveryFactory.create();
         discovery.subscribe(GATEWAY_SERVER, this);
-        discovery.lookup(GATEWAY_SERVER).forEach(this::addConnection);
+        discovery.lookup(GATEWAY_SERVER).forEach(this::syncAddConnection);
         listener.onSuccess();
     }
 
@@ -91,14 +91,25 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
         if (client != null) {
             client.stop().join();
         }
-        ServiceDiscoveryFactory.create().unsubscribe(GATEWAY_SERVER, this);
+        discovery.unsubscribe(GATEWAY_SERVER, this);
     }
 
     @Override
     public Connection getConnection(String hostAndPort) {
         List<Connection> connections = this.connections.get(hostAndPort);
-        if (connections == null || connections.isEmpty()) {
-            return null;//TODO create client
+        if (connections == null || connections.isEmpty()) {//如果为空, 查询下zk, 做一次补偿, 防止zk丢消息
+            synchronized (hostAndPort.intern()) {//同一个host要同步执行, 防止创建很多链接;一定要调用intern
+                connections = this.connections.get(hostAndPort);
+                if (connections == null || connections.isEmpty()) {//二次检查
+                    discovery.lookup(GATEWAY_SERVER)
+                            .stream()
+                            .filter(n -> hostAndPort.equals(n.hostAndPort()))
+                            .forEach(this::syncAddConnection);
+                    if (connections == null || connections.isEmpty()) {//如果还是没有链接, 就直接返null失败
+                        return null;
+                    }
+                }
+            }
         }
 
         int L = connections.size();
@@ -160,7 +171,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
         }
     }
 
-    private void addConnection(ServiceNode node) {
+    private void syncAddConnection(ServiceNode node) {
         for (int i = 0; i < gateway_client_num; i++) {
             addConnection(node.getHost(), node.getPort(), true);
         }
@@ -171,7 +182,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
         future.channel().attr(attrKey).set(getHostAndPort(host, port));
         future.addListener(f -> {
             if (!f.isSuccess()) {
-                logger.error("create gateway connection ex, host={}, port={}", host, port, f.cause());
+                logger.error("create gateway connection failure, host={}, port={}", host, port, f.cause());
             }
         });
         if (sync) future.awaitUninterruptibly();
