@@ -66,6 +66,7 @@ public final class PushRequest extends FutureTask<PushResult> {
     private int timeout;
     private ClientLocation location;
     private int sessionId;
+    private String taskId;
     private Future<?> future;
     private PushResult result;
 
@@ -176,6 +177,7 @@ public final class PushRequest extends FutureTask<PushResult> {
                         .setContent(content)
                         .setTags(tags)
                         .setCondition(condition)
+                        .setTaskId(taskId)
                         .addFlag(ackModel.flag),
 
                 pushMessage -> {
@@ -274,6 +276,7 @@ public final class PushRequest extends FutureTask<PushResult> {
                 .setUserId(ctx.getUserId())
                 .setTags(ctx.getTags())
                 .setCondition(ctx.getCondition())
+                .setTaskId(ctx.getTaskId())
                 .setContent(content)
                 .setTimeout(ctx.getTimeout())
                 .setCallback(ctx.getCallback());
@@ -322,6 +325,11 @@ public final class PushRequest extends FutureTask<PushResult> {
 
     public PushRequest setCondition(String condition) {
         this.condition = condition;
+        return this;
+    }
+
+    public PushRequest setTaskId(String taskId) {
+        this.taskId = taskId;
         return this;
     }
 
