@@ -23,6 +23,7 @@ import com.mpush.api.push.BroadcastController;
 import com.mpush.api.spi.common.CacheManager;
 import com.mpush.api.spi.common.CacheManagerFactory;
 import com.mpush.common.CacheKeys;
+import com.mpush.tools.Jsons;
 
 import java.util.List;
 
@@ -94,10 +95,12 @@ public final class RedisBroadcastController implements BroadcastController {
     }
 
     public void success(String userId) {
-        cacheManager.lpush(taskSuccessUIDKey, userId);
+        cacheManager.lpush(taskSuccessUIDKey, Jsons.toJson(userId));
     }
 
     public List<String> successUserIds() {
-        return cacheManager.lrange(taskSuccessUIDKey, 0, -1, String.class);
+         List<String> list =  cacheManager.lrange(taskSuccessUIDKey, 0, -1, String.class);
+        cacheManager.del(taskSuccessUIDKey);
+         return list;
     }
 }

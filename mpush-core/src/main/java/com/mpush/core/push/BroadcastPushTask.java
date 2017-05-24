@@ -26,6 +26,8 @@ import com.mpush.api.spi.push.IPushMessage;
 import com.mpush.common.condition.AwaysPassCondition;
 import com.mpush.api.common.Condition;
 import com.mpush.common.message.PushMessage;
+import com.mpush.common.message.gateway.GatewayPushMessage;
+import com.mpush.common.push.RedisBroadcastController;
 import com.mpush.common.qps.FlowControl;
 import com.mpush.common.qps.OverFlowException;
 import com.mpush.core.router.LocalRouter;
@@ -98,6 +100,10 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
                     if (checkCondition(condition, connection)) {//1.条件检测
                         if (connection.isConnected()) {
                             if (connection.getChannel().isWritable()) { //检测TCP缓冲区是否已满且写队列超过最高阀值
+                                //设置userid，by 鹏 2017-5-23
+                                GatewayPushMessage gpm = (GatewayPushMessage)message;
+                                gpm.userId = userId;
+
                                 PushMessage
                                         .build(connection)
                                         .setContent(message.getContent())
@@ -145,6 +151,11 @@ public final class BroadcastPushTask implements PushTask, ChannelFutureListener 
     public void operationComplete(ChannelFuture future) throws Exception {
         if (future.isSuccess()) {//推送成功
             Logs.PUSH.info("[Broadcast] push message to client success, userId={}, message={}", message.getUserId(), message);
+
+            //写入redis，将成功接收的用户id保存。 by 鹏 2017-5-23
+            RedisBroadcastController rbc = new RedisBroadcastController(message.getTaskId());
+            rbc.success(message.getUserId());
+
         } else {//推送失败
             Logs.PUSH.warn("[Broadcast] push message to client failure, userId={}, message={}, conn={}", message.getUserId(), message, future.channel());
         }

@@ -207,6 +207,7 @@ public final class GatewayPushMessage extends ByteBufMessage implements IPushMes
     public String toString() {
         return "GatewayPushMessage{" +
                 "userId='" + userId + '\'' +
+                ", taskId=" + taskId + '\'' +
                 ", clientType='" + clientType + '\'' +
                 ", timeout='" + timeout + '\'' +
                 ", content='" + (content == null ? 0 : content.length) + '\'' +
