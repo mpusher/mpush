@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <assembly>
-    <id>release-${mpush.version}</id>
-    <baseDirectory>mpush-${mpush.version}</baseDirectory>
+    <id>release-${project.version}</id>
+    <baseDirectory>mpush-${project.version}</baseDirectory>
     <includeBaseDirectory>true</includeBaseDirectory>
     <formats>
         <format>tar.gz</format>
