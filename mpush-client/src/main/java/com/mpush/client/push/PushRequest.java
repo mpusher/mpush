@@ -134,11 +134,14 @@ public final class PushRequest extends FutureTask<PushResult> {
                 if (isTimeoutEnd) {//超时结束时，当前线程已经是线程池里的线程，直接调用callback
                     callback.onResult(getResult());
                 } else {//非超时结束时，当前线程为Netty线程池，要异步执行callback
-                    PushRequestBus.I.asyncCall(this);//会执行run方法
+                    //PushRequestBus.I.asyncCall(this);//会执行run方法
+
+                    //延时，等待接收到server通知。by 鹏
+                    PushRequestBus.I.put(sessionId, PushRequest.this);
                 }
             }
         }
-        LOGGER.info("push request {} end, {}, {}, {}", status, userId, location, timeLine);
+        LOGGER.info("push request {} end, {}, {}, {}, timeout={}", status, userId, location, timeLine, this.getTimeout());
     }
 
     /**
