@@ -38,7 +38,7 @@ public interface FlowControl {
      */
     boolean checkQps() throws OverFlowException;
 
-    default void end() {
+    default void end(Object results) {
     }
 
     /**
