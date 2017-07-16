@@ -9,21 +9,23 @@ import com.mpush.tools.log.Logs;
 public final class PushAckCallback implements AckCallback {
     private final IPushMessage message;
     private final TimeLine timeLine;
+    private final PushCenter pushCenter;
 
-    public PushAckCallback(IPushMessage message, TimeLine timeLine) {
+    public PushAckCallback(IPushMessage message, TimeLine timeLine, PushCenter pushCenter) {
         this.message = message;
         this.timeLine = timeLine;
+        this.pushCenter = pushCenter;
     }
 
     @Override
     public void onSuccess(AckTask task) {
-        PushCenter.I.getPushListener().onAckSuccess(message, timeLine.successEnd().getTimePoints());
+        pushCenter.getPushListener().onAckSuccess(message, timeLine.successEnd().getTimePoints());
         Logs.PUSH.info("[SingleUserPush] client ack success, timeLine={}, task={}", timeLine, task);
     }
 
     @Override
     public void onTimeout(AckTask task) {
-        PushCenter.I.getPushListener().onTimeout(message, timeLine.timeoutEnd().getTimePoints());
+        pushCenter.getPushListener().onTimeout(message, timeLine.timeoutEnd().getTimePoints());
         Logs.PUSH.warn("[SingleUserPush] client ack timeout, timeLine={}, task={}", timeLine, task);
     }
 }

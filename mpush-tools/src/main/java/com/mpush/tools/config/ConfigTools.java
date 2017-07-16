@@ -72,4 +72,19 @@ public final class ConfigTools {
 
         return remoteIp == null ? localIp : remoteIp;
     }
+
+
+    public static String getConnectServerRegisterIp() {
+        if (CC.mp.net.connect_server_register_ip.length() > 0) {
+            return CC.mp.net.connect_server_register_ip;
+        }
+        return getPublicIp();
+    }
+
+    public static String getGatewayServerRegisterIp() {
+        if (CC.mp.net.gateway_server_register_ip.length() > 0) {
+            return CC.mp.net.gateway_server_register_ip;
+        }
+        return getLocalIp();
+    }
 }

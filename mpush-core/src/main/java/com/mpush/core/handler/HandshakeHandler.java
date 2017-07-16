@@ -29,6 +29,7 @@ import com.mpush.common.message.HandshakeMessage;
 import com.mpush.common.message.HandshakeOkMessage;
 import com.mpush.common.security.AesCipher;
 import com.mpush.common.security.CipherBox;
+import com.mpush.core.MPushServer;
 import com.mpush.core.session.ReusableSession;
 import com.mpush.core.session.ReusableSessionManager;
 import com.mpush.tools.config.ConfigTools;
@@ -40,6 +41,12 @@ import com.mpush.tools.log.Logs;
  * @author ohun@live.cn
  */
 public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage> {
+
+    private final ReusableSessionManager reusableSessionManager;
+
+    public HandshakeHandler(MPushServer mPushServer) {
+        this.reusableSessionManager = mPushServer.getReusableSessionManager();
+    }
 
     @Override
     public HandshakeMessage decode(Packet packet, Connection connection) {
@@ -82,7 +89,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
         context.changeCipher(new AesCipher(clientKey, iv));
 
         //4.生成可复用session, 用于快速重连
-        ReusableSession session = ReusableSessionManager.I.genSession(context);
+        ReusableSession session = reusableSessionManager.genSession(context);
 
         //5.计算心跳时间
         int heartbeat = ConfigTools.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
@@ -107,7 +114,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
                 .setHeartbeat(heartbeat);
 
         //9.保存可复用session到Redis, 用于快速重连
-        ReusableSessionManager.I.cacheSession(session);
+        reusableSessionManager.cacheSession(session);
 
         Logs.CONN.info("handshake success, conn={}", message.getConnection());
     }

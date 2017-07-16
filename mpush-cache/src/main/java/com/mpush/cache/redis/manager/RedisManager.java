@@ -23,9 +23,10 @@ import com.google.common.collect.Lists;
 import com.mpush.api.spi.common.*;
 import com.mpush.cache.redis.connection.RedisConnectionFactory;
 import com.mpush.tools.Jsons;
+import com.mpush.tools.Utils;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
+import com.mpush.monitor.service.ThreadPoolManager;
 import redis.clients.jedis.*;
 
 import java.util.*;
@@ -229,7 +230,7 @@ public final class RedisManager implements CacheManager {
     /**
      * 从队列的左边入队
      */
-    public void lpush(String key, String value) {
+    public void lpush(String key, String... value) {
         call(jedis -> jedis.lpush(key, value));
     }
 
@@ -319,7 +320,7 @@ public final class RedisManager implements CacheManager {
     }
 
     public void subscribe(final JedisPubSub pubsub, final String channel) {
-        ThreadPoolManager.I.newThread(channel,
+        Utils.newThread(channel,
                 () -> call(jedis -> {
                     if (jedis instanceof MultiKeyCommands) {
                         ((MultiKeyCommands) jedis).subscribe(pubsub, channel);

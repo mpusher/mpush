@@ -24,6 +24,7 @@ import com.mpush.api.protocol.Packet;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.gateway.GatewayKickUserMessage;
 import com.mpush.core.router.RouterCenter;
+import com.mpush.core.router.RouterChangeListener;
 
 /**
  * Created by ohun on 16/10/23.
@@ -31,6 +32,13 @@ import com.mpush.core.router.RouterCenter;
  * @author ohun@live.cn (夜色)
  */
 public final class GatewayKickUserHandler extends BaseMessageHandler<GatewayKickUserMessage> {
+
+    private final RouterCenter routerCenter;
+
+    public GatewayKickUserHandler(RouterCenter routerCenter) {
+        this.routerCenter = routerCenter;
+    }
+
     @Override
     public GatewayKickUserMessage decode(Packet packet, Connection connection) {
         return new GatewayKickUserMessage(packet, connection);
@@ -38,6 +46,6 @@ public final class GatewayKickUserHandler extends BaseMessageHandler<GatewayKick
 
     @Override
     public void handle(GatewayKickUserMessage message) {
-        RouterCenter.I.getRouterChangeListener().onReceiveKickRemoteMsg(message);
+        routerCenter.getRouterChangeListener().onReceiveKickRemoteMsg(message);
     }
 }

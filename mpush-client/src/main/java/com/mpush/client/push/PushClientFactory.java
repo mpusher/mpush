@@ -22,6 +22,7 @@ package com.mpush.client.push;
 import com.mpush.api.push.PushSender;
 import com.mpush.api.spi.Spi;
 import com.mpush.api.spi.client.PusherFactory;
+import com.mpush.client.MPushClient;
 
 /**
  * Created by yxx on 2016/5/18.

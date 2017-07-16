@@ -20,13 +20,13 @@
 package com.mpush.bootstrap;
 
 
+import com.mpush.api.common.ServerEventListener;
+import com.mpush.api.spi.core.ServerEventListenerFactory;
 import com.mpush.bootstrap.job.*;
-import com.mpush.core.server.*;
+import com.mpush.core.MPushServer;
+import com.mpush.tools.config.CC;
 
-import static com.mpush.common.ServerNodes.*;
-import static com.mpush.tools.config.CC.mp.net.tcpGateway;
-import static com.mpush.tools.config.CC.mp.net.udpGateway;
-import static com.mpush.tools.config.CC.mp.net.wsEnabled;
+import static com.mpush.tools.config.CC.mp.net.*;
 
 /**
  * Created by yxx on 2016/5/14.
@@ -35,20 +35,37 @@ import static com.mpush.tools.config.CC.mp.net.wsEnabled;
  */
 public final class ServerLauncher {
 
-    private final BootChain chain = BootChain.chain();
+    private MPushServer mPushServer;
+    private BootChain chain;
+    private ServerEventListener serverEventListener;
 
-    public ServerLauncher() {
+    public void init() {
+        if (mPushServer == null) {
+            mPushServer = new MPushServer();
+        }
+
+        if (chain == null) {
+            chain = BootChain.chain();
+        }
+
+        if (serverEventListener == null) {
+            serverEventListener = ServerEventListenerFactory.create();
+        }
+
+        serverEventListener.init(mPushServer);
+
         chain.boot()
                 .setNext(new CacheManagerBoot())//1.初始化缓存模块
                 .setNext(new ServiceRegistryBoot())//2.启动服务注册与发现模块
-                .setNext(new ServerBoot(ConnectionServer.I(), CS))//3.启动接入服务
-                .setNext(() -> new ServerBoot(WebSocketServer.I(), WS), wsEnabled())//4.启动websocket接入服务
-                .setNext(() -> new ServerBoot(GatewayUDPConnector.I(), GS), udpGateway())//5.启动udp网关服务
-                .setNext(() -> new ServerBoot(GatewayServer.I(), GS), tcpGateway())//6.启动tcp网关服务
-                .setNext(new ServerBoot(AdminServer.I(), null))//7.启动控制台服务
-                .setNext(new PushCenterBoot())//8.启动推送中心组件
-                .setNext(new HttpProxyBoot())//9.启动http代理服务，dns解析服务
-                .setNext(new MonitorBoot())//10.启动监控服务
+                .setNext(new ServerBoot(mPushServer.getConnectionServer(), mPushServer.getConnServerNode()))//3.启动接入服务
+                .setNext(() -> new ServerBoot(mPushServer.getWebsocketServer(), mPushServer.getWebsocketServerNode()), wsEnabled())//4.启动websocket接入服务
+                .setNext(() -> new ServerBoot(mPushServer.getUdpGatewayServer(), mPushServer.getGatewayServerNode()), udpGateway())//5.启动udp网关服务
+                .setNext(() -> new ServerBoot(mPushServer.getGatewayServer(), mPushServer.getGatewayServerNode()), tcpGateway())//6.启动tcp网关服务
+                .setNext(new ServerBoot(mPushServer.getAdminServer(), null))//7.启动控制台服务
+                .setNext(new RouterCenterBoot(mPushServer))//8.启动路由中心组件
+                .setNext(new PushCenterBoot(mPushServer))//9.启动推送中心组件
+                .setNext(() -> new HttpProxyBoot(mPushServer), CC.mp.http.proxy_enabled)//10.启动http代理服务，dns解析服务
+                .setNext(new MonitorBoot(mPushServer))//11.启动监控服务
                 .end();
     }
 
@@ -58,5 +75,29 @@ public final class ServerLauncher {
 
     public void stop() {
         chain.stop();
+    }
+
+    public void setMPushServer(MPushServer mPushServer) {
+        this.mPushServer = mPushServer;
+    }
+
+    public void setChain(BootChain chain) {
+        this.chain = chain;
+    }
+
+    public MPushServer getMPushServer() {
+        return mPushServer;
+    }
+
+    public BootChain getChain() {
+        return chain;
+    }
+
+    public ServerEventListener getServerEventListener() {
+        return serverEventListener;
+    }
+
+    public void setServerEventListener(ServerEventListener serverEventListener) {
+        this.serverEventListener = serverEventListener;
     }
 }

@@ -19,24 +19,62 @@
 
 package com.mpush.common.user;
 
+import com.mpush.api.Constants;
+import com.mpush.api.router.ClientLocation;
 import com.mpush.api.spi.common.CacheManager;
 import com.mpush.api.spi.common.CacheManagerFactory;
+import com.mpush.api.spi.common.MQClient;
+import com.mpush.api.spi.common.MQClientFactory;
 import com.mpush.common.CacheKeys;
+import com.mpush.common.router.CachedRemoteRouterManager;
+import com.mpush.common.router.MQKickRemoteMsg;
+import com.mpush.common.router.RemoteRouter;
+import com.mpush.common.router.RemoteRouterManager;
 import com.mpush.tools.config.ConfigTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 
 //查询使用
 public final class UserManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
-    public static final UserManager I = new UserManager();
+
+    private final String onlineUserListKey = CacheKeys.getOnlineUserListKey(ConfigTools.getPublicIp());
 
     private final CacheManager cacheManager = CacheManagerFactory.create();
 
+    private final MQClient mqClient = MQClientFactory.create();
 
-    private final String onlineUserListKey = CacheKeys.getOnlineUserListKey(ConfigTools.getPublicIp());
+    private final RemoteRouterManager remoteRouterManager;
+
+    public UserManager(RemoteRouterManager remoteRouterManager) {
+        this.remoteRouterManager = remoteRouterManager;
+    }
+
+    public void kickUser(String userId) {
+        kickUser(userId, -1);
+    }
+
+    public void kickUser(String userId, int clientType) {
+        Set<RemoteRouter> remoteRouters = remoteRouterManager.lookupAll(userId);
+        if (remoteRouters != null) {
+            for (RemoteRouter remoteRouter : remoteRouters) {
+                ClientLocation location = remoteRouter.getRouteValue();
+                if (clientType == -1 || location.getClientType() == clientType) {
+                    MQKickRemoteMsg message = new MQKickRemoteMsg()
+                            .setUserId(userId)
+                            .setClientType(location.getClientType())
+                            .setConnId(location.getConnId())
+                            .setDeviceId(location.getDeviceId())
+                            .setTargetServer(location.getHost())
+                            .setTargetPort(location.getPort());
+                    mqClient.publish(Constants.getKickChannel(location.getHostAndPort()), message);
+                }
+            }
+        }
+    }
 
     public void clearUserOnlineData() {
         cacheManager.del(onlineUserListKey);

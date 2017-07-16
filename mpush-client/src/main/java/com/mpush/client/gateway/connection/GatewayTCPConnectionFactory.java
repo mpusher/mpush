@@ -28,6 +28,7 @@ import com.mpush.api.service.Listener;
 import com.mpush.api.spi.common.ServiceDiscoveryFactory;
 import com.mpush.api.srd.ServiceDiscovery;
 import com.mpush.api.srd.ServiceNode;
+import com.mpush.client.MPushClient;
 import com.mpush.client.gateway.GatewayClient;
 import com.mpush.common.message.BaseMessage;
 import com.mpush.tools.event.EventBus;
@@ -54,14 +55,20 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     private final Map<String, List<Connection>> connections = Maps.newConcurrentMap();
 
     private ServiceDiscovery discovery;
-    private GatewayClient client;
+    private GatewayClient gatewayClient;
+
+    private MPushClient mPushClient;
+
+    public GatewayTCPConnectionFactory(MPushClient mPushClient) {
+        this.mPushClient = mPushClient;
+    }
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        EventBus.I.register(this);
+        EventBus.register(this);
 
-        client = new GatewayClient();
-        client.start().join();
+        gatewayClient = new GatewayClient(mPushClient);
+        gatewayClient.start().join();
         discovery = ServiceDiscoveryFactory.create();
         discovery.subscribe(GATEWAY_SERVER, this);
         discovery.lookup(GATEWAY_SERVER).forEach(this::syncAddConnection);
@@ -88,8 +95,8 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     @Override
     public void doStop(Listener listener) throws Throwable {
         connections.values().forEach(l -> l.forEach(Connection::close));
-        if (client != null) {
-            client.stop().join();
+        if (gatewayClient != null) {
+            gatewayClient.stop().join();
         }
         discovery.unsubscribe(GATEWAY_SERVER, this);
     }
@@ -178,7 +185,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     }
 
     private void addConnection(String host, int port, boolean sync) {
-        ChannelFuture future = client.connect(host, port);
+        ChannelFuture future = gatewayClient.connect(host, port);
         future.channel().attr(attrKey).set(getHostAndPort(host, port));
         future.addListener(f -> {
             if (!f.isSuccess()) {
@@ -202,5 +209,9 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
 
     private static String getHostAndPort(String host, int port) {
         return host + ":" + port;
+    }
+
+    public GatewayClient getGatewayClient() {
+        return gatewayClient;
     }
 }

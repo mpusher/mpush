@@ -76,7 +76,7 @@ public final class BootChain {
         setNext(new BootJob() {
             @Override
             protected void start() {
-                EventBus.I.post(new ServerStartupEvent());
+                EventBus.post(new ServerStartupEvent());
                 Logs.Console.info("bootstrap chain started.");
                 Logs.Console.info("===================================================================");
                 Logs.Console.info("====================MPUSH SERVER START SUCCESS=====================");
@@ -86,7 +86,7 @@ public final class BootChain {
             @Override
             protected void stop() {
                 Logs.Console.info("bootstrap chain stopping...");
-                EventBus.I.post(new ServerShutdownEvent());
+                EventBus.post(new ServerShutdownEvent());
             }
 
             @Override

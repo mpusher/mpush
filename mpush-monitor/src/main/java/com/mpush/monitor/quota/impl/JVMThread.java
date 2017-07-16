@@ -30,9 +30,7 @@ public class JVMThread implements ThreadQuota {
 
     private ThreadMXBean threadMXBean;
 
-    public static final JVMThread I = new JVMThread();
-
-    private JVMThread() {
+    public JVMThread() {
         threadMXBean = ManagementFactory.getThreadMXBean();
     }
 

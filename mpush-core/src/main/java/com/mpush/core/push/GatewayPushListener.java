@@ -19,12 +19,14 @@
 
 package com.mpush.core.push;
 
+import com.mpush.api.MPushContext;
 import com.mpush.api.spi.Spi;
 import com.mpush.api.spi.push.PushListener;
 import com.mpush.api.spi.push.PushListenerFactory;
 import com.mpush.common.message.ErrorMessage;
 import com.mpush.common.message.OkMessage;
 import com.mpush.common.message.gateway.GatewayPushMessage;
+import com.mpush.core.MPushServer;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.log.Logs;
 
@@ -41,10 +43,17 @@ import static com.mpush.common.push.GatewayPushResult.toJson;
 @Spi(order = 1)
 public final class GatewayPushListener implements PushListener<GatewayPushMessage>, PushListenerFactory<GatewayPushMessage> {
 
+    private PushCenter pushCenter;
+
+    @Override
+    public void init(MPushContext context) {
+        pushCenter = ((MPushServer) context).getPushCenter();
+    }
+
     @Override
     public void onSuccess(GatewayPushMessage message, Object[] timePoints) {
         if (message.getConnection().isConnected()) {
-            PushCenter.I.addTask(new PushTask() {
+            pushCenter.addTask(new PushTask() {
                 @Override
                 public ScheduledExecutorService getExecutor() {
                     return message.getExecutor();
@@ -67,7 +76,7 @@ public final class GatewayPushListener implements PushListener<GatewayPushMessag
     @Override
     public void onAckSuccess(GatewayPushMessage message, Object[] timePoints) {
         if (message.getConnection().isConnected()) {
-            PushCenter.I.addTask(new PushTask() {
+            pushCenter.addTask(new PushTask() {
                 @Override
                 public ScheduledExecutorService getExecutor() {
                     return message.getExecutor();
@@ -91,7 +100,7 @@ public final class GatewayPushListener implements PushListener<GatewayPushMessag
     @Override
     public void onBroadcastComplete(GatewayPushMessage message, Object[] timePoints) {
         if (message.getConnection().isConnected()) {
-            PushCenter.I.addTask(new PushTask() {
+            pushCenter.addTask(new PushTask() {
                 @Override
                 public ScheduledExecutorService getExecutor() {
                     return message.getExecutor();
@@ -113,7 +122,7 @@ public final class GatewayPushListener implements PushListener<GatewayPushMessag
     @Override
     public void onFailure(GatewayPushMessage message, Object[] timePoints) {
         if (message.getConnection().isConnected()) {
-            PushCenter.I.addTask(new PushTask() {
+            pushCenter.addTask(new PushTask() {
                 @Override
                 public ScheduledExecutorService getExecutor() {
                     return message.getExecutor();
@@ -137,7 +146,7 @@ public final class GatewayPushListener implements PushListener<GatewayPushMessag
     @Override
     public void onOffline(GatewayPushMessage message, Object[] timePoints) {
         if (message.getConnection().isConnected()) {
-            PushCenter.I.addTask(new PushTask() {
+            pushCenter.addTask(new PushTask() {
                 @Override
                 public ScheduledExecutorService getExecutor() {
                     return message.getExecutor();
@@ -161,7 +170,7 @@ public final class GatewayPushListener implements PushListener<GatewayPushMessag
     @Override
     public void onRedirect(GatewayPushMessage message, Object[] timePoints) {
         if (message.getConnection().isConnected()) {
-            PushCenter.I.addTask(new PushTask() {
+            pushCenter.addTask(new PushTask() {
                 @Override
                 public ScheduledExecutorService getExecutor() {
                     return message.getExecutor();

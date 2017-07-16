@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>mpush-tools</artifactId>
+            <artifactId>mpush-monitor</artifactId>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>

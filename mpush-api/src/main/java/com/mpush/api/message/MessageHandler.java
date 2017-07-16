@@ -17,38 +17,16 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.api;
+package com.mpush.api.message;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
-import io.netty.channel.ChannelFutureListener;
 
 /**
  * Created by ohun on 2015/12/22.
  *
  * @author ohun@live.cn
  */
-public interface Message {
-
-    Connection getConnection();
-
-    void decodeBody();
-
-    void encodeBody();
-
-    /**
-     * 发送当前message, 并根据情况最body进行数据压缩、加密
-     *
-     * @param listener 发送成功后的回调
-     */
-    void send(ChannelFutureListener listener);
-
-    /**
-     * 发送当前message, 不会对body进行数据压缩、加密, 原样发送
-     *
-     * @param listener 发送成功后的回调
-     */
-    void sendRaw(ChannelFutureListener listener);
-
-    Packet getPacket();
+public interface MessageHandler {
+    void handle(Packet packet, Connection connection);
 }

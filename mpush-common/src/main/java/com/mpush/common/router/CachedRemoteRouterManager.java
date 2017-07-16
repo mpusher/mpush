@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
  * @author ohun@live.cn (夜色)
  */
 public final class CachedRemoteRouterManager extends RemoteRouterManager {
-    public static final CachedRemoteRouterManager I = new CachedRemoteRouterManager();
     private final Cache<String, Set<RemoteRouter>> cache = CacheBuilder
             .newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)

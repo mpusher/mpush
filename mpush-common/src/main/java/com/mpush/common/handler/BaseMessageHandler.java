@@ -20,7 +20,7 @@
 package com.mpush.common.handler;
 
 
-import com.mpush.api.MessageHandler;
+import com.mpush.api.message.MessageHandler;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 import com.mpush.common.message.BaseMessage;

@@ -26,5 +26,6 @@ import java.util.function.Supplier;
  *
  * @author ohun@live.cn
  */
+@FunctionalInterface
 public interface Factory<T> extends Supplier<T> {
 }

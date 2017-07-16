@@ -20,10 +20,7 @@
 package com.mpush.tools.event;
 
 import com.google.common.eventbus.AsyncEventBus;
-import com.google.common.eventbus.SubscriberExceptionContext;
-import com.google.common.eventbus.SubscriberExceptionHandler;
 import com.mpush.api.event.Event;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,25 +32,23 @@ import java.util.concurrent.Executor;
  * @author ohun@live.cn
  */
 public class EventBus {
-    private final Logger LOGGER = LoggerFactory.getLogger(EventBus.class);
-    public static final EventBus I = new EventBus();
-    private final com.google.common.eventbus.EventBus eventBus;
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventBus.class);
+    private static com.google.common.eventbus.EventBus eventBus;
 
-    public EventBus() {
-        Executor executor = ThreadPoolManager.I.getEventBusExecutor();
+    public static void create(Executor executor) {
         eventBus = new AsyncEventBus(executor, (exception, context)
                 -> LOGGER.error("event bus subscriber ex", exception));
     }
 
-    public void post(Event event) {
+    public static void post(Event event) {
         eventBus.post(event);
     }
 
-    public void register(Object bean) {
+    public static void register(Object bean) {
         eventBus.register(bean);
     }
 
-    public void unregister(Object bean) {
+    public static void unregister(Object bean) {
         eventBus.unregister(bean);
     }
 

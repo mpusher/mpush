@@ -17,7 +17,7 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.api;
+package com.mpush.api.message;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;

@@ -19,12 +19,14 @@
 
 package com.mpush.api.spi.common;
 
+import com.mpush.api.spi.Plugin;
+
 /**
  * Created by ohun on 2016/12/27.
  *
  * @author ohun@live.cn (夜色)
  */
-public interface MQClient {
+public interface MQClient extends Plugin {
 
     void subscribe(String topic, MQMessageReceiver receiver);
 

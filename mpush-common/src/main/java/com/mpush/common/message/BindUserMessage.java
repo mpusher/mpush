@@ -33,8 +33,8 @@ import java.util.Map;
  */
 public final class BindUserMessage extends ByteBufMessage {
     public String userId;
-    public String alias;
     public String tags;
+    public String data;
 
     public BindUserMessage(Connection connection) {
         super(new Packet(Command.BIND, genSessionId()), connection);
@@ -47,14 +47,14 @@ public final class BindUserMessage extends ByteBufMessage {
     @Override
     public void decode(ByteBuf body) {
         userId = decodeString(body);
-        alias = decodeString(body);
+        data = decodeString(body);
         tags = decodeString(body);
     }
 
     @Override
     public void encode(ByteBuf body) {
         encodeString(body, userId);
-        encodeString(body, alias);
+        encodeString(body, data);
         encodeString(body, tags);
     }
 
@@ -62,12 +62,13 @@ public final class BindUserMessage extends ByteBufMessage {
     public void decodeJsonBody(Map<String, Object> body) {
         userId = (String) body.get("userId");
         tags = (String) body.get("tags");
+        data = (String) body.get("data");
     }
 
     @Override
     public String toString() {
         return "BindUserMessage{" +
-                "alias='" + alias + '\'' +
+                "data='" + data + '\'' +
                 ", userId='" + userId + '\'' +
                 ", tags='" + tags + '\'' +
                 ", packet=" + packet +

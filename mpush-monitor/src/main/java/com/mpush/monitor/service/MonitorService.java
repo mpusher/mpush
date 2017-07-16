@@ -19,24 +19,21 @@
 
 package com.mpush.monitor.service;
 
+import com.mpush.api.common.Monitor;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
 import com.mpush.monitor.data.MonitorResult;
 import com.mpush.monitor.data.ResultCollector;
-import com.mpush.monitor.quota.impl.JVMInfo;
+import com.mpush.tools.Utils;
 import com.mpush.tools.common.JVMUtil;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
 import com.mpush.tools.thread.ThreadNames;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-public class MonitorService extends BaseService implements Runnable {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    public static final MonitorService I = new MonitorService();
+public class MonitorService extends BaseService implements Monitor, Runnable {
 
     private static final int FIRST_DUMP_JSTACK_LOAD_AVG = 2,
             SECOND_DUMP_JSTACK_LOAD_AVG = 4,
@@ -53,7 +50,14 @@ public class MonitorService extends BaseService implements Runnable {
     private volatile boolean dumpThirdJstack = false;
     private volatile boolean dumpJmap = false;
 
-    private final ResultCollector collector = new ResultCollector();
+    private final ResultCollector collector;
+
+    private final ThreadPoolManager threadPoolManager;
+
+    public MonitorService() {
+        threadPoolManager = new ThreadPoolManager();
+        collector = new ResultCollector(threadPoolManager);
+    }
 
     private Thread thread;
 
@@ -81,7 +85,7 @@ public class MonitorService extends BaseService implements Runnable {
     @Override
     protected void doStart(Listener listener) throws Throwable {
         if (printLog || dumpEnabled) {
-            thread = ThreadPoolManager.I.newThread(ThreadNames.T_MONITOR, this);
+            thread = Utils.newThread(ThreadNames.T_MONITOR, this);
             thread.setDaemon(true);
             thread.start();
         }
@@ -95,7 +99,7 @@ public class MonitorService extends BaseService implements Runnable {
     }
 
     private void dump() {
-        double load = JVMInfo.I.load();
+        double load = collector.getJvmInfo().load();
         if (load > FIRST_DUMP_JSTACK_LOAD_AVG) {
             if (!dumpFirstJstack) {
                 dumpFirstJstack = true;
@@ -123,5 +127,20 @@ public class MonitorService extends BaseService implements Runnable {
                 JVMUtil.dumpJmap(dumpLogDir);
             }
         }
+    }
+
+
+    @Override
+    public void monitor(String name, Thread thread) {
+
+    }
+
+    @Override
+    public void monitor(String name, Executor executor) {
+        threadPoolManager.register(name, executor);
+    }
+
+    public ThreadPoolManager getThreadPoolManager() {
+        return threadPoolManager;
     }
 }

@@ -41,8 +41,8 @@ public interface KickRemoteMsg {
 
     int getTargetPort();
 
-    default boolean isTargetPC() {
-        return this.getTargetPort() == ServerNodes.GS.getPort()
-                && this.getTargetServer().equals(ConfigTools.getLocalIp());
+    default boolean isTargetMachine(String host, int port) {
+        return this.getTargetPort() == port
+                && this.getTargetServer().equals(host);
     }
 }

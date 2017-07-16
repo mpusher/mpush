@@ -187,7 +187,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         int clientNum = STATISTICS.clientNum.decrementAndGet();
         connection.close();
-        EventBus.I.post(new ConnectionCloseEvent(connection));
+        EventBus.post(new ConnectionCloseEvent(connection));
         LOGGER.info("client disconnect channel={}, clientNum={}", connection, clientNum);
     }
 

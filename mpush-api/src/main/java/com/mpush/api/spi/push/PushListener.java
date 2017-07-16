@@ -1,6 +1,8 @@
 package com.mpush.api.spi.push;
 
-public interface PushListener<T extends IPushMessage> {
+import com.mpush.api.spi.Plugin;
+
+public interface PushListener<T extends IPushMessage> extends Plugin {
 
     /**
      * 消息下发成功后回调

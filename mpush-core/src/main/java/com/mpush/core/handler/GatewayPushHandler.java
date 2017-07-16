@@ -32,6 +32,12 @@ import com.mpush.core.push.PushCenter;
  */
 public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMessage> {
 
+    private final PushCenter pushCenter;
+
+    public GatewayPushHandler(PushCenter pushCenter) {
+        this.pushCenter = pushCenter;
+    }
+
     @Override
     public GatewayPushMessage decode(Packet packet, Connection connection) {
         return new GatewayPushMessage(packet, connection);
@@ -39,6 +45,6 @@ public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMess
 
     @Override
     public void handle(GatewayPushMessage message) {
-        PushCenter.I.push(message);
+        pushCenter.push(message);
     }
 }

@@ -25,6 +25,7 @@ import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.ErrorMessage;
 import com.mpush.common.message.FastConnectMessage;
 import com.mpush.common.message.FastConnectOkMessage;
+import com.mpush.core.MPushServer;
 import com.mpush.core.session.ReusableSession;
 import com.mpush.core.session.ReusableSessionManager;
 import com.mpush.tools.common.Profiler;
@@ -37,6 +38,11 @@ import com.mpush.tools.log.Logs;
  * @author ohun@live.cn
  */
 public final class FastConnectHandler extends BaseMessageHandler<FastConnectMessage> {
+    private final ReusableSessionManager reusableSessionManager;
+
+    public FastConnectHandler(MPushServer mPushServer) {
+        this.reusableSessionManager = mPushServer.getReusableSessionManager();
+    }
 
     @Override
     public FastConnectMessage decode(Packet packet, Connection connection) {
@@ -47,7 +53,7 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
     public void handle(FastConnectMessage message) {
         //从缓存中心查询session
         Profiler.enter("time cost on [query session]");
-        ReusableSession session = ReusableSessionManager.I.querySession(message.sessionId);
+        ReusableSession session = reusableSessionManager.querySession(message.sessionId);
         Profiler.release();
         if (session == null) {
             //1.没查到说明session已经失效了

@@ -63,7 +63,7 @@ public interface CacheManager {
 
     <T> List<T> zrange(String key, int start, int end, Class<T> clazz);
 
-    void lpush(String key, String value);
+    void lpush(String key, String... value);
 
     <T> List<T> lrange(String key, int start, int end, Class<T> clazz);
 }

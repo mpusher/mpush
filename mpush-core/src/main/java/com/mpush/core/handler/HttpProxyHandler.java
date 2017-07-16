@@ -27,16 +27,14 @@ import com.mpush.api.spi.net.DnsMappingManager;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.HttpRequestMessage;
 import com.mpush.common.message.HttpResponseMessage;
+import com.mpush.core.MPushServer;
 import com.mpush.netty.http.HttpCallback;
 import com.mpush.netty.http.HttpClient;
-import com.mpush.netty.http.NettyHttpClient;
 import com.mpush.netty.http.RequestContext;
 import com.mpush.tools.common.Profiler;
 import com.mpush.tools.log.Logs;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +54,12 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  */
 public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxyHandler.class);
-    private final HttpClient httpClient = NettyHttpClient.I();
     private final DnsMappingManager dnsMappingManager = DnsMappingManager.create();
+    private final HttpClient httpClient;
+
+    public HttpProxyHandler(MPushServer mPushServer) {
+        this.httpClient = mPushServer.getHttpClient();
+    }
 
     @Override
     public HttpRequestMessage decode(Packet packet, Connection connection) {

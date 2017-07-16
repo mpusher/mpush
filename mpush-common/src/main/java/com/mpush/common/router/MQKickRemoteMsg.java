@@ -17,16 +17,14 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.core.router;
-
-import com.mpush.common.router.KickRemoteMsg;
+package com.mpush.common.router;
 
 /**
  * Created by ohun on 16/10/23.
  *
  * @author ohun@live.cn (夜色)
  */
-class RedisKickRemoteMessage implements KickRemoteMsg {
+public class MQKickRemoteMsg implements KickRemoteMsg {
     private String userId;
     private String deviceId;
     private String connId;
@@ -34,32 +32,32 @@ class RedisKickRemoteMessage implements KickRemoteMsg {
     private String targetServer;
     private int targetPort;
 
-    public RedisKickRemoteMessage setUserId(String userId) {
+    public MQKickRemoteMsg setUserId(String userId) {
         this.userId = userId;
         return this;
     }
 
-    public RedisKickRemoteMessage setDeviceId(String deviceId) {
+    public MQKickRemoteMsg setDeviceId(String deviceId) {
         this.deviceId = deviceId;
         return this;
     }
 
-    public RedisKickRemoteMessage setConnId(String connId) {
+    public MQKickRemoteMsg setConnId(String connId) {
         this.connId = connId;
         return this;
     }
 
-    public RedisKickRemoteMessage setClientType(int clientType) {
+    public MQKickRemoteMsg setClientType(int clientType) {
         this.clientType = clientType;
         return this;
     }
 
-    public RedisKickRemoteMessage setTargetServer(String targetServer) {
+    public MQKickRemoteMsg setTargetServer(String targetServer) {
         this.targetServer = targetServer;
         return this;
     }
 
-    public RedisKickRemoteMessage setTargetPort(int targetPort) {
+    public MQKickRemoteMsg setTargetPort(int targetPort) {
         this.targetPort = targetPort;
         return this;
     }

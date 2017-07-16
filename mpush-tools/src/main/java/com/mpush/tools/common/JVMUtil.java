@@ -19,20 +19,18 @@
 
 package com.mpush.tools.common;
 
-import com.mpush.tools.thread.NamedThreadFactory;
-import com.mpush.tools.thread.ThreadNames;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
+import com.mpush.tools.Utils;
 import com.sun.management.HotSpotDiagnosticMXBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.management.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.Iterator;
@@ -113,7 +111,7 @@ public class JVMUtil {
     }
 
     public static void dumpJstack(final String jvmPath) {
-        ThreadPoolManager.I.newThread("dump-jstack-t", (() -> {
+        Utils.newThread("dump-jstack-t", (() -> {
             File path = new File(jvmPath);
             if (path.exists() || path.mkdirs()) {
                 File file = new File(path, System.currentTimeMillis() + "-jstack.log");
@@ -174,6 +172,6 @@ public class JVMUtil {
     }
 
     public static void dumpJmap(final String jvmPath) {
-        ThreadPoolManager.I.newThread("dump-jmap-t", () -> jMap(jvmPath, false)).start();
+        Utils.newThread("dump-jmap-t", () -> jMap(jvmPath, false)).start();
     }
 }

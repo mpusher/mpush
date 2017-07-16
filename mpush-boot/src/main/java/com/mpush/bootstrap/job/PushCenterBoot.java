@@ -19,7 +19,7 @@
 
 package com.mpush.bootstrap.job;
 
-import com.mpush.core.push.PushCenter;
+import com.mpush.core.MPushServer;
 
 /**
  * Created by ohun on 16/10/25.
@@ -27,15 +27,21 @@ import com.mpush.core.push.PushCenter;
  * @author ohun@live.cn (夜色)
  */
 public final class PushCenterBoot extends BootJob {
+    private final MPushServer mPushServer;
+
+    public PushCenterBoot(MPushServer mPushServer) {
+        this.mPushServer = mPushServer;
+    }
+
     @Override
     protected void start() {
-        PushCenter.I.start();
+        mPushServer.getPushCenter().start();
         startNext();
     }
 
     @Override
     protected void stop() {
         stopNext();
-        PushCenter.I.stop();
+        mPushServer.getPushCenter().stop();
     }
 }

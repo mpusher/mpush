@@ -24,11 +24,16 @@ import com.mpush.tools.log.Logs;
 import redis.clients.jedis.JedisPubSub;
 
 public final class Subscriber extends JedisPubSub {
+    private final ListenerDispatcher listenerDispatcher;
+
+    public Subscriber(ListenerDispatcher listenerDispatcher) {
+        this.listenerDispatcher = listenerDispatcher;
+    }
 
     @Override
     public void onMessage(String channel, String message) {
         Logs.CACHE.info("onMessage:{},{}", channel, message);
-        ListenerDispatcher.I().onMessage(channel, message);
+        listenerDispatcher.onMessage(channel, message);
         super.onMessage(channel, message);
     }
 

@@ -22,6 +22,7 @@ package com.mpush.client.gateway.handler;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
+import com.mpush.client.MPushClient;
 import com.mpush.client.push.PushRequest;
 import com.mpush.client.push.PushRequestBus;
 import com.mpush.common.handler.BaseMessageHandler;
@@ -39,6 +40,12 @@ import static com.mpush.common.ErrorCode.ROUTER_CHANGE;
  */
 public final class GatewayErrorHandler extends BaseMessageHandler<ErrorMessage> {
 
+    private final PushRequestBus pushRequestBus;
+
+    public GatewayErrorHandler(MPushClient mPushClient) {
+        this.pushRequestBus = mPushClient.getPushRequestBus();
+    }
+
     @Override
     public ErrorMessage decode(Packet packet, Connection connection) {
         return new ErrorMessage(packet, connection);
@@ -47,7 +54,7 @@ public final class GatewayErrorHandler extends BaseMessageHandler<ErrorMessage> 
     @Override
     public void handle(ErrorMessage message) {
         if (message.cmd == Command.GATEWAY_PUSH.cmd) {
-            PushRequest request = PushRequestBus.I.getAndRemove(message.getSessionId());
+            PushRequest request = pushRequestBus.getAndRemove(message.getSessionId());
             if (request == null) {
                 Logs.PUSH.warn("receive a gateway response, but request has timeout. message={}", message);
                 return;

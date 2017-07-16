@@ -20,7 +20,7 @@
 package com.mpush.client.gateway.handler;
 
 
-import com.mpush.api.PacketReceiver;
+import com.mpush.api.message.PacketReceiver;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.ConnectionManager;
 import com.mpush.api.event.ConnectionCloseEvent;
@@ -75,13 +75,13 @@ public final class GatewayClientChannelHandler extends ChannelInboundHandlerAdap
         Connection connection = new NettyConnection();
         connection.init(ctx.channel(), false);
         connectionManager.add(connection);
-        EventBus.I.post(new ConnectionConnectEvent(connection));
+        EventBus.post(new ConnectionConnectEvent(connection));
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Connection connection = connectionManager.removeAndClose(ctx.channel());
-        EventBus.I.post(new ConnectionCloseEvent(connection));
+        EventBus.post(new ConnectionCloseEvent(connection));
         Logs.CONN.info("client disconnected conn={}", connection);
     }
 }

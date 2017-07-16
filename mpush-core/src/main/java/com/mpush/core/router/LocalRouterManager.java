@@ -93,7 +93,7 @@ public final class LocalRouterManager extends EventConsumer implements RouterMan
         String userId = context.userId;
         if (userId == null) return;
 
-        EventBus.I.post(new UserOfflineEvent(event.connection, userId));
+        EventBus.post(new UserOfflineEvent(event.connection, userId));
         int clientType = context.getClientType();
         LocalRouter localRouter = routers.getOrDefault(userId, EMPTY).get(clientType);
         if (localRouter == null) return;

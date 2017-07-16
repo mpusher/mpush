@@ -19,7 +19,7 @@
 
 package com.mpush.api.spi.core;
 
-import com.mpush.api.ServerEventListener;
+import com.mpush.api.common.ServerEventListener;
 import com.mpush.api.spi.Factory;
 import com.mpush.api.spi.SpiLoader;
 

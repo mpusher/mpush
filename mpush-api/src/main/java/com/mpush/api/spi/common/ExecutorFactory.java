@@ -29,11 +29,11 @@ import java.util.concurrent.Executor;
  * @author ohun@live.cn
  */
 public interface ExecutorFactory {
-    String PUSH_CLIENT = "pc";
-    String PUSH_TASK = "pt";
-    String ACK_TIMER = "at";
-    String EVENT_BUS = "eb";
-    String MQ = "r";
+    String PUSH_CLIENT = "push-client";
+    String PUSH_TASK = "push-task";
+    String ACK_TIMER = "ack-timer";
+    String EVENT_BUS = "event-bus";
+    String MQ = "mq";
 
     Executor get(String name);
 

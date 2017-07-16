@@ -40,12 +40,8 @@ public class UserStatusChangeListener implements MQMessageReceiver {
 
     //只需要一台机器注册online、offline 消息通道
     public UserStatusChangeListener() {
-        if ("127.0.0.1".equals(ConfigTools.getLocalIp())) {
-            MQClientFactory.create().subscribe(ONLINE_CHANNEL, this);
-            MQClientFactory.create().subscribe(OFFLINE_CHANNEL, this);
-        } else {
-            LOGGER.error("UserChangeListener is not localhost,required:{}, but:{}", "127.0.0.1", ConfigTools.getLocalIp());
-        }
+        MQClientFactory.create().subscribe(ONLINE_CHANNEL, this);
+        MQClientFactory.create().subscribe(OFFLINE_CHANNEL, this);
     }
 
     @Override

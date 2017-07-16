@@ -19,9 +19,11 @@
 
 package com.mpush.core.mq;
 
+import com.mpush.api.MPushContext;
 import com.mpush.api.spi.Spi;
 import com.mpush.api.spi.push.PushListener;
 import com.mpush.api.spi.push.PushListenerFactory;
+import com.mpush.core.MPushServer;
 
 /**
  * Created by ohun on 2016/12/24.
@@ -32,10 +34,12 @@ import com.mpush.api.spi.push.PushListenerFactory;
 public final class MQPushListener implements PushListener<MQPushMessage>, PushListenerFactory<MQPushMessage> {
     private final MQClient mqClient = new MQClient();
 
-    public MQPushListener() {
+    @Override
+    public void init(MPushContext context) {
         mqClient.init();
-        MQMessageReceiver.subscribe(mqClient);
+        MQMessageReceiver.subscribe(mqClient, ((MPushServer) context).getPushCenter());
     }
+
 
     @Override
     public void onSuccess(MQPushMessage message, Object[] timePoints) {
