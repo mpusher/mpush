@@ -19,6 +19,7 @@
 
 package com.mpush.common.router;
 
+import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
@@ -99,6 +100,7 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
      * @param event
      */
     @Subscribe
+    @AllowConcurrentEvents
     void on(ConnectionCloseEvent event) {
         Connection connection = event.connection;
         if (connection == null) return;

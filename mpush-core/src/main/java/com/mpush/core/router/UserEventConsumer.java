@@ -19,6 +19,7 @@
 
 package com.mpush.core.router;
 
+import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.mpush.api.event.UserOfflineEvent;
 import com.mpush.api.event.UserOnlineEvent;
@@ -47,12 +48,14 @@ public final class UserEventConsumer extends EventConsumer {
     }
 
     @Subscribe
+    @AllowConcurrentEvents
     void on(UserOnlineEvent event) {
         userManager.addToOnlineList(event.getUserId());
         mqClient.publish(ONLINE_CHANNEL, event.getUserId());
     }
 
     @Subscribe
+    @AllowConcurrentEvents
     void on(UserOfflineEvent event) {
         userManager.remFormOnlineList(event.getUserId());
         mqClient.publish(OFFLINE_CHANNEL, event.getUserId());

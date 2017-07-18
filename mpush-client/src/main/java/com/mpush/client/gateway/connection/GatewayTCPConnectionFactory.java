@@ -20,6 +20,7 @@
 package com.mpush.client.gateway.connection;
 
 import com.google.common.collect.Maps;
+import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.net.HostAndPort;
 import com.mpush.api.connection.Connection;
@@ -196,6 +197,7 @@ public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {
     }
 
     @Subscribe
+    @AllowConcurrentEvents
     void on(ConnectionConnectEvent event) {
         Connection connection = event.connection;
         String hostAndPort = connection.getChannel().attr(attrKey).getAndSet(null);

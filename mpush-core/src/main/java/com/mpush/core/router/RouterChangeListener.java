@@ -19,6 +19,7 @@
 
 package com.mpush.core.router;
 
+import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.mpush.api.Constants;
 import com.mpush.api.connection.Connection;
@@ -72,6 +73,7 @@ public final class RouterChangeListener extends EventConsumer implements MQMessa
     }
 
     @Subscribe
+    @AllowConcurrentEvents
     void on(RouterChangeEvent event) {
         String userId = event.userId;
         Router<?> r = event.router;
