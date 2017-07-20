@@ -73,6 +73,10 @@ public final class MessageDispatcher implements PacketReceiver {
         this.register(command, handlerSupplier, true);
     }
 
+    public MessageHandler unRegister(Command command) {
+        return handlers.remove(command.cmd);
+    }
+
     @Override
     public void onReceive(Packet packet, Connection connection) {
         MessageHandler handler = handlers.get(packet.cmd);
