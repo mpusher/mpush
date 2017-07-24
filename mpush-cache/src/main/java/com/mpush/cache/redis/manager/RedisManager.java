@@ -48,6 +48,9 @@ public final class RedisManager implements CacheManager {
         factory.setPoolConfig(CC.mp.redis.getPoolConfig(JedisPoolConfig.class));
         factory.setRedisServers(CC.mp.redis.nodes);
         factory.setCluster(CC.mp.redis.isCluster());
+        if (CC.mp.redis.isSentinel()) {
+            factory.setSentinelMaster(CC.mp.redis.sentinelMaster);
+        }
         factory.init();
         test();
         Logs.CACHE.info("init redis success...");
@@ -59,15 +62,16 @@ public final class RedisManager implements CacheManager {
                 return function.apply(factory.getClusterConnection());
             } catch (Exception e) {
                 Logs.CACHE.error("redis ex", e);
+                throw new RuntimeException(e);
             }
         } else {
             try (Jedis jedis = factory.getJedisConnection()) {
                 return function.apply(jedis);
             } catch (Exception e) {
                 Logs.CACHE.error("redis ex", e);
+                throw new RuntimeException(e);
             }
         }
-        return d;
     }
 
     private void call(Consumer<JedisCommands> consumer) {
@@ -76,12 +80,14 @@ public final class RedisManager implements CacheManager {
                 consumer.accept(factory.getClusterConnection());
             } catch (Exception e) {
                 Logs.CACHE.error("redis ex", e);
+                throw new RuntimeException(e);
             }
         } else {
             try (Jedis jedis = factory.getJedisConnection()) {
                 consumer.accept(jedis);
             } catch (Exception e) {
                 Logs.CACHE.error("redis ex", e);
+                throw new RuntimeException(e);
             }
         }
     }
