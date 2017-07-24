@@ -43,6 +43,8 @@ import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static com.mpush.tools.config.CC.mp.net.connect_server_bind_ip;
+import static com.mpush.tools.config.CC.mp.net.connect_server_port;
 import static com.mpush.tools.config.CC.mp.net.traffic_shaping.connect_server.*;
 import static com.mpush.tools.config.CC.mp.net.write_buffer_water_mark.connect_server_high;
 import static com.mpush.tools.config.CC.mp.net.write_buffer_water_mark.connect_server_low;
@@ -63,7 +65,7 @@ public final class ConnectionServer extends NettyTCPServer {
     private MPushServer mPushServer;
 
     public ConnectionServer(MPushServer mPushServer) {
-        super(CC.mp.net.connect_server_port);
+        super(connect_server_port, connect_server_bind_ip);
         this.mPushServer = mPushServer;
         this.connectionManager = new ServerConnectionManager(true);
         this.messageDispatcher = new MessageDispatcher();

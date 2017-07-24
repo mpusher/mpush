@@ -41,6 +41,8 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static com.mpush.tools.config.CC.mp.net.gateway_server_bind_ip;
+import static com.mpush.tools.config.CC.mp.net.gateway_server_port;
 import static com.mpush.tools.config.CC.mp.net.traffic_shaping.gateway_server.*;
 import static com.mpush.tools.config.CC.mp.net.write_buffer_water_mark.gateway_server_high;
 import static com.mpush.tools.config.CC.mp.net.write_buffer_water_mark.gateway_server_low;
@@ -61,7 +63,7 @@ public final class GatewayServer extends NettyTCPServer {
     private MPushServer mPushServer;
 
     public GatewayServer(MPushServer mPushServer) {
-        super(CC.mp.net.gateway_server_port);
+        super(gateway_server_port, gateway_server_bind_ip);
         this.mPushServer = mPushServer;
         this.messageDispatcher = new MessageDispatcher();
         this.connectionManager = new ServerConnectionManager(false);

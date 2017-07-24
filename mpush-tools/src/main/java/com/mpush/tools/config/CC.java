@@ -88,12 +88,14 @@ public interface CC {
             String local_ip = cfg.getString("local-ip");
             String public_ip = cfg.getString("public-ip");
 
+            String connect_server_bind_ip = cfg.getString("connect-server-bind-ip");
             String connect_server_register_ip = cfg.getString("connect-server-register-ip");
             int connect_server_port = cfg.getInt("connect-server-port");
             int gateway_server_port = cfg.getInt("gateway-server-port");
             int admin_server_port = cfg.getInt("admin-server-port");
             int gateway_client_port = cfg.getInt("gateway-client-port");
 
+            String gateway_server_bind_ip = cfg.getString("gateway-server-bind-ip");
             String gateway_server_register_ip = cfg.getString("gateway-server-register-ip");
             String gateway_server_net = cfg.getString("gateway-server-net");
             String gateway_server_multicast = cfg.getString("gateway-server-multicast");
@@ -265,9 +267,9 @@ public interface CC {
         interface redis {
             Config cfg = mp.cfg.getObject("redis").toConfig();
 
-            boolean write_to_zk = cfg.getBoolean("write-to-zk");
             String password = cfg.getString("password");
             String clusterModel = cfg.getString("cluster-model");
+            String sentinelMaster = cfg.getString("sentinel-master");
 
             List<RedisNode> nodes = cfg.getList("nodes")
                     .stream()//第一纬度数组
@@ -276,6 +278,10 @@ public interface CC {
 
             static boolean isCluster() {
                 return "cluster".equals(clusterModel);
+            }
+
+            static boolean isSentinel() {
+                return "sentinel".equals(clusterModel);
             }
 
             static <T> T getPoolConfig(Class<T> clazz) {
