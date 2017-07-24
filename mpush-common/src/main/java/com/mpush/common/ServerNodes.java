@@ -40,7 +40,7 @@ public class ServerNodes {
         node.setPort(CC.mp.net.connect_server_port);
         node.setPersistent(false);
         node.setServiceName(ServiceNames.CONN_SERVER);
-        //node.addAttr(ATTR_PUBLIC_IP, ConfigTools.getPublicIp());
+        node.setAttrs(CC.mp.net.connect_server_register_attr);
         return node;
     }
 

@@ -88,18 +88,22 @@ public interface CC {
             String local_ip = cfg.getString("local-ip");
             String public_ip = cfg.getString("public-ip");
 
+            int connect_server_port = cfg.getInt("connect-server-port");
             String connect_server_bind_ip = cfg.getString("connect-server-bind-ip");
             String connect_server_register_ip = cfg.getString("connect-server-register-ip");
-            int connect_server_port = cfg.getInt("connect-server-port");
-            int gateway_server_port = cfg.getInt("gateway-server-port");
-            int admin_server_port = cfg.getInt("admin-server-port");
-            int gateway_client_port = cfg.getInt("gateway-client-port");
+            Map<String, Object> connect_server_register_attr = cfg.getObject("connect-server-register-attr").unwrapped();
 
+
+            int admin_server_port = cfg.getInt("admin-server-port");
+
+            int gateway_server_port = cfg.getInt("gateway-server-port");
             String gateway_server_bind_ip = cfg.getString("gateway-server-bind-ip");
             String gateway_server_register_ip = cfg.getString("gateway-server-register-ip");
             String gateway_server_net = cfg.getString("gateway-server-net");
             String gateway_server_multicast = cfg.getString("gateway-server-multicast");
             String gateway_client_multicast = cfg.getString("gateway-client-multicast");
+            int gateway_client_port = cfg.getInt("gateway-client-port");
+
             int ws_server_port = cfg.getInt("ws-server-port");
             String ws_path = cfg.getString("ws-path");
             int gateway_client_num = cfg.getInt("gateway-client-num");
@@ -346,12 +350,6 @@ public interface CC {
             Duration dump_period = cfg.getDuration("dump-period");
             boolean profile_enabled = cfg.getBoolean("profile-enabled");
             Duration profile_slowly_duration = cfg.getDuration("profile-slowly-duration");
-        }
-
-        interface spi {
-            Config cfg = mp.cfg.getObject("spi").toConfig();
-            String thread_pool_factory = cfg.getString("thread-pool-factory");
-            String dns_mapping_manager = cfg.getString("dns-mapping-manager");
         }
     }
 }
