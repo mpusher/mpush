@@ -36,7 +36,7 @@ import com.mpush.common.router.RemoteRouter;
 import java.util.Set;
 import java.util.concurrent.FutureTask;
 
-/*package*/ final class PushClient extends BaseService implements PushSender {
+public final class PushClient extends BaseService implements PushSender {
 
     private MPushClient mPushClient;
 
