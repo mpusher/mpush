@@ -27,15 +27,16 @@ import org.junit.Test;
 import java.util.concurrent.locks.LockSupport;
 
 public class PubSubTest {
-
+    ListenerDispatcher listenerDispatcher = new ListenerDispatcher();
     @Before
     public void init() {
     }
 
     @Test
     public void subpubTest() {
-        RedisManager.I.subscribe(ListenerDispatcher.I().getSubscriber(), "/hello/123");
-        RedisManager.I.subscribe(ListenerDispatcher.I().getSubscriber(), "/hello/124");
+        
+        RedisManager.I.subscribe(listenerDispatcher.getSubscriber(), "/hello/123");
+        RedisManager.I.subscribe(listenerDispatcher.getSubscriber(), "/hello/124");
         RedisManager.I.publish("/hello/123", "123");
         RedisManager.I.publish("/hello/124", "124");
     }
@@ -44,8 +45,8 @@ public class PubSubTest {
     public void pubsubTest() {
         RedisManager.I.publish("/hello/123", "123");
         RedisManager.I.publish("/hello/124", "124");
-        RedisManager.I.subscribe(ListenerDispatcher.I().getSubscriber(), "/hello/123");
-        RedisManager.I.subscribe(ListenerDispatcher.I().getSubscriber(), "/hello/124");
+        RedisManager.I.subscribe(listenerDispatcher.getSubscriber(), "/hello/123");
+        RedisManager.I.subscribe(listenerDispatcher.getSubscriber(), "/hello/124");
     }
 
     @Test
@@ -56,8 +57,8 @@ public class PubSubTest {
 
     @Test
     public void subTest() {
-        RedisManager.I.subscribe(ListenerDispatcher.I().getSubscriber(), "/hello/123");
-        RedisManager.I.subscribe(ListenerDispatcher.I().getSubscriber(), "/hello/124");
+        RedisManager.I.subscribe(listenerDispatcher.getSubscriber(), "/hello/123");
+        RedisManager.I.subscribe(listenerDispatcher.getSubscriber(), "/hello/124");
         LockSupport.park();
     }
 

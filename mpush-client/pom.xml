@@ -8,11 +8,11 @@
     <parent>
         <artifactId>mpush</artifactId>
         <groupId>com.github.mpusher</groupId>
-        <version>0.7.1</version>
+        <version>0.8.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>mpush-client</artifactId>
-    <version>${mpush.version}</version>
     <packaging>jar</packaging>
     <name>mpush-client</name>
     <description>MPUSH消息推送系统服务端SDK</description>
@@ -20,19 +20,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-netty</artifactId>
         </dependency>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-cache</artifactId>
         </dependency>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-zk</artifactId>
         </dependency>
     </dependencies>

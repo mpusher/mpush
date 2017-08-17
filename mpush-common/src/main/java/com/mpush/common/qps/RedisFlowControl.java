@@ -88,11 +88,15 @@ public final class RedisFlowControl implements FlowControl {
     }
 
     @Override
-    public void end() {
+    public void end(Object result) {
         int t = total;
         if (total > 0) {
             total = 0;
             controller.incSendCount(t);
+        }
+
+        if (result != null && (result instanceof String[])) {
+            controller.success((String[]) result);
         }
     }
 
@@ -109,5 +113,9 @@ public final class RedisFlowControl implements FlowControl {
     @Override
     public int qps() {
         return (int) (TimeUnit.SECONDS.toNanos(total) / (System.nanoTime() - start0));
+    }
+
+    public BroadcastController getController() {
+        return controller;
     }
 }

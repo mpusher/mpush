@@ -25,6 +25,7 @@ import com.mpush.api.protocol.Command;
 import com.mpush.api.service.Listener;
 import com.mpush.api.spi.handler.PushHandlerFactory;
 import com.mpush.common.MessageDispatcher;
+import com.mpush.core.MPushServer;
 import com.mpush.core.handler.*;
 import com.mpush.netty.server.NettyTCPServer;
 import com.mpush.tools.config.CC;
@@ -32,7 +33,6 @@ import com.mpush.tools.config.CC.mp.net.rcv_buf;
 import com.mpush.tools.config.CC.mp.net.snd_buf;
 import com.mpush.tools.thread.NamedPoolThreadFactory;
 import com.mpush.tools.thread.ThreadNames;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
@@ -43,6 +43,8 @@ import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static com.mpush.tools.config.CC.mp.net.connect_server_bind_ip;
+import static com.mpush.tools.config.CC.mp.net.connect_server_port;
 import static com.mpush.tools.config.CC.mp.net.traffic_shaping.connect_server.*;
 import static com.mpush.tools.config.CC.mp.net.write_buffer_water_mark.connect_server_high;
 import static com.mpush.tools.config.CC.mp.net.write_buffer_water_mark.connect_server_low;
@@ -54,45 +56,34 @@ import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
  * @author ohun@live.cn (夜色)
  */
 public final class ConnectionServer extends NettyTCPServer {
-    private static ConnectionServer I;
 
     private ServerChannelHandler channelHandler;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
     private ScheduledExecutorService trafficShapingExecutor;
+    private MessageDispatcher messageDispatcher;
+    private ConnectionManager connectionManager;
+    private MPushServer mPushServer;
 
-    private ConnectionManager connectionManager = new ServerConnectionManager(true);
-
-    public static ConnectionServer I() {
-        if (I == null) {
-            synchronized (ConnectionServer.class) {
-                if (I == null) {
-                    I = new ConnectionServer();
-                }
-            }
-        }
-        return I;
-    }
-
-    private ConnectionServer() {
-        super(CC.mp.net.connect_server_port);
+    public ConnectionServer(MPushServer mPushServer) {
+        super(connect_server_port, connect_server_bind_ip);
+        this.mPushServer = mPushServer;
+        this.connectionManager = new ServerConnectionManager(true);
+        this.messageDispatcher = new MessageDispatcher();
+        this.channelHandler = new ServerChannelHandler(true, connectionManager, messageDispatcher);
     }
 
     @Override
     public void init() {
         super.init();
         connectionManager.init();
-        MessageDispatcher receiver = new MessageDispatcher();
-        receiver.register(Command.HEARTBEAT, new HeartBeatHandler());
-        receiver.register(Command.HANDSHAKE, new HandshakeHandler());
-        receiver.register(Command.BIND, new BindUserHandler());
-        receiver.register(Command.UNBIND, new BindUserHandler());
-        receiver.register(Command.FAST_CONNECT, new FastConnectHandler());
-        receiver.register(Command.PUSH, PushHandlerFactory.create());
-        receiver.register(Command.ACK, new AckHandler());
-        if (CC.mp.http.proxy_enabled) {
-            receiver.register(Command.HTTP_PROXY, new HttpProxyHandler());
-        }
-        channelHandler = new ServerChannelHandler(true, connectionManager, receiver);
+        messageDispatcher.register(Command.HEARTBEAT, HeartBeatHandler::new);
+        messageDispatcher.register(Command.HANDSHAKE, () -> new HandshakeHandler(mPushServer));
+        messageDispatcher.register(Command.BIND, () -> new BindUserHandler(mPushServer));
+        messageDispatcher.register(Command.UNBIND, () -> new BindUserHandler(mPushServer));
+        messageDispatcher.register(Command.FAST_CONNECT, () -> new FastConnectHandler(mPushServer));
+        messageDispatcher.register(Command.PUSH, PushHandlerFactory::create);
+        messageDispatcher.register(Command.ACK, () -> new AckHandler(mPushServer));
+        messageDispatcher.register(Command.HTTP_PROXY, () -> new HttpProxyHandler(mPushServer), CC.mp.http.proxy_enabled);
 
         if (CC.mp.net.traffic_shaping.connect_server.enabled) {//启用流量整形，限流
             trafficShapingExecutor = Executors.newSingleThreadScheduledExecutor(new NamedPoolThreadFactory(T_TRAFFIC_SHAPING));
@@ -108,7 +99,7 @@ public final class ConnectionServer extends NettyTCPServer {
     public void start(Listener listener) {
         super.start(listener);
         if (this.workerGroup != null) {// 增加线程池监控
-            ThreadPoolManager.I.register("conn-worker", this.workerGroup);
+            mPushServer.getMonitor().monitor("conn-worker", this.workerGroup);
         }
     }
 
@@ -189,5 +180,9 @@ public final class ConnectionServer extends NettyTCPServer {
 
     public ConnectionManager getConnectionManager() {
         return connectionManager;
+    }
+
+    public MessageDispatcher getMessageDispatcher() {
+        return messageDispatcher;
     }
 }

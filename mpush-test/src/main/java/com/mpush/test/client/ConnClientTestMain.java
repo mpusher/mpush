@@ -110,7 +110,7 @@ public class ConnClientTestMain {
             int index = (int) ((Math.random() % L) * L);
             ServiceNode node = serverList.get(index);
 
-            ChannelFuture future = boot.connect(node.getAttr(ATTR_PUBLIC_IP), node.getPort(), config);
+            ChannelFuture future = boot.connect(node.getHost(), node.getPort(), config);
             if (sync) future.awaitUninterruptibly();
         }
     }

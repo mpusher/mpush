@@ -21,6 +21,7 @@ package com.mpush.test.client;
 
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
+import com.mpush.api.spi.common.CacheManager;
 import com.mpush.api.spi.common.CacheManagerFactory;
 import com.mpush.api.spi.common.ServiceDiscoveryFactory;
 import com.mpush.api.srd.ServiceNames;
@@ -28,8 +29,10 @@ import com.mpush.api.srd.ServiceNode;
 import com.mpush.cache.redis.manager.RedisManager;
 import com.mpush.client.connect.ClientConfig;
 import com.mpush.client.connect.ConnClientChannelHandler;
+import com.mpush.monitor.service.MonitorService;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
+import com.mpush.tools.event.EventBus;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -43,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import static com.mpush.client.connect.ConnClientChannelHandler.CONFIG_KEY;
 
@@ -51,12 +55,15 @@ public final class ConnClientBoot extends BaseService {
 
     private Bootstrap bootstrap;
     private NioEventLoopGroup workerGroup;
+    private MonitorService monitorService;
 
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
         ServiceDiscoveryFactory.create().syncStart();
         CacheManagerFactory.create().init();
+        monitorService = new MonitorService();
+        EventBus.create(monitorService.getThreadPoolManager().getEventBusExecutor());
 
         this.workerGroup = new NioEventLoopGroup();
         this.bootstrap = new Bootstrap();
@@ -84,7 +91,7 @@ public final class ConnClientBoot extends BaseService {
     protected void doStop(Listener listener) throws Throwable {
         if (workerGroup != null) workerGroup.shutdownGracefully();
         ServiceDiscoveryFactory.create().syncStop();
-        RedisManager.I.destroy();
+        CacheManagerFactory.create().destroy();
         listener.onSuccess();
     }
 

@@ -168,7 +168,7 @@ public final class FileCacheManger implements CacheManager {
     }
 
     @Override
-    public void lpush(String key, String value) {
+    public void lpush(String key, String... value) {
 
     }
 

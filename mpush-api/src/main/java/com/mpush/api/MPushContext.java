@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2015-2016 the original author or authors.
+ * (C) Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,30 +19,27 @@
 
 package com.mpush.api;
 
-import com.mpush.api.event.*;
+import com.mpush.api.common.Monitor;
+import com.mpush.api.spi.common.CacheManager;
+import com.mpush.api.spi.common.MQClient;
+import com.mpush.api.srd.ServiceDiscovery;
+import com.mpush.api.srd.ServiceRegistry;
 
 /**
- * Created by ohun on 16/10/19.
+ * Created by ohun on 2017/6/21.
  *
  * @author ohun@live.cn (夜色)
  */
-public interface ServerEventListener {
+public interface MPushContext {
 
-    default void on(ServerStartupEvent event) {
-    }
+    Monitor getMonitor();
 
-    default void on(ServerShutdownEvent server) {
-    }
+    ServiceDiscovery getDiscovery();
 
-    default void on(RouterChangeEvent event) {
-    }
+    ServiceRegistry getRegistry();
 
-    default void on(KickUserEvent event) {
-    }
+    CacheManager getCacheManager();
 
-    default void on(UserOnlineEvent event) {
-    }
+    MQClient getMQClient();
 
-    default void on(UserOfflineEvent event) {
-    }
 }

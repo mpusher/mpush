@@ -19,8 +19,8 @@
 
 package com.mpush.common;
 
-import com.mpush.api.MessageHandler;
-import com.mpush.api.PacketReceiver;
+import com.mpush.api.message.MessageHandler;
+import com.mpush.api.message.PacketReceiver;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static com.mpush.common.ErrorCode.DISPATCH_ERROR;
 import static com.mpush.common.ErrorCode.UNSUPPORTED_CMD;
@@ -60,6 +61,20 @@ public final class MessageDispatcher implements PacketReceiver {
 
     public void register(Command command, MessageHandler handler) {
         handlers.put(command.cmd, handler);
+    }
+
+    public void register(Command command, Supplier<MessageHandler> handlerSupplier, boolean enabled) {
+        if (enabled && !handlers.containsKey(command.cmd)) {
+            register(command, handlerSupplier.get());
+        }
+    }
+
+    public void register(Command command, Supplier<MessageHandler> handlerSupplier) {
+        this.register(command, handlerSupplier, true);
+    }
+
+    public MessageHandler unRegister(Command command) {
+        return handlers.remove(command.cmd);
     }
 
     @Override

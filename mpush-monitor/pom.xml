@@ -3,12 +3,12 @@
     <parent>
         <artifactId>mpush</artifactId>
         <groupId>com.github.mpusher</groupId>
-        <version>0.7.1</version>
+        <version>0.8.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mpush-monitor</artifactId>
-    <version>${mpush-monitor-version}</version>
     <packaging>jar</packaging>
     <name>mpush-monitor</name>
     <description>MPUSH消息推送系统监控模块</description>
@@ -16,7 +16,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-tools</artifactId>
         </dependency>
     </dependencies>

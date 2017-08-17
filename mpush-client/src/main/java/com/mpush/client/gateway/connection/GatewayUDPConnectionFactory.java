@@ -25,9 +25,10 @@ import com.mpush.api.service.Listener;
 import com.mpush.api.spi.common.ServiceDiscoveryFactory;
 import com.mpush.api.srd.ServiceDiscovery;
 import com.mpush.api.srd.ServiceNode;
+import com.mpush.client.MPushClient;
 import com.mpush.client.gateway.GatewayUDPConnector;
 import com.mpush.common.message.BaseMessage;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
+import com.mpush.tools.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,13 +52,17 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
 
     private final Map<String, InetSocketAddress> ip_address = Maps.newConcurrentMap();
 
-    private final GatewayUDPConnector connector = GatewayUDPConnector.I();
-
     private final InetSocketAddress multicastRecipient = new InetSocketAddress(gateway_server_multicast, gateway_server_port);
+
+    private final GatewayUDPConnector gatewayUDPConnector;
+
+    public GatewayUDPConnectionFactory(MPushClient mPushClient) {
+        gatewayUDPConnector = new GatewayUDPConnector(mPushClient);
+    }
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        ThreadPoolManager.I.newThread("udp-client", () -> connector.start(listener)).start();
+        Utils.newThread("udp-client", () -> gatewayUDPConnector.start(listener)).start();
         ServiceDiscovery discovery = ServiceDiscoveryFactory.create();
         discovery.subscribe(GATEWAY_SERVER, this);
         discovery.lookup(GATEWAY_SERVER).forEach(this::addConnection);
@@ -86,12 +91,12 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
     @Override
     public void doStop(Listener listener) throws Throwable {
         ip_address.clear();
-        connector.stop();
+        gatewayUDPConnector.stop();
     }
 
     @Override
     public Connection getConnection(String hostAndPort) {
-        return connector.getConnection();
+        return gatewayUDPConnector.getConnection();
     }
 
     @SuppressWarnings("unchecked")
@@ -100,7 +105,7 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
         InetSocketAddress recipient = ip_address.get(hostAndPort);
         if (recipient == null) return false;// gateway server 找不到，直接返回推送失败
 
-        M message = creator.apply(connector.getConnection());
+        M message = creator.apply(gatewayUDPConnector.getConnection());
         message.setRecipient(recipient);
         sender.accept(message);
         return true;
@@ -108,9 +113,13 @@ public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {
 
     @Override
     public <M extends BaseMessage> boolean broadcast(Function<Connection, M> creator, Consumer<M> sender) {
-        M message = creator.apply(connector.getConnection());
+        M message = creator.apply(gatewayUDPConnector.getConnection());
         message.setRecipient(multicastRecipient);
         sender.accept(message);
         return true;
+    }
+
+    public GatewayUDPConnector getGatewayUDPConnector() {
+        return gatewayUDPConnector;
     }
 }

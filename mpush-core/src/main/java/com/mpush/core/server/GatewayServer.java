@@ -19,9 +19,11 @@
 
 package com.mpush.core.server;
 
+import com.mpush.api.connection.ConnectionManager;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.service.Listener;
 import com.mpush.common.MessageDispatcher;
+import com.mpush.core.MPushServer;
 import com.mpush.core.handler.GatewayPushHandler;
 import com.mpush.netty.server.NettyTCPServer;
 import com.mpush.tools.config.CC;
@@ -39,6 +41,8 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static com.mpush.tools.config.CC.mp.net.gateway_server_bind_ip;
+import static com.mpush.tools.config.CC.mp.net.gateway_server_port;
 import static com.mpush.tools.config.CC.mp.net.traffic_shaping.gateway_server.*;
 import static com.mpush.tools.config.CC.mp.net.write_buffer_water_mark.gateway_server_high;
 import static com.mpush.tools.config.CC.mp.net.write_buffer_water_mark.gateway_server_low;
@@ -50,35 +54,26 @@ import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
  * @author ohun@live.cn
  */
 public final class GatewayServer extends NettyTCPServer {
-    private static GatewayServer I;
 
     private ServerChannelHandler channelHandler;
-    private ServerConnectionManager connectionManager;
+    private ConnectionManager connectionManager;
+    private MessageDispatcher messageDispatcher;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
     private ScheduledExecutorService trafficShapingExecutor;
+    private MPushServer mPushServer;
 
-    public static GatewayServer I() {
-        if (I == null) {
-            synchronized (GatewayServer.class) {
-                if (I == null) {
-                    I = new GatewayServer();
-                }
-            }
-        }
-        return I;
-    }
-
-    private GatewayServer() {
-        super(CC.mp.net.gateway_server_port);
+    public GatewayServer(MPushServer mPushServer) {
+        super(gateway_server_port, gateway_server_bind_ip);
+        this.mPushServer = mPushServer;
+        this.messageDispatcher = new MessageDispatcher();
+        this.connectionManager = new ServerConnectionManager(false);
+        this.channelHandler = new ServerChannelHandler(false, connectionManager, messageDispatcher);
     }
 
     @Override
     public void init() {
         super.init();
-        MessageDispatcher receiver = new MessageDispatcher();
-        receiver.register(Command.GATEWAY_PUSH, new GatewayPushHandler());
-        connectionManager = new ServerConnectionManager(false);
-        channelHandler = new ServerChannelHandler(false, connectionManager, receiver);
+        messageDispatcher.register(Command.GATEWAY_PUSH, () -> new GatewayPushHandler(mPushServer.getPushCenter()));
 
         if (CC.mp.net.traffic_shaping.gateway_server.enabled) {//启用流量整形，限流
             trafficShapingExecutor = Executors.newSingleThreadScheduledExecutor(new NamedPoolThreadFactory(T_TRAFFIC_SHAPING));
@@ -161,11 +156,6 @@ public final class GatewayServer extends NettyTCPServer {
     }
 
     @Override
-    public ChannelHandler getChannelHandler() {
-        return channelHandler;
-    }
-
-    @Override
     public ChannelFactory<? extends ServerChannel> getChannelFactory() {
         if (CC.mp.net.tcpGateway()) return super.getChannelFactory();
         if (CC.mp.net.udtGateway()) return NioUdtProvider.BYTE_ACCEPTOR;
@@ -179,5 +169,18 @@ public final class GatewayServer extends NettyTCPServer {
         if (CC.mp.net.udtGateway()) return NioUdtProvider.BYTE_PROVIDER;
         if (CC.mp.net.sctpGateway()) return super.getSelectorProvider();
         return super.getSelectorProvider();
+    }
+
+    @Override
+    public ChannelHandler getChannelHandler() {
+        return channelHandler;
+    }
+
+    public ConnectionManager getConnectionManager() {
+        return connectionManager;
+    }
+
+    public MessageDispatcher getMessageDispatcher() {
+        return messageDispatcher;
     }
 }

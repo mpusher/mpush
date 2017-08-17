@@ -6,11 +6,11 @@
     <parent>
         <artifactId>mpush</artifactId>
         <groupId>com.github.mpusher</groupId>
-        <version>0.7.1</version>
+        <version>0.8.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>mpush-test</artifactId>
-    <version>${mpush-test-version}</version>
     <packaging>jar</packaging>
     <name>mpush-test</name>
     <description>MPUSH消息推送系统测试模块</description>
@@ -18,27 +18,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-netty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-tools</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-boot</artifactId>
         </dependency>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-client</artifactId>
         </dependency>
         <dependency>

@@ -33,7 +33,6 @@ import com.mpush.tools.crypto.MD5Utils;
  * @author ohun@live.cn
  */
 public final class ReusableSessionManager {
-    public static final ReusableSessionManager I = new ReusableSessionManager();
     private final int expiredTime = CC.mp.core.session_expired_time;
     private final CacheManager cacheManager = CacheManagerFactory.create();
 

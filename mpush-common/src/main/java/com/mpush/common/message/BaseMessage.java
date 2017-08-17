@@ -19,11 +19,10 @@
 
 package com.mpush.common.message;
 
-import com.mpush.api.Message;
+import com.mpush.api.message.Message;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.protocol.Packet;
-import com.mpush.api.spi.common.Json;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.common.IOUtils;
 import com.mpush.tools.common.Profiler;
@@ -32,7 +31,6 @@ import io.netty.channel.ChannelFutureListener;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 

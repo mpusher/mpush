@@ -33,4 +33,10 @@ public interface Constants {
     String HTTP_HEAD_READ_TIMEOUT = "readTimeout";
     String EMPTY_STRING = "";
     String ANY_HOST = "0.0.0.0";
+    String KICK_CHANNEL_PREFIX = "/mpush/kick/";
+
+    static String getKickChannel(String hostAndPort) {
+        return KICK_CHANNEL_PREFIX + hostAndPort;
+    }
+
 }

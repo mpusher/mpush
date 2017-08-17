@@ -24,6 +24,7 @@ import com.mpush.api.protocol.Command;
 import com.mpush.api.service.Listener;
 import com.mpush.api.spi.handler.PushHandlerFactory;
 import com.mpush.common.MessageDispatcher;
+import com.mpush.core.MPushServer;
 import com.mpush.core.handler.AckHandler;
 import com.mpush.core.handler.BindUserHandler;
 import com.mpush.core.handler.HandshakeHandler;
@@ -44,40 +45,33 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketSe
  *
  * @author ohun@live.cn (夜色)
  */
-public final class WebSocketServer extends NettyTCPServer {
+public final class WebsocketServer extends NettyTCPServer {
 
-    private static WebSocketServer I;
+    private final ChannelHandler channelHandler;
 
-    private ChannelHandler channelHandler;
+    private final MessageDispatcher messageDispatcher;
 
-    private ConnectionManager connectionManager = new ServerConnectionManager(false);
+    private final ConnectionManager connectionManager;
 
-    public static WebSocketServer I() {
-        if (I == null) {
-            synchronized (WebSocketServer.class) {
-                if (I == null) {
-                    I = new WebSocketServer();
-                }
-            }
-        }
-        return I;
-    }
+    private final MPushServer mPushServer;
 
-    private WebSocketServer() {
+    public WebsocketServer(MPushServer mPushServer) {
         super(CC.mp.net.ws_server_port);
+        this.mPushServer = mPushServer;
+        this.messageDispatcher = new MessageDispatcher();
+        this.connectionManager = new ServerConnectionManager(false);
+        this.channelHandler = new WebSocketChannelHandler(connectionManager, messageDispatcher);
     }
 
     @Override
     public void init() {
         super.init();
         connectionManager.init();
-        MessageDispatcher receiver = new MessageDispatcher();
-        receiver.register(Command.HANDSHAKE, new HandshakeHandler());
-        receiver.register(Command.BIND, new BindUserHandler());
-        receiver.register(Command.UNBIND, new BindUserHandler());
-        receiver.register(Command.PUSH, PushHandlerFactory.create());
-        receiver.register(Command.ACK, new AckHandler());
-        channelHandler = new WebSocketChannelHandler(connectionManager, receiver);
+        messageDispatcher.register(Command.HANDSHAKE, () -> new HandshakeHandler(mPushServer));
+        messageDispatcher.register(Command.BIND, () -> new BindUserHandler(mPushServer));
+        messageDispatcher.register(Command.UNBIND, () -> new BindUserHandler(mPushServer));
+        messageDispatcher.register(Command.PUSH, PushHandlerFactory::create);
+        messageDispatcher.register(Command.ACK, () -> new AckHandler(mPushServer));
     }
 
     @Override
@@ -88,12 +82,12 @@ public final class WebSocketServer extends NettyTCPServer {
 
     @Override
     public EventLoopGroup getBossGroup() {
-        return ConnectionServer.I().getBossGroup();
+        return mPushServer.getConnectionServer().getBossGroup();
     }
 
     @Override
     public EventLoopGroup getWorkerGroup() {
-        return ConnectionServer.I().getWorkerGroup();
+        return mPushServer.getConnectionServer().getWorkerGroup();
     }
 
     @Override
@@ -123,4 +117,7 @@ public final class WebSocketServer extends NettyTCPServer {
         return connectionManager;
     }
 
+    public MessageDispatcher getMessageDispatcher() {
+        return messageDispatcher;
+    }
 }

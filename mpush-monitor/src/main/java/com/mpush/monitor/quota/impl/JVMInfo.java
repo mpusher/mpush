@@ -30,15 +30,13 @@ import java.util.Map;
 
 public class JVMInfo implements InfoQuota {
 
-    public static final JVMInfo I = new JVMInfo();
-
     private RuntimeMXBean runtimeMXBean;
 
     private OperatingSystemMXBean systemMXBean;
 
     private String currentPid;
 
-    private JVMInfo() {
+    public JVMInfo() {
         runtimeMXBean = ManagementFactory.getRuntimeMXBean();
         systemMXBean = ManagementFactory.getOperatingSystemMXBean();
     }

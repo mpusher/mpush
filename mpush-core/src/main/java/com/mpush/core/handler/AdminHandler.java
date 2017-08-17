@@ -22,25 +22,22 @@ package com.mpush.core.handler;
 import com.google.common.base.Strings;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.user.UserManager;
+import com.mpush.core.MPushServer;
 import com.mpush.core.router.RouterCenter;
-import com.mpush.core.server.ConnectionServer;
 import com.mpush.tools.Jsons;
-import com.mpush.tools.Utils;
 import com.mpush.tools.common.Profiler;
 import com.mpush.tools.config.CC;
+import com.mpush.tools.config.ConfigTools;
 import com.typesafe.config.ConfigRenderOptions;
 import io.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 
 @ChannelHandler.Sharable
 public final class AdminHandler extends SimpleChannelInboundHandler<String> {
@@ -51,14 +48,94 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
 
     private final LocalDateTime startTime = LocalDateTime.now();
 
+    private final Map<String, OptionHandler> optionHandlers = new HashMap<>();
+
+    private final OptionHandler unsupported_handler = (_1, _2) -> "unsupported option";
+
+    private final MPushServer mPushServer;
+
+    public AdminHandler(MPushServer mPushServer) {
+        this.mPushServer = mPushServer;
+    }
+
+    public void init() {
+        register("help", (ctx, args) ->
+                "Option                               Description" + EOL +
+                        "------                               -----------" + EOL +
+                        "help                                 show help" + EOL +
+                        "quit                                 exit console mode" + EOL +
+                        "shutdown                             stop mpush server" + EOL +
+                        "restart                              restart mpush server" + EOL +
+                        "zk:<redis, cs ,gs>                   query zk node" + EOL +
+                        "count:<conn, online>                 count conn num or online user count" + EOL +
+                        "route:<uid>                          show user route info" + EOL +
+                        "push:<uid>, <msg>                    push test msg to client" + EOL +
+                        "conf:[key]                           show config info" + EOL +
+                        "monitor:[mxBean]                     show system monitor" + EOL +
+                        "profile:<1,0>                        enable/disable profile" + EOL
+        );
+
+        register("quit", (ctx, args) -> "have a good day!");
+
+        register("shutdown", (ctx, args) -> {
+            new Thread(() -> System.exit(0)).start();
+            return "try close connect server...";
+        });
+
+        register("count", (ctx, args) -> {
+            switch (args) {
+                case "conn":
+                    return mPushServer.getConnectionServer().getConnectionManager().getConnNum();
+                case "online": {
+                    return mPushServer.getRouterCenter().getUserEventConsumer().getUserManager().getOnlineUserNum();
+                }
+
+            }
+            return "[" + args + "] unsupported, try help.";
+        });
+
+        register("route", (ctx, args) -> {
+            if (Strings.isNullOrEmpty(args)) return "please input userId";
+            Set<RemoteRouter> routers = mPushServer.getRouterCenter().getRemoteRouterManager().lookupAll(args);
+            if (routers.isEmpty()) return "user [" + args + "] offline now.";
+            return Jsons.toJson(routers);
+        });
+
+        register("conf", (ctx, args) -> {
+            if (Strings.isNullOrEmpty(args)) {
+                return CC.cfg.root().render(ConfigRenderOptions.concise().setFormatted(true));
+            }
+            if (CC.cfg.hasPath(args)) {
+                return CC.cfg.getAnyRef(args).toString();
+            }
+            return "key [" + args + "] not find in config";
+        });
+
+        register("profile", (ctx, args) -> {
+            if (args == null || "0".equals(args)) {
+                Profiler.enable(false);
+                return "Profiler disabled";
+            } else {
+                Profiler.enable(true);
+                return "Profiler enabled";
+            }
+        });
+    }
+
+
+    private void register(String option, OptionHandler handler) {
+        optionHandlers.put(option, handler);
+    }
+
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String request) throws Exception {
-        Command command = Command.help;
+        String option = "help";
         String arg = null;
         String[] args = null;
         if (request != null) {
             String[] cmd_args = request.split(" ");
-            command = Command.toCmd(cmd_args[0].trim());
+            option = cmd_args[0].trim().toLowerCase();
             if (cmd_args.length == 2) {
                 arg = cmd_args[1];
             } else if (cmd_args.length > 2) {
@@ -66,9 +143,9 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
             }
         }
         try {
-            Object result = args != null ? command.handler(ctx, args) : command.handler(ctx, arg);
+            Object result = optionHandlers.getOrDefault(option, unsupported_handler).handle(ctx, arg);
             ChannelFuture future = ctx.writeAndFlush(result + EOL + EOL);
-            if (command == Command.quit) {
+            if (option.equals("quit")) {
                 future.addListener(ChannelFutureListener.CLOSE);
             }
         } catch (Throwable throwable) {
@@ -82,7 +159,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.write("Welcome to MPush Console [" + Utils.getLocalIp() + "]!" + EOL);
+        ctx.write("Welcome to MPush Console [" + ConfigTools.getLocalIp() + "]!" + EOL);
         ctx.write("since " + startTime + " has running " + startTime.until(LocalDateTime.now(), ChronoUnit.HOURS) + "(h)" + EOL + EOL);
         ctx.write("It is " + new Date() + " now." + EOL + EOL);
         ctx.flush();
@@ -93,115 +170,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
         ctx.flush();
     }
 
-    public enum Command {
-        help {
-            @Override
-            public String handler(ChannelHandlerContext ctx, String args) {
-                return "Option                               Description" + EOL +
-                        "------                               -----------" + EOL +
-                        "help                                 show help" + EOL +
-                        "quit                                 exit console mode" + EOL +
-                        "shutdown                             stop mpush server" + EOL +
-                        "restart                              restart mpush server" + EOL +
-                        "zk:<redis, cs ,gs>                   query zk node" + EOL +
-                        "count:<conn, online>                 count conn num or online user count" + EOL +
-                        "route:<uid>                          show user route info" + EOL +
-                        "push:<uid>, <msg>                    push test msg to client" + EOL +
-                        "conf:[key]                           show config info" + EOL +
-                        "monitor:[mxBean]                     show system monitor" + EOL +
-                        "profile:<1,0>                        enable/disable profile" + EOL;
-            }
-        },
-        quit {
-            @Override
-            public String handler(ChannelHandlerContext ctx, String args) {
-                return "have a good day!";
-            }
-        },
-        shutdown {
-            @Override
-            public String handler(ChannelHandlerContext ctx, String args) {
-                new Thread(() -> System.exit(0)).start();
-                return "try close connect server...";
-            }
-        },
-        restart {
-            @Override
-            public String handler(ChannelHandlerContext ctx, String args) {
-                return "unsupported";
-            }
-        },
-
-        count {
-            @Override
-            public Serializable handler(ChannelHandlerContext ctx, String args) {
-                switch (args) {
-                    case "conn":
-                        return ConnectionServer.I().getConnectionManager().getConnNum();
-                    case "online": {
-                        return UserManager.I.getOnlineUserNum();
-                    }
-
-                }
-                return "[" + args + "] unsupported, try help.";
-            }
-        },
-        route {
-            @Override
-            public String handler(ChannelHandlerContext ctx, String args) {
-                if (Strings.isNullOrEmpty(args)) return "please input userId";
-                Set<RemoteRouter> routers = RouterCenter.I.getRemoteRouterManager().lookupAll(args);
-                if (routers.isEmpty()) return "user [" + args + "] offline now.";
-                return Jsons.toJson(routers);
-            }
-        },
-        push {
-            @Override
-            public String handler(ChannelHandlerContext ctx, String... args) throws Exception {
-                //Boolean success = PushSender.create().send(args[1], args[0], null).get(5, TimeUnit.SECONDS);
-
-                return "unsupported";
-            }
-        },
-        conf {
-            @Override
-            public String handler(ChannelHandlerContext ctx, String args) {
-                if (Strings.isNullOrEmpty(args)) {
-                    return CC.cfg.root().render(ConfigRenderOptions.concise().setFormatted(true));
-                }
-                if (CC.cfg.hasPath(args)) {
-                    return CC.cfg.getAnyRef(args).toString();
-                }
-                return "key [" + args + "] not find in config";
-            }
-        },
-        profile {
-            @Override
-            public String handler(ChannelHandlerContext ctx, String args) throws Exception {
-                if (args == null || "0".equals(args)) {
-                    Profiler.enable(false);
-                    return "Profiler disabled";
-                } else {
-                    Profiler.enable(true);
-                    return "Profiler enabled";
-                }
-            }
-        };
-
-        public Object handler(ChannelHandlerContext ctx, String... args) throws Exception {
-            return "unsupported";
-        }
-
-        public Object handler(ChannelHandlerContext ctx, String args) throws Exception {
-            return "unsupported";
-        }
-
-        public static Command toCmd(String cmd) {
-            try {
-                return Command.valueOf(cmd);
-            } catch (Exception e) {
-            }
-            return help;
-        }
+    public interface OptionHandler {
+        Object handle(ChannelHandlerContext ctx, String args) throws Exception;
     }
 }

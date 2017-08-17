@@ -19,11 +19,13 @@
 
 package com.mpush.core.router;
 
+import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.mpush.api.event.UserOfflineEvent;
 import com.mpush.api.event.UserOnlineEvent;
 import com.mpush.api.spi.common.MQClient;
 import com.mpush.api.spi.common.MQClientFactory;
+import com.mpush.common.router.RemoteRouterManager;
 import com.mpush.common.user.UserManager;
 import com.mpush.tools.event.EventConsumer;
 
@@ -35,19 +37,31 @@ import static com.mpush.api.event.Topics.ONLINE_CHANNEL;
  *
  * @author ohun@live.cn
  */
-/*package*/ final class UserEventConsumer extends EventConsumer {
+public final class UserEventConsumer extends EventConsumer {
 
     private final MQClient mqClient = MQClientFactory.create();
 
+    private final UserManager userManager;
+
+    public UserEventConsumer(RemoteRouterManager remoteRouterManager) {
+        this.userManager = new UserManager(remoteRouterManager);
+    }
+
     @Subscribe
+    @AllowConcurrentEvents
     void on(UserOnlineEvent event) {
-        UserManager.I.addToOnlineList(event.getUserId());
+        userManager.addToOnlineList(event.getUserId());
         mqClient.publish(ONLINE_CHANNEL, event.getUserId());
     }
 
     @Subscribe
+    @AllowConcurrentEvents
     void on(UserOfflineEvent event) {
-        UserManager.I.remFormOnlineList(event.getUserId());
+        userManager.remFormOnlineList(event.getUserId());
         mqClient.publish(OFFLINE_CHANNEL, event.getUserId());
+    }
+
+    public UserManager getUserManager() {
+        return userManager;
     }
 }

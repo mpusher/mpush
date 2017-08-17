@@ -48,7 +48,7 @@ public class JVMMemory implements MemoryQuota {
     private MemoryPoolMXBean edenSpaceMxBean;
     private MemoryPoolMXBean pSSurvivorSpaceMxBean;
 
-    private JVMMemory() {
+    public JVMMemory() {
         memoryMXBean = ManagementFactory.getMemoryMXBean();
         List<MemoryPoolMXBean> list = ManagementFactory.getMemoryPoolMXBeans();
         for (MemoryPoolMXBean item : list) {

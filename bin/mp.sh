@@ -76,7 +76,7 @@ else
     MP_MAIN=""
 fi
 
-MP_MAIN="$MP_MAIN -jar $MP_BIN_DIR/bootstrap.jar"
+MP_MAIN="$MP_MAIN com.mpush.bootstrap.Main"
 
 if [ "x$SERVER_JVM_FLAGS"  != "x" ]
 then

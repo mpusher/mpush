@@ -22,6 +22,7 @@ package com.mpush.client.gateway.connection;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.srd.ServiceListener;
+import com.mpush.client.MPushClient;
 import com.mpush.common.message.BaseMessage;
 import com.mpush.tools.config.CC;
 import org.slf4j.Logger;
@@ -39,8 +40,8 @@ public abstract class GatewayConnectionFactory extends BaseService implements Se
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static GatewayConnectionFactory create() {
-        return CC.mp.net.udpGateway() ? new GatewayUDPConnectionFactory() : new GatewayTCPConnectionFactory();
+    public static GatewayConnectionFactory create(MPushClient mPushClient) {
+        return CC.mp.net.udpGateway() ? new GatewayUDPConnectionFactory(mPushClient) : new GatewayTCPConnectionFactory(mPushClient);
     }
 
     abstract public Connection getConnection(String hostAndPort);

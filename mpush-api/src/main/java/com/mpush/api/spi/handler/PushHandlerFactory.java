@@ -19,7 +19,7 @@
 
 package com.mpush.api.spi.handler;
 
-import com.mpush.api.MessageHandler;
+import com.mpush.api.message.MessageHandler;
 import com.mpush.api.spi.Factory;
 import com.mpush.api.spi.SpiLoader;
 

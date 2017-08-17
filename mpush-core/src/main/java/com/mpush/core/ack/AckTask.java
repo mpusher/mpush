@@ -19,10 +19,7 @@
 
 package com.mpush.core.ack;
 
-import com.mpush.api.Message;
-
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Created by ohun on 16/9/5.
@@ -30,8 +27,8 @@ import java.util.concurrent.ScheduledExecutorService;
  * @author ohun@live.cn (夜色)
  */
 public final class AckTask implements Runnable {
-    final int ackMessageId;
-
+    private final int ackMessageId;
+    private AckTaskQueue ackTaskQueue;
     private AckCallback callback;
     private Future<?> timeoutFuture;
 
@@ -43,6 +40,11 @@ public final class AckTask implements Runnable {
         return new AckTask(ackMessageId);
     }
 
+    public AckTask setAckTaskQueue(AckTaskQueue ackTaskQueue) {
+        this.ackTaskQueue = ackTaskQueue;
+        return this;
+    }
+
     public void setFuture(Future<?> future) {
         this.timeoutFuture = future;
     }
@@ -51,6 +53,11 @@ public final class AckTask implements Runnable {
         this.callback = callback;
         return this;
     }
+
+    public int getAckMessageId() {
+        return ackMessageId;
+    }
+
 
     private boolean tryDone() {
         return timeoutFuture.cancel(true);
@@ -64,7 +71,7 @@ public final class AckTask implements Runnable {
     }
 
     public void onTimeout() {
-        AckTask context = AckTaskQueue.I.getAndRemove(ackMessageId);
+        AckTask context = ackTaskQueue.getAndRemove(ackMessageId);
         if (context != null && tryDone()) {
             callback.onTimeout(this);
             callback = null;

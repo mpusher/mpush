@@ -22,6 +22,7 @@ package com.mpush.client.gateway;
 import com.mpush.api.connection.ConnectionManager;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.service.Listener;
+import com.mpush.client.MPushClient;
 import com.mpush.client.gateway.handler.GatewayClientChannelHandler;
 import com.mpush.client.gateway.handler.GatewayErrorHandler;
 import com.mpush.client.gateway.handler.GatewayOKHandler;
@@ -54,13 +55,15 @@ public class GatewayClient extends NettyTCPClient {
     private final GatewayClientChannelHandler handler;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
     private ScheduledExecutorService trafficShapingExecutor;
-    private final ConnectionManager connectionManager = new NettyConnectionManager();
+    private final ConnectionManager connectionManager;
+    private final MessageDispatcher messageDispatcher;
 
-    public GatewayClient() {
-        MessageDispatcher dispatcher = new MessageDispatcher();
-        dispatcher.register(Command.OK, new GatewayOKHandler());
-        dispatcher.register(Command.ERROR, new GatewayErrorHandler());
-        handler = new GatewayClientChannelHandler(connectionManager, dispatcher);
+    public GatewayClient(MPushClient mPushClient) {
+        messageDispatcher = new MessageDispatcher();
+        messageDispatcher.register(Command.OK, () -> new GatewayOKHandler(mPushClient));
+        messageDispatcher.register(Command.ERROR, () -> new GatewayErrorHandler(mPushClient));
+        connectionManager = new NettyConnectionManager();
+        handler = new GatewayClientChannelHandler(connectionManager, messageDispatcher);
         if (enabled) {
             trafficShapingExecutor = Executors.newSingleThreadScheduledExecutor(new NamedPoolThreadFactory(T_TRAFFIC_SHAPING));
             trafficShapingHandler = new GlobalChannelTrafficShapingHandler(
@@ -123,5 +126,9 @@ public class GatewayClient extends NettyTCPClient {
 
     public ConnectionManager getConnectionManager() {
         return connectionManager;
+    }
+
+    public MessageDispatcher getMessageDispatcher() {
+        return messageDispatcher;
     }
 }

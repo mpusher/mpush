@@ -19,10 +19,10 @@
 
 package com.mpush.core.push;
 
-import com.mpush.api.spi.Spi;
 import com.mpush.api.spi.push.*;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
+import com.mpush.core.MPushServer;
 import com.mpush.core.ack.AckTaskQueue;
 import com.mpush.common.qps.FastFlowControl;
 import com.mpush.common.qps.FlowControl;
@@ -31,7 +31,6 @@ import com.mpush.common.qps.RedisFlowControl;
 import com.mpush.monitor.jmx.MBeanRegistry;
 import com.mpush.monitor.jmx.mxbean.PushCenterBean;
 import com.mpush.tools.config.CC;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,17 +49,25 @@ import static com.mpush.tools.config.CC.mp.push.flow_control.broadcast.max;
 public final class PushCenter extends BaseService implements MessagePusher {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static final PushCenter I = new PushCenter();
-
     private final GlobalFlowControl globalFlowControl = new GlobalFlowControl(
             CC.mp.push.flow_control.global.limit, CC.mp.push.flow_control.global.max, CC.mp.push.flow_control.global.duration
     );
 
     private final AtomicLong taskNum = new AtomicLong();
 
-    private final PushListener<IPushMessage> pushListener = PushListenerFactory.create();
+    private final AckTaskQueue ackTaskQueue;
+
+    private final MPushServer mPushServer;
+
+    private PushListener<IPushMessage> pushListener;
 
     private PushTaskExecutor executor;
+
+
+    public PushCenter(MPushServer mPushServer) {
+        this.mPushServer = mPushServer;
+        this.ackTaskQueue = new AckTaskQueue(mPushServer);
+    }
 
     @Override
     public void push(IPushMessage message) {
@@ -68,9 +75,9 @@ public final class PushCenter extends BaseService implements MessagePusher {
             FlowControl flowControl = (message.getTaskId() == null)
                     ? new FastFlowControl(limit, max, duration)
                     : new RedisFlowControl(message.getTaskId(), max);
-            addTask(new BroadcastPushTask(message, flowControl));
+            addTask(new BroadcastPushTask(mPushServer, message, flowControl));
         } else {
-            addTask(new SingleUserPushTask(message, globalFlowControl));
+            addTask(new SingleUserPushTask(mPushServer, message, globalFlowControl));
         }
     }
 
@@ -86,14 +93,17 @@ public final class PushCenter extends BaseService implements MessagePusher {
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
+        this.pushListener = PushListenerFactory.create();
+        this.pushListener.init(mPushServer);
+
         if (CC.mp.net.udpGateway() || CC.mp.thread.pool.push_task > 0) {
-            executor = new CustomJDKExecutor(ThreadPoolManager.I.getPushTaskTimer());
+            executor = new CustomJDKExecutor(mPushServer.getMonitor().getThreadPoolManager().getPushTaskTimer());
         } else {//实际情况使用EventLoo并没有更快，还有待测试
             executor = new NettyEventLoopExecutor();
         }
 
         MBeanRegistry.getInstance().register(new PushCenterBean(taskNum), null);
-        AckTaskQueue.I.start();
+        ackTaskQueue.start();
         logger.info("push center start success");
         listener.onSuccess();
     }
@@ -101,7 +111,7 @@ public final class PushCenter extends BaseService implements MessagePusher {
     @Override
     protected void doStop(Listener listener) throws Throwable {
         executor.shutdown();
-        AckTaskQueue.I.stop();
+        ackTaskQueue.stop();
         logger.info("push center stop success");
         listener.onSuccess();
     }
@@ -110,6 +120,9 @@ public final class PushCenter extends BaseService implements MessagePusher {
         return pushListener;
     }
 
+    public AckTaskQueue getAckTaskQueue() {
+        return ackTaskQueue;
+    }
 
     /**
      * TCP 模式直接使用GatewayServer work 线程池
@@ -165,13 +178,5 @@ public final class PushCenter extends BaseService implements MessagePusher {
         void addTask(PushTask task);
 
         void delayTask(long delay, PushTask task);
-    }
-
-    @Spi(order = -1)
-    public static final class CoreMessagePusherFactory implements MessagePusherFactory {
-        @Override
-        public MessagePusher get() {
-            return PushCenter.I;
-        }
     }
 }

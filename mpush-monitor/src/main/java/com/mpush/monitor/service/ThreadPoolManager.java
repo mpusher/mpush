@@ -17,7 +17,7 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.tools.thread.pool;
+package com.mpush.monitor.service;
 
 import com.mpush.api.spi.common.ExecutorFactory;
 import com.mpush.tools.thread.NamedThreadFactory;
@@ -35,16 +35,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public final class ThreadPoolManager {
-    public static final ThreadPoolManager I = new ThreadPoolManager();
 
     private final ExecutorFactory executorFactory = ExecutorFactory.create();
-    private final NamedThreadFactory threadFactory = new NamedThreadFactory();
 
     private final Map<String, Executor> pools = new ConcurrentHashMap<>();
-
-    public final Thread newThread(String name, Runnable target) {
-        return threadFactory.newThread(name, target);
-    }
 
     public Executor getRedisExecutor() {
         return pools.computeIfAbsent("mq", s -> executorFactory.get(ExecutorFactory.MQ));
@@ -79,33 +73,4 @@ public final class ThreadPoolManager {
         return pools;
     }
 
-    public static Map<String, Object> getPoolInfo(ThreadPoolExecutor executor) {
-        Map<String, Object> info = new HashMap<>(5);
-        info.put("corePoolSize", executor.getCorePoolSize());
-        info.put("maxPoolSize", executor.getMaximumPoolSize());
-        info.put("activeCount(workingThread)", executor.getActiveCount());
-        info.put("poolSize(workThread)", executor.getPoolSize());
-        info.put("queueSize(blockedTask)", executor.getQueue().size());
-        return info;
-    }
-
-    public static Map<String, Object> getPoolInfo(EventLoopGroup executors) {
-        Map<String, Object> info = new HashMap<>(3);
-        int poolSize = 0, queueSize = 0, activeCount = 0;
-        for (EventExecutor e : executors) {
-            poolSize++;
-            if (e instanceof SingleThreadEventLoop) {
-                SingleThreadEventLoop executor = (SingleThreadEventLoop) e;
-                queueSize += executor.pendingTasks();
-                ThreadProperties tp = executor.threadProperties();
-                if (tp.state() == Thread.State.RUNNABLE) {
-                    activeCount++;
-                }
-            }
-        }
-        info.put("poolSize(workThread)", poolSize);
-        info.put("activeCount(workingThread)", activeCount);
-        info.put("queueSize(blockedTask)", queueSize);
-        return info;
-    }
 }

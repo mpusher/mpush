@@ -6,11 +6,11 @@
     <parent>
         <artifactId>mpush</artifactId>
         <groupId>com.github.mpusher</groupId>
-        <version>0.7.1</version>
+        <version>0.8.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>mpush-boot</artifactId>
-    <version>${mpush-boot-version}</version>
     <packaging>jar</packaging>
     <name>mpush-boot</name>
     <description>MPUSH消息推送系统启动模块</description>
@@ -18,15 +18,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-cache</artifactId>
         </dependency>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-zk</artifactId>
         </dependency>
     </dependencies>
@@ -53,6 +53,7 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-jar-plugin</artifactId>
+                        <version>3.0.2</version>
                         <configuration>
                             <archive>
                                 <!--生成的jar中，不要包含pom.xml和pom.properties这两个文件-->

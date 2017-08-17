@@ -19,25 +19,21 @@
 
 package com.mpush.core.push;
 
-import com.mpush.api.Message;
+import com.mpush.api.message.Message;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.spi.push.IPushMessage;
-import com.mpush.common.ServerNodes;
 import com.mpush.common.message.PushMessage;
-import com.mpush.common.router.RemoteRouter;
-import com.mpush.core.ack.AckTask;
-import com.mpush.core.ack.AckTaskQueue;
 import com.mpush.common.qps.FlowControl;
+import com.mpush.common.router.RemoteRouter;
+import com.mpush.core.MPushServer;
+import com.mpush.core.ack.AckTask;
 import com.mpush.core.router.LocalRouter;
-import com.mpush.core.router.RouterCenter;
 import com.mpush.tools.common.TimeLine;
 import com.mpush.tools.log.Logs;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
 import java.util.concurrent.ScheduledExecutorService;
-
-import static com.mpush.common.ServerNodes.GS;
 
 
 /**
@@ -57,8 +53,10 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
 
     private final TimeLine timeLine = new TimeLine();
 
+    private final MPushServer mPushServer;
 
-    public SingleUserPushTask(IPushMessage message, FlowControl flowControl) {
+    public SingleUserPushTask(MPushServer mPushServer, IPushMessage message, FlowControl flowControl) {
+        this.mPushServer = mPushServer;
         this.flowControl = flowControl;
         this.message = message;
         this.timeLine.begin("push-center-begin");
@@ -98,7 +96,7 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
         if (start > 0) {
             if (System.currentTimeMillis() - start > message.getTimeoutMills()) {
 
-                PushCenter.I.getPushListener().onTimeout(message, timeLine.timeoutEnd().getTimePoints());
+                mPushServer.getPushCenter().getPushListener().onTimeout(message, timeLine.timeoutEnd().getTimePoints());
 
                 Logs.PUSH.info("[SingleUserPush] push message to client timeout, timeLine={}, message={}", timeLine, message);
                 return true;
@@ -119,7 +117,7 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
     private boolean checkLocal(IPushMessage message) {
         String userId = message.getUserId();
         int clientType = message.getClientType();
-        LocalRouter localRouter = RouterCenter.I.getLocalRouterManager().lookup(userId, clientType);
+        LocalRouter localRouter = mPushServer.getRouterCenter().getLocalRouterManager().lookup(userId, clientType);
 
         //1.如果本机不存在，再查下远程，看用户是否登陆到其他机器
         if (localRouter == null) return false;
@@ -132,14 +130,14 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
             Logs.PUSH.warn("[SingleUserPush] find local router but conn disconnected, message={}, conn={}", message, connection);
 
             //删除已经失效的本地路由
-            RouterCenter.I.getLocalRouterManager().unRegister(userId, clientType);
+            mPushServer.getRouterCenter().getLocalRouterManager().unRegister(userId, clientType);
 
             return false;
         }
 
         //3.检测TCP缓冲区是否已满且写队列超过最高阀值
         if (!connection.getChannel().isWritable()) {
-            PushCenter.I.getPushListener().onFailure(message, timeLine.failureEnd().getTimePoints());
+            mPushServer.getPushCenter().getPushListener().onFailure(message, timeLine.failureEnd().getTimePoints());
 
             Logs.PUSH.error("[SingleUserPush] push message to client failure, tcp sender too busy, message={}, conn={}", message, connection);
             return true;
@@ -154,7 +152,7 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
             messageId = pushMessage.getSessionId();
             pushMessage.send(this);
         } else {//超过流控限制, 进队列延后发送
-            PushCenter.I.delayTask(flowControl.getDelay(), this);
+            mPushServer.getPushCenter().delayTask(flowControl.getDelay(), this);
         }
         return true;
     }
@@ -170,12 +168,12 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
     private void checkRemote(IPushMessage message) {
         String userId = message.getUserId();
         int clientType = message.getClientType();
-        RemoteRouter remoteRouter = RouterCenter.I.getRemoteRouterManager().lookup(userId, clientType);
+        RemoteRouter remoteRouter = mPushServer.getRouterCenter().getRemoteRouterManager().lookup(userId, clientType);
 
         // 1.如果远程路由信息也不存在, 说明用户此时不在线，
         if (remoteRouter == null || remoteRouter.isOffline()) {
 
-            PushCenter.I.getPushListener().onOffline(message, timeLine.end("offline-end").getTimePoints());
+            mPushServer.getPushCenter().getPushListener().onOffline(message, timeLine.end("offline-end").getTimePoints());
 
             Logs.PUSH.info("[SingleUserPush] remote router not exists user offline, message={}", message);
 
@@ -183,12 +181,12 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
         }
 
         //2.如果查出的远程机器是当前机器，说明路由已经失效，此时用户已下线，需要删除失效的缓存
-        if (remoteRouter.getRouteValue().isThisPC(GS.getHost(), GS.getPort())) {
+        if (remoteRouter.getRouteValue().isThisMachine(mPushServer.getGatewayServerNode().getHost(), mPushServer.getGatewayServerNode().getPort())) {
 
-            PushCenter.I.getPushListener().onOffline(message, timeLine.end("offline-end").getTimePoints());
+            mPushServer.getPushCenter().getPushListener().onOffline(message, timeLine.end("offline-end").getTimePoints());
 
             //删除失效的远程缓存
-            RouterCenter.I.getRemoteRouterManager().unRegister(userId, clientType);
+            mPushServer.getRouterCenter().getRemoteRouterManager().unRegister(userId, clientType);
 
             Logs.PUSH.info("[SingleUserPush] find remote router in this pc, but local router not exists, userId={}, clientType={}, router={}"
                     , userId, clientType, remoteRouter);
@@ -197,7 +195,7 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
         }
 
         //3.否则说明用户已经跑到另外一台机器上了；路由信息发生更改，让PushClient重推
-        PushCenter.I.getPushListener().onRedirect(message, timeLine.end("redirect-end").getTimePoints());
+        mPushServer.getPushCenter().getPushListener().onRedirect(message, timeLine.end("redirect-end").getTimePoints());
 
         Logs.PUSH.info("[SingleUserPush] find router in another pc, userId={}, clientType={}, router={}", userId, clientType, remoteRouter);
 
@@ -212,14 +210,14 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
             if (message.isNeedAck()) {//需要客户端ACK, 添加等待客户端响应ACK的任务
                 addAckTask(messageId);
             } else {
-                PushCenter.I.getPushListener().onSuccess(message, timeLine.successEnd().getTimePoints());
+                mPushServer.getPushCenter().getPushListener().onSuccess(message, timeLine.successEnd().getTimePoints());
             }
 
             Logs.PUSH.info("[SingleUserPush] push message to client success, timeLine={}, message={}", timeLine, message);
 
         } else {//推送失败
 
-            PushCenter.I.getPushListener().onFailure(message, timeLine.failureEnd().getTimePoints());
+            mPushServer.getPushCenter().getPushListener().onFailure(message, timeLine.failureEnd().getTimePoints());
 
             Logs.PUSH.error("[SingleUserPush] push message to client failure, message={}, conn={}", message, future.channel());
         }
@@ -239,8 +237,8 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
 
         AckTask task = AckTask
                 .from(messageId)
-                .setCallback(new PushAckCallback(message, timeLine));
+                .setCallback(new PushAckCallback(message, timeLine, mPushServer.getPushCenter()));
 
-        AckTaskQueue.I.add(task, message.getTimeoutMills() - (int) (System.currentTimeMillis() - start));
+        mPushServer.getPushCenter().getAckTaskQueue().add(task, message.getTimeoutMills() - (int) (System.currentTimeMillis() - start));
     }
 }

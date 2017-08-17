@@ -22,9 +22,8 @@ package com.mpush.common;
 import com.mpush.api.srd.CommonServiceNode;
 import com.mpush.api.srd.ServiceNames;
 import com.mpush.api.srd.ServiceNode;
-import com.mpush.tools.Utils;
 import com.mpush.tools.config.CC;
-import com.mpush.tools.config.ConfigManager;
+import com.mpush.tools.config.ConfigTools;
 
 import static com.mpush.api.srd.ServiceNames.ATTR_PUBLIC_IP;
 
@@ -34,34 +33,30 @@ import static com.mpush.api.srd.ServiceNames.ATTR_PUBLIC_IP;
  * @author ohun@live.cn (夜色)
  */
 public class ServerNodes {
-    public static final ServiceNode CS = cs();
-    public static final ServiceNode GS = gs();
-    public static final ServiceNode WS = ws();
 
-
-    private static ServiceNode cs() {
+    public static ServiceNode cs() {
         CommonServiceNode node = new CommonServiceNode();
-        node.setHost(Utils.getLocalIp());
+        node.setHost(ConfigTools.getConnectServerRegisterIp());
         node.setPort(CC.mp.net.connect_server_port);
         node.setPersistent(false);
         node.setServiceName(ServiceNames.CONN_SERVER);
-        node.addAttr(ATTR_PUBLIC_IP, ConfigManager.I.getPublicIp());
+        node.setAttrs(CC.mp.net.connect_server_register_attr);
         return node;
     }
 
-    private static ServiceNode ws() {
+    public static ServiceNode ws() {
         CommonServiceNode node = new CommonServiceNode();
-        node.setHost(Utils.getLocalIp());
+        node.setHost(ConfigTools.getConnectServerRegisterIp());
         node.setPort(CC.mp.net.ws_server_port);
         node.setPersistent(false);
         node.setServiceName(ServiceNames.WS_SERVER);
-        node.addAttr(ATTR_PUBLIC_IP, ConfigManager.I.getPublicIp());
+        //node.addAttr(ATTR_PUBLIC_IP, ConfigTools.getPublicIp());
         return node;
     }
 
-    private static ServiceNode gs() {
+    public static ServiceNode gs() {
         CommonServiceNode node = new CommonServiceNode();
-        node.setHost(Utils.getLocalIp());
+        node.setHost(ConfigTools.getGatewayServerRegisterIp());
         node.setPort(CC.mp.net.gateway_server_port);
         node.setPersistent(false);
         node.setServiceName(ServiceNames.GATEWAY_SERVER);

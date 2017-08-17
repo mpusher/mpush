@@ -134,7 +134,7 @@ public final class ClientLocation {
         return this;
     }
 
-    public boolean isThisPC(String host, int port) {
+    public boolean isThisMachine(String host, int port) {
         return this.port == port && this.host.equals(host);
     }
 

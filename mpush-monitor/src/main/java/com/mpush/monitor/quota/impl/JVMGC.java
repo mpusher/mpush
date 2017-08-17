@@ -37,8 +37,6 @@ public class JVMGC implements GCMQuota {
     private final List<String> youngGcName = Lists.newArrayList("ParNew", "Copy", "PS Scavenge", "G1 Young Generation", "Garbage collection optimized for short pausetimes Young Collector",
             "Garbage collection optimized for throughput Young Collector", "Garbage collection optimized for deterministic pausetimes Young Collector");
 
-    public static final JVMGC I = new JVMGC();
-
     private GarbageCollectorMXBean fullGc;
     private GarbageCollectorMXBean yongGc;
 
@@ -48,7 +46,7 @@ public class JVMGC implements GCMQuota {
     private long lastFullGcCollectionTime = -1;
 
 
-    private JVMGC() {
+    public JVMGC() {
         for (GarbageCollectorMXBean item : ManagementFactory.getGarbageCollectorMXBeans()) {
             String name = item.getName();
             if (youngGcName.contains(name)) {

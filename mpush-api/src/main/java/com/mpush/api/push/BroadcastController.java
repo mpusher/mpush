@@ -19,6 +19,8 @@
 
 package com.mpush.api.push;
 
+import java.util.List;
+
 /**
  * Created by ohun on 16/10/25.
  *
@@ -41,5 +43,9 @@ public interface BroadcastController {
     boolean isCancelled();
 
     int incSendCount(int count);
+
+    void success(String... userIds);
+
+    List<String> successUserIds();
 
 }

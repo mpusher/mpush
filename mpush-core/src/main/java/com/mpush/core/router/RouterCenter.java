@@ -23,29 +23,48 @@ import com.mpush.api.connection.Connection;
 import com.mpush.api.event.RouterChangeEvent;
 import com.mpush.api.router.ClientLocation;
 import com.mpush.api.router.Router;
+import com.mpush.api.service.BaseService;
+import com.mpush.api.service.Listener;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.router.RemoteRouterManager;
-import com.mpush.tools.Utils;
+import com.mpush.core.MPushServer;
 import com.mpush.tools.event.EventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.mpush.common.ServerNodes.GS;
 
 /**
  * Created by ohun on 2015/12/23.
  *
  * @author ohun@live.cn
  */
-public final class RouterCenter {
-    public static final Logger LOGGER = LoggerFactory.getLogger(RouterCenter.class);
-    public static final RouterCenter I = new RouterCenter();
+public final class RouterCenter extends BaseService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RouterCenter.class);
 
-    private final LocalRouterManager localRouterManager = new LocalRouterManager();
-    private final RemoteRouterManager remoteRouterManager = new RemoteRouterManager();
-    private final RouterChangeListener routerChangeListener = new RouterChangeListener();
-    private final UserEventConsumer userEventConsumer = new UserEventConsumer();
+    private LocalRouterManager localRouterManager;
+    private RemoteRouterManager remoteRouterManager;
+    private UserEventConsumer userEventConsumer;
+    private RouterChangeListener routerChangeListener;
+    private MPushServer mPushServer;
 
+    public RouterCenter(MPushServer mPushServer) {
+        this.mPushServer = mPushServer;
+    }
+
+    @Override
+    protected void doStart(Listener listener) throws Throwable {
+        localRouterManager = new LocalRouterManager();
+        remoteRouterManager = new RemoteRouterManager();
+        routerChangeListener = new RouterChangeListener(mPushServer);
+        userEventConsumer = new UserEventConsumer(remoteRouterManager);
+        userEventConsumer.getUserManager().clearUserOnlineData();
+        super.doStart(listener);
+    }
+
+    @Override
+    protected void doStop(Listener listener) throws Throwable {
+        userEventConsumer.getUserManager().clearUserOnlineData();
+        super.doStop(listener);
+    }
 
     /**
      * 注册用户和链接
@@ -57,8 +76,8 @@ public final class RouterCenter {
     public boolean register(String userId, Connection connection) {
         ClientLocation location = ClientLocation
                 .from(connection)
-                .setHost(Utils.getLocalIp())
-                .setPort(GS.getPort());
+                .setHost(mPushServer.getGatewayServerNode().getHost())
+                .setPort(mPushServer.getGatewayServerNode().getPort());
 
         LocalRouter localRouter = new LocalRouter(connection);
         RemoteRouter remoteRouter = new RemoteRouter(location);
@@ -73,12 +92,12 @@ public final class RouterCenter {
         }
 
         if (oldLocalRouter != null) {
-            EventBus.I.post(new RouterChangeEvent(userId, oldLocalRouter));
+            EventBus.post(new RouterChangeEvent(userId, oldLocalRouter));
             LOGGER.info("register router success, find old local router={}, userId={}", oldLocalRouter, userId);
         }
 
         if (oldRemoteRouter != null && oldRemoteRouter.isOnline()) {
-            EventBus.I.post(new RouterChangeEvent(userId, oldRemoteRouter));
+            EventBus.post(new RouterChangeEvent(userId, oldRemoteRouter));
             LOGGER.info("register router success, find old remote router={}, userId={}", oldRemoteRouter, userId);
         }
         return true;
@@ -107,5 +126,9 @@ public final class RouterCenter {
 
     public RouterChangeListener getRouterChangeListener() {
         return routerChangeListener;
+    }
+
+    public UserEventConsumer getUserEventConsumer() {
+        return userEventConsumer;
     }
 }

@@ -30,7 +30,7 @@ public class ConnectClient extends NettyTCPClient {
 
     public ConnectClient(String host, int port, ClientConfig config) {
         handler = new ConnClientChannelHandler(config);
-        EventBus.I.register(this);
+        EventBus.register(this);
     }
 
     @Override

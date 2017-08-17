@@ -34,7 +34,7 @@ public final class CommonServiceNode implements ServiceNode {
 
     private int port;
 
-    private Map<String, String> attrs;
+    private Map<String, Object> attrs;
 
     private transient String name;
 
@@ -58,18 +58,19 @@ public final class CommonServiceNode implements ServiceNode {
         this.name = name;
     }
 
-    public CommonServiceNode addAttr(String name, String value) {
+    public CommonServiceNode addAttr(String name, Object value) {
         if (attrs == null) attrs = new HashMap<>();
         attrs.put(name, value);
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public String getAttr(String name) {
+    public <T> T getAttr(String name) {
         if (attrs == null || attrs.isEmpty()) {
             return null;
         }
-        return attrs.get(name);
+        return (T) attrs.get(name);
     }
 
     @Override
@@ -105,11 +106,11 @@ public final class CommonServiceNode implements ServiceNode {
         return port;
     }
 
-    public Map<String, String> getAttrs() {
+    public Map<String, Object> getAttrs() {
         return attrs;
     }
 
-    public void setAttrs(Map<String, String> attrs) {
+    public void setAttrs(Map<String, Object> attrs) {
         this.attrs = attrs;
     }
 

@@ -22,6 +22,7 @@ package com.mpush.client.gateway;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.service.Listener;
+import com.mpush.client.MPushClient;
 import com.mpush.client.gateway.handler.GatewayErrorHandler;
 import com.mpush.client.gateway.handler.GatewayOKHandler;
 import com.mpush.common.MessageDispatcher;
@@ -44,32 +45,22 @@ import static com.mpush.common.MessageDispatcher.POLICY_LOG;
  */
 public final class GatewayUDPConnector extends NettyUDPConnector {
 
-    private static GatewayUDPConnector I;
-
-    public static GatewayUDPConnector I() {
-        if (I == null) {
-            synchronized (GatewayUDPConnector.class) {
-                if (I == null) {
-                    I = new GatewayUDPConnector();
-                }
-            }
-        }
-        return I;
-    }
-
     private UDPChannelHandler channelHandler;
+    private MessageDispatcher messageDispatcher;
+    private MPushClient mPushClient;
 
-    private GatewayUDPConnector() {
+    public GatewayUDPConnector(MPushClient mPushClient) {
         super(CC.mp.net.gateway_client_port);
+        this.mPushClient = mPushClient;
+        this.messageDispatcher = new MessageDispatcher(POLICY_LOG);
     }
 
     @Override
     public void init() {
         super.init();
-        MessageDispatcher receiver = new MessageDispatcher(POLICY_LOG);
-        receiver.register(Command.OK, new GatewayOKHandler());
-        receiver.register(Command.ERROR, new GatewayErrorHandler());
-        channelHandler = new UDPChannelHandler(receiver);
+        messageDispatcher.register(Command.OK, () -> new GatewayOKHandler(mPushClient));
+        messageDispatcher.register(Command.ERROR, () -> new GatewayErrorHandler(mPushClient));
+        channelHandler = new UDPChannelHandler(messageDispatcher);
         channelHandler.setMulticastAddress(Utils.getInetAddress(CC.mp.net.gateway_client_multicast));
         channelHandler.setNetworkInterface(Utils.getLocalNetworkInterface());
     }
@@ -97,5 +88,9 @@ public final class GatewayUDPConnector extends NettyUDPConnector {
 
     public Connection getConnection() {
         return channelHandler.getConnection();
+    }
+
+    public MessageDispatcher getMessageDispatcher() {
+        return messageDispatcher;
     }
 }

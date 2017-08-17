@@ -21,7 +21,7 @@ package com.mpush.core.ack;
 
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
+import com.mpush.core.MPushServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,22 +36,22 @@ import java.util.concurrent.TimeUnit;
  * @author ohun@live.cn (夜色)
  */
 public final class AckTaskQueue extends BaseService {
-    private final Logger logger = LoggerFactory.getLogger(AckTaskQueue.class);
-
     private static final int DEFAULT_TIMEOUT = 3000;
-    public static final AckTaskQueue I = new AckTaskQueue();
+
+    private final Logger logger = LoggerFactory.getLogger(AckTaskQueue.class);
 
     private final ConcurrentMap<Integer, AckTask> queue = new ConcurrentHashMap<>();
     private ScheduledExecutorService scheduledExecutor;
+    private MPushServer mPushServer;
 
-    private AckTaskQueue() {
+    public AckTaskQueue(MPushServer mPushServer) {
+        this.mPushServer = mPushServer;
     }
 
     public void add(AckTask task, int timeout) {
-        queue.put(task.ackMessageId, task);
-
-        //使用 task.getExecutor() 并没更快
-        task.setFuture(scheduledExecutor.schedule(task,
+        queue.put(task.getAckMessageId(), task);
+        task.setAckTaskQueue(this);
+        task.setFuture(scheduledExecutor.schedule(task,//使用 task.getExecutor() 并没更快
                 timeout > 0 ? timeout : DEFAULT_TIMEOUT,
                 TimeUnit.MILLISECONDS
         ));
@@ -65,7 +65,7 @@ public final class AckTaskQueue extends BaseService {
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        scheduledExecutor = ThreadPoolManager.I.getAckTimer();
+        scheduledExecutor = mPushServer.getMonitor().getThreadPoolManager().getAckTimer();
         super.doStart(listener);
     }
 

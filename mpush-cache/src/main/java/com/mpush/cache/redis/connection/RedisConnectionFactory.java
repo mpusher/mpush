@@ -41,17 +41,20 @@ public class RedisConnectionFactory {
 
     private final static Logger log = LoggerFactory.getLogger(RedisConnectionFactory.class);
 
-    private JedisShardInfo shardInfo;
     private String hostName = "localhost";
     private int port = Protocol.DEFAULT_PORT;
     private int timeout = Protocol.DEFAULT_TIMEOUT;
     private String password;
-    private Pool<Jedis> pool;
-    private JedisPoolConfig poolConfig = new JedisPoolConfig();
-    private int dbIndex = 0;
-    private JedisCluster cluster;
+
+    private String sentinelMaster;
     private List<RedisNode> redisServers;
     private boolean isCluster = false;
+    private int dbIndex = 0;
+
+    private JedisShardInfo shardInfo;
+    private Pool<Jedis> pool;
+    private JedisCluster cluster;
+    private JedisPoolConfig poolConfig = new JedisPoolConfig();
 
     /**
      * Constructs a new <code>JedisConnectionFactory</code> instance with default settings (default connection pooling, no
@@ -104,7 +107,25 @@ public class RedisConnectionFactory {
     }
 
     private Pool<Jedis> createPool() {
+        if (StringUtils.isNotBlank(sentinelMaster)) {
+            return createRedisSentinelPool();
+        }
         return createRedisPool();
+    }
+
+    /**
+     * Creates {@link JedisSentinelPool}.
+     *
+     * @return
+     * @since 1.4
+     */
+    protected Pool<Jedis> createRedisSentinelPool() {
+        Set<String> hostAndPorts = redisServers
+                .stream()
+                .map(redisNode -> new HostAndPort(redisNode.host, redisNode.port).toString())
+                .collect(Collectors.toSet());
+
+        return new JedisSentinelPool(sentinelMaster, hostAndPorts, poolConfig, getShardInfo().getSoTimeout(), getShardInfo().getPassword());
     }
 
 
@@ -115,36 +136,26 @@ public class RedisConnectionFactory {
      * @since 1.4
      */
     protected Pool<Jedis> createRedisPool() {
-        return new JedisPool(getPoolConfig(), getShardInfo().getHost(), getShardInfo().getPort(),
-                getShardInfo().getSoTimeout(), getShardInfo().getPassword());
-    }
-
-    private JedisCluster createCluster() {
-        return createCluster(this.redisServers, this.poolConfig);
+        return new JedisPool(getPoolConfig(), shardInfo.getHost(), shardInfo.getPort(), shardInfo.getSoTimeout(), shardInfo.getPassword());
     }
 
     /**
-     * @param poolConfig can be {@literal null}.
      * @return
      * @since 1.7
      */
-    protected JedisCluster createCluster(List<RedisNode> servers, GenericObjectPoolConfig poolConfig) {
+    protected JedisCluster createCluster() {
 
-        Set<HostAndPort> hostAndPort = servers
+        Set<HostAndPort> hostAndPorts = redisServers
                 .stream()
                 .map(redisNode -> new HostAndPort(redisNode.host, redisNode.port))
                 .collect(Collectors.toSet());
 
-        int redirects = 5;
 
         if (StringUtils.isNotEmpty(getPassword())) {
             throw new IllegalArgumentException("Jedis does not support password protected Redis Cluster configurations!");
         }
-
-        if (poolConfig != null) {
-            return new JedisCluster(hostAndPort, timeout, redirects, poolConfig);
-        }
-        return new JedisCluster(hostAndPort, timeout, redirects, poolConfig);
+        int redirects = 5;
+        return new JedisCluster(hostAndPorts, timeout, redirects, poolConfig);
     }
 
     /*
@@ -175,7 +186,11 @@ public class RedisConnectionFactory {
      * @see org.springframework.data.redis.connection.RedisConnectionFactory#getConnection()
      */
     public Jedis getJedisConnection() {
-        return fetchJedisConnector();
+        Jedis jedis = fetchJedisConnector();
+        if (dbIndex > 0 && jedis != null) {
+            jedis.select(dbIndex);
+        }
+        return jedis;
     }
 
     /*
@@ -317,6 +332,10 @@ public class RedisConnectionFactory {
 
     public void setCluster(boolean cluster) {
         isCluster = cluster;
+    }
+
+    public void setSentinelMaster(String sentinelMaster) {
+        this.sentinelMaster = sentinelMaster;
     }
 
     public void setRedisServers(List<RedisNode> redisServers) {

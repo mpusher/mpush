@@ -20,7 +20,7 @@
 package com.mpush.monitor.quota.impl;
 
 import com.mpush.monitor.quota.ThreadPoolQuota;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
+import com.mpush.monitor.service.ThreadPoolManager;
 import io.netty.channel.EventLoopGroup;
 
 import java.util.HashMap;
@@ -28,18 +28,20 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import static com.mpush.tools.thread.pool.ThreadPoolManager.getPoolInfo;
+import static com.mpush.tools.Utils.getPoolInfo;
+
 
 public class JVMThreadPool implements ThreadPoolQuota {
-    public static final JVMThreadPool I = new JVMThreadPool();
+    private final ThreadPoolManager threadPoolManager;
 
-    private JVMThreadPool() {
+    public JVMThreadPool(ThreadPoolManager threadPoolManager) {
+        this.threadPoolManager = threadPoolManager;
     }
 
     @Override
     public Object monitor(Object... args) {
         Map<String, Object> result = new HashMap<>();
-        Map<String, Executor> pools = ThreadPoolManager.I.getActivePools();
+        Map<String, Executor> pools = threadPoolManager.getActivePools();
         for (Map.Entry<String, Executor> entry : pools.entrySet()) {
             String serviceName = entry.getKey();
             Executor executor = entry.getValue();

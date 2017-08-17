@@ -19,6 +19,11 @@
 
 package com.mpush.tools;
 
+import com.mpush.tools.thread.NamedThreadFactory;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SingleThreadEventLoop;
+import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.ThreadProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +32,7 @@ import java.net.*;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Pattern;
 
 /**
@@ -43,6 +49,12 @@ public final class Utils {
 
     private static String EXTRANET_IP;
 
+    private static final NamedThreadFactory NAMED_THREAD_FACTORY = new NamedThreadFactory();
+
+    public static Thread newThread(String name, Runnable target) {
+        return NAMED_THREAD_FACTORY.newThread(name, target);
+    }
+
     public static boolean isLocalHost(String host) {
         return host == null
                 || host.length() == 0
@@ -51,7 +63,7 @@ public final class Utils {
                 || (LOCAL_IP_PATTERN.matcher(host).matches());
     }
 
-    public static String getLocalIp() {
+    public static String lookupLocalIp() {
         if (LOCAL_IP == null) {
             LOCAL_IP = getInetAddress(true);
         }
@@ -120,7 +132,7 @@ public final class Utils {
         }
     }
 
-    public static String getExtranetIp() {
+    public static String lookupExtranetIp() {
         if (EXTRANET_IP == null) {
             EXTRANET_IP = getInetAddress(false);
         }
@@ -173,5 +185,35 @@ public final class Utils {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    public static Map<String, Object> getPoolInfo(ThreadPoolExecutor executor) {
+        Map<String, Object> info = new HashMap<>(5);
+        info.put("corePoolSize", executor.getCorePoolSize());
+        info.put("maxPoolSize", executor.getMaximumPoolSize());
+        info.put("activeCount(workingThread)", executor.getActiveCount());
+        info.put("poolSize(workThread)", executor.getPoolSize());
+        info.put("queueSize(blockedTask)", executor.getQueue().size());
+        return info;
+    }
+
+    public static Map<String, Object> getPoolInfo(EventLoopGroup executors) {
+        Map<String, Object> info = new HashMap<>(3);
+        int poolSize = 0, queueSize = 0, activeCount = 0;
+        for (EventExecutor e : executors) {
+            poolSize++;
+            if (e instanceof SingleThreadEventLoop) {
+                SingleThreadEventLoop executor = (SingleThreadEventLoop) e;
+                queueSize += executor.pendingTasks();
+                ThreadProperties tp = executor.threadProperties();
+                if (tp.state() == Thread.State.RUNNABLE) {
+                    activeCount++;
+                }
+            }
+        }
+        info.put("poolSize(workThread)", poolSize);
+        info.put("activeCount(workingThread)", activeCount);
+        info.put("queueSize(blockedTask)", queueSize);
+        return info;
     }
 }

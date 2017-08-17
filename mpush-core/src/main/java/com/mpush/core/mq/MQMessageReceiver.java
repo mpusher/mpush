@@ -19,10 +19,10 @@
 
 package com.mpush.core.mq;
 
-import com.mpush.api.spi.push.MessagePusher;
-import com.mpush.api.spi.push.MessagePusherFactory;
+import com.mpush.core.push.PushCenter;
 import com.mpush.tools.Utils;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
+import com.mpush.tools.config.ConfigTools;
+import com.mpush.monitor.service.ThreadPoolManager;
 
 import java.util.Collection;
 
@@ -33,28 +33,29 @@ import java.util.Collection;
  */
 public final class MQMessageReceiver {
 
-    private final static String TOPIC = "/mpush/push/" + Utils.getLocalIp();
-
-    public final MessagePusher pusher = MessagePusherFactory.create();
+    private final static String TOPIC = "/mpush/push/" + ConfigTools.getLocalIp();
 
     private final MQClient mqClient;
 
-    public static void subscribe(MQClient mqClient) {
-        MQMessageReceiver receiver = new MQMessageReceiver(mqClient);
+    private PushCenter pushCenter;
+
+    public static void subscribe(MQClient mqClient, PushCenter pushCenter) {
+        MQMessageReceiver receiver = new MQMessageReceiver(mqClient, pushCenter);
         mqClient.subscribe(TOPIC, receiver);
         receiver.fetchFormMQ();
     }
 
-    public MQMessageReceiver(MQClient mqClient) {
+    public MQMessageReceiver(MQClient mqClient, PushCenter pushCenter) {
         this.mqClient = mqClient;
+        this.pushCenter = pushCenter;
     }
 
     public void onMessage(MQPushMessage message) {
-        pusher.push(message);
+        pushCenter.push(message);
     }
 
     public void fetchFormMQ() {
-        ThreadPoolManager.I.newThread("mq-push", this::dispatch);
+        Utils.newThread("mq-push", this::dispatch);
     }
 
     private void dispatch() {

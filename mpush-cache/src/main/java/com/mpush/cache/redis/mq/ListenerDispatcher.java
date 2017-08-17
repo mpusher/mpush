@@ -21,11 +21,14 @@ package com.mpush.cache.redis.mq;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mpush.api.MPushContext;
+import com.mpush.api.spi.common.ExecutorFactory;
 import com.mpush.api.spi.common.MQClient;
 import com.mpush.api.spi.common.MQMessageReceiver;
 import com.mpush.cache.redis.manager.RedisManager;
+import com.mpush.monitor.service.MonitorService;
+import com.mpush.monitor.service.ThreadPoolManager;
 import com.mpush.tools.log.Logs;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
 
 import java.util.List;
 import java.util.Map;
@@ -33,35 +36,29 @@ import java.util.concurrent.Executor;
 
 public final class ListenerDispatcher implements MQClient {
 
-    private static ListenerDispatcher I;
-
     private final Map<String, List<MQMessageReceiver>> subscribes = Maps.newTreeMap();
 
-    private final Executor executor = ThreadPoolManager.I.getRedisExecutor();
+    private final Subscriber subscriber;
 
-    private final Subscriber subscriber = new Subscriber();
+    private Executor executor;
 
-    public static ListenerDispatcher I() {
-        if (I == null) {
-            synchronized (ListenerDispatcher.class) {
-                if (I == null) {
-                    I = new ListenerDispatcher();
-                }
-            }
-        }
-        return I;
+    @Override
+    public void init(MPushContext context) {
+        executor = ((MonitorService) context.getMonitor()).getThreadPoolManager().getRedisExecutor();
     }
 
-    private ListenerDispatcher() {
+    public ListenerDispatcher() {
+        this.subscriber = new Subscriber(this);
     }
 
-    public void onMessage(final String channel, final String message) {
+    public void onMessage(String channel, String message) {
         List<MQMessageReceiver> listeners = subscribes.get(channel);
         if (listeners == null) {
-            Logs.CACHE.info("cannot find listener:%s,%s", channel, message);
+            Logs.CACHE.info("cannot find listener:{}, {}", channel, message);
             return;
         }
-        for (final MQMessageReceiver listener : listeners) {
+
+        for (MQMessageReceiver listener : listeners) {
             executor.execute(() -> listener.receive(channel, message));
         }
     }

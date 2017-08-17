@@ -30,9 +30,10 @@ import com.mpush.api.spi.common.MQClientFactory;
  */
 @Spi(order = 1)
 public final class RedisMQClientFactory implements MQClientFactory {
+    private ListenerDispatcher listenerDispatcher = new ListenerDispatcher();
 
     @Override
     public MQClient get() {
-        return ListenerDispatcher.I();
+        return listenerDispatcher;
     }
 }

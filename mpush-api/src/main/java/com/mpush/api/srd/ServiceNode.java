@@ -34,7 +34,7 @@ public interface ServiceNode {
 
     int getPort();
 
-    default String getAttr(String name) {
+    default <T> T getAttr(String name) {
         return null;
     }
 

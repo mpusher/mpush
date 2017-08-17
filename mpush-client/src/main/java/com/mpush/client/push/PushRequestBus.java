@@ -21,7 +21,8 @@ package com.mpush.client.push;
 
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
-import com.mpush.tools.thread.pool.ThreadPoolManager;
+import com.mpush.client.MPushClient;
+import com.mpush.monitor.service.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +35,13 @@ import java.util.concurrent.*;
  * @author ohun@live.cn
  */
 public class PushRequestBus extends BaseService {
-    public static final PushRequestBus I = new PushRequestBus();
     private final Logger logger = LoggerFactory.getLogger(PushRequestBus.class);
     private final Map<Integer, PushRequest> reqQueue = new ConcurrentHashMap<>(1024);
     private ScheduledExecutorService scheduledExecutor;
+    private final MPushClient mPushClient;
 
-    private PushRequestBus() {
+    public PushRequestBus(MPushClient mPushClient) {
+        this.mPushClient = mPushClient;
     }
 
     public Future<?> put(int sessionId, PushRequest request) {
@@ -57,7 +59,7 @@ public class PushRequestBus extends BaseService {
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
-        scheduledExecutor = ThreadPoolManager.I.getPushClientTimer();
+        scheduledExecutor = mPushClient.getThreadPoolManager().getPushClientTimer();
         listener.onSuccess();
     }
 

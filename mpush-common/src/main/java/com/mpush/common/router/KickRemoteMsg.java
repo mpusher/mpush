@@ -20,7 +20,7 @@
 package com.mpush.common.router;
 
 import com.mpush.common.ServerNodes;
-import com.mpush.tools.Utils;
+import com.mpush.tools.config.ConfigTools;
 
 
 /**
@@ -41,8 +41,8 @@ public interface KickRemoteMsg {
 
     int getTargetPort();
 
-    default boolean isTargetPC() {
-        return this.getTargetPort() == ServerNodes.GS.getPort()
-                && this.getTargetServer().equals(Utils.getLocalIp());
+    default boolean isTargetMachine(String host, int port) {
+        return this.getTargetPort() == port
+                && this.getTargetServer().equals(host);
     }
 }

@@ -8,11 +8,11 @@
     <parent>
         <artifactId>mpush</artifactId>
         <groupId>com.github.mpusher</groupId>
-        <version>0.7.1</version>
+        <version>0.8.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>mpush-zk</artifactId>
-    <version>${mpush-zk-version}</version>
     <packaging>jar</packaging>
     <name>mpush-zookeeper</name>
     <description>MPUSH消息推送系统zookeeper集群控制模块</description>
@@ -20,8 +20,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
-            <artifactId>mpush-tools</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>mpush-monitor</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.curator</groupId>

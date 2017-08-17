@@ -7,11 +7,11 @@
     <parent>
         <artifactId>mpush</artifactId>
         <groupId>com.github.mpusher</groupId>
-        <version>0.7.1</version>
+        <version>0.8.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>mpush-tools</artifactId>
-    <version>${mpush-tools-version}</version>
     <packaging>jar</packaging>
     <name>mpush-tools</name>
     <description>MPUSH消息推送系统工具库</description>
@@ -37,7 +37,7 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>${mpush.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mpush-api</artifactId>
         </dependency>
         <dependency>
@@ -63,6 +63,14 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

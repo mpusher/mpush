@@ -35,6 +35,7 @@ import com.mpush.common.message.ErrorMessage;
 import com.mpush.common.message.OkMessage;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.router.RemoteRouterManager;
+import com.mpush.core.MPushServer;
 import com.mpush.core.router.LocalRouter;
 import com.mpush.core.router.LocalRouterManager;
 import com.mpush.core.router.RouterCenter;
@@ -47,7 +48,14 @@ import com.mpush.tools.log.Logs;
  * @author ohun@live.cn
  */
 public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
-    private BindValidator validator = BindValidatorFactory.create();
+    private final BindValidator bindValidator = BindValidatorFactory.create();
+
+    private RouterCenter routerCenter;
+
+    public BindUserHandler(MPushServer mPushServer) {
+        this.routerCenter = mPushServer.getRouterCenter();
+        this.bindValidator.init(mPushServer);
+    }
 
     @Override
     public BindUserMessage decode(Packet packet, Connection connection) {
@@ -83,17 +91,23 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                     unbind(message);
                 }
             }
-            //2.如果握手成功，就把用户链接信息注册到路由中心，本地和远程各一份
-            boolean success = validator.validate(message.userId) && RouterCenter.I.register(message.userId, message.getConnection());
+
+            //验证用户身份
+            boolean success = bindValidator.validate(message.userId, message.data);
+            if (success) {
+                //2.如果握手成功，就把用户链接信息注册到路由中心，本地和远程各一份
+                success = routerCenter.register(message.userId, message.getConnection());
+            }
+
             if (success) {
                 context.userId = message.userId;
                 context.tags = message.tags;
-                EventBus.I.post(new UserOnlineEvent(message.getConnection(), message.userId));
+                EventBus.post(new UserOnlineEvent(message.getConnection(), message.userId));
                 OkMessage.from(message).setData("bind success").sendRaw();
                 Logs.CONN.info("bind user success, userId={}, session={}", message.userId, context);
             } else {
                 //3.注册失败再处理下，防止本地注册成功，远程注册失败的情况，只有都成功了才叫成功
-                RouterCenter.I.unRegister(message.userId, context.getClientType());
+                routerCenter.unRegister(message.userId, context.getClientType());
                 ErrorMessage.from(message).setReason("bind failed").close();
                 Logs.CONN.info("bind user failure, userId={}, session={}", message.userId, context);
             }
@@ -122,7 +136,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             boolean unRegisterSuccess = true;
             int clientType = context.getClientType();
             String userId = context.userId;
-            RemoteRouterManager remoteRouterManager = RouterCenter.I.getRemoteRouterManager();
+            RemoteRouterManager remoteRouterManager = routerCenter.getRemoteRouterManager();
             RemoteRouter remoteRouter = remoteRouterManager.lookup(userId, clientType);
             if (remoteRouter != null) {
                 String deviceId = remoteRouter.getRouteValue().getDeviceId();
@@ -131,7 +145,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 }
             }
             //3.删除本地路由信息
-            LocalRouterManager localRouterManager = RouterCenter.I.getLocalRouterManager();
+            LocalRouterManager localRouterManager = routerCenter.getLocalRouterManager();
             LocalRouter localRouter = localRouterManager.lookup(userId, clientType);
             if (localRouter != null) {
                 String deviceId = localRouter.getRouteValue().getSessionContext().deviceId;
@@ -144,7 +158,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             if (unRegisterSuccess) {
                 context.userId = null;
                 context.tags = null;
-                EventBus.I.post(new UserOfflineEvent(message.getConnection(), userId));
+                EventBus.post(new UserOfflineEvent(message.getConnection(), userId));
                 OkMessage.from(message).setData("unbind success").sendRaw();
                 Logs.CONN.info("unbind user success, userId={}, session={}", userId, context);
             } else {
@@ -160,7 +174,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
 
     @Spi(order = 1)
     public static class DefaultBindValidatorFactory implements BindValidatorFactory {
-        private final BindValidator validator = userId -> true;
+        private final BindValidator validator = (userId, data) -> true;
 
         @Override
         public BindValidator get() {

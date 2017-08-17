@@ -19,6 +19,7 @@
 
 package com.mpush.api.push;
 
+import com.mpush.api.MPushContext;
 import com.mpush.api.service.Service;
 import com.mpush.api.spi.client.PusherFactory;
 
@@ -63,5 +64,8 @@ public interface PushSender extends Service {
                 .setUserId(userId)
                 .setCallback(callback)
         );
+    }
+
+    default void setMPushContext(MPushContext context) {
     }
 }

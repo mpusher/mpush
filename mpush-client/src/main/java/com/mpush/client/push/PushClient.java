@@ -19,6 +19,7 @@
 
 package com.mpush.client.push;
 
+import com.mpush.api.MPushContext;
 import com.mpush.api.push.PushContext;
 import com.mpush.api.push.PushException;
 import com.mpush.api.push.PushResult;
@@ -27,7 +28,7 @@ import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
 import com.mpush.api.spi.common.CacheManagerFactory;
 import com.mpush.api.spi.common.ServiceDiscoveryFactory;
-import com.mpush.api.spi.common.ServiceRegistryFactory;
+import com.mpush.client.MPushClient;
 import com.mpush.client.gateway.connection.GatewayConnectionFactory;
 import com.mpush.common.router.CachedRemoteRouterManager;
 import com.mpush.common.router.RemoteRouter;
@@ -35,20 +36,27 @@ import com.mpush.common.router.RemoteRouter;
 import java.util.Set;
 import java.util.concurrent.FutureTask;
 
-/*package*/ final class PushClient extends BaseService implements PushSender {
-    private final GatewayConnectionFactory factory = GatewayConnectionFactory.create();
+public final class PushClient extends BaseService implements PushSender {
+
+    private MPushClient mPushClient;
+
+    private PushRequestBus pushRequestBus;
+
+    private CachedRemoteRouterManager cachedRemoteRouterManager;
+
+    private GatewayConnectionFactory gatewayConnectionFactory;
 
     private FutureTask<PushResult> send0(PushContext ctx) {
         if (ctx.isBroadcast()) {
-            return PushRequest.build(factory, ctx).broadcast();
+            return PushRequest.build(mPushClient, ctx).broadcast();
         } else {
-            Set<RemoteRouter> remoteRouters = CachedRemoteRouterManager.I.lookupAll(ctx.getUserId());
+            Set<RemoteRouter> remoteRouters = cachedRemoteRouterManager.lookupAll(ctx.getUserId());
             if (remoteRouters == null || remoteRouters.isEmpty()) {
-                return PushRequest.build(factory, ctx).onOffline();
+                return PushRequest.build(mPushClient, ctx).onOffline();
             }
             FutureTask<PushResult> task = null;
             for (RemoteRouter remoteRouter : remoteRouters) {
-                task = PushRequest.build(factory, ctx).send(remoteRouter);
+                task = PushRequest.build(mPushClient, ctx).send(remoteRouter);
             }
             return task;
         }
@@ -73,22 +81,35 @@ import java.util.concurrent.FutureTask;
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
+        if (mPushClient == null) {
+            mPushClient = new MPushClient();
+        }
+
+        pushRequestBus = mPushClient.getPushRequestBus();
+        cachedRemoteRouterManager = mPushClient.getCachedRemoteRouterManager();
+        gatewayConnectionFactory = mPushClient.getGatewayConnectionFactory();
+
         ServiceDiscoveryFactory.create().syncStart();
         CacheManagerFactory.create().init();
-        PushRequestBus.I.syncStart();
-        factory.start(listener);
+        pushRequestBus.syncStart();
+        gatewayConnectionFactory.start(listener);
     }
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
         ServiceDiscoveryFactory.create().syncStop();
         CacheManagerFactory.create().destroy();
-        PushRequestBus.I.syncStop();
-        factory.stop(listener);
+        pushRequestBus.syncStop();
+        gatewayConnectionFactory.stop(listener);
     }
 
     @Override
     public boolean isRunning() {
         return started.get();
+    }
+
+    @Override
+    public void setMPushContext(MPushContext context) {
+        this.mPushClient = ((MPushClient) context);
     }
 }

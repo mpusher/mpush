@@ -129,6 +129,11 @@ public final class GatewayPushMessage extends ByteBufMessage implements IPushMes
         return this;
     }
 
+    public GatewayPushMessage setTaskId(String taskId) {
+        this.taskId = taskId;
+        return this;
+    }
+
     @Override
     public boolean isBroadcast() {
         return userId == null;

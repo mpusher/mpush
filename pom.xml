@@ -13,7 +13,7 @@
     <groupId>com.github.mpusher</groupId>
     <artifactId>mpush</artifactId>
     <packaging>pom</packaging>
-    <version>0.7.1</version>
+    <version>0.8.0</version>
     <name>mpush</name>
     <description>MPUSH消息推送系统</description>
     <url>https://github.com/mpusher/mpush</url>
@@ -27,16 +27,26 @@
     </licenses>
 
     <scm>
-        <tag>master</tag>
-        <url>git@github.com:mpusher/mpush.git</url>
-        <connection>scm:git@github.com:mpusher/mpush.git</connection>
-        <developerConnection>scm:git@github.com:mpusher/mpush.git</developerConnection>
+        <tag>v${project.version}</tag>
+        <url>https://github.com/mpusher/mpush</url>
+        <connection>scm:git:git://github.com/mpusher/mpush.git</connection>
+        <developerConnection>scm:git:ssh://github.com/mpusher/mpush.git</developerConnection>
     </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/mpusher/mpush/issues</url>
+    </issueManagement>
+
+    <organization>
+        <name>MPusher, Inc.</name>
+        <url>https://mpusher.io</url>
+    </organization>
 
     <developers>
         <developer>
-            <name>ohun</name>
-            <email>ohun@live.cm</email>
+            <name>夜色</name>
+            <email>ohun@live.cn</email>
             <organization>mpusher</organization>
         </developer>
     </developers>
@@ -60,22 +70,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.encoding>UTF-8</java.encoding>
         <java.version>1.8</java.version>
-        <mpush.groupId>com.github.mpusher</mpush.groupId>
-        <mpush.version>0.7.1</mpush.version>
-        <mpush-api-version>${mpush.version}</mpush-api-version>
-        <mpush-tools-version>${mpush.version}</mpush-tools-version>
-        <mpush-common-version>${mpush.version}</mpush-common-version>
-        <mpush-netty-version>${mpush.version}</mpush-netty-version>
-        <mpush-core-version>${mpush.version}</mpush-core-version>
-        <mpush-client-version>${mpush.version}</mpush-client-version>
-        <mpush-monitor-version>${mpush.version}</mpush-monitor-version>
-        <mpush-log-version>${mpush.version}</mpush-log-version>
-        <mpush-boot-version>${mpush.version}</mpush-boot-version>
-        <mpush-test-version>${mpush.version}</mpush-test-version>
-        <mpush-zk-version>${mpush.version}</mpush-zk-version>
         <netty.version>4.1.8.Final</netty.version>
+        <slf4j.version>1.7.25</slf4j.version>
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
-        <org.mapstruct.version>1.1.0.Final</org.mapstruct.version>
     </properties>
 
 
@@ -124,59 +121,59 @@
             <!-- 子模块依赖 -->
             <!-- ======================================== -->
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-test</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-api</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-tools</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-common</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-netty</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-core</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-client</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-monitor</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-boot</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-zk</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${mpush.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>mpush-cache</artifactId>
-                <version>${mpush.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <!-- ================================================= -->
             <!-- 日志 -->
@@ -184,17 +181,30 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.22</version>
+                <version>${slf4j.version}</version>
             </dependency>
+            <!--log4j dispatch to slf4j-->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <!--java.util.log dispatch to slf4j-->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jul-to-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <!--common logging dispatch to slf4j-->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
-                <version>1.7.22</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.1.8</version>
+                <version>1.2.3</version>
             </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>
@@ -222,7 +232,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.5</version>
+                <version>3.6</version>
             </dependency>
             <!-- guava -->
             <dependency>
@@ -234,7 +244,7 @@
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
-                <version>1.2.23</version>
+                <version>1.2.36</version>
             </dependency>
             <!-- zookeeper client -->
             <dependency>
@@ -287,28 +297,23 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.2</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${java.encoding}</encoding>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${org.mapstruct.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
                 <configuration>
                     <encoding>${java.encoding}</encoding>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
@@ -331,56 +336,6 @@
             <properties>
                 <deploy.env>pub</deploy.env>
             </properties>
-        </profile>
-        <profile>
-            <id>release</id>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-                </snapshotRepository>
-            </distributionManagement>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>

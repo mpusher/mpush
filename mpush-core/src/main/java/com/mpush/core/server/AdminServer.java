@@ -19,6 +19,7 @@
 
 package com.mpush.core.server;
 
+import com.mpush.core.MPushServer;
 import com.mpush.core.handler.AdminHandler;
 import com.mpush.netty.server.NettyTCPServer;
 import com.mpush.tools.config.CC;
@@ -31,27 +32,20 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
 public final class AdminServer extends NettyTCPServer {
-    private static AdminServer I;
 
     private AdminHandler adminHandler;
 
-    public static AdminServer I() {
-        if (I == null) {
-            synchronized (AdminServer.class) {
-                I = new AdminServer();
-            }
-        }
-        return I;
-    }
+    private MPushServer mPushServer;
 
-    private AdminServer() {
+    public AdminServer(MPushServer mPushServer) {
         super(CC.mp.net.admin_server_port);
+        this.mPushServer = mPushServer;
     }
 
     @Override
     public void init() {
         super.init();
-        this.adminHandler = new AdminHandler();
+        this.adminHandler = new AdminHandler(mPushServer);
     }
 
     @Override

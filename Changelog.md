@@ -1,3 +1,19 @@
+#### v0.8.0
+
+1. 增加本地ip和外网ip配置项
+2. ConnServer和GatewayServer增加bind ip和register ip 配置项
+3. ConnServer增加权重等扩展属性配置项
+4. 系统模块化重构：SPI增加Plugin接口及其init方法，增加MPushContext对象，方便插件初始化时控制系统内部对象
+5. 广播推送增加RedisBroadcastController存储推送结果到redis, 并通过redis控制推送任务
+6. 启动脚本优化修复不能加载自定义SPI的bug
+7. EventBus订阅方法增加@AllowConcurrentEvents注解，提高高并发性能
+8. 代码优化，当GatewayClient启动时从ZK获取的链接为空时，后续会尝试重新获取
+9. 优化ServerLauncher和PushClient代码，方便自定义系统配置和spring方式启动
+10. 依赖类库升级，日志优化，及其他bug fix
+
+
+
+
 #### v0.7.1
 
 1. 修复网关客户端获取连接失败bug

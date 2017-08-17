@@ -24,7 +24,7 @@ import com.mpush.tools.log.Logs;
 public class Main {
 
     /**
-     * 源码启动请不要直接运行此方法，负载不能正确加载配置文件
+     * 源码启动请不要直接运行此方法，否则不能正确加载配置文件
      *
      * @param args 启动参数
      */
@@ -32,6 +32,7 @@ public class Main {
         Logs.init();
         Logs.Console.info("launch mpush server...");
         ServerLauncher launcher = new ServerLauncher();
+        launcher.init();
         launcher.start();
         addHook(launcher);
     }

@@ -19,6 +19,7 @@
 
 package com.mpush.tools.thread.pool;
 
+import com.mpush.tools.Utils;
 import com.mpush.tools.common.JVMUtil;
 import com.mpush.tools.config.CC;
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public final class DumpThreadRejectedHandler implements RejectedExecutionHandler
 
     @Override
     public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
-        LOGGER.warn("one task rejected, poolConfig={}, poolInfo={}", poolConfig, ThreadPoolManager.getPoolInfo(e));
+        LOGGER.warn("one task rejected, poolConfig={}, poolInfo={}", poolConfig, Utils.getPoolInfo(e));
         if (!dumping) {
             dumping = true;
             dumpJVMInfo();

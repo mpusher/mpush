@@ -41,9 +41,9 @@ public final class ZKClientTest {
         ServiceRegistry registry = ServiceRegistryFactory.create();
         registry.syncStart();
 
-        registry.register(ServerNodes.GS);
-        registry.register(ServerNodes.GS);
-        registry.deregister(ServerNodes.GS);
+        registry.register(ServerNodes.gs());
+        registry.register(ServerNodes.gs());
+        registry.deregister(ServerNodes.gs());
         LockSupport.park();
     }
 
@@ -78,8 +78,8 @@ public final class ZKClientTest {
     @Test
     public void testZK() throws Exception {
         ZKClient.I.syncStart();
-        ZKClient.I.registerEphemeral(ServerNodes.GS.serviceName(), "3");
-        ZKClient.I.registerEphemeral(ServerNodes.GS.serviceName(), "4");
+        ZKClient.I.registerEphemeral(ServerNodes.gs().serviceName(), "3");
+        ZKClient.I.registerEphemeral(ServerNodes.gs().serviceName(), "4");
         System.err.println("==================" + ZKClient.I.getChildrenKeys(ServiceNames.GATEWAY_SERVER));
         List<String> rawData = ZKClient.I.getChildrenKeys(ServiceNames.GATEWAY_SERVER);
         if (rawData == null || rawData.isEmpty()) {
