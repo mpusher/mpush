@@ -28,7 +28,7 @@ import com.mpush.api.srd.ServiceRegistry;
  *
  * @author ohun@live.cn (夜色)
  */
-@Spi(order = 0)
+@Spi(order = 2)
 public final class SimpleRegistryFactory implements ServiceRegistryFactory {
     @Override
     public ServiceRegistry get() {

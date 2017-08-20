@@ -28,7 +28,7 @@ import com.mpush.api.spi.common.MQMessageReceiver;
  *
  * @author ohun@live.cn (夜色)
  */
-@Spi(order = 0)
+@Spi(order = 2)
 public final class SimpleMQClientFactory implements com.mpush.api.spi.common.MQClientFactory {
     private MQClient mqClient = new MQClient() {
         @Override
