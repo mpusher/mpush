@@ -22,6 +22,7 @@ package com.mpush.test.spi;
 import com.mpush.api.Constants;
 import com.mpush.api.spi.common.CacheManager;
 import com.mpush.tools.Jsons;
+import com.mpush.tools.log.Logs;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,6 +48,7 @@ public final class FileCacheManger implements CacheManager {
 
     @Override
     public void init() {
+        Logs.Console.warn("你正在使用的CacheManager只能用于源码测试，生产环境请使用redis 3.x.");
         try {
             Path dir = Paths.get(this.getClass().getResource("/").toURI());
             this.cacheFile = Paths.get(dir.toString(), "cache.dat");

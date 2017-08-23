@@ -21,8 +21,10 @@ package com.mpush.test.spi;
 
 import com.google.common.collect.Lists;
 import com.mpush.api.service.BaseService;
+import com.mpush.api.service.Listener;
 import com.mpush.api.srd.*;
 import com.mpush.tools.Jsons;
+import com.mpush.tools.log.Logs;
 
 import java.util.List;
 
@@ -36,8 +38,26 @@ public final class FileSrd extends BaseService implements ServiceRegistry, Servi
     public static final FileSrd I = new FileSrd();
 
     @Override
-    public void init() {
+    public void start(Listener listener) {
+        if (isRunning()) {
+            listener.onSuccess();
+        } else {
+            super.start(listener);
+        }
+    }
 
+    @Override
+    public void stop(Listener listener) {
+        if (isRunning()) {
+            super.stop(listener);
+        } else {
+            listener.onSuccess();
+        }
+    }
+
+    @Override
+    public void init() {
+        Logs.Console.warn("你正在使用的ServiceRegistry和ServiceDiscovery只能用于源码测试，生产环境请使用zookeeper.");
     }
 
     @Override

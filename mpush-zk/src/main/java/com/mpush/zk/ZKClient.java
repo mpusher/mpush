@@ -64,6 +64,15 @@ public class ZKClient extends BaseService {
     }
 
     @Override
+    public void stop(Listener listener) {
+        if (isRunning()) {
+            super.stop(listener);
+        } else {
+            listener.onSuccess();
+        }
+    }
+
+    @Override
     protected void doStart(Listener listener) throws Throwable {
         client.start();
         Logs.RSD.info("init zk client waiting for connected...");
