@@ -155,8 +155,8 @@ public abstract class BaseService implements Service {
     /**
      * 防止Listener被重复执行
      *
-     * @param l
-     * @return
+     * @param l listener
+     * @return FutureListener
      */
     public FutureListener wrap(Listener l) {
         if (l == null) return new FutureListener(started);
