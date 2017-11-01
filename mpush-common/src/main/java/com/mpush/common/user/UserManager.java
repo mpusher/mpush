@@ -91,7 +91,7 @@ public final class UserManager {
         //上线后，修改离线时间的值为0
 
         String user_id = mc.selectOne("select user_id from m_user where device_id=\"" + userId + "\"");
-        System.out.println("-----用户上线后，查询出的用户id--------"+user_id);
+        System.out.println("-----用户上线后，查询出的用户id--------" + user_id);
         if (StringUtils.isNotBlank(user_id)) {
             String result = mc.selectOne("select user_last_time_id from m_user_online_time where user_id=\"" + user_id + "\"");
             if (result != null) {
