@@ -4,7 +4,7 @@
 * 文档：[http://mpush.mydoc.io](http://mpush.mydoc.io)
 * QQ群：__114583699__ <a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=1de86266c76d00c246c3c7f29cc002667d1c26fcc2f14d2a7b75b3126708e2e1"><img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="MPUSH开源消息推送系统" title="MPUSH开源消息推送系统"></a>
 
-## 源码链接
+## 源码
 * group [https://github.com/mpusher/](https://github.com/mpusher/) 源代码空间
 * server [https://github.com/mpusher/mpush](https://github.com/mpusher/mpush) 服务端源码
 * alloc [https://github.com/mpusher/alloc](https://github.com/mpusher/alloc)  调度器源码
