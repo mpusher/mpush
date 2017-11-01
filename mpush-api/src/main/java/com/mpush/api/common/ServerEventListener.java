@@ -32,7 +32,7 @@ public interface ServerEventListener extends Plugin {
     /**
      * 该事件通过guava EventBus发出，实现接口的方法必须增加
      *
-     * <code>@Subscribe 和 @AllowConcurrentEvents</code>注解，
+     * @Subscribe 和 @AllowConcurrentEvents注解，
      * 并在构造函数调用EventBus.register(this);
      */
     default void on(ServerStartupEvent event) {
@@ -41,7 +41,7 @@ public interface ServerEventListener extends Plugin {
     /**
      * 该事件通过guava EventBus发出，实现接口的方法必须增加
      *
-     * <code>@Subscribe 和 @AllowConcurrentEvents</code>注解，
+     * @Subscribe 和 @AllowConcurrentEvents注解，
      * 并在构造函数调用EventBus.register(this);
      */
     default void on(ServerShutdownEvent server) {
@@ -50,7 +50,7 @@ public interface ServerEventListener extends Plugin {
     /**
      * 该事件通过guava EventBus发出，实现接口的方法必须增加
      *
-     * <code>@Subscribe 和 @AllowConcurrentEvents</code>注解，
+     * @Subscribe 和 @AllowConcurrentEvents注解，
      * 并在构造函数调用EventBus.register(this);
      */
     default void on(RouterChangeEvent event) {
@@ -59,7 +59,7 @@ public interface ServerEventListener extends Plugin {
     /**
      * 该事件通过guava EventBus发出，实现接口的方法必须增加
      *
-     * <code>@Subscribe 和 @AllowConcurrentEvents</code>注解，
+     * @Subscribe 和 @AllowConcurrentEvents注解，
      * 并在构造函数调用EventBus.register(this);
      */
     default void on(KickUserEvent event) {
@@ -68,7 +68,7 @@ public interface ServerEventListener extends Plugin {
     /**
      * 该事件通过guava EventBus发出，实现接口的方法必须增加
      *
-     * <code>@Subscribe 和 @AllowConcurrentEvents</code>注解，
+     * @Subscribe 和 @AllowConcurrentEvents注解，
      * 并在构造函数调用EventBus.register(this);
      */
     default void on(UserOnlineEvent event) {
@@ -77,7 +77,7 @@ public interface ServerEventListener extends Plugin {
     /**
      * 该事件通过guava EventBus发出，实现接口的方法必须增加
      *
-     * <code>@Subscribe 和 @AllowConcurrentEvents</code>注解，
+     * @Subscribe 和 @AllowConcurrentEvents注解，
      * 并在构造函数调用EventBus.register(this);
      */
     default void on(UserOfflineEvent event) {

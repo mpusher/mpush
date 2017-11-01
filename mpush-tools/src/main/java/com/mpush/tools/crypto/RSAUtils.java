@@ -392,7 +392,7 @@ public final class RSAUtils {
         System.out.println("publicKey=" + RSAUtils.encodeBase64(publicKey));
 
         //明文
-        byte[] ming = "这是一段测试文字。。。。".getBytes(Constants.UTF_8);
+        byte[] ming = "济南联通项目".getBytes(Constants.UTF_8);
         System.out.println("明文:" + new String(ming, Constants.UTF_8));
 
         //加密后的密文

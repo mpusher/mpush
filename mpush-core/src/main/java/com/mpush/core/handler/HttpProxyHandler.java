@@ -27,11 +27,14 @@ import com.mpush.api.spi.net.DnsMappingManager;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.HttpRequestMessage;
 import com.mpush.common.message.HttpResponseMessage;
+import com.mpush.common.qps.GlobalFlowControl;
 import com.mpush.core.MPushServer;
+import com.mpush.core.push.SingleUserPushTask;
 import com.mpush.netty.http.HttpCallback;
 import com.mpush.netty.http.HttpClient;
 import com.mpush.netty.http.RequestContext;
 import com.mpush.tools.common.Profiler;
+import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -133,6 +136,8 @@ public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {
                 }
             }
             response.send();
+            Logs.PUSH.info("推送信息成功");
+
             Logs.HTTP.info("send proxy request success end request={}, response={}", request, response);
         }
 

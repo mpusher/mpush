@@ -281,7 +281,15 @@
                 <artifactId>javassist</artifactId>
                 <version>3.21.0-GA</version>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>5.1.43</version>
+            </dependency>
+
         </dependencies>
+
     </dependencyManagement>
 
     <dependencies>

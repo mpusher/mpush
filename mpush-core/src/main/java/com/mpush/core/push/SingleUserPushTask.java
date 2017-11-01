@@ -23,6 +23,7 @@ import com.mpush.api.message.Message;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.spi.push.IPushMessage;
 import com.mpush.common.message.PushMessage;
+import com.mpush.common.druid.MysqlConnecter;
 import com.mpush.common.qps.FlowControl;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.core.MPushServer;
@@ -33,6 +34,7 @@ import com.mpush.tools.log.Logs;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ScheduledExecutorService;
 
 
@@ -97,7 +99,7 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
             if (System.currentTimeMillis() - start > message.getTimeoutMills()) {
 
                 mPushServer.getPushCenter().getPushListener().onTimeout(message, timeLine.timeoutEnd().getTimePoints());
-
+                Logs.PUSH.info("push 超时");
                 Logs.PUSH.info("[SingleUserPush] push message to client timeout, timeLine={}, message={}", timeLine, message);
                 return true;
             }
@@ -120,13 +122,16 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
         LocalRouter localRouter = mPushServer.getRouterCenter().getLocalRouterManager().lookup(userId, clientType);
 
         //1.如果本机不存在，再查下远程，看用户是否登陆到其他机器
-        if (localRouter == null) return false;
+        if (localRouter == null){
+            Logs.PUSH.info("如果本机不存在，再查下远程，看用户是否登陆到其他机器");
+            return false;
+        }
 
         Connection connection = localRouter.getRouteValue();
 
         //2.如果链接失效，先删除本地失效的路由，再查下远程路由，看用户是否登陆到其他机器
         if (!connection.isConnected()) {
-
+            Logs.PUSH.info("如果链接失效，先删除本地失效的路由，再查下远程路由，看用户是否登陆到其他机器");
             Logs.PUSH.warn("[SingleUserPush] find local router but conn disconnected, message={}, conn={}", message, connection);
 
             //删除已经失效的本地路由
@@ -138,7 +143,7 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
         //3.检测TCP缓冲区是否已满且写队列超过最高阀值
         if (!connection.getChannel().isWritable()) {
             mPushServer.getPushCenter().getPushListener().onFailure(message, timeLine.failureEnd().getTimePoints());
-
+            Logs.PUSH.info("检测TCP缓冲区是否已满且写队列超过最高阀值");
             Logs.PUSH.error("[SingleUserPush] push message to client failure, tcp sender too busy, message={}, conn={}", message, connection);
             return true;
         }
@@ -147,11 +152,24 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
         if (flowControl.checkQps()) {
             timeLine.addTimePoint("before-send");
             //5.链接可用，直接下发消息到手机客户端
+            String pushMessageDetail = null;
+            try {
+                pushMessageDetail = new String(message.getContent(),"UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            Logs.PUSH.info("链接可用，直接下发消息到手机客户端："+pushMessageDetail);
+//            //处理截取推送内容
+//            String[] strArray = pushMessageDetail.split("say:");
+//            strArray = strArray[1].split("\\\\");
+//            System.out.println(strArray[0]);
+
             PushMessage pushMessage = PushMessage.build(connection).setContent(message.getContent());
             pushMessage.getPacket().addFlag(message.getFlags());
             messageId = pushMessage.getSessionId();
             pushMessage.send(this);
         } else {//超过流控限制, 进队列延后发送
+            Logs.PUSH.info("超过流控限制, 进队列延后发送");
             mPushServer.getPushCenter().delayTask(flowControl.getDelay(), this);
         }
         return true;
@@ -172,7 +190,25 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
 
         // 1.如果远程路由信息也不存在, 说明用户此时不在线，
         if (remoteRouter == null || remoteRouter.isOffline()) {
+            String pushMessage = null;
+            try {
+                pushMessage = new String(message.getContent(),"UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
 
+            MysqlConnecter mc = new MysqlConnecter();
+            String mobile = mc.selectOne("select mobile from m_user where device_id=\""+message.getUserId()+"\"");
+
+            Logs.PUSH.info("路由信息不存在，mobile:"+mobile+",content:"+pushMessage);
+            /**
+             * 关于推送失败的解决思路
+             * 1.用户设备号在数据库中不存在：舍弃
+             * 2.用户设备号在数据库中存在，但没有绑定过用户，直接发短信
+             * 3.用户设备号在数据库中存在，绑定过用户，不在线，直接发短信
+             * 4.用户设备号在数据库中存在，绑定过用户，在线
+             *      4.1走推送，在这个位置加入发短信的接口，因为这里会判断用户是否在线。
+             */
             mPushServer.getPushCenter().getPushListener().onOffline(message, timeLine.end("offline-end").getTimePoints());
 
             Logs.PUSH.info("[SingleUserPush] remote router not exists user offline, message={}", message);
@@ -182,7 +218,10 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
 
         //2.如果查出的远程机器是当前机器，说明路由已经失效，此时用户已下线，需要删除失效的缓存
         if (remoteRouter.getRouteValue().isThisMachine(mPushServer.getGatewayServerNode().getHost(), mPushServer.getGatewayServerNode().getPort())) {
-
+            Logs.PUSH.info("路由失效");
+            /**
+             * 这块是采用分布式才会用到
+             */
             mPushServer.getPushCenter().getPushListener().onOffline(message, timeLine.end("offline-end").getTimePoints());
 
             //删除失效的远程缓存
@@ -196,7 +235,10 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
 
         //3.否则说明用户已经跑到另外一台机器上了；路由信息发生更改，让PushClient重推
         mPushServer.getPushCenter().getPushListener().onRedirect(message, timeLine.end("redirect-end").getTimePoints());
-
+        Logs.PUSH.info("路由发生更改");
+        /**
+         * 这块采用分布式才会用到
+         */
         Logs.PUSH.info("[SingleUserPush] find router in another pc, userId={}, clientType={}, router={}", userId, clientType, remoteRouter);
 
     }
@@ -213,9 +255,25 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
                 mPushServer.getPushCenter().getPushListener().onSuccess(message, timeLine.successEnd().getTimePoints());
             }
 
+            Logs.PUSH.info("这里应该是单推");
             Logs.PUSH.info("[SingleUserPush] push message to client success, timeLine={}, message={}", timeLine, message);
 
         } else {//推送失败
+
+            /**
+             * 推送失败，这里加入发短信接口
+             */
+            String pushMessage = null;
+            try {
+                pushMessage = new String(message.getContent(),"UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
+            MysqlConnecter mc = new MysqlConnecter();
+            String mobile = mc.selectOne("select mobile from m_user where device_id=\""+message.getUserId()+"\"");
+
+            Logs.PUSH.info("推送失败，mobile："+mobile+",content:"+pushMessage);
 
             mPushServer.getPushCenter().getPushListener().onFailure(message, timeLine.failureEnd().getTimePoints());
 

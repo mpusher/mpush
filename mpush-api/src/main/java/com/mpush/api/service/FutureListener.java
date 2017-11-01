@@ -35,16 +35,11 @@ public class FutureListener extends CompletableFuture<Boolean> implements Listen
                 : new ServiceException(cause);
     }
 
-    /**
-     * 防止服务长时间卡在某个地方，增加超时监控
-     *
-     * @param service 服务
-     */
     public void monitor(BaseService service) {
         if (isDone()) return;// 防止Listener被重复执行
         runAsync(() -> {
             try {
-                this.get(service.timeoutMillis(), TimeUnit.MILLISECONDS);
+                this.get(10, TimeUnit.SECONDS);
             } catch (Exception e) {
                 this.onFailure(new ServiceException(String.format("service %s monitor timeout", service.getClass().getSimpleName())));
             }

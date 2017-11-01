@@ -19,6 +19,8 @@
 
 package com.mpush.core.server;
 
+import com.mpush.common.mysql.DateUtils;
+import com.mpush.common.druid.MysqlConnecter;
 import com.mpush.core.MPushServer;
 import com.mpush.core.handler.AdminHandler;
 import com.mpush.netty.server.NettyTCPServer;
@@ -45,6 +47,15 @@ public final class AdminServer extends NettyTCPServer {
     @Override
     public void init() {
         super.init();
+
+        //初始化用户离线
+        MysqlConnecter mc = new MysqlConnecter();
+        mc.update("update m_user set is_online=1");
+        //初始化服务不正常停止后的用户离线时间
+        DateUtils dateUtils = new DateUtils();
+        String now = dateUtils.getNow(dateUtils.FORMAT_LONG);
+        mc.update("update m_user_online_time set create_time=\""+now+"\" where create_time=\"0000-00-00 00:00:00\"");
+
         this.adminHandler = new AdminHandler(mPushServer);
     }
 

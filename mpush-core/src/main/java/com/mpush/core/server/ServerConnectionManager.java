@@ -22,6 +22,8 @@ package com.mpush.core.server;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.ConnectionManager;
+import com.mpush.common.mysql.DateUtils;
+import com.mpush.common.druid.MysqlConnecter;
 import com.mpush.netty.connection.NettyConnection;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
@@ -32,6 +34,7 @@ import io.netty.channel.ChannelId;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.TimerTask;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -157,12 +160,35 @@ public final class ServerConnectionManager implements ConnectionManager {
         public void run(Timeout timeout) throws Exception {
             Connection connection = this.connection;
 
+            //用户掉线，connection 为 null
+            //System.out.println("用户心跳超时在这里："+connection);
+
             if (connection == null || !connection.isConnected()) {
                 Logs.HB.info("heartbeat timeout times={}, connection disconnected, conn={}", timeoutTimes, connection);
                 return;
             }
 
             if (connection.isReadTimeout()) {
+//                System.out.println("用户心跳超时在这里："+connection);
+//                String userId = connection.getSessionContext().userId;
+//                System.out.println("用户心跳超时的设备号："+userId);
+//                MysqlConnecter mc = new MysqlConnecter();
+//                mc.update("update m_user set is_online=1 where device_id=\""+userId+"\"");
+//
+//                // 用户离线，确认离线时间
+//                String user_id = mc.selectOne("select user_id from m_user where device_id=\""+userId+"\"");
+//                System.out.println("-----用户超时后，查询出的用户id--------"+user_id);
+//                if(StringUtils.isNotBlank(user_id)){
+//                    String result = mc.selectOne("select user_last_time_id from m_user_online_time where user_id=\""+user_id+"\"");
+//                    DateUtils dateUtils = new DateUtils();
+//                    String now = dateUtils.getNow(dateUtils.FORMAT_LONG);
+//                    if (result!=null){
+//                        mc.update("update m_user_online_time set create_time=\""+now+"\" where user_last_time_id=\""+result+"\"");
+//                    }else {
+//                        mc.update("insert into m_user_online_time(user_id,create_time) values(\""+user_id+"\",\""+now+"\")");
+//                    }
+//                }
+
                 if (++timeoutTimes > CC.mp.core.max_hb_timeout_times) {
                     connection.close();
                     Logs.HB.warn("client heartbeat timeout times={}, do close conn={}", timeoutTimes, connection);

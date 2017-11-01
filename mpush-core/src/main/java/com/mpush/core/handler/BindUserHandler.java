@@ -74,6 +74,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
     private void bind(BindUserMessage message) {
         if (Strings.isNullOrEmpty(message.userId)) {
             ErrorMessage.from(message).setReason("invalid param").close();
+            System.out.println("绑定用户失败：userId="+message.userId+"--conon--"+message.getConnection());
             Logs.CONN.error("bind user failure for invalid param, conn={}", message.getConnection());
             return;
         }
@@ -85,6 +86,11 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 if (message.userId.equals(context.userId)) {
                     context.tags = message.tags;
                     OkMessage.from(message).setData("bind success").sendRaw();
+                    System.out.println("重复绑定用户在这里：userId="+message.userId);
+//                    MysqlConnecter mc = new MysqlConnecter();
+//                    String sql = "update m_user set is_online=2 where device_id=\""+message.userId+"\"";
+//                    System.out.println(sql);
+//                    mc.update(sql);
                     Logs.CONN.info("rebind user success, userId={}, session={}", message.userId, context);
                     return;
                 } else {
@@ -104,6 +110,11 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 context.tags = message.tags;
                 EventBus.post(new UserOnlineEvent(message.getConnection(), message.userId));
                 OkMessage.from(message).setData("bind success").sendRaw();
+                System.out.println("绑定用户成功在这里"+message.userId);
+//                MysqlConnecter mc = new MysqlConnecter();
+//                String sql = "update m_user set is_online=2 where device_id=\""+message.userId+"\"";
+//                System.out.println(sql);
+//                mc.update(sql);
                 Logs.CONN.info("bind user success, userId={}, session={}", message.userId, context);
             } else {
                 //3.注册失败再处理下，防止本地注册成功，远程注册失败的情况，只有都成功了才叫成功
@@ -160,6 +171,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 context.tags = null;
                 EventBus.post(new UserOfflineEvent(message.getConnection(), userId));
                 OkMessage.from(message).setData("unbind success").sendRaw();
+                System.out.println("解除绑定用户在这里"+userId);
                 Logs.CONN.info("unbind user success, userId={}, session={}", userId, context);
             } else {
                 ErrorMessage.from(message).setReason("unbind failed").sendRaw();

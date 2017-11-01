@@ -351,5 +351,25 @@ public interface CC {
             boolean profile_enabled = cfg.getBoolean("profile-enabled");
             Duration profile_slowly_duration = cfg.getDuration("profile-slowly-duration");
         }
+
+//        interface mysql{
+//            Config cfg = mp.cfg.getObject("mysql").toConfig();
+//            String username = cfg.getString("username");
+//            String password = cfg.getString("password");
+//            String dbname = cfg.getString("dbname");
+//            String driver = cfg.getString("driver");
+//            String url = cfg.getString("url");
+//            int tablelen = cfg.getInt("tablelen");
+//        }
+
+        interface druid{
+            Config cfg = mp.cfg.getObject("druid").toConfig();
+            String driverClassName = cfg.getString("driverClassName");
+            String url = cfg.getString("url");
+            String username = cfg.getString("username");
+            String password = cfg.getString("password");
+            String maxActive = cfg.getString("maxActive");
+        }
+
     }
 }

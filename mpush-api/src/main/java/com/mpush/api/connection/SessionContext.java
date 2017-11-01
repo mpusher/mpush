@@ -88,10 +88,6 @@ public final class SessionContext {
 
     @Override
     public String toString() {
-        if (userId == null && deviceId == null) {
-            return "";
-        }
-
         return "{" +
                 "osName='" + osName + '\'' +
                 ", osVersion='" + osVersion + '\'' +
