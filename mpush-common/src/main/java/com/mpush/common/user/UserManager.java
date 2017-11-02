@@ -82,7 +82,28 @@ public final class UserManager {
 
     public void addToOnlineList(String userId) {
         cacheManager.zAdd(onlineUserListKey, userId);
+<<<<<<< HEAD
         LOGGER.info("user online {}", userId);
+=======
+        System.out.println("用户上线在这里" + userId);
+        MysqlConnecter mc = new MysqlConnecter();
+        mc.update("update m_user set is_online=2 where device_id=\"" + userId + "\"");
+
+        //上线后，修改离线时间的值为0
+
+        String user_id = mc.selectOne("select user_id from m_user where device_id=\"" + userId + "\"");
+        System.out.println("-----用户上线后，查询出的用户id--------"+user_id);
+        if (StringUtils.isNotBlank(user_id)) {
+            String result = mc.selectOne("select user_last_time_id from m_user_online_time where user_id=\"" + user_id + "\"");
+            if (result != null) {
+                mc.update("update m_user_online_time set create_time=0 where user_last_time_id=\"" + result + "\"");
+            } else {
+                mc.update("insert into m_user_online_time(user_id,create_time) values(\"" + user_id + "\",\"0\")");
+            }
+
+            LOGGER.info("user online {}", userId);
+        }
+>>>>>>> parent of ea505e24... 添加数据库
     }
 
     public void remFormOnlineList(String userId) {
