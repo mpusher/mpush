@@ -22,7 +22,6 @@ package com.mpush.netty.http;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
 import com.mpush.tools.config.CC;
-import com.mpush.tools.log.Logs;
 import com.mpush.tools.thread.NamedThreadFactory;
 import com.mpush.tools.thread.ThreadNames;
 import io.netty.bootstrap.Bootstrap;
@@ -103,7 +102,6 @@ public class NettyHttpClient extends BaseService implements HttpClient {
     }
 
     private void writeRequest(Channel channel, RequestContext context) {
-
         channel.attr(requestKey).set(context);
         pool.attachHost(context.host, channel);
         channel.writeAndFlush(context.request).addListener((ChannelFutureListener) future -> {

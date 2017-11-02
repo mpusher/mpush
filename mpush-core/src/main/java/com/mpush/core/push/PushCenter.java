@@ -31,7 +31,6 @@ import com.mpush.common.qps.RedisFlowControl;
 import com.mpush.monitor.jmx.MBeanRegistry;
 import com.mpush.monitor.jmx.mxbean.PushCenterBean;
 import com.mpush.tools.config.CC;
-import com.mpush.tools.log.Logs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +77,6 @@ public final class PushCenter extends BaseService implements MessagePusher {
                     : new RedisFlowControl(message.getTaskId(), max);
             addTask(new BroadcastPushTask(mPushServer, message, flowControl));
         } else {
-            Logs.PUSH.info("单推是从这里下去的");
             addTask(new SingleUserPushTask(mPushServer, message, globalFlowControl));
         }
     }

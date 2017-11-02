@@ -146,10 +146,8 @@ public final class BroadcastPushTask implements PushTask {
     private void operationComplete(ChannelFuture future, String userId) throws Exception {
         if (future.isSuccess()) {//推送成功
             successUserIds.add(userId);
-            System.out.println("推送信息成功在这里userId="+userId);
             Logs.PUSH.info("[Broadcast] push message to client success, userId={}, message={}", message.getUserId(), message);
         } else {//推送失败
-            System.out.println("推送信息失败在这里userId="+userId);
             Logs.PUSH.warn("[Broadcast] push message to client failure, userId={}, message={}, conn={}", message.getUserId(), message, future.channel());
         }
         if (finishTasks.decrementAndGet() == 0) {

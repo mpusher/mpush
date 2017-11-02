@@ -57,6 +57,7 @@ public final class ServerLauncher {
         chain.boot()
                 .setNext(new CacheManagerBoot())//1.初始化缓存模块
                 .setNext(new ServiceRegistryBoot())//2.启动服务注册与发现模块
+                .setNext(new ServiceDiscoveryBoot())//2.启动服务注册与发现模块
                 .setNext(new ServerBoot(mPushServer.getConnectionServer(), mPushServer.getConnServerNode()))//3.启动接入服务
                 .setNext(() -> new ServerBoot(mPushServer.getWebsocketServer(), mPushServer.getWebsocketServerNode()), wsEnabled())//4.启动websocket接入服务
                 .setNext(() -> new ServerBoot(mPushServer.getUdpGatewayServer(), mPushServer.getGatewayServerNode()), udpGateway())//5.启动udp网关服务

@@ -109,7 +109,6 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 connection.getSessionContext().setHeartbeat(message.heartbeat);
                 startHeartBeat(message.heartbeat - 1000);
                 bindUser(clientConfig);
-                System.out.println("第一次连接在这里"+message);
                 LOGGER.info("fast connect success, clientConfig={}, connectedNum={}", clientConfig, connectedNum);
             } else if (command == Command.KICK) {
                 KickUserMessage message = new KickUserMessage(packet, connection);

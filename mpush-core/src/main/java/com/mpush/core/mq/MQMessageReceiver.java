@@ -23,7 +23,6 @@ import com.mpush.core.push.PushCenter;
 import com.mpush.tools.Utils;
 import com.mpush.tools.config.ConfigTools;
 import com.mpush.monitor.service.ThreadPoolManager;
-import com.mpush.tools.log.Logs;
 
 import java.util.Collection;
 

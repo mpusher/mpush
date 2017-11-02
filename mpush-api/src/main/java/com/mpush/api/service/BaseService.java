@@ -46,13 +46,17 @@ public abstract class BaseService implements Service {
             try {
                 init();
                 function.apply(listener);
-                listener.monitor(this);
+                listener.monitor(this);//主要用于异步，否则应该放置在function.apply(listener)之前
             } catch (Throwable e) {
                 listener.onFailure(e);
                 throw new ServiceException(e);
             }
         } else {
-            listener.onFailure(new ServiceException("service already started."));
+            if (throwIfStarted()) {
+                listener.onFailure(new ServiceException("service already started."));
+            } else {
+                listener.onSuccess();
+            }
         }
     }
 
@@ -61,13 +65,17 @@ public abstract class BaseService implements Service {
         if (started.compareAndSet(true, false)) {
             try {
                 function.apply(listener);
-                listener.monitor(this);
+                listener.monitor(this);//主要用于异步，否则应该放置在function.apply(listener)之前
             } catch (Throwable e) {
                 listener.onFailure(e);
                 throw new ServiceException(e);
             }
         } else {
-            listener.onFailure(new ServiceException("service already stopped."));
+            if (throwIfStopped()) {
+                listener.onFailure(new ServiceException("service already stopped."));
+            } else {
+                listener.onSuccess();
+            }
         }
     }
 
@@ -111,6 +119,35 @@ public abstract class BaseService implements Service {
         listener.onSuccess();
     }
 
+    /**
+     * 控制当服务已经启动后，重复调用start方法，是否抛出服务已经启动异常
+     * 默认是true
+     *
+     * @return true:抛出异常
+     */
+    protected boolean throwIfStarted() {
+        return true;
+    }
+
+    /**
+     * 控制当服务已经停止后，重复调用stop方法，是否抛出服务已经停止异常
+     * 默认是true
+     *
+     * @return true:抛出异常
+     */
+    protected boolean throwIfStopped() {
+        return true;
+    }
+
+    /**
+     * 服务启动停止，超时时间, 默认是10s
+     *
+     * @return 超时时间
+     */
+    protected int timeoutMillis() {
+        return 1000 * 10;
+    }
+
     protected interface FunctionEx {
         void apply(Listener l) throws Throwable;
     }
@@ -118,8 +155,8 @@ public abstract class BaseService implements Service {
     /**
      * 防止Listener被重复执行
      *
-     * @param l
-     * @return
+     * @param l listener
+     * @return FutureListener
      */
     public FutureListener wrap(Listener l) {
         if (l == null) return new FutureListener(started);

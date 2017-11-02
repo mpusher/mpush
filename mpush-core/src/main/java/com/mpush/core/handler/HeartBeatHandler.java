@@ -34,7 +34,6 @@ public final class HeartBeatHandler implements MessageHandler {
     @Override
     public void handle(Packet packet, Connection connection) {
         connection.send(packet);//ping -> pong
-//        System.out.println("用户心跳在这里，getid"+connection.getSessionContext().userId+"-------"+connection);
         Logs.HB.info("ping -> pong, {}", connection);
     }
 }
