@@ -25,7 +25,6 @@ public final class PushAckCallback implements AckCallback {
 
     @Override
     public void onTimeout(AckTask task) {
-        Logs.PUSH.warn("这里是推送超时？");
         pushCenter.getPushListener().onTimeout(message, timeLine.timeoutEnd().getTimePoints());
         Logs.PUSH.warn("[SingleUserPush] client ack timeout, timeLine={}, task={}", timeLine, task);
     }

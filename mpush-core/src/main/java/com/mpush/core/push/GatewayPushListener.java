@@ -68,7 +68,6 @@ public final class GatewayPushListener implements PushListener<GatewayPushMessag
                 }
             });
         } else {
-            System.out.println("推送信息成功这这里");
             Logs.PUSH.warn("push message to client success, but gateway connection is closed, timePoints={}, message={}"
                     , Jsons.toJson(timePoints), message);
         }
