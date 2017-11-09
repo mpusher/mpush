@@ -20,13 +20,12 @@
 package com.mpush.cache.redis.manager;
 
 import com.google.common.collect.Lists;
-import com.mpush.api.spi.common.*;
+import com.mpush.api.spi.common.CacheManager;
 import com.mpush.cache.redis.connection.RedisConnectionFactory;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.Utils;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
-import com.mpush.monitor.service.ThreadPoolManager;
 import redis.clients.jedis.*;
 
 import java.util.*;
