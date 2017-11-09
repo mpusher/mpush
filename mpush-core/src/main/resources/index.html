@@ -225,8 +225,8 @@
         mpush.connect({
             url: $("url").value,
             userId: $("userId").value,
-            deviceId: "test-zzl",
-            osName: "web_zzl",
+            deviceId: "test-1001",
+            osName: "web",
             osVersion: navigator.userAgent,
             clientVersion: "1.0",
             log: log
@@ -240,7 +240,7 @@
 </script>
 <form onsubmit="return false;">
     <label> Server Url:
-        <input type="text" id="url" value="wss://127.0.0.1:8008/">
+        <input type="text" id="url" value="ws://127.0.0.1:8008/">
     </label>
     <input type="button" value="Connect" onclick="connect()">
     <br>

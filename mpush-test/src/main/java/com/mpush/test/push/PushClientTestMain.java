@@ -47,17 +47,16 @@ public class PushClientTestMain {
         sender.start().join();
         Thread.sleep(1000);
 
-
         for (int i = 0; i < 1; i++) {
 
-            PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.1");
+            PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
             msg.setMsgId("msgId_" + i);
 
             PushContext context = PushContext.build(msg)
                     .setAckModel(AckModel.AUTO_ACK)
-                    .setUserId("1-*")
-                    .setBroadcast(true)
-                    .setTags(Sets.newHashSet("16"))
+                    .setUserId("user-" + i)
+                    .setBroadcast(false)
+                    //.setTags(Sets.newHashSet("test"))
                     //.setCondition("tags&&tags.indexOf('test')!=-1")
                     //.setUserIds(Arrays.asList("user-0", "user-1"))
                     .setTimeout(2000)
