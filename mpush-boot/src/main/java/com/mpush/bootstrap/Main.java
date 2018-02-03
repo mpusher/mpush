@@ -32,7 +32,7 @@ public class Main {
         Logs.init();
         Logs.Console.info("launch mpush server...");
         ServerLauncher launcher = new ServerLauncher();
-        launcher.init();
+//        launcher.init();
         launcher.start();
         addHook(launcher);
     }

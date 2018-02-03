@@ -71,6 +71,7 @@ public final class ServerLauncher {
     }
 
     public void start() {
+        init();
         chain.start();
     }
 
