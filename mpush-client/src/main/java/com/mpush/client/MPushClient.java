@@ -48,7 +48,8 @@ public final class MPushClient implements MPushContext {
     public MPushClient() {
         monitorService = new MonitorService();
 
-        EventBus.create(monitorService.getThreadPoolManager().getEventBusExecutor());
+        //本项目部署在mpns里，避免eventbus初始化两次，故注释掉如下代码。如要独立部署敬请放开一下代码
+//        EventBus.create(monitorService.getThreadPoolManager().getEventBusExecutor());
 
         pushRequestBus = new PushRequestBus(this);
 
