@@ -36,8 +36,10 @@ public class EventBus {
     private static com.google.common.eventbus.EventBus eventBus;
 
     public static void create(Executor executor) {
-        eventBus = new AsyncEventBus(executor, (exception, context)
-                -> LOGGER.error("event bus subscriber ex", exception));
+        if (eventBus == null){
+            eventBus = new AsyncEventBus(executor, (exception, context)
+                    -> LOGGER.error("event bus subscriber ex", exception));
+        }
     }
 
     public static void post(Event event) {
