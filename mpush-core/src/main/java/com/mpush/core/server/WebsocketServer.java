@@ -28,6 +28,7 @@ import com.mpush.core.MPushServer;
 import com.mpush.core.handler.AckHandler;
 import com.mpush.core.handler.BindUserHandler;
 import com.mpush.core.handler.HandshakeHandler;
+import com.mpush.core.handler.HeartBeatHandler;
 import com.mpush.netty.server.NettyTCPServer;
 import com.mpush.tools.config.CC;
 import io.netty.bootstrap.ServerBootstrap;
@@ -67,6 +68,7 @@ public final class WebsocketServer extends NettyTCPServer {
     public void init() {
         super.init();
         connectionManager.init();
+        messageDispatcher.register(Command.HEARTBEAT, HeartBeatHandler::new);
         messageDispatcher.register(Command.HANDSHAKE, () -> new HandshakeHandler(mPushServer));
         messageDispatcher.register(Command.BIND, () -> new BindUserHandler(mPushServer));
         messageDispatcher.register(Command.UNBIND, () -> new BindUserHandler(mPushServer));

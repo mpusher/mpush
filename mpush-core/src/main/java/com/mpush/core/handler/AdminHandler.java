@@ -56,6 +56,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
 
     public AdminHandler(MPushServer mPushServer) {
         this.mPushServer = mPushServer;
+        init();
     }
 
     public void init() {
