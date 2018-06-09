@@ -170,8 +170,9 @@ public final class RouterChangeListener extends EventConsumer implements MQMessa
         if (localRouter != null) {
             Logs.CONN.info("receive kick remote msg, msg={}", msg);
             if (localRouter.getRouteValue().getId().equals(msg.getConnId())) {//二次校验，防止误杀
+                //fix 0.8.1 踢人的时候不再主动删除路由信息，只发踢人消息到客户端，路由信息有客户端主动解绑的时候再处理。
                 //2.1删除本地路由信息
-                localRouterManager.unRegister(userId, clientType);
+                //localRouterManager.unRegister(userId, clientType);
                 //2.2发送踢人消息到客户端
                 sendKickUserMessage2Client(userId, localRouter);
             } else {
