@@ -116,6 +116,7 @@ public final class ErrorMessage extends ByteBufMessage {
         return "ErrorMessage{" +
                 "reason='" + reason + '\'' +
                 ", code=" + code +
+                ", data=" + data +
                 ", packet=" + packet +
                 '}';
     }
