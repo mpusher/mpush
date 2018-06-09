@@ -37,7 +37,11 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Set;
 
-//查询使用
+/**
+ * 在线列表是存在redis里的，服务被kill -9的时候，无法修改redis。
+ * 查询全部在线列表的时候，要通过当前ZK里可用的机器来循环查询。
+ * 每台机器的在线列表是分开存的，如果都存储在一起，某台机器挂了，反而不好处理。
+ */
 public final class UserManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
 
@@ -76,7 +80,7 @@ public final class UserManager {
         }
     }
 
-    public void clearUserOnlineData() {
+    public void clearOnlineUserList() {
         cacheManager.del(onlineUserListKey);
     }
 
