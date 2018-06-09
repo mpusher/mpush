@@ -96,14 +96,18 @@ ps:由于源码分别在github和码云有两份，最新的代码以github为�
 # 如果要覆盖某项的值可以添加到mpush.conf中。
 #
 # 配置文件格式采用HOCON格式。解析库由https://github.com/typesafehub/config提供。
-# 具体可参照器说明文档，比如含有特殊字符的字符串必须用双引号包起来。
+# 具体可参照说明文档，比如含有特殊字符的字符串必须用双引号包起来。
 #
-##############################################################################################################
+##################################################################################################################
 
 mp {
+    #基础配置
+    home=${user.dir} //程序工作目录
+
     #日志配置
-    log.level=warn
-    log.dir=${user.dir}/../logs
+    log-level=warn
+    log-dir=${mp.home}/logs
+    log-conf-path=${mp.home}/conf/logback.xml
 
     #核心配置
     core {
@@ -118,38 +122,79 @@ mp {
 
     #安全配置
     security {
-        #rsa 私钥, 公钥 key长度为1024;生成方式可以使用open-ssh或者使用工具类com.mpush.tools.crypto.RSAUtils#main
+        #rsa 私钥、公钥key长度为1024;可以使用脚本bin/rsa.sh生成, @see com.mpush.tools.crypto.RSAUtils#main
         private-key="MIIBNgIBADANBgkqhkiG9w0BAQEFAASCASAwggEcAgEAAoGBAKCE8JYKhsbydMPbiO7BJVq1pbuJWJHFxOR7L8Hv3ZVkSG4eNC8DdwAmDHYu/wadfw0ihKFm2gKDcLHp5yz5UQ8PZ8FyDYvgkrvGV0ak4nc40QDJWws621dm01e/INlGKOIStAAsxOityCLv0zm5Vf3+My/YaBvZcB5mGUsPbx8fAgEAAoGAAy0+WanRqwRHXUzt89OsupPXuNNqBlCEqgTqGAt4Nimq6Ur9u2R1KXKXUotxjp71Ubw6JbuUWvJg+5Rmd9RjT0HOUEQF3rvzEepKtaraPhV5ejEIrB+nJWNfGye4yzLdfEXJBGUQzrG+wNe13izfRNXI4dN/6Q5npzqaqv0E1CkCAQACAQACAQACAQACAQA="
         public-key="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCghPCWCobG8nTD24juwSVataW7iViRxcTkey/B792VZEhuHjQvA3cAJgx2Lv8GnX8NIoShZtoCg3Cx6ecs+VEPD2fBcg2L4JK7xldGpOJ3ONEAyVsLOttXZtNXvyDZRijiErQALMTorcgi79M5uVX9/jMv2Ggb2XAeZhlLD28fHwIDAQAB"
         aes-key-length=16 //AES key 长度
-        ras-key-length=1024 //RSA key 长度
     }
 
     #网络配置
     net {
+        local-ip=""  //本地ip, 默认取第一个网卡的本地IP
+        public-ip="" //外网ip, 默认取第一个网卡的外网IP
+
+        connect-server-bind-ip=""  //connSrv 绑定的本地ip (默认anyLocalAddress 0.0.0.0 or ::0)
+        connect-server-register-ip=${mp.net.public-ip}  //公网ip, 注册到zk中的ip, 默认是public-ip
         connect-server-port=3000 //长链接服务对外端口, 公网端口
-        gateway-server-port=3001 //网关服务端口, 内部端口
-        admin-server-port=3002 //控制台服务端口, 内部端口
-        public-host-mapping { //本机局域网IP和公网IP的映射关系
-            "127.0.0.1":"111.1.32.137"
+        connect-server-register-attr { //注册到zk里的额外属性，比如配置权重，可在alloc里排序
+            weight:1
         }
+
+        gateway-server-bind-ip=""  //gatewaySrv 绑定的本地ip (默认anyLocalAddress 0.0.0.0 or ::0)
+        gateway-server-register-ip=${mp.net.local-ip}  //本地ip, 注册到zk中的ip, 默认是local-ip
+        gateway-server-port=3001 //网关服务端口, 内部端口
+        gateway-server-net=tcp //网关服务使用的网络类型tcp/udp/sctp/udt
+
+        gateway-client-port=4000 //UDP 客户端端口
+        gateway-server-multicast="239.239.239.88" //239.0.0.0～239.255.255.255为本地管理组播地址，仅在特定的本地范围内有效
+        gateway-client-multicast="239.239.239.99" //239.0.0.0～239.255.255.255为本地管理组播地址，仅在特定的本地范围内有效
+        gateway-client-num=1 //网关客户端连接数
+
+        admin-server-port=3002 //控制台服务端口, 内部端口
+        ws-server-port=0 //websocket对外端口, 公网端口, 0表示禁用websocket
+        ws-path="/" //websocket path
+
+        public-host-mapping { //本机局域网IP和公网IP的映射关系, 该配置后续会被废弃
+            //"10.0.10.156":"111.1.32.137"
+            //"10.0.10.166":"111.1.33.138"
+        }
+
+        snd_buf { //tcp/udp 发送缓冲区大小
+            connect-server=32k
+            gateway-server=0
+            gateway-client=0 //0表示使用操作系统默认值
+        }
+
+        rcv_buf { //tcp/udp 接收缓冲区大小
+            connect-server=32k
+            gateway-server=0
+            gateway-client=0 //0表示使用操作系统默认值
+        }
+
+        write-buffer-water-mark { //netty 写保护
+            connect-server-low=32k
+            connect-server-high=64k
+            gateway-server-low=10m
+            gateway-server-high=20m
+        }
+
         traffic-shaping { //流量整形配置
             gateway-client {
-                enabled:true
+                enabled:false
                 check-interval:100ms
-                write-global-limit:1k
+                write-global-limit:30k
                 read-global-limit:0
-                write-channel-limit:256b
+                write-channel-limit:3k
                 read-channel-limit:0
             }
 
             gateway-server {
-                enabled:true
+                enabled:false
                 check-interval:100ms
                 write-global-limit:0
-                read-global-limit:10k
+                read-global-limit:30k
                 write-channel-limit:0
-                read-channel-limit:0.5k
+                read-channel-limit:3k
             }
 
             connect-server {
@@ -165,10 +210,10 @@ mp {
 
     #Zookeeper配置
     zk {
-        server-address="127.0.0.1:2181"
+        server-address="127.0.0.1:2181" //多台机器使用","分隔如："10.0.10.44:2181,10.0.10.49:2181" @see org.apache.zookeeper.ZooKeeper#ZooKeeper()
         namespace=mpush
-        digest=mpush
-        local-cache-path=/
+        digest=mpush //zkCli.sh acl 命令 addauth digest mpush
+        watch-path=/
         retry {
             #initial amount of time to wait between retries
             baseSleepTimeMs=3s
@@ -183,17 +228,10 @@ mp {
 
     #Redis集群配置
     redis {
-        write-to-zk=true
-        #redis 集群配置，group 是个二维数组，第一层表示有多少组集群，每个集群下面可以有多台机器
-        cluster-group:[
-            [
-                {
-                    host:"127.0.0.1"
-                    port:2181
-                    password:ShineMoIpo
-                }
-            ]
-        ]
+        cluster-model=single //single,cluster,sentinel
+        sentinel-master:""
+        nodes:[] s//["127.0.0.1:6379"]格式ip:port
+        password="" //your password
         config {
             maxTotal:8,
             maxIdle:4,
@@ -210,7 +248,7 @@ mp {
             testWhileIdle:false,
             timeBetweenEvictionRunsMillis:60000,
             blockWhenExhausted:true,
-            jmxEnabled:true,
+            jmxEnabled:false,
             jmxNamePrefix:pool,
             jmxNameBase:pool
         }
@@ -222,64 +260,61 @@ mp {
         max-conn-per-host=5 //每个域名的最大链接数, 建议web服务nginx超时时间设长一点, 以便保持长链接
         default-read-timeout=10s //请求超时时间
         max-content-length=5m //response body 最大大小
-        dns-mapping { //域名映射外网地址转内部IP
-            "mpush.com":["127.0.0.1:8080", "127.0.0.1:8081"]
+        dns-mapping { //域名映射外网地址转内部IP, 域名部分不包含端口号
+            //"mpush.com":["127.0.0.1:8080", "127.0.0.1:8081"]
         }
     }
 
     #线程池配置
     thread {
         pool {
-            boss { //netty boss
-                min:4
+            conn-work:0 //接入服务线程池大小，0表示线程数根据cpu核数动态调整(2*cpu)
+            gateway-server-work:0 //网关服务线程池大小，0表示线程数根据cpu核数动态调整(2*cpu)
+            http-work:0 //http proxy netty client work pool size，0表示线程数根据cpu核数动态调整(2*cpu)
+            ack-timer:1 //处理ACK消息超时
+            push-task:0 //消息推送中心，推送任务线程池大小, 如果为0表示使用Gateway Server的work线程池，tcp下推荐0
+            gateway-client-work:0 //网关客户端线程池大小，0表示线程数根据cpu核数动态调整(2*cpu)，该线程池在客户端运行
+            push-client:2 //消息推送回调处理，该线程池在客户端运行
+
+            event-bus { //用户处理内部事件分发
+                min:1
                 max:16
-                queue-size:1000
-            }
-
-            work { //netty boss
-                min:8
-                max:32
-                queue-size:1000
-            }
-
-            event-bus {
-                min:4
-                max:4
-                queue-size:10000 //大量的online，offline，
-            }
-
-            http-proxy {
-                min:8
-                max:64
-                queue-size:1000
-            }
-
-            biz { //其他业务
-                min:4
-                max:64
-                queue-size:10
+                queue-size:10000 //大量的online，offline
             }
 
             mq { //用户上下线消息, 踢人等
-                min:2
+                min:1
                 max:4
                 queue-size:10000
-            }
-
-            push-callback { //消息推送
-                min:2
-                max:2
-                queue-size:0
             }
         }
     }
 
+    #推送消息流控
+    push {
+       flow-control { //qps = limit/(duration)
+            global:{ //针对非广播推送的流控，全局有效
+                limit:5000 //qps = 5000
+                max:0 //UN limit
+                duration:1s //1s
+            }
+
+            broadcast:{ //针对广播消息的流控，单次任务有效
+                limit:3000 //qps = 3000
+                max:100000 //10w
+                duration:1s //1s
+            }
+       }
+    }
+
     #系统监控配置
     monitor {
-        dump-dir=/tmp/logs/mpush/
+        dump-dir=${mp.home}/tmp
         dump-stack=false //是否定时dump堆栈
         dump-period=1m  //多久监控一次
         print-log=true //是否打印监控日志
+        profile-enabled=false //开启性能监控
+        profile-slowly-duration=10ms //耗时超过10ms打印日志
     }
 
     #SPI扩展配置
