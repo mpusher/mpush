@@ -19,9 +19,9 @@
 
 package com.mpush.common.message;
 
-import com.mpush.api.message.Message;
+import com.mpush.api.connection.Cipher;
 import com.mpush.api.connection.Connection;
-import com.mpush.api.connection.SessionContext;
+import com.mpush.api.message.Message;
 import com.mpush.api.protocol.Packet;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.common.IOUtils;
@@ -86,8 +86,8 @@ public abstract class BaseMessage implements Message {
         //1.解密
         byte[] tmp = packet.body;
         if (packet.hasFlag(Packet.FLAG_CRYPTO)) {
-            if (connection.getSessionContext().cipher != null) {
-                tmp = connection.getSessionContext().cipher.decrypt(tmp);
+            if (getCipher() != null) {
+                tmp = getCipher().decrypt(tmp);
             }
         }
         //2.解压
@@ -121,9 +121,9 @@ public abstract class BaseMessage implements Message {
             }
 
             //2.加密
-            SessionContext context = connection.getSessionContext();
-            if (context.cipher != null) {
-                byte[] result = context.cipher.encrypt(tmp);
+            Cipher cipher = getCipher();
+            if (cipher != null) {
+                byte[] result = cipher.encrypt(tmp);
                 if (result.length > 0) {
                     tmp = result;
                     packet.addFlag(Packet.FLAG_CRYPTO);
@@ -235,6 +235,10 @@ public abstract class BaseMessage implements Message {
 
     public void runInRequestThread(Runnable runnable) {
         connection.getChannel().eventLoop().execute(runnable);
+    }
+
+    protected Cipher getCipher() {
+        return connection.getSessionContext().cipher;
     }
 
     @Override

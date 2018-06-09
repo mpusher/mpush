@@ -17,19 +17,23 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.mpush.api.spi.core;
+package com.mpush.common.security;
 
 import com.mpush.api.connection.Cipher;
-import com.mpush.api.spi.Factory;
-import com.mpush.api.spi.SpiLoader;
+import com.mpush.api.spi.Spi;
+import com.mpush.api.spi.core.RsaCipherFactory;
 
 /**
  * Created by yxx on 2016/5/19.
  *
  * @author ohun@live.cn
  */
-public interface CipherFactory extends Factory<Cipher> {
-    static Cipher create() {
-        return SpiLoader.load(CipherFactory.class).get();
+@Spi
+public class DefaultRsaCipherFactory implements RsaCipherFactory {
+    private static final RsaCipher RSA_CIPHER = RsaCipher.create();
+
+    @Override
+    public Cipher get() {
+        return RSA_CIPHER;
     }
 }
