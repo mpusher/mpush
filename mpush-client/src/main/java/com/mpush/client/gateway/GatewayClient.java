@@ -83,7 +83,7 @@ public class GatewayClient extends NettyTCPClient {
     protected void initPipeline(ChannelPipeline pipeline) {
         super.initPipeline(pipeline);
         if (trafficShapingHandler != null) {
-            pipeline.addLast(trafficShapingHandler);
+            pipeline.addFirst(trafficShapingHandler);
         }
     }
 

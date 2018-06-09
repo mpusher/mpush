@@ -121,7 +121,7 @@ public final class GatewayServer extends NettyTCPServer {
     protected void initPipeline(ChannelPipeline pipeline) {
         super.initPipeline(pipeline);
         if (trafficShapingHandler != null) {
-            pipeline.addLast(trafficShapingHandler);
+            pipeline.addFirst(trafficShapingHandler);
         }
     }
 
