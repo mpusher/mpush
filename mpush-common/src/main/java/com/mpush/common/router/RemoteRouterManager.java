@@ -53,7 +53,7 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
         String key = CacheKeys.getUserRouteKey(userId);
         String field = Integer.toString(router.getRouteValue().getClientType());
         ClientLocation old = cacheManager.hget(key, field, ClientLocation.class);
-        cacheManager.hset(key, field, router.getRouteValue());
+        cacheManager.hset(key, field, router.getRouteValue().toJson());
         LOGGER.info("register remote router success userId={}, newRouter={}, oldRoute={}", userId, router, old);
         return old == null ? null : new RemoteRouter(old);
     }
@@ -72,7 +72,7 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
         String field = Integer.toString(clientType);
         ClientLocation location = cacheManager.hget(key, field, ClientLocation.class);
         if (location == null || location.isOffline()) return true;
-        cacheManager.hset(key, field, location.offline());
+        cacheManager.hset(key, field, location.offline().toJson());
         LOGGER.info("unRegister remote router success userId={}, route={}", userId, location);
         return true;
     }
@@ -115,7 +115,7 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
         String connId = connection.getId();
         //2.检测下，是否是同一个链接, 如果客户端重连，老的路由会被新的链接覆盖
         if (connId.equals(location.getConnId())) {
-            cacheManager.hset(key, field, location.offline());
+            cacheManager.hset(key, field, location.offline().toJson());
             LOGGER.info("clean disconnected remote route, userId={}, route={}", userId, location);
         } else {
             LOGGER.info("clean disconnected remote route, not clean:userId={}, route={}", userId, location);

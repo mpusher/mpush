@@ -152,6 +152,18 @@ public final class ClientLocation {
         return location;
     }
 
+    public String toJson() {
+        return "{"
+                + "\"port\":" + port
+                + (host == null ? "" : ",\"host\":\"" + host + "\"")
+                + (deviceId == null ? "" : ",\"deviceId\":\"" + deviceId + "\"")
+                + (osName == null ? "" : ",\"osName\":\"" + osName + "\"")
+                + (clientVersion == null ? "" : ",\"clientVersion\":\"" + clientVersion + "\"")
+                + (connId == null ? "" : ",\"connId\":\"" + connId + "\"")
+                + "}";
+
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
