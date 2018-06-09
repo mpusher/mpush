@@ -34,6 +34,10 @@ import com.mpush.core.session.ReusableSession;
 import com.mpush.core.session.ReusableSessionManager;
 import com.mpush.tools.config.ConfigTools;
 import com.mpush.tools.log.Logs;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+
+import static com.mpush.common.ErrorCode.REPEAT_HANDSHAKE;
 
 /**
  * Created by ohun on 2015/12/24.
@@ -80,7 +84,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
         //2.重复握手判断
         SessionContext context = message.getConnection().getSessionContext();
         if (message.deviceId.equals(context.deviceId)) {
-            ErrorMessage.from(message).setReason("repeat handshake").send();
+            ErrorMessage.from(message).setErrorCode(REPEAT_HANDSHAKE).send();
             Logs.CONN.warn("handshake failure, repeat handshake, conn={}", message.getConnection());
             return;
         }
@@ -101,22 +105,26 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
                 .setHeartbeat(heartbeat)
                 .setSessionId(session.sessionId)
                 .setExpireTime(session.expireTime)
-                .send();
+                .send(f -> {
+                            if (f.isSuccess()) {
+                                //7.更换会话密钥AES(clientKey)=>AES(sessionKey)
+                                context.changeCipher(new AesCipher(sessionKey, iv));
+                                //8.保存client信息到当前连接
+                                context.setOsName(message.osName)
+                                        .setOsVersion(message.osVersion)
+                                        .setClientVersion(message.clientVersion)
+                                        .setDeviceId(message.deviceId)
+                                        .setHeartbeat(heartbeat);
 
-        //7.更换会话密钥AES(clientKey)=>AES(sessionKey)
-        context.changeCipher(new AesCipher(sessionKey, iv));
+                                //9.保存可复用session到Redis, 用于快速重连
+                                reusableSessionManager.cacheSession(session);
 
-        //8.保存client信息到当前连接
-        context.setOsName(message.osName)
-                .setOsVersion(message.osVersion)
-                .setClientVersion(message.clientVersion)
-                .setDeviceId(message.deviceId)
-                .setHeartbeat(heartbeat);
-
-        //9.保存可复用session到Redis, 用于快速重连
-        reusableSessionManager.cacheSession(session);
-
-        Logs.CONN.info("handshake success, conn={}", message.getConnection());
+                                Logs.CONN.info("handshake success, conn={}", message.getConnection());
+                            } else {
+                                Logs.CONN.info("handshake failure, conn={}", message.getConnection(), f.cause());
+                            }
+                        }
+                );
     }
 
     private void doInsecurity(HandshakeMessage message) {
@@ -131,7 +139,7 @@ public final class HandshakeHandler extends BaseMessageHandler<HandshakeMessage>
         //2.重复握手判断
         SessionContext context = message.getConnection().getSessionContext();
         if (message.deviceId.equals(context.deviceId)) {
-            ErrorMessage.from(message).setReason("repeat handshake").send();
+            ErrorMessage.from(message).setErrorCode(REPEAT_HANDSHAKE).send();
             Logs.CONN.warn("handshake failure, repeat handshake, conn={}", message.getConnection());
             return;
         }

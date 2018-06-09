@@ -19,8 +19,10 @@
 
 package com.mpush.common.message;
 
+import com.mpush.api.connection.Cipher;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
+import com.mpush.api.spi.core.RsaCipherFactory;
 import io.netty.buffer.ByteBuf;
 
 import java.util.Arrays;
@@ -83,6 +85,11 @@ public final class HandshakeMessage extends ByteBufMessage {
         osName = (String) body.get("osName");
         osVersion = (String) body.get("osVersion");
         clientVersion = (String) body.get("clientVersion");
+    }
+
+    @Override
+    protected Cipher getCipher() {
+        return RsaCipherFactory.create();
     }
 
     @Override

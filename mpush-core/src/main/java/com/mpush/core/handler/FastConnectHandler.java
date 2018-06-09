@@ -21,6 +21,7 @@ package com.mpush.core.handler;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
+import com.mpush.common.ErrorCode;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.ErrorMessage;
 import com.mpush.common.message.FastConnectMessage;
@@ -31,6 +32,9 @@ import com.mpush.core.session.ReusableSessionManager;
 import com.mpush.tools.common.Profiler;
 import com.mpush.tools.config.ConfigTools;
 import com.mpush.tools.log.Logs;
+
+import static com.mpush.common.ErrorCode.INVALID_DEVICE;
+import static com.mpush.common.ErrorCode.SESSION_EXPIRED;
 
 /**
  * Created by ohun on 2015/12/25.
@@ -57,27 +61,34 @@ public final class FastConnectHandler extends BaseMessageHandler<FastConnectMess
         Profiler.release();
         if (session == null) {
             //1.没查到说明session已经失效了
-            ErrorMessage.from(message).setReason("session expired").send();
+            ErrorMessage.from(message).setErrorCode(SESSION_EXPIRED).send();
             Logs.CONN.warn("fast connect failure, session is expired, sessionId={}, deviceId={}, conn={}"
                     , message.sessionId, message.deviceId, message.getConnection().getChannel());
         } else if (!session.context.deviceId.equals(message.deviceId)) {
             //2.非法的设备, 当前设备不是上次生成session时的设备
-            ErrorMessage.from(message).setReason("invalid device").send();
+            ErrorMessage.from(message).setErrorCode(INVALID_DEVICE).send();
             Logs.CONN.warn("fast connect failure, not the same device, deviceId={}, session={}, conn={}"
                     , message.deviceId, session.context, message.getConnection().getChannel());
         } else {
             //3.校验成功，重新计算心跳，完成快速重连
             int heartbeat = ConfigTools.getHeartbeat(message.minHeartbeat, message.maxHeartbeat);
-
             session.context.setHeartbeat(heartbeat);
-            message.getConnection().setSessionContext(session.context);
+
             Profiler.enter("time cost on [send FastConnectOkMessage]");
             FastConnectOkMessage
                     .from(message)
                     .setHeartbeat(heartbeat)
-                    .sendRaw();
+                    .sendRaw(f -> {
+                        if (f.isSuccess()) {
+                            //4. 恢复缓存的会话信息(包含会话密钥等)
+                            message.getConnection().setSessionContext(session.context);
+                            Logs.CONN.info("fast connect success, session={}, conn={}", session.context, message.getConnection().getChannel());
+                        } else {
+                            Logs.CONN.info("fast connect failure, session={}, conn={}", session.context, message.getConnection().getChannel());
+                        }
+                    });
+
             Profiler.release();
-            Logs.CONN.info("fast connect success, session={}", session.context);
         }
     }
 }
