@@ -56,13 +56,13 @@ public final class RouterCenter extends BaseService {
         remoteRouterManager = new RemoteRouterManager();
         routerChangeListener = new RouterChangeListener(mPushServer);
         userEventConsumer = new UserEventConsumer(remoteRouterManager);
-        userEventConsumer.getUserManager().clearUserOnlineData();
+        userEventConsumer.getUserManager().clearOnlineUserList();
         super.doStart(listener);
     }
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
-        userEventConsumer.getUserManager().clearUserOnlineData();
+        userEventConsumer.getUserManager().clearOnlineUserList();
         super.doStop(listener);
     }
 
