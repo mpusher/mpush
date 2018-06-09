@@ -21,9 +21,7 @@ package com.mpush.core.handler;
 
 import com.google.common.base.Strings;
 import com.mpush.common.router.RemoteRouter;
-import com.mpush.common.user.UserManager;
 import com.mpush.core.MPushServer;
-import com.mpush.core.router.RouterCenter;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.common.Profiler;
 import com.mpush.tools.config.CC;
@@ -56,6 +54,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
 
     public AdminHandler(MPushServer mPushServer) {
         this.mPushServer = mPushServer;
+        init();
     }
 
     public void init() {
@@ -133,7 +132,7 @@ public final class AdminHandler extends SimpleChannelInboundHandler<String> {
         String option = "help";
         String arg = null;
         String[] args = null;
-        if (request != null) {
+        if (!Strings.isNullOrEmpty(request)) {
             String[] cmd_args = request.split(" ");
             option = cmd_args[0].trim().toLowerCase();
             if (cmd_args.length == 2) {
