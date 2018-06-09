@@ -19,6 +19,7 @@
 
 package com.mpush.tools;
 
+import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.NamedThreadFactory;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SingleThreadEventLoop;
@@ -53,6 +54,18 @@ public final class Utils {
 
     public static Thread newThread(String name, Runnable target) {
         return NAMED_THREAD_FACTORY.newThread(name, target);
+    }
+
+    public static boolean useNettyEpoll() {
+        if (CC.mp.core.useNettyEpoll()) {
+            try {
+                Class.forName("io.netty.channel.epoll.Native");
+                return true;
+            } catch (Throwable error) {
+                LOGGER.warn("can not load netty epoll, switch nio model.");
+            }
+        }
+        return false;
     }
 
     public static boolean isLocalHost(String host) {
@@ -118,7 +131,7 @@ public final class Utils {
                             return address.getHostAddress();
                         }
                     } else {
-                        if (!address.isSiteLocalAddress() && !address.isLoopbackAddress()) {
+                        if (!address.isSiteLocalAddress()) {
                             return address.getHostAddress();
                         }
                     }

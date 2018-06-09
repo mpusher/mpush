@@ -26,14 +26,12 @@ import com.mpush.api.service.ServiceException;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
 import com.mpush.tools.common.Strings;
-import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.ThreadNames;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
-import io.netty.channel.epoll.Native;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -44,6 +42,8 @@ import java.net.InetSocketAddress;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static com.mpush.tools.Utils.useNettyEpoll;
 
 /**
  * Created by ohun on 2015/12/22.
@@ -300,18 +300,6 @@ public abstract class NettyTCPServer extends BaseService implements Server {
 
     protected int getIoRate() {
         return 70;
-    }
-
-    protected boolean useNettyEpoll() {
-        if (CC.mp.core.useNettyEpoll()) {
-            try {
-                Native.offsetofEpollData();
-                return true;
-            } catch (UnsatisfiedLinkError error) {
-                logger.warn("can not load netty epoll, switch nio model.");
-            }
-        }
-        return false;
     }
 
     public EventLoopGroup getBossGroup() {

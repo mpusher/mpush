@@ -24,14 +24,12 @@ import com.mpush.api.service.Client;
 import com.mpush.api.service.Listener;
 import com.mpush.netty.codec.PacketDecoder;
 import com.mpush.netty.codec.PacketEncoder;
-import com.mpush.tools.config.CC;
 import com.mpush.tools.thread.ThreadNames;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.epoll.Native;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -40,6 +38,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.nio.channels.spi.SelectorProvider;
+
+import static com.mpush.tools.Utils.useNettyEpoll;
 
 public abstract class NettyTCPClient extends BaseService implements Client {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyTCPClient.class);
@@ -127,18 +127,6 @@ public abstract class NettyTCPClient extends BaseService implements Client {
         } else {
             createNioClient(listener);
         }
-    }
-
-    private boolean useNettyEpoll() {
-        if (CC.mp.core.useNettyEpoll()) {
-            try {
-                Native.offsetofEpollData();
-                return true;
-            } catch (UnsatisfiedLinkError error) {
-                LOGGER.warn("can not load netty epoll, switch nio model.");
-            }
-        }
-        return false;
     }
 
     @Override
