@@ -13,7 +13,7 @@
     <groupId>com.github.mpusher</groupId>
     <artifactId>mpush</artifactId>
     <packaging>pom</packaging>
-    <version>0.8.0</version>
+    <version>0.8.1</version>
     <name>mpush</name>
     <description>MPUSH消息推送系统</description>
     <url>https://github.com/mpusher/mpush</url>
@@ -70,7 +70,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.encoding>UTF-8</java.encoding>
         <java.version>1.8</java.version>
-        <netty.version>4.1.8.Final</netty.version>
+        <netty.version>4.1.25.Final</netty.version>
         <slf4j.version>1.7.25</slf4j.version>
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
     </properties>
@@ -244,13 +244,13 @@
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
-                <version>1.2.36</version>
+                <version>1.2.47</version>
             </dependency>
             <!-- zookeeper client -->
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-recipes</artifactId>
-                <version>2.11.1</version><!--(client 2.x.x <==> server 3.4.x) (client 3.x.x <==> server 3.5.x)-->
+                <version>2.12.0</version><!--(client 2.x.x <==> server 3.4.x) (client 3.x.x <==> server 3.5.x)-->
                 <exclusions>
                     <exclusion>
                         <artifactId>netty</artifactId>
@@ -261,7 +261,7 @@
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-x-discovery</artifactId>
-                <version>2.11.1</version><!--(client 2.x.x <==> server 3.4.x) (client 3.x.x <==> server 3.5.x)-->
+                <version>2.12.0</version><!--(client 2.x.x <==> server 3.4.x) (client 3.x.x <==> server 3.5.x)-->
             </dependency>
             <!-- redis client -->
             <dependency>
@@ -273,13 +273,13 @@
             <dependency>
                 <groupId>com.typesafe</groupId>
                 <artifactId>config</artifactId>
-                <version>1.3.1</version>
+                <version>1.3.3</version>
             </dependency>
             <!-- javassist -->
             <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
-                <version>3.21.0-GA</version>
+                <version>3.22.0-GA</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
