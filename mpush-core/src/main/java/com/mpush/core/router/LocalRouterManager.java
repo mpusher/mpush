@@ -95,7 +95,6 @@ public final class LocalRouterManager extends EventConsumer implements RouterMan
         String userId = context.userId;
         if (userId == null) return;
 
-        EventBus.post(new UserOfflineEvent(event.connection, userId));
         int clientType = context.getClientType();
         LocalRouter localRouter = routers.getOrDefault(userId, EMPTY).get(clientType);
         if (localRouter == null) return;
@@ -103,8 +102,11 @@ public final class LocalRouterManager extends EventConsumer implements RouterMan
         String connId = connection.getId();
         //2.检测下，是否是同一个链接, 如果客户端重连，老的路由会被新的链接覆盖
         if (connId.equals(localRouter.getRouteValue().getId())) {
-            //3.删除路由
+            //3. 删除路由
             routers.getOrDefault(userId, EMPTY).remove(clientType);
+            //4. 发送用户下线事件, 只有老的路由存在的情况下才发送，因为有可能又用户重连了，而老的链接又是在新连接之后才断开的
+            //这个时候就会有问题，会导致用户变成下线状态，实际用户应该是在线的。
+            EventBus.post(new UserOfflineEvent(event.connection, userId));
             LOGGER.info("clean disconnected local route, userId={}, route={}", userId, localRouter);
         } else { //如果不相等，则log一下
             LOGGER.info("clean disconnected local route, not clean:userId={}, route={}", userId, localRouter);
