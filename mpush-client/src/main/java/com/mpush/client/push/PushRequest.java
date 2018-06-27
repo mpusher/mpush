@@ -23,10 +23,8 @@ import com.mpush.api.Constants;
 import com.mpush.api.push.*;
 import com.mpush.api.router.ClientLocation;
 import com.mpush.client.MPushClient;
-import com.mpush.client.gateway.connection.GatewayConnectionFactory;
 import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.common.push.GatewayPushResult;
-import com.mpush.common.router.CachedRemoteRouterManager;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.common.TimeLine;
@@ -170,34 +168,35 @@ public final class PushRequest extends FutureTask<PushResult> {
     public FutureTask<PushResult> broadcast() {
         timeLine.begin();
 
-        boolean success = mPushClient.getGatewayConnectionFactory().broadcast(
-                connection -> GatewayPushMessage
-                        .build(connection)
-                        .setUserId(userId)
-                        .setContent(content)
-                        .setTags(tags)
-                        .setCondition(condition)
-                        .setTaskId(taskId)
-                        .addFlag(ackModel.flag),
+        boolean success = mPushClient.getGatewayConnectionFactory()
+                .broadcast(
+                        connection -> GatewayPushMessage
+                                .build(connection)
+                                .setUserId(userId)
+                                .setContent(content)
+                                .setTags(tags)
+                                .setCondition(condition)
+                                .setTaskId(taskId)
+                                .addFlag(ackModel.flag),
 
-                pushMessage -> {
-                    pushMessage.sendRaw(f -> {
-                        if (f.isSuccess()) {
-                            LOGGER.debug("send broadcast to gateway server success, userId={}, conn={}", userId, f.channel());
-                        } else {
-                            failure();
-                            LOGGER.error("send broadcast to gateway server failure, userId={}, conn={}", userId, f.channel(), f.cause());
+                        pushMessage -> {
+                            pushMessage.sendRaw(f -> {
+                                if (f.isSuccess()) {
+                                    LOGGER.debug("send broadcast to gateway server success, userId={}, conn={}", userId, f.channel());
+                                } else {
+                                    failure();
+                                    LOGGER.error("send broadcast to gateway server failure, userId={}, conn={}", userId, f.channel(), f.cause());
+                                }
+                            });
+
+                            if (pushMessage.taskId == null) {
+                                sessionId = pushMessage.getSessionId();
+                                future = mPushClient.getPushRequestBus().put(sessionId, PushRequest.this);
+                            } else {
+                                success();
+                            }
                         }
-                    });
-
-                    if (pushMessage.taskId == null) {
-                        sessionId = pushMessage.getSessionId();
-                        future = mPushClient.getPushRequestBus().put(sessionId, PushRequest.this);
-                    } else {
-                        success();
-                    }
-                }
-        );
+                );
 
         if (!success) {
             LOGGER.error("get gateway connection failure when broadcast.");
@@ -213,6 +212,7 @@ public final class PushRequest extends FutureTask<PushResult> {
     }
 
     private void timeout() {
+        //超时要把request从队列中移除，其他情况是XXHandler中移除的
         if (mPushClient.getPushRequestBus().getAndRemove(sessionId) != null) {
             submit(Status.timeout);
         }
@@ -233,10 +233,17 @@ public final class PushRequest extends FutureTask<PushResult> {
     public void onRedirect() {
         timeLine.addTimePoint("redirect");
         LOGGER.warn("user route has changed, userId={}, location={}", userId, location);
+        //1. 清理一下缓存，确保查询的路由是正确的
         mPushClient.getCachedRemoteRouterManager().invalidateLocalCache(userId);
-        if (status.get() == Status.init) {//表示任务还没有完成，还可以重新发送
-            RemoteRouter remoteRouter = mPushClient.getCachedRemoteRouterManager().lookup(userId, location.getClientType());
-            send(remoteRouter);
+        if (status.get() == Status.init) {//init表示任务还没有完成，还可以重新发送
+            //2. 取消前一次任务, 否则会有两次回调
+            if (mPushClient.getPushRequestBus().getAndRemove(sessionId) != null) {
+                if (future != null && !future.isCancelled()) {
+                    future.cancel(true);
+                }
+            }
+            //3. 取最新的路由重发一次
+            send(mPushClient.getCachedRemoteRouterManager().lookup(userId, location.getClientType()));
         }
     }
 
