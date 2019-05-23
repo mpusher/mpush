@@ -26,7 +26,6 @@ import com.mpush.tools.Jsons;
 import com.mpush.tools.Utils;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
-import com.mpush.monitor.service.ThreadPoolManager;
 import redis.clients.jedis.*;
 
 import java.util.*;
@@ -45,6 +44,9 @@ public final class RedisManager implements CacheManager {
     public void init() {
         Logs.CACHE.info("begin init redis...");
         factory.setPassword(CC.mp.redis.password);
+        factory.setConnectionTimeout(CC.mp.redis.connectionTimeout);
+        factory.setSoTimeout(CC.mp.redis.soTimeout);
+        factory.setMaxAttempts(CC.mp.redis.maxAttempts);
         factory.setPoolConfig(CC.mp.redis.getPoolConfig(JedisPoolConfig.class));
         factory.setRedisServers(CC.mp.redis.nodes);
         factory.setCluster(CC.mp.redis.isCluster());

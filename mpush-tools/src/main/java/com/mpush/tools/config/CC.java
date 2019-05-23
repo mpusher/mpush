@@ -271,6 +271,12 @@ public interface CC {
         interface redis {
             Config cfg = mp.cfg.getObject("redis").toConfig();
 
+            // 读取数据超时时间
+            int soTimeout = cfg.getInt("soTimeout");
+            // 连接超时时间
+            int connectionTimeout = cfg.getInt("connectionTimeout");
+            // 出现异常最大重试次数
+            int maxAttempts = cfg.getInt("maxAttempts");
             String password = cfg.getString("password");
             String clusterModel = cfg.getString("cluster-model");
             String sentinelMaster = cfg.getString("sentinel-master");
