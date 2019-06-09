@@ -20,20 +20,16 @@
 package com.mpush.monitor.service;
 
 import com.mpush.api.spi.common.ExecutorFactory;
-import com.mpush.tools.thread.NamedThreadFactory;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SingleThreadEventLoop;
-import io.netty.util.concurrent.EventExecutor;
-import io.netty.util.concurrent.ThreadProperties;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 
+/**
+ * 线程池管理器
+ */
 public final class ThreadPoolManager {
 
     private final ExecutorFactory executorFactory = ExecutorFactory.create();

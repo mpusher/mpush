@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.ssl.SslHandler;
 import io.netty.util.CharsetUtil;
 
 import java.io.InputStream;
@@ -15,25 +14,27 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
  * Outputs index page content.
+ *
+ * websocket index 页面处理器
  */
 @ChannelHandler.Sharable
 public class WebSocketIndexPageHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
-        // Handle a bad request.
+        // 处理坏请求
         if (!req.decoderResult().isSuccess()) {
             sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST));
             return;
         }
 
-        // Allow only GET methods.
+        // 仅允许GET方法
         if (req.method() != GET) {
             sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN));
             return;
         }
 
-        // Send the index page
+        // 发送 index 页面
         if ("/".equals(req.uri()) || "/index.html".equals(req.uri())) {
             ByteBuf content = getContent();
             FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
@@ -55,7 +56,7 @@ public class WebSocketIndexPageHandler extends SimpleChannelInboundHandler<FullH
     }
 
     private static void sendHttpResponse(ChannelHandlerContext ctx, FullHttpRequest req, FullHttpResponse res) {
-        // Generate an error page if response getStatus code is not OK (200).
+        // 如果响应getStatus状态不是正常（200），则生成错误页面
         if (res.status().code() != 200) {
             ByteBuf buf = Unpooled.copiedBuffer(res.status().toString(), CharsetUtil.UTF_8);
             res.content().writeBytes(buf);
@@ -63,7 +64,7 @@ public class WebSocketIndexPageHandler extends SimpleChannelInboundHandler<FullH
             HttpUtil.setContentLength(res, res.content().readableBytes());
         }
 
-        // Send the response and close the connection if necessary.
+        // 如有必要，发送响应并关闭连接
         ChannelFuture f = ctx.channel().writeAndFlush(res);
         if (!HttpUtil.isKeepAlive(req) || res.status().code() != 200) {
             f.addListener(ChannelFutureListener.CLOSE);

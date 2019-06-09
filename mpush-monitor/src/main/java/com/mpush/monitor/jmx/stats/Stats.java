@@ -4,6 +4,8 @@ import java.util.Date;
 
 /**
  * Statistics on the ServerCnxn
+ *
+ * 统计
  */
 interface Stats {
     /**

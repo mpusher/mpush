@@ -28,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by ohun on 2016/1/4.
  *
+ * 缓存远程路由器管理器
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class CachedRemoteRouterManager extends RemoteRouterManager {

@@ -27,6 +27,8 @@ import io.netty.buffer.ByteBuf;
 /**
  * Created by ohun on 16/9/5.
  *
+ * ack信息
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class AckMessage extends BaseMessage {

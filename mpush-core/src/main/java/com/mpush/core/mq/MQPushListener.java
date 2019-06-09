@@ -28,6 +28,8 @@ import com.mpush.core.MPushServer;
 /**
  * Created by ohun on 2016/12/24.
  *
+ * mq推送监听器
+ *
  * @author ohun@live.cn (夜色)
  */
 @Spi(order = 2)

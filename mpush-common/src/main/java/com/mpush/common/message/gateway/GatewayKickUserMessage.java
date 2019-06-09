@@ -31,6 +31,8 @@ import static com.mpush.api.protocol.Command.GATEWAY_KICK;
 /**
  * Created by ohun on 16/10/23.
  *
+ * 网关剔除用户信息
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class GatewayKickUserMessage extends ByteBufMessage implements KickRemoteMsg {

@@ -49,6 +49,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by ohun on 2015/12/19.
  *
+ * 链接客户端通道处理器
+ *
  * @author ohun@live.cn
  */
 public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter {
@@ -76,13 +78,22 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
         return connection;
     }
 
+    /**
+     * 通道读取
+     * 处理客户端数据
+     * @param ctx
+     * @param msg
+     * @throws Exception
+     */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         connection.updateLastReadTime();
         if (msg instanceof Packet) {
             Packet packet = (Packet) msg;
+            // 从数据包中获取命令
             Command command = Command.toCMD(packet.cmd);
             if (command == Command.HANDSHAKE) {
+                // 握手命令
                 int connectedNum = STATISTICS.connectedNum.incrementAndGet();
                 connection.getSessionContext().changeCipher(new AesCipher(clientConfig.getClientKey(), clientConfig.getIv()));
                 HandshakeOkMessage message = new HandshakeOkMessage(packet, connection);
@@ -97,6 +108,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                     saveToRedisForFastConnection(clientConfig, message.sessionId, message.expireTime, sessionKey);
                 }
             } else if (command == Command.FAST_CONNECT) {
+                // 快速连接命令
                 int connectedNum = STATISTICS.connectedNum.incrementAndGet();
                 String cipherStr = clientConfig.getCipher();
                 String[] cs = cipherStr.split(",");
@@ -111,14 +123,17 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 bindUser(clientConfig);
                 LOGGER.info("fast connect success, clientConfig={}, connectedNum={}", clientConfig, connectedNum);
             } else if (command == Command.KICK) {
+                // 剔除命令
                 KickUserMessage message = new KickUserMessage(packet, connection);
                 LOGGER.error("receive kick user msg userId={}, deviceId={}, message={},", clientConfig.getUserId(), clientConfig.getDeviceId(), message);
                 ctx.close();
             } else if (command == Command.ERROR) {
+                // 错误命令
                 ErrorMessage message = new ErrorMessage(packet, connection);
                 message.decodeBody();
                 LOGGER.error("receive an error packet=" + message);
             } else if (command == Command.PUSH) {
+                // 推送命令
                 int receivePushNum = STATISTICS.receivePushNum.incrementAndGet();
 
                 PushMessage message = new PushMessage(packet, connection);
@@ -132,8 +147,10 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 }
 
             } else if (command == Command.HEARTBEAT) {
+                // 心跳命令
                 LOGGER.info("receive heartbeat pong...");
             } else if (command == Command.OK) {
+                // 正常命令
                 OkMessage message = new OkMessage(packet, connection);
                 message.decodeBody();
                 int bindUserNum = STATISTICS.bindUserNum.get();
@@ -144,6 +161,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
                 LOGGER.info("receive {}, bindUserNum={}", message, bindUserNum);
 
             } else if (command == Command.HTTP_PROXY) {
+                // http代理命令
                 HttpResponseMessage message = new HttpResponseMessage(packet, connection);
                 message.decodeBody();
                 LOGGER.info("receive http response, message={}, body={}",
@@ -232,7 +250,7 @@ public final class ConnClientChannelHandler extends ChannelInboundHandlerAdapter
     private void bindUser(ClientConfig client) {
         BindUserMessage message = new BindUserMessage(connection);
         message.userId = client.getUserId();
-        message.tags = "test";
+        message.tags = client.getTags();
         message.send();
         connection.getSessionContext().setUserId(client.getUserId());
         LOGGER.debug("send bind user message={}", message);

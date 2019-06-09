@@ -53,6 +53,8 @@ import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
 /**
  * Created by ohun on 2015/12/30.
  *
+ * 连接服务器
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class ConnectionServer extends NettyTCPServer {

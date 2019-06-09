@@ -32,6 +32,8 @@ import org.apache.curator.framework.recipes.cache.TreeCacheListener;
 /**
  * Created by ohun on 2016/12/28.
  *
+ * zk缓存监听器
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class ZKCacheListener implements TreeCacheListener {
@@ -45,6 +47,12 @@ public final class ZKCacheListener implements TreeCacheListener {
         this.listener = listener;
     }
 
+    /**
+     * 节点事件
+     * @param curator
+     * @param event
+     * @throws Exception
+     */
     @Override
     public void childEvent(CuratorFramework curator, TreeCacheEvent event) throws Exception {
         ChildData data = event.getData();
@@ -54,12 +62,15 @@ public final class ZKCacheListener implements TreeCacheListener {
         if (dataPath.startsWith(watchPath)) {
             switch (event.getType()) {
                 case NODE_ADDED:
+                    // 添加节点
                     listener.onServiceAdded(dataPath, Jsons.fromJson(data.getData(), CommonServiceNode.class));
                     break;
                 case NODE_REMOVED:
+                    // 删除节点
                     listener.onServiceRemoved(dataPath, Jsons.fromJson(data.getData(), CommonServiceNode.class));
                     break;
                 case NODE_UPDATED:
+                    // 更新节点
                     listener.onServiceUpdated(dataPath, Jsons.fromJson(data.getData(), CommonServiceNode.class));
                     break;
             }

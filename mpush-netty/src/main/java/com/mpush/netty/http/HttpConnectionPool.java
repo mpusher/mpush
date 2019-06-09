@@ -31,6 +31,8 @@ import java.util.List;
 /**
  * Created by yxx on 2016/5/28.
  *
+ * http连接池
+ *
  * @author ohun@live.cn (夜色)
  */
 /*package*/ class HttpConnectionPool {

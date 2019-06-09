@@ -41,6 +41,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by ohun on 2015/12/22.
  *
+ * 服务器连接管理器
+ *
  * @author ohun@live.cn
  */
 public final class ServerConnectionManager implements ConnectionManager {

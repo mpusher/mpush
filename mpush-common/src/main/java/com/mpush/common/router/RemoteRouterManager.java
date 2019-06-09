@@ -41,6 +41,8 @@ import java.util.stream.Collectors;
 /**
  * Created by ohun on 2015/12/23.
  *
+ * 远程路由器管理器
+ *
  * @author ohun@live.cn
  */
 public class RemoteRouterManager extends EventConsumer implements RouterManager<RemoteRouter> {

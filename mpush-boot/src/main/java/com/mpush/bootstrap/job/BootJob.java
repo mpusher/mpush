@@ -26,6 +26,8 @@ import java.util.function.Supplier;
 /**
  * Created by yxx on 2016/5/14.
  *
+ * 启动任务
+ *
  * @author ohun@live.cn
  */
 public abstract class BootJob {

@@ -19,8 +19,8 @@
 
 package com.mpush.netty.codec;
 
-import com.mpush.api.protocol.Packet;
 import com.mpush.api.protocol.JsonPacket;
+import com.mpush.api.protocol.Packet;
 import com.mpush.api.protocol.UDPPacket;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.config.CC;
@@ -30,7 +30,6 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.TooLongFrameException;
 
-import java.util.HashMap;
 import java.util.List;
 
 import static com.mpush.api.protocol.Packet.decodePacket;
@@ -38,6 +37,8 @@ import static com.mpush.api.protocol.Packet.decodePacket;
 /**
  * Created by ohun on 2015/12/19.
  * length(4)+cmd(1)+cc(2)+flags(1)+sessionId(4)+lrc(1)+body(n)
+ *
+ * 包解码器
  *
  * @author ohun@live.cn
  */

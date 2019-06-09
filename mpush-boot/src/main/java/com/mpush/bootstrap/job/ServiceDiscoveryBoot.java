@@ -27,6 +27,8 @@ import com.mpush.tools.log.Logs;
 /**
  * Created by yxx on 2016/5/14.
  *
+ * 服务发现启动任务
+ *
  * @author ohun@live.cn
  */
 public final class ServiceDiscoveryBoot extends BootJob {

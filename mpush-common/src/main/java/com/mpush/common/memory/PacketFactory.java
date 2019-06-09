@@ -27,6 +27,8 @@ import com.mpush.tools.config.CC;
 /**
  * Created by ohun on 16/10/22.
  *
+ * 包工厂
+ *
  * @author ohun@live.cn (夜色)
  */
 public interface PacketFactory {

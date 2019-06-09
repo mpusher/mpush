@@ -40,6 +40,8 @@ import static com.mpush.common.MessageDispatcher.POLICY_LOG;
 /**
  * Created by ohun on 2015/12/30.
  *
+ * 网关udp连接器
+ *
  * @author ohun@live.cn
  */
 public final class GatewayUDPConnector extends NettyUDPConnector {

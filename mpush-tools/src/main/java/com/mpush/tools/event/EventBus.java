@@ -29,6 +29,8 @@ import java.util.concurrent.Executor;
 /**
  * Created by ohun on 2015/12/29.
  *
+ * 事件总线
+ *
  * @author ohun@live.cn
  */
 public class EventBus {

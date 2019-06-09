@@ -31,6 +31,9 @@ import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
+/**
+ * 管理员服务器
+ */
 public final class AdminServer extends NettyTCPServer {
 
     private AdminHandler adminHandler;

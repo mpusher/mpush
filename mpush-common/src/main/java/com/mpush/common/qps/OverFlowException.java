@@ -22,6 +22,8 @@ package com.mpush.common.qps;
 /**
  * Created by ohun on 16/10/24.
  *
+ * 超流量异常
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class OverFlowException extends RuntimeException {

@@ -34,6 +34,8 @@ import static com.mpush.api.protocol.Command.PUSH;
 /**
  * Created by ohun on 2015/12/30.
  *
+ * 推送信息
+ *
  * @author ohun@live.cn
  */
 public final class PushMessage extends BaseMessage {

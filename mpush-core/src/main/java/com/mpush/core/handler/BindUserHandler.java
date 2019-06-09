@@ -45,6 +45,8 @@ import com.mpush.tools.log.Logs;
 /**
  * Created by ohun on 2015/12/23.
  *
+ * 绑定用户处理器
+ *
  * @author ohun@live.cn
  */
 public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {

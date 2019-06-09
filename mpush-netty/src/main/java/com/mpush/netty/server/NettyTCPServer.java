@@ -48,6 +48,8 @@ import static com.mpush.tools.Utils.useNettyEpoll;
 /**
  * Created by ohun on 2015/12/22.
  *
+ * netty tcp服务器
+ *
  * @author ohun@live.cn
  */
 public abstract class NettyTCPServer extends BaseService implements Server {

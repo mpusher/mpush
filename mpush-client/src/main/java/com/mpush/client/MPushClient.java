@@ -33,6 +33,8 @@ import com.mpush.tools.event.EventBus;
 /**
  * Created by ohun on 2017/7/15.
  *
+ * MPush客户端
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class MPushClient implements MPushContext {

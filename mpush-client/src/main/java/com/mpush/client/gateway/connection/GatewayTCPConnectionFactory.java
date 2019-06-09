@@ -49,6 +49,8 @@ import static com.mpush.tools.config.CC.mp.net.gateway_client_num;
 /**
  * Created by yxx on 2016/5/17.
  *
+ * 网关TCP链接工厂
+ *
  * @author ohun@live.cn
  */
 public class GatewayTCPConnectionFactory extends GatewayConnectionFactory {

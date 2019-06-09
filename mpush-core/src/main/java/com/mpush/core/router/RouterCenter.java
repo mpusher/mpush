@@ -35,6 +35,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ohun on 2015/12/23.
  *
+ * 路由器中心器
+ *
  * @author ohun@live.cn
  */
 public final class RouterCenter extends BaseService {

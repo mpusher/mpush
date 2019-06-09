@@ -44,6 +44,8 @@ import static com.mpush.tools.config.CC.mp.net.gateway_server_port;
 /**
  * Created by yxx on 2016/5/17.
  *
+ * 网关UDP链接工厂
+ *
  * @author ohun@live.cn
  */
 public class GatewayUDPConnectionFactory extends GatewayConnectionFactory {

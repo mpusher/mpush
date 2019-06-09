@@ -31,6 +31,8 @@ import static com.mpush.api.protocol.Command.OK;
 /**
  * Created by ohun on 2015/12/28.
  *
+ * 正常信息
+ *
  * @author ohun@live.cn
  */
 public final class OkMessage extends ByteBufMessage {

@@ -42,6 +42,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by ohun on 16/10/24.
  *
+ * 广播推送任务
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class BroadcastPushTask implements PushTask {

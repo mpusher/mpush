@@ -24,12 +24,18 @@ import java.util.Arrays;
 /**
  * Created by ohun on 16/8/18.
  *
+ * 客户端类型
+ *
  * @author ohun@live.cn (夜色)
  */
 public enum ClientType {
+    // 移动端
     MOBILE(1, "android", "ios"),
+    // pc
     PC(2, "windows", "mac", "linux"),
+    // web
     WEB(3, "web", "h5"),
+    // 未知
     UNKNOWN(-1);
 
     public final int type;

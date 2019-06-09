@@ -6,6 +6,9 @@ import com.mpush.core.ack.AckTask;
 import com.mpush.tools.common.TimeLine;
 import com.mpush.tools.log.Logs;
 
+/**
+ * 推送确认回调
+ */
 public final class PushAckCallback implements AckCallback {
     private final IPushMessage message;
     private final TimeLine timeLine;

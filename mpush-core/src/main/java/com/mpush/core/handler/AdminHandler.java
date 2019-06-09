@@ -37,6 +37,9 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+/**
+ * 管理员处理器
+ */
 @ChannelHandler.Sharable
 public final class AdminHandler extends SimpleChannelInboundHandler<String> {
 

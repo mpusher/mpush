@@ -24,6 +24,9 @@ import com.mpush.tools.Jsons;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 监控结果
+ */
 public class MonitorResult {
     private Long timestamp = System.currentTimeMillis();
     private Map<String, Object> results = new HashMap<>(8);

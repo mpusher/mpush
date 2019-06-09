@@ -25,6 +25,8 @@ import java.util.Collections;
 /**
  * Created by ohun on 2016/12/26.
  *
+ * mq客户端
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class MQClient {

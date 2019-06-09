@@ -24,6 +24,8 @@ import java.util.concurrent.Future;
 /**
  * Created by ohun on 16/9/5.
  *
+ * 确认任务
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class AckTask implements Runnable {

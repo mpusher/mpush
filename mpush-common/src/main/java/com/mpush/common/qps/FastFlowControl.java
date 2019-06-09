@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by ohun on 16/10/24.
  *
+ * 快速流量控制
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class FastFlowControl implements FlowControl {

@@ -33,6 +33,8 @@ import static com.mpush.api.protocol.Command.HTTP_PROXY;
 /**
  * Created by ohun on 2016/2/15.
  *
+ * http响应信息
+ *
  * @author ohun@live.cn
  */
 public final class HttpResponseMessage extends ByteBufMessage {

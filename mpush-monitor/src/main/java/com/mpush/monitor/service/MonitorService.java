@@ -33,6 +33,9 @@ import com.mpush.tools.thread.ThreadNames;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 监控服务
+ */
 public class MonitorService extends BaseService implements Monitor, Runnable {
 
     private static final int FIRST_DUMP_JSTACK_LOAD_AVG = 2,

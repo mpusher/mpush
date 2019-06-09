@@ -39,6 +39,8 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * Created by ohun on 16/10/24.
  *
+ * 单用户推送任务
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class SingleUserPushTask implements PushTask, ChannelFutureListener {
@@ -201,6 +203,11 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
 
     }
 
+    /**
+     * 操作完成
+     * @param future
+     * @throws Exception
+     */
     @Override
     public void operationComplete(ChannelFuture future) throws Exception {
         if (checkTimeout()) return;

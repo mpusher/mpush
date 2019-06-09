@@ -41,6 +41,8 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Created by ohun on 2015/12/30.
  *
+ * 推送请求
+ *
  * @author ohun@live.cn
  */
 public final class PushRequest extends FutureTask<PushResult> {

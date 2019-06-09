@@ -51,6 +51,8 @@ import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
 /**
  * Created by ohun on 2015/12/30.
  *
+ * 网关服务器
+ *
  * @author ohun@live.cn
  */
 public final class GatewayServer extends NettyTCPServer {

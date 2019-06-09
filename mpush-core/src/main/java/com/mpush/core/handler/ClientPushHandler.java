@@ -33,6 +33,8 @@ import com.mpush.tools.log.Logs;
 /**
  * Created by ohun on 2015/12/30.
  *
+ * 客户端推送处理器
+ *
  * @author ohun@live.cn (夜色)
  */
 @Spi(order = 1)

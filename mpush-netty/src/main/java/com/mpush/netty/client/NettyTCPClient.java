@@ -41,6 +41,9 @@ import java.nio.channels.spi.SelectorProvider;
 
 import static com.mpush.tools.Utils.useNettyEpoll;
 
+/**
+ * netty tcp客户端
+ */
 public abstract class NettyTCPClient extends BaseService implements Client {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyTCPClient.class);
 

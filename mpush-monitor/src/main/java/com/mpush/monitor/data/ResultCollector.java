@@ -25,6 +25,8 @@ import com.mpush.monitor.service.ThreadPoolManager;
 /**
  * Created by yxx on 2016/5/19.
  *
+ * 结果控制器
+ *
  * @author ohun@live.cn
  */
 public class ResultCollector {

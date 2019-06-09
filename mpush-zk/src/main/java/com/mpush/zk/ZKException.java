@@ -22,6 +22,8 @@ package com.mpush.zk;
 /**
  * Created by yxx on 2016/5/14.
  *
+ * zk异常
+ *
  * @author ohun@live.cn
  */
 public class ZKException extends RuntimeException {

@@ -25,15 +25,19 @@ import com.mpush.api.srd.ServiceNode;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.config.ConfigTools;
 
-import static com.mpush.api.srd.ServiceNames.ATTR_PUBLIC_IP;
-
 /**
  * Created by ohun on 2016/12/27.
+ *
+ * 服务器节点
  *
  * @author ohun@live.cn (夜色)
  */
 public class ServerNodes {
 
+    /**
+     * c/s服务器
+     * @return
+     */
     public static ServiceNode cs() {
         CommonServiceNode node = new CommonServiceNode();
         node.setHost(ConfigTools.getConnectServerRegisterIp());
@@ -44,6 +48,10 @@ public class ServerNodes {
         return node;
     }
 
+    /**
+     * websocket服务器
+     * @return
+     */
     public static ServiceNode ws() {
         CommonServiceNode node = new CommonServiceNode();
         node.setHost(ConfigTools.getConnectServerRegisterIp());
@@ -54,6 +62,10 @@ public class ServerNodes {
         return node;
     }
 
+    /**
+     * 网关服务器
+     * @return
+     */
     public static ServiceNode gs() {
         CommonServiceNode node = new CommonServiceNode();
         node.setHost(ConfigTools.getGatewayServerRegisterIp());

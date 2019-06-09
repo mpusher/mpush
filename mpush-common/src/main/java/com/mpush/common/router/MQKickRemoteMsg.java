@@ -22,6 +22,8 @@ package com.mpush.common.router;
 /**
  * Created by ohun on 16/10/23.
  *
+ * mq剔除远程信息
+ *
  * @author ohun@live.cn (夜色)
  */
 public class MQKickRemoteMsg implements KickRemoteMsg {

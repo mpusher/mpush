@@ -23,6 +23,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
+/**
+ * 线程池配置
+ */
 public final class ThreadPoolConfig {
     public static final int REJECTED_POLICY_ABORT = 0;
     public static final int REJECTED_POLICY_DISCARD = 1;

@@ -38,6 +38,8 @@ import static com.mpush.common.push.GatewayPushResult.toJson;
 /**
  * Created by ohun on 2016/12/24.
  *
+ * 网关推送监听器
+ *
  * @author ohun@live.cn (夜色)
  */
 @Spi(order = 1)

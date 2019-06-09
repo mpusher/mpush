@@ -22,6 +22,8 @@ package com.mpush.api.srd;
 /**
  * Created by ohun on 2016/12/27.
  *
+ * 服务名称
+ *
  * @author ohun@live.cn (夜色)
  */
 public interface ServiceNames {

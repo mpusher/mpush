@@ -25,6 +25,8 @@ import com.mpush.api.router.Router;
 /**
  * Created by ohun on 2015/12/23.
  *
+ * 远程路由器
+ *
  * @author ohun@live.cn
  */
 public final class RemoteRouter implements Router<ClientLocation> {

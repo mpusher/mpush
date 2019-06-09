@@ -25,6 +25,8 @@ import com.mpush.tools.Jsons;
 /**
  * Created by ohun on 2016/12/29.
  *
+ * 网关推送结果
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class GatewayPushResult {

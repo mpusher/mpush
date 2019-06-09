@@ -24,10 +24,11 @@ import com.mpush.api.protocol.Packet;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.gateway.GatewayKickUserMessage;
 import com.mpush.core.router.RouterCenter;
-import com.mpush.core.router.RouterChangeListener;
 
 /**
  * Created by ohun on 16/10/23.
+ *
+ * 网关剔除用户处理器
  *
  * @author ohun@live.cn (夜色)
  */

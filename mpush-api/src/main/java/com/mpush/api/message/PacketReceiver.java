@@ -25,8 +25,15 @@ import com.mpush.api.protocol.Packet;
 /**
  * Created by ohun on 2015/12/22.
  *
+ * 包接收器
+ *
  * @author ohun@live.cn
  */
 public interface PacketReceiver {
+    /**
+     * 接收
+     * @param packet
+     * @param connection
+     */
     void onReceive(Packet packet, Connection connection);
 }

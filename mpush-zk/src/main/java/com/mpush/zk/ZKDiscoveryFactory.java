@@ -26,6 +26,8 @@ import com.mpush.api.srd.ServiceDiscovery;
 /**
  * Created by ohun on 2016/12/27.
  *
+ * zk发现工厂
+ *
  * @author ohun@live.cn (夜色)
  */
 @Spi(order = 1)

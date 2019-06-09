@@ -35,6 +35,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ohun on 16/10/21.
  *
+ * 网关正常处理器
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class GatewayOKHandler extends BaseMessageHandler<OkMessage> {

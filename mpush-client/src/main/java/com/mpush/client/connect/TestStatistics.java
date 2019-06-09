@@ -24,6 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by ohun on 2016/12/8.
  *
+ * 测试统计
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class TestStatistics {

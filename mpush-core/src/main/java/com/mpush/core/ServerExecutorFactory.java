@@ -36,6 +36,7 @@ import static com.mpush.tools.config.CC.mp.thread.pool.push_task;
 import static com.mpush.tools.thread.ThreadNames.*;
 
 /**
+ * 服务器执行工厂
  * 此线程池可伸缩，线程空闲一定时间后回收，新请求重新创建线程
  */
 @Spi(order = 1)

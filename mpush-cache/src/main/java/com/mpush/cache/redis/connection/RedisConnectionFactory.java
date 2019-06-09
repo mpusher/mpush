@@ -15,17 +15,14 @@
  */
 package com.mpush.cache.redis.connection;
 
-import com.mpush.cache.redis.RedisServer;
 import com.mpush.tools.config.data.RedisNode;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.*;
 import redis.clients.util.Pool;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 

@@ -35,6 +35,8 @@ import static com.mpush.api.event.Topics.ONLINE_CHANNEL;
 /**
  * Created by ohun on 2015/12/23.
  *
+ * 用户事件消费者
+ *
  * @author ohun@live.cn
  */
 public final class UserEventConsumer extends EventConsumer {

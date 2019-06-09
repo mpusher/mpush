@@ -33,6 +33,8 @@ import static com.mpush.api.protocol.Command.HANDSHAKE;
 /**
  * Created by ohun on 2015/12/24.
  *
+ * 握手信息
+ *
  * @author ohun@live.cn
  */
 public final class HandshakeMessage extends ByteBufMessage {

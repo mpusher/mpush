@@ -29,11 +29,16 @@ import java.util.Map;
 /**
  * Created by ohun on 2015/12/28.
  *
+ * 绑定用户信息
+ *
  * @author ohun@live.cn
  */
 public final class BindUserMessage extends ByteBufMessage {
+    // 用户id
     public String userId;
+    // 标签
     public String tags;
+    // 数据
     public String data;
 
     public BindUserMessage(Connection connection) {

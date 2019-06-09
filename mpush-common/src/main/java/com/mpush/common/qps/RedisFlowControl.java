@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by ohun on 16/10/25.
  *
+ * redis流量控制
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class RedisFlowControl implements FlowControl {

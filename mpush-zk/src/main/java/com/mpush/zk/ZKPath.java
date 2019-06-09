@@ -24,6 +24,9 @@ import org.apache.curator.utils.ZKPaths;
 
 import static org.apache.curator.utils.ZKPaths.PATH_SEPARATOR;
 
+/**
+ * zk路径
+ */
 public enum ZKPath {
     REDIS_SERVER("/redis", "machine", "redis注册的地方"),
     CONNECT_SERVER("/cs/hosts", "machine", "connection server服务器应用注册的路径"),

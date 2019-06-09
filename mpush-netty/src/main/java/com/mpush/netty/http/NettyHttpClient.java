@@ -50,6 +50,7 @@ import static io.netty.handler.codec.http.HttpHeaderNames.HOST;
 import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
 
 /**
+ * netty http 客户端
  * Netty的一个Bootstrap是可以关联多个channel的，
  * 本Client采用的就是这种模式，在种模式下如果Handler添加了@ChannelHandler.Sharable
  * 注解的话，要特殊处理，因为这时的client和handler是被所有请求共享的。

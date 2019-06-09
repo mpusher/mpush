@@ -21,7 +21,6 @@ package com.mpush.core.handler;
 
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
-import com.mpush.common.ErrorCode;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.ErrorMessage;
 import com.mpush.common.message.FastConnectMessage;
@@ -38,6 +37,8 @@ import static com.mpush.common.ErrorCode.SESSION_EXPIRED;
 
 /**
  * Created by ohun on 2015/12/25.
+ *
+ * 快速连接处理器
  *
  * @author ohun@live.cn
  */

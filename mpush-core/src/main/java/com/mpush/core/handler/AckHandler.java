@@ -31,6 +31,8 @@ import com.mpush.tools.log.Logs;
 /**
  * Created by ohun on 16/9/5.
  *
+ * 确认处理器
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class AckHandler extends BaseMessageHandler<AckMessage> {

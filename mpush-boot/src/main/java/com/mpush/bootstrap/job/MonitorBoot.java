@@ -24,6 +24,8 @@ import com.mpush.core.MPushServer;
 /**
  * Created by yxx on 2016/5/15.
  *
+ * 监控启动任务
+ *
  * @author ohun@live.cn
  */
 public final class MonitorBoot extends BootJob {

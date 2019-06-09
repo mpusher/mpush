@@ -41,6 +41,8 @@ import static com.mpush.common.ErrorCode.UNSUPPORTED_CMD;
 /**
  * Created by ohun on 2015/12/22.
  *
+ * 信息分发器
+ *
  * @author ohun@live.cn
  */
 public final class MessageDispatcher implements PacketReceiver {

@@ -33,6 +33,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by ohun on 16/9/5.
  *
+ * 确认任务队列
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class AckTaskQueue extends BaseService {

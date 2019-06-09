@@ -27,6 +27,8 @@ import com.mpush.client.MPushClient;
 /**
  * Created by yxx on 2016/5/18.
  *
+ * 推送客户端工厂
+ *
  * @author ohun@live.cn
  */
 @Spi
