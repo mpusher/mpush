@@ -33,6 +33,7 @@ public final class SessionContext {
     public String clientVersion;
     public String deviceId;
     public String userId;
+    public String alias;
     public String tags;
     public int heartbeat = 10000;// 10s
     public Cipher cipher;
@@ -97,6 +98,7 @@ public final class SessionContext {
                 ", osVersion='" + osVersion + '\'' +
                 ", deviceId='" + deviceId + '\'' +
                 ", userId='" + userId + '\'' +
+                ", alias='" + alias + '\'' +
                 ", tags='" + tags + '\'' +
                 ", heartbeat=" + heartbeat +
                 '}';
