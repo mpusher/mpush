@@ -50,15 +50,27 @@ public final class PushClient extends BaseService implements PushSender {
         if (ctx.isBroadcast()) {
             return PushRequest.build(mPushClient, ctx).broadcast();
         } else {
+            //1. 根据用户ID查询所有的路由信息
             Set<RemoteRouter> remoteRouters = cachedRemoteRouterManager.lookupAll(ctx.getUserId());
-            if (remoteRouters == null || remoteRouters.isEmpty()) {
-                return PushRequest.build(mPushClient, ctx).onOffline();
+
+            if (remoteRouters != null && remoteRouters.size() > 0) {
+
+                FutureTask<PushResult> task = null;
+                for (RemoteRouter remoteRouter : remoteRouters) {
+                    //多端同时在线的情况下，只推在线用户，任何一个端推送成功，就认为成功，忽略离线的端
+                    if (remoteRouter.isOnline()) {
+                        task = PushRequest.build(mPushClient, ctx).send(remoteRouter);
+                    }
+                }
+
+                //1.1 推送成功直接返回
+                if (task != null) {
+                    return task;
+                }
             }
-            FutureTask<PushResult> task = null;
-            for (RemoteRouter remoteRouter : remoteRouters) {
-                task = PushRequest.build(mPushClient, ctx).send(remoteRouter);
-            }
-            return task;
+
+            //2. 没有任何在线的路由信息，直接返回用户离线
+            return PushRequest.build(mPushClient, ctx).onOffline();
         }
     }
 
