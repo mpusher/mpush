@@ -83,7 +83,7 @@ public final class AckTask implements Runnable {
     @Override
     public String toString() {
         return "{" +
-                ", ackMessageId=" + ackMessageId +
+                "ackMessageId=" + ackMessageId +
                 '}';
     }
 

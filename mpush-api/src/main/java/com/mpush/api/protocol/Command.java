@@ -69,9 +69,9 @@ public enum Command {
     GROUP(21),
     // 网关组
     GATEWAY_GROUP(22),
-    //
+    // 确认
     ACK(23),
-    //
+    // 不确认
     NACK(24),
     // 未知
     UNKNOWN(-1);

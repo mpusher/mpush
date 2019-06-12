@@ -36,6 +36,8 @@ import java.util.concurrent.*;
 /**
  * Created by ohun on 2016/12/28.
  *
+ * 文件缓存，即存放在磁盘中
+ *
  * @author ohun@live.cn (夜色)
  */
 @SuppressWarnings("unchecked")

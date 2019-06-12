@@ -49,6 +49,10 @@ public final class UserEventConsumer extends EventConsumer {
         this.userManager = new UserManager(remoteRouterManager);
     }
 
+    /**
+     * 在线事件处理
+     * @param event
+     */
     @Subscribe
     @AllowConcurrentEvents
     void on(UserOnlineEvent event) {
@@ -56,6 +60,10 @@ public final class UserEventConsumer extends EventConsumer {
         mqClient.publish(ONLINE_CHANNEL, event.getUserId());
     }
 
+    /**
+     * 离线事件处理
+     * @param event
+     */
     @Subscribe
     @AllowConcurrentEvents
     void on(UserOfflineEvent event) {

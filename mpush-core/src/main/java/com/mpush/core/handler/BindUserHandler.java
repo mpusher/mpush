@@ -115,6 +115,8 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 EventBus.post(new UserOnlineEvent(message.getConnection(), message.userId));
                 OkMessage.from(message).setData("bind success").sendRaw();
                 Logs.CONN.info("bind user success, userId={}, session={}", message.userId, context);
+
+                // TODO 将离线信息推送给用户
             } else {
                 //3.注册失败再处理下，防止本地注册成功，远程注册失败的情况，只有都成功了才叫成功
                 routerCenter.unRegister(message.userId, context.getClientType());

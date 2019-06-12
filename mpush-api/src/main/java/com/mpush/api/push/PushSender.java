@@ -23,10 +23,14 @@ import com.mpush.api.MPushContext;
 import com.mpush.api.service.Service;
 import com.mpush.api.spi.client.PusherFactory;
 
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.FutureTask;
 
 /**
  * Created by ohun on 2015/12/30.
+ *
+ * 推送发送器
  *
  * @author ohun@live.cn
  */
@@ -62,6 +66,40 @@ public interface PushSender extends Service {
                 .build(context)
                 .setAckModel(ackModel)
                 .setUserId(userId)
+                .setCallback(callback)
+        );
+    }
+
+    default FutureTask<PushResult> send(String context, List<String> userIds, PushCallback callback) {
+        return send(PushContext
+                .build(context)
+                .setUserIds(userIds)
+                .setCallback(callback)
+        );
+    }
+
+    default FutureTask<PushResult> send(String context, List<String> userIds, AckModel ackModel, PushCallback callback) {
+        return send(PushContext
+                .build(context)
+                .setAckModel(ackModel)
+                .setUserIds(userIds)
+                .setCallback(callback)
+        );
+    }
+
+    default FutureTask<PushResult> send(String context, Set<String> tags, PushCallback callback) {
+        return send(PushContext
+                .build(context)
+                .setTags(tags)
+                .setCallback(callback)
+        );
+    }
+
+    default FutureTask<PushResult> send(String context, Set<String> tags, AckModel ackModel, PushCallback callback) {
+        return send(PushContext
+                .build(context)
+                .setAckModel(ackModel)
+                .setTags(tags)
                 .setCallback(callback)
         );
     }

@@ -78,13 +78,21 @@ public final class ConnectionServer extends NettyTCPServer {
     public void init() {
         super.init();
         connectionManager.init();
+        // 注册 心跳 处理
         messageDispatcher.register(Command.HEARTBEAT, HeartBeatHandler::new);
+        // 注册 握手 处理
         messageDispatcher.register(Command.HANDSHAKE, () -> new HandshakeHandler(mPushServer));
+        // 注册 绑定 处理
         messageDispatcher.register(Command.BIND, () -> new BindUserHandler(mPushServer));
+        // 注册 解绑 处理
         messageDispatcher.register(Command.UNBIND, () -> new BindUserHandler(mPushServer));
+        // 注册 快速连接 处理
         messageDispatcher.register(Command.FAST_CONNECT, () -> new FastConnectHandler(mPushServer));
+        // 注册 推送 处理
         messageDispatcher.register(Command.PUSH, PushHandlerFactory::create);
+        // 注册 确认 处理
         messageDispatcher.register(Command.ACK, () -> new AckHandler(mPushServer));
+        // 注册 http代理 处理
         messageDispatcher.register(Command.HTTP_PROXY, () -> new HttpProxyHandler(mPushServer), CC.mp.http.proxy_enabled);
 
         if (CC.mp.net.traffic_shaping.connect_server.enabled) {//启用流量整形，限流

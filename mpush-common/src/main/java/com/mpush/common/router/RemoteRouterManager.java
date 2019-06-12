@@ -50,6 +50,13 @@ public class RemoteRouterManager extends EventConsumer implements RouterManager<
 
     private final CacheManager cacheManager = CacheManagerFactory.create();
 
+    /**
+     * 将信息缓存起来，以用户ID为key，目前只支持redis ，文件（磁盘）存储只是在单元测试使用，后续可以添加支持
+     *
+     * @param userId 用户ID
+     * @param router 新路由
+     * @return
+     */
     @Override
     public RemoteRouter register(String userId, RemoteRouter router) {
         String key = CacheKeys.getUserRouteKey(userId);

@@ -45,6 +45,9 @@ import java.util.Set;
 public final class UserManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
 
+    /**
+     * 在线用户列表key，缓存key
+     */
     private final String onlineUserListKey = CacheKeys.getOnlineUserListKey(ConfigTools.getPublicIp());
 
     private final CacheManager cacheManager = CacheManagerFactory.create();

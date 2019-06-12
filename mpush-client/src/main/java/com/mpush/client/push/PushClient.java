@@ -68,14 +68,29 @@ public final class PushClient extends BaseService implements PushSender {
     @Override
     public FutureTask<PushResult> send(PushContext ctx) {
         if (ctx.isBroadcast()) {
+            // 广播
             return send0(ctx.setUserId(null));
         } else if (ctx.getUserId() != null) {
+            // 按用户id推送
             return send0(ctx);
         } else if (ctx.getUserIds() != null) {
+            // 按多个用户id推送
             FutureTask<PushResult> task = null;
             for (String userId : ctx.getUserIds()) {
                 task = send0(ctx.setUserId(userId));
             }
+            return task;
+        }  else if (ctx.getAlias() != null) {
+            // TODO 按别名推送
+            FutureTask<PushResult> task = null;
+            return task;
+        }  else if (ctx.getAliasList() != null) {
+            // TODO 按多个别名推送
+            FutureTask<PushResult> task = null;
+            return task;
+        }  else if (ctx.getTags() != null) {
+            // TODO 按多个标签推送
+            FutureTask<PushResult> task = null;
             return task;
         } else {
             throw new PushException("param error.");

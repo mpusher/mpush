@@ -19,7 +19,7 @@ ps:由于源码分别在github和码云有两份，最新的代码以github为�
 ## 模块说明
 * conf - 配置模块，仅仅是配置文件
 * mpush-api - api接口
-* mpush-boot - 启动模块
+* mpush-boot - 启动模块，用于启动服务
 * mpush-cache - redis数据缓存，redis操作管理，redis订阅发布
 * mpush-client - MPush客户端
 * mpush-common - 通用模块

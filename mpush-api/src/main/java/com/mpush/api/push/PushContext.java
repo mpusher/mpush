@@ -52,6 +52,16 @@ public class PushContext {
     private List<String> userIds;
 
     /**
+     * 目标用户别名
+     */
+    private String alias;
+
+    /**
+     * 目标用户别名,批量
+     */
+    private List<String> aliasList;
+
+    /**
      * 消息ack模式
      */
     private AckModel ackModel = AckModel.NO_ACK;
@@ -80,7 +90,7 @@ public class PushContext {
 
     /**
      * 条件表达式, 满足条件的用户会被推送，目前支持的脚本语言为js
-     * 可以使用的参数为 userId,tags,clientVersion,osName,osVersion
+     * 可以使用的参数为 userId,alias,tags,clientVersion,osName,osVersion
      * 比如 :
      * 灰度：userId % 100 < 20
      * 包含test标签：tags!=null && tags.indexOf("test")!=-1
@@ -133,6 +143,24 @@ public class PushContext {
 
     public PushContext setUserIds(List<String> userIds) {
         this.userIds = userIds;
+        return this;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public PushContext setAlias(String alias) {
+        this.alias = alias;
+        return this;
+    }
+
+    public List<String> getAliasList() {
+        return aliasList;
+    }
+
+    public PushContext setAliasList(List<String> aliasList) {
+        this.aliasList = aliasList;
         return this;
     }
 
