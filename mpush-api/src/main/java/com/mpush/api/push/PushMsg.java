@@ -21,6 +21,7 @@ package com.mpush.api.push;
 
 
 /**
+ * 内部推送信息体
  * msgId、msgType 必填
  *
  * msgType=1 :nofication,提醒。

@@ -21,7 +21,6 @@ package com.mpush.api.push;
 
 import com.mpush.api.Constants;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -49,17 +48,12 @@ public class PushContext {
     /**
      * 目标用户,批量
      */
-    private List<String> userIds;
+    private Set<String> userIds;
 
     /**
-     * 目标用户别名
+     * 用户别名,批量
      */
-    private String alias;
-
-    /**
-     * 目标用户别名,批量
-     */
-    private List<String> aliasList;
+    private Set<String> aliasSet;
 
     /**
      * 消息ack模式
@@ -137,30 +131,21 @@ public class PushContext {
         return this;
     }
 
-    public List<String> getUserIds() {
+    public Set<String> getUserIds() {
         return userIds;
     }
 
-    public PushContext setUserIds(List<String> userIds) {
+    public PushContext setUserIds(Set<String> userIds) {
         this.userIds = userIds;
         return this;
     }
 
-    public String getAlias() {
-        return alias;
+    public Set<String> getAliasSet() {
+        return aliasSet;
     }
 
-    public PushContext setAlias(String alias) {
-        this.alias = alias;
-        return this;
-    }
-
-    public List<String> getAliasList() {
-        return aliasList;
-    }
-
-    public PushContext setAliasList(List<String> aliasList) {
-        this.aliasList = aliasList;
+    public PushContext setAliasSet(Set<String> aliasSet) {
+        this.aliasSet = aliasSet;
         return this;
     }
 

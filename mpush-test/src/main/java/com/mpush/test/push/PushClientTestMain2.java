@@ -108,7 +108,7 @@ public class PushClientTestMain2 {
         @Override
         public void run() {
             if (flowControl.checkQps()) {
-                FutureTask<PushResult> future = sender.send(context);
+                FutureTask<PushResult> future = sender.sendByUserId(context);
             } else {
                 executor.schedule(this, flowControl.getDelay(), TimeUnit.NANOSECONDS);
             }

@@ -19,6 +19,8 @@
 
 package com.mpush.bootstrap;
 
+import com.mpush.common.SnowflakeIdWorker;
+import com.mpush.tools.config.CC.mp.snowflake;
 import com.mpush.tools.log.Logs;
 
 public class Main {
@@ -30,6 +32,8 @@ public class Main {
      */
     public static void main(String[] args) {
         Logs.init();
+        SnowflakeIdWorker.setWorkerId(snowflake.workerId);
+        SnowflakeIdWorker.setDatacenterId(snowflake.datacenterId);
         Logs.Console.info("launch mpush server...");
         ServerLauncher launcher = new ServerLauncher();
         launcher.init();

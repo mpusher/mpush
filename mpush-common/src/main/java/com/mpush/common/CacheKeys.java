@@ -36,6 +36,24 @@ public final class CacheKeys {
     public static final String SESSION_AES_SEQ_KEY = "mp:sas";
     public static final String PUSH_TASK_PREFIX = "mp:pt";
 
+
+    // 根据用户id，存储别名、标签、在线设备列表、离线消息
+    private static final String USER_INFO_KEY_PREFIX = "mp:info:";
+    // 存储 别名 对应的 用户id
+    public static final String ALIAS_INFO_KEY_PREFIX = "mp:info:alias";
+    // 存储 标签 对应的 用户id
+    public static final String TAGS_INFO_KEY_PREFIX = "mp:info:tags";
+    //离线消息
+    private static final String MSG_KEY_PREFIX = "mp:msg:";
+
+
+    public static String getUserInfoKey(String userId) {
+        return USER_INFO_KEY_PREFIX + userId;
+    }
+    public static String getMsgKey(String msgId) {
+        return MSG_KEY_PREFIX + msgId;
+    }
+
     public static String getUserRouteKey(String userId) {
         return USER_PREFIX + userId;
     }

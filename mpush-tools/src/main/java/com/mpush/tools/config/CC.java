@@ -357,5 +357,10 @@ public interface CC {
             boolean profile_enabled = cfg.getBoolean("profile-enabled");
             Duration profile_slowly_duration = cfg.getDuration("profile-slowly-duration");
         }
+        interface snowflake {
+            Config cfg = mp.cfg.getObject("snowflake").toConfig();
+            int workerId = cfg.getInt("workerId") % 32;
+            int datacenterId = cfg.getInt("datacenterId") % 32;
+        }
     }
 }

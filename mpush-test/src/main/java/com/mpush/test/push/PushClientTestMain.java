@@ -19,12 +19,10 @@
 
 package com.mpush.test.push;
 
-import com.google.common.collect.Sets;
 import com.mpush.api.push.*;
 import com.mpush.tools.log.Logs;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
@@ -66,7 +64,8 @@ public class PushClientTestMain {
                             System.err.println("\n\n" + result);
                         }
                     });
-            FutureTask<PushResult> future = sender.send(context);
+            //FutureTask<PushResult> future = sender.send(context);
+            FutureTask<PushResult> future = sender.sendByUserId(context);
 
             //System.err.println("\n\n" + future.get());
         }

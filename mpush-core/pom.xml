@@ -31,5 +31,9 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>mpush-monitor</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>mpush-api</artifactId>
+        </dependency>
     </dependencies>
 </project>

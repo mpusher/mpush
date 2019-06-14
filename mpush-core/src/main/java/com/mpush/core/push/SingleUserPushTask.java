@@ -49,7 +49,7 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
 
     private final IPushMessage message;
 
-    private int messageId;
+    private long messageId;
 
     private long start;
 
@@ -236,7 +236,7 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
      *
      * @param messageId 下发到客户端待ack的消息的sessionId
      */
-    private void addAckTask(int messageId) {
+    private void addAckTask(long messageId) {
         timeLine.addTimePoint("waiting-ack");
 
         //因为要进队列，可以提前释放一些比较占用内存的字段，便于垃圾回收

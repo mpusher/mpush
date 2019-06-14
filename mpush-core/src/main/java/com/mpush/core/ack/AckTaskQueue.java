@@ -42,7 +42,7 @@ public final class AckTaskQueue extends BaseService {
 
     private final Logger logger = LoggerFactory.getLogger(AckTaskQueue.class);
 
-    private final ConcurrentMap<Integer, AckTask> queue = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, AckTask> queue = new ConcurrentHashMap<>();
     private ScheduledExecutorService scheduledExecutor;
     private MPushServer mPushServer;
 
@@ -61,7 +61,7 @@ public final class AckTaskQueue extends BaseService {
         logger.debug("one ack task add to queue, task={}, timeout={}", task, timeout);
     }
 
-    public AckTask getAndRemove(int sessionId) {
+    public AckTask getAndRemove(long sessionId) {
         return queue.remove(sessionId);
     }
 

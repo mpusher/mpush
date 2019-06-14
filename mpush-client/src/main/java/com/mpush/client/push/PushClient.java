@@ -32,6 +32,7 @@ import com.mpush.client.MPushClient;
 import com.mpush.client.gateway.connection.GatewayConnectionFactory;
 import com.mpush.common.router.CachedRemoteRouterManager;
 import com.mpush.common.router.RemoteRouter;
+import com.mpush.tools.StringUtil;
 
 import java.util.Set;
 import java.util.concurrent.FutureTask;
@@ -49,12 +50,18 @@ public final class PushClient extends BaseService implements PushSender {
 
     private GatewayConnectionFactory gatewayConnectionFactory;
 
+    /**
+     * 发送推送请求
+     * @param ctx
+     * @return
+     */
     private FutureTask<PushResult> send0(PushContext ctx) {
         if (ctx.isBroadcast()) {
             return PushRequest.build(mPushClient, ctx).broadcast();
         } else {
             Set<RemoteRouter> remoteRouters = cachedRemoteRouterManager.lookupAll(ctx.getUserId());
             if (remoteRouters == null || remoteRouters.isEmpty()) {
+                // 用户离线
                 return PushRequest.build(mPushClient, ctx).onOffline();
             }
             FutureTask<PushResult> task = null;
@@ -65,7 +72,7 @@ public final class PushClient extends BaseService implements PushSender {
         }
     }
 
-    @Override
+    //@Override
     public FutureTask<PushResult> send(PushContext ctx) {
         if (ctx.isBroadcast()) {
             // 广播
@@ -80,22 +87,76 @@ public final class PushClient extends BaseService implements PushSender {
                 task = send0(ctx.setUserId(userId));
             }
             return task;
-        }  else if (ctx.getAlias() != null) {
-            // TODO 按别名推送
+        } else if (ctx.getAliasSet() != null) {
+            // 按多个别名推送
+            // TODO 通过别名查找对应的用户id
+            Set<String> userIdSet = null;
             FutureTask<PushResult> task = null;
+            for (String userId : userIdSet) {
+                task = send0(ctx.setUserId(userId));
+            }
             return task;
-        }  else if (ctx.getAliasList() != null) {
-            // TODO 按多个别名推送
+        } else if (ctx.getTags() != null) {
+            // 按多个标签推送
+            // TODO 通过标签查找对应的用户id
+            Set<String> userIdSet = null;
             FutureTask<PushResult> task = null;
-            return task;
-        }  else if (ctx.getTags() != null) {
-            // TODO 按多个标签推送
-            FutureTask<PushResult> task = null;
+            for (String userId : userIdSet) {
+                task = send0(ctx.setUserId(userId));
+            }
             return task;
         } else {
             throw new PushException("param error.");
         }
     }
+
+    @Override
+    public FutureTask<PushResult> sendByUserId(PushContext context) {
+        if(context.getUserId() == null){
+            throw new PushException("param error.");
+        }
+        if(!StringUtil.verifyUserId(context.getUserId())){
+            throw new PushException("param error.");
+        }
+        return send(context);
+    }
+    @Override
+    public FutureTask<PushResult> sendByUserIds(PushContext context) {
+        if(context.getUserIds() == null || context.getUserIds().isEmpty()){
+            throw new PushException("param error.");
+        }
+        for(String userId : context.getUserIds()){
+            if(!StringUtil.verifyUserId(userId)){
+                throw new PushException("param error.");
+            }
+        }
+        return send(context);
+    }
+    @Override
+    public FutureTask<PushResult> sendByAlias(PushContext context) {
+        if(context.getAliasSet() == null || context.getAliasSet().isEmpty()){
+            throw new PushException("param error.");
+        }
+        for(String alias : context.getAliasSet()){
+            if(!StringUtil.verifyAlias(alias)){
+                throw new PushException("param error.");
+            }
+        }
+        return send(context);
+    }
+    @Override
+    public FutureTask<PushResult> sendByTags(PushContext context) {
+        if(context.getTags() == null || context.getTags().isEmpty()){
+            throw new PushException("param error.");
+        }
+        for(String tags : context.getTags()){
+            if(!StringUtil.verifyTags(tags)){
+                throw new PushException("param error.");
+            }
+        }
+        return send(context);
+    }
+
 
     @Override
     protected void doStart(Listener listener) throws Throwable {

@@ -40,7 +40,7 @@ public final class UDPPacket extends Packet {
         this.address = sender;
     }
 
-    public UDPPacket(Command cmd, int sessionId, InetSocketAddress sender) {
+    public UDPPacket(Command cmd, long sessionId, InetSocketAddress sender) {
         super(cmd, sessionId);
         this.address = sender;
     }

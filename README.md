@@ -99,7 +99,56 @@ ps:由于源码分别在github和码云有两份，最新的代码以github为�
    </dependency>
    ```
    启动入口`com.mpush.bootstrap.ServerLauncher.java` 
-   
+
+## 推送说明
+
+#### http推送接口信息体
+```json
+{
+    "msgId":"",
+    "userId":"",
+    "alias":"",
+    "tags":"",
+    "title":"",
+    "content":"",
+    "msgType":"",
+    "ticker":"",
+    "extras":{
+        "expire":""
+    }
+}
+```
+
+参数说明
+
+参数 | 类型 | 是否必传 | 说明 
+--- | --- | ---  | --- 
+msgId | String | 否 | 信息id
+userId | String | 否 | 用户id
+alias | String | 否 | 别名
+tags | String | 否 | 标签
+title | String | 否 | 标题
+content | String | 否 | 内容
+msgType | int | 是 | 推送类型，1通知 - 会在通知栏显示，2消息 - 不会在通知栏显示,业务自定义消息，3通知+消息
+ticker | String | 否 | 内容
+extras | object | 否 | 扩展
+expire | int | 否 | 过期时间，单位为秒，默认1800，即30分钟
+
+> * `userId`、`alias`、`tags`三者必须有且只能有一种，多个用英文逗号分隔
+> * `userId`和`alias` 全局唯一
+> * `userId`、`alias`、`tags`长度都小于128，且只能是英文字符、数组和英文符号`-`或`_`
+
+#### 内部推送接口信息体
+`com.mpush.api.push.PushMsg`
+
+参数说明
+
+参数 | 类型 | 是否必传 | 说明 
+--- | --- | ---  | --- 
+msgId | String | 是 | 信息id
+content | String | 是 | 内容
+msgType | com.mpush.api.push.MsgType | 是 | 推送类型，1通知 - 会在通知栏显示，2消息 - 不会在通知栏显示,业务自定义消息，3通知+消息
+
 ## 配置文件详解
    ```java
 ##################################################################################################################
@@ -338,7 +387,6 @@ mp {
     }
 }
 ```
-11. 未完待续...
 
 ## 独立部署
 1. 打包 `mvn clean package -Pzip`

@@ -27,7 +27,7 @@ import java.net.InetSocketAddress;
 
 /**
  * Created by ohun on 2015/12/19.
- * length(4)+cmd(1)+cc(2)+flags(1)+sessionId(4)+lrc(1)+body(n)
+ * length(4)+cmd(1)+cc(2)+flags(1)+sessionId(8)+lrc(1)+body(n)
  *
  * @author ohun@live.cn
  */
@@ -48,7 +48,7 @@ public class Packet {
     public byte cmd; //命令
     transient public short cc; //校验码 暂时没有用到
     public byte flags; //特性，如是否加密，是否压缩等
-    public int sessionId; // 会话id。客户端生成。
+    public long sessionId; // 会话id。客户端生成。
     transient public byte lrc; // 校验，纵向冗余校验。只校验head
     transient public byte[] body;
 
@@ -56,7 +56,7 @@ public class Packet {
         this.cmd = cmd;
     }
 
-    public Packet(byte cmd, int sessionId) {
+    public Packet(byte cmd, long sessionId) {
         this.cmd = cmd;
         this.sessionId = sessionId;
     }
@@ -65,7 +65,7 @@ public class Packet {
         this.cmd = cmd.cmd;
     }
 
-    public Packet(Command cmd, int sessionId) {
+    public Packet(Command cmd, long sessionId) {
         this.cmd = cmd.cmd;
         this.sessionId = sessionId;
     }
@@ -106,7 +106,7 @@ public class Packet {
                 .writeByte(cmd)
                 .writeShort(cc)
                 .writeByte(flags)
-                .writeInt(sessionId)
+                .writeLong(sessionId)
                 .array();
         byte lrc = 0;
         for (int i = 0; i < data.length; i++) {
@@ -141,7 +141,7 @@ public class Packet {
     public static Packet decodePacket(Packet packet, ByteBuf in, int bodyLength) {
         packet.cc = in.readShort();//read cc
         packet.flags = in.readByte();//read flags
-        packet.sessionId = in.readInt();//read sessionId
+        packet.sessionId = in.readLong();//read sessionId
         packet.lrc = in.readByte();//read lrc
 
         //read body
@@ -159,7 +159,7 @@ public class Packet {
             out.writeByte(packet.cmd);
             out.writeShort(packet.cc);
             out.writeByte(packet.flags);
-            out.writeInt(packet.sessionId);
+            out.writeLong(packet.sessionId);
             out.writeByte(packet.lrc);
             if (packet.getBodyLength() > 0) {
                 out.writeBytes(packet.body);

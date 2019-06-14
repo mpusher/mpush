@@ -27,8 +27,11 @@ import com.mpush.api.event.UserOnlineEvent;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.api.spi.Spi;
+import com.mpush.api.spi.common.CacheManager;
+import com.mpush.api.spi.common.CacheManagerFactory;
 import com.mpush.api.spi.handler.BindValidator;
 import com.mpush.api.spi.handler.BindValidatorFactory;
+import com.mpush.common.CacheKeys;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.BindUserMessage;
 import com.mpush.common.message.ErrorMessage;
@@ -39,6 +42,7 @@ import com.mpush.core.MPushServer;
 import com.mpush.core.router.LocalRouter;
 import com.mpush.core.router.LocalRouterManager;
 import com.mpush.core.router.RouterCenter;
+import com.mpush.tools.StringUtil;
 import com.mpush.tools.event.EventBus;
 import com.mpush.tools.log.Logs;
 
@@ -85,6 +89,23 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             Logs.CONN.error("bind user failure for invalid param, conn={}", message.getConnection());
             return;
         }
+        String error = "invalid param:";
+        int errorInitLen = error.length();
+        if(!StringUtil.verifyUserId(message.userId)){
+            error = error + " userId";
+        }
+        if(message.tags!=null && !StringUtil.verifyTags(message.tags)){
+            error = error + " tags";
+        }
+        if(message.alias != null && !StringUtil.verifyAlias(message.alias)){
+            error = error + " alias";
+        }
+        if(error.length() > errorInitLen){
+            ErrorMessage.from(message).setReason(error).close();
+            Logs.CONN.error("bind user failure for invalid param, conn={}", message.getConnection());
+            return;
+        }
+
         //1.绑定用户时先看下是否握手成功
         SessionContext context = message.getConnection().getSessionContext();
         if (context.handshakeOk()) {
@@ -116,7 +137,6 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
                 OkMessage.from(message).setData("bind success").sendRaw();
                 Logs.CONN.info("bind user success, userId={}, session={}", message.userId, context);
 
-                // TODO 将离线信息推送给用户
             } else {
                 //3.注册失败再处理下，防止本地注册成功，远程注册失败的情况，只有都成功了才叫成功
                 routerCenter.unRegister(message.userId, context.getClientType());
@@ -192,7 +212,18 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
      */
     @Spi(order = 1)
     public static class DefaultBindValidatorFactory implements BindValidatorFactory {
-        private final BindValidator validator = (userId, alias) -> true;
+        private final CacheManager cacheManager = CacheManagerFactory.create();
+        private final BindValidator validator = new BindValidator() {
+            @Override
+            public boolean validate(String userId, String alias) {
+                String cachedAliasUserId = cacheManager.hget(CacheKeys.ALIAS_INFO_KEY_PREFIX, alias, String.class);
+                if(cachedAliasUserId!=null && !cachedAliasUserId.equals(userId)){
+                    // 该别名已存在且用户id不相等，设置失败
+                    return false;
+                }
+                return true;
+            }
+        };
 
         @Override
         public BindValidator get() {

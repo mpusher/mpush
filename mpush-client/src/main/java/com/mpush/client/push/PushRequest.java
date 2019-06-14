@@ -65,11 +65,15 @@ public final class PushRequest extends FutureTask<PushResult> {
     private byte[] content;
     private int timeout;
     private ClientLocation location;
-    private int sessionId;
+    private long sessionId;
     private String taskId;
     private Future<?> future;
     private PushResult result;
 
+    /**
+     * 发送到连接服务器
+     * @param remoteRouter
+     */
     private void sendToConnServer(RemoteRouter remoteRouter) {
         timeLine.addTimePoint("lookup-remote");
 
@@ -119,6 +123,10 @@ public final class PushRequest extends FutureTask<PushResult> {
         }
     }
 
+    /**
+     * 提交状态
+     * @param status
+     */
     private void submit(Status status) {
         if (this.status.compareAndSet(Status.init, status)) {//防止重复调用
             boolean isTimeoutEnd = status == Status.timeout;//任务是否超时结束
@@ -161,12 +169,21 @@ public final class PushRequest extends FutureTask<PushResult> {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * 发送消息到连接服务器
+     * @param router
+     * @return
+     */
     public FutureTask<PushResult> send(RemoteRouter router) {
         timeLine.begin();
         sendToConnServer(router);
         return this;
     }
 
+    /**
+     * 广播
+     * @return
+     */
     public FutureTask<PushResult> broadcast() {
         timeLine.begin();
 
@@ -208,11 +225,18 @@ public final class PushRequest extends FutureTask<PushResult> {
         return this;
     }
 
+    /**
+     * 离线
+     */
     private void offline() {
         mPushClient.getCachedRemoteRouterManager().invalidateLocalCache(userId);
         submit(Status.offline);
+        // TODO 存储离线消息
     }
 
+    /**
+     * 超时
+     */
     private void timeout() {
         //超时要把request从队列中移除，其他情况是XXHandler中移除的
         if (mPushClient.getPushRequestBus().getAndRemove(sessionId) != null) {
@@ -220,18 +244,30 @@ public final class PushRequest extends FutureTask<PushResult> {
         }
     }
 
+    /**
+     * 成功
+     */
     private void success() {
         submit(Status.success);
     }
 
+    /**
+     * 失败
+     */
     private void failure() {
         submit(Status.failure);
     }
 
+    /**
+     * 失败
+     */
     public void onFailure() {
         failure();
     }
 
+    /**
+     * 重定向
+     */
     public void onRedirect() {
         timeLine.addTimePoint("redirect");
         LOGGER.warn("user route has changed, userId={}, location={}", userId, location);

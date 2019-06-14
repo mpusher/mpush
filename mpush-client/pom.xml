@@ -35,5 +35,9 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>mpush-zk</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>mpush-tools</artifactId>
+        </dependency>
     </dependencies>
 </project>
