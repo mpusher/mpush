@@ -44,9 +44,9 @@ public final class CacheKeys {
     public static final String USER_INFO_FIELD_DEVICES = "devices";
     public static final String USER_INFO_FIELD_MSG = "msg";
     // 存储 别名 对应的 用户id
-    public static final String ALIAS_INFO_KEY_PREFIX = "mp:info:alias";
+    public static final String ALIAS_INFO_KEY = "mp:info:alias";
     // 存储 标签 对应的 用户id
-    public static final String TAGS_INFO_KEY_PREFIX = "mp:info:tags";
+    public static final String TAGS_INFO_KEY = "mp:info:tags";
     //离线消息
     private static final String MSG_KEY_PREFIX = "mp:msg:";
 

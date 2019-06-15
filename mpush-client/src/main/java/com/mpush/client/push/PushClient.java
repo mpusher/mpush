@@ -98,7 +98,7 @@ public final class PushClient extends BaseService implements PushSender {
             // 通过别名查找对应的用户id
             Set<String> userIdSet = new HashSet<>();
             for(String alias : ctx.getAliasSet()){
-                String userId = cacheManager.hget(CacheKeys.ALIAS_INFO_KEY_PREFIX, alias, String.class);
+                String userId = cacheManager.hget(CacheKeys.ALIAS_INFO_KEY, alias, String.class);
                 if(userId != null){
                     userIdSet.add(userId);
                 }
@@ -114,7 +114,7 @@ public final class PushClient extends BaseService implements PushSender {
             // 通过标签查找对应的用户id
             Set<String> userIdSet = new HashSet<>();
             for(String tag : ctx.getTags()){
-                String[] userIds = cacheManager.hget(CacheKeys.TAGS_INFO_KEY_PREFIX, tag, String[].class);
+                String[] userIds = cacheManager.hget(CacheKeys.TAGS_INFO_KEY, tag, String[].class);
                 if(userIds != null && userIds.length>0){
                     userIdSet.addAll(SetUtil.toSet(userIds));
                 }

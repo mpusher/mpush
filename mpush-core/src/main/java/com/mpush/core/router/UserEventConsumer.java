@@ -35,7 +35,10 @@ import com.mpush.common.CacheKeys;
 import com.mpush.common.message.PushMessage;
 import com.mpush.common.router.RemoteRouterManager;
 import com.mpush.common.user.UserManager;
+import com.mpush.tools.Jsons;
 import com.mpush.tools.event.EventConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -51,6 +54,7 @@ import static com.mpush.api.event.Topics.ONLINE_CHANNEL;
  * @author ohun@live.cn
  */
 public final class UserEventConsumer extends EventConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserEventConsumer.class);
 
     private final MQClient mqClient = MQClientFactory.create();
 
@@ -87,6 +91,7 @@ public final class UserEventConsumer extends EventConsumer {
      * @param sessionContext
      */
     void saveUserInfo(SessionContext sessionContext){
+        LOGGER.info("sessionContext:"+ Jsons.toJson(sessionContext));
         String userId = sessionContext.userId;
         String alias = sessionContext.alias;
         String tags = sessionContext.tags;
@@ -99,16 +104,23 @@ public final class UserEventConsumer extends EventConsumer {
 
         String key = CacheKeys.getUserInfoKey(userId);
 
-        String cachedAliasUserId = cacheManager.hget(CacheKeys.ALIAS_INFO_KEY_PREFIX, alias, String.class);
+        String cachedAliasUserId = cacheManager.hget(CacheKeys.ALIAS_INFO_KEY, alias, String.class);
         if(cachedAliasUserId!=null && !cachedAliasUserId.equals(userId)){
             // 该别名已存在且用户id不相等，设置失败
         }else{
             cacheManager.hset(key, CacheKeys.USER_INFO_FIELD_ALIAS, alias);
-            cacheManager.hset(CacheKeys.ALIAS_INFO_KEY_PREFIX, alias, userId);
+            cacheManager.hset(CacheKeys.ALIAS_INFO_KEY, alias, userId);
+
+            LOGGER.info("save alias key:{} field:{} value:{}", key, CacheKeys.USER_INFO_FIELD_ALIAS, alias);
+            LOGGER.info("save alias key:{} field:{} value:{}", CacheKeys.ALIAS_INFO_KEY, alias, userId);
         }
+
         String oldTags = cacheManager.hget(key, CacheKeys.USER_INFO_FIELD_TAGS, String.class);
-        if(oldTags!=null && !oldTags.equals(tags)){
+        if(oldTags==null
+                || (oldTags!=null && !oldTags.equals(tags))){
             cacheManager.hset(key, CacheKeys.USER_INFO_FIELD_TAGS, tags);
+
+            LOGGER.info("save tags key:{} field:{} value:{}", key, CacheKeys.USER_INFO_FIELD_TAGS, tags);
         }
 
         Set<String> oldTagsSet = oldTags!=null ? SetUtil.toSet(oldTags) : new HashSet<>();
@@ -124,17 +136,21 @@ public final class UserEventConsumer extends EventConsumer {
         if(oldTagsSet!=null && !oldTagsSet.isEmpty()){
             // 从旧标签删除本用户id
             for(String tag : oldTagsSet){
-                String[] cachedTagsUserId = cacheManager.hget(CacheKeys.TAGS_INFO_KEY_PREFIX, tag, String[].class);
+                String[] cachedTagsUserId = cacheManager.hget(CacheKeys.TAGS_INFO_KEY, tag, String[].class);
                 cachedTagsUserId = ArrayUtil.removeArr(cachedTagsUserId, userId);
-                cacheManager.hset(CacheKeys.TAGS_INFO_KEY_PREFIX, tag, cachedTagsUserId);
+                cacheManager.hset(CacheKeys.TAGS_INFO_KEY, tag, cachedTagsUserId);
+
+                LOGGER.info("save tags key:{} field:{} value:{}" , CacheKeys.TAGS_INFO_KEY, tag, Jsons.toJson(cachedTagsUserId));
             }
         }
         if(newTagsSet!=null && !newTagsSet.isEmpty()){
             // 将本用户id添加到新标签
             for(String tag : newTagsSet){
-                String[] cachedTagsUserId = cacheManager.hget(CacheKeys.TAGS_INFO_KEY_PREFIX, tag, String[].class);
+                String[] cachedTagsUserId = cacheManager.hget(CacheKeys.TAGS_INFO_KEY, tag, String[].class);
                 cachedTagsUserId = ArrayUtil.addArr(cachedTagsUserId, userId);
-                cacheManager.hset(CacheKeys.TAGS_INFO_KEY_PREFIX, tag, cachedTagsUserId);
+                cacheManager.hset(CacheKeys.TAGS_INFO_KEY, tag, cachedTagsUserId);
+
+                LOGGER.info("save tags key:{} field:{} value:{}", CacheKeys.TAGS_INFO_KEY, tag, Jsons.toJson(cachedTagsUserId));
             }
         }
         retainTagsSet = null;
@@ -146,6 +162,8 @@ public final class UserEventConsumer extends EventConsumer {
         if(devices!=newDevices){
             // 将用户在线设备添加到缓存
             cacheManager.hset(key, CacheKeys.USER_INFO_FIELD_DEVICES, newDevices);
+
+            LOGGER.info("save devices key:{} field:{} value:{}", key, CacheKeys.USER_INFO_FIELD_DEVICES, Jsons.toJson(newDevices));
         }
     }
 
@@ -154,12 +172,18 @@ public final class UserEventConsumer extends EventConsumer {
      */
     void sendOfflineMsg(UserOnlineEvent event){
         String key = CacheKeys.getUserInfoKey(event.getUserId());
-        String[] msgs = cacheManager.hget(key, CacheKeys.USER_INFO_FIELD_MSG, String[].class);
-        for(String msgId : msgs){
+        String msgs = cacheManager.hget(key, CacheKeys.USER_INFO_FIELD_MSG, String.class);
+        if(msgs==null){
+            return;
+        }
+        String[] msgIds = msgs.split(",");
+        for(String msgId : msgIds){
             String json = cacheManager.get(msgId, String.class);
             byte[] content = json.getBytes(Constants.UTF_8);
             PushMessage pushMessage = PushMessage.build(event.getConnection()).setContent(content);
-            pushMessage.send();
+            pushMessage.send(null);
+
+            LOGGER.info("send offline userId:{}[{}] msg:{}", event.getUserId(), event.getConnection().getChannel(), json);
         }
         cacheManager.hdel(key, CacheKeys.USER_INFO_FIELD_MSG);
     }
@@ -191,6 +215,8 @@ public final class UserEventConsumer extends EventConsumer {
         String[] newDevices = ArrayUtil.removeArr(devices, deviceInfo);
         if(devices!=newDevices){
             cacheManager.hset(key, CacheKeys.USER_INFO_FIELD_DEVICES, newDevices);
+
+            LOGGER.info("save devices key:{} field:{} value:{}", key, CacheKeys.USER_INFO_FIELD_DEVICES, Jsons.toJson(newDevices));
         }
     }
 

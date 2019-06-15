@@ -216,7 +216,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
         private final BindValidator validator = new BindValidator() {
             @Override
             public boolean validate(String userId, String alias) {
-                String cachedAliasUserId = cacheManager.hget(CacheKeys.ALIAS_INFO_KEY_PREFIX, alias, String.class);
+                String cachedAliasUserId = cacheManager.hget(CacheKeys.ALIAS_INFO_KEY, alias, String.class);
                 if(cachedAliasUserId!=null && !cachedAliasUserId.equals(userId)){
                     // 该别名已存在且用户id不相等，设置失败
                     return false;

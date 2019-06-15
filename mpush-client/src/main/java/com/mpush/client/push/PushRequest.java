@@ -24,7 +24,6 @@ import com.mpush.api.push.*;
 import com.mpush.api.router.ClientLocation;
 import com.mpush.api.spi.common.CacheManager;
 import com.mpush.api.spi.common.CacheManagerFactory;
-import com.mpush.api.utils.ArrayUtil;
 import com.mpush.client.MPushClient;
 import com.mpush.common.CacheKeys;
 import com.mpush.common.message.gateway.GatewayPushMessage;
@@ -240,17 +239,18 @@ public final class PushRequest extends FutureTask<PushResult> {
             return;
         }
         String key = CacheKeys.getUserInfoKey(userId);
-        if(cacheManager.exists(key)
-                && cacheManager.hexists(key, CacheKeys.USER_INFO_FIELD_MSG)){
-            String[] msgs = cacheManager.hget(key, CacheKeys.USER_INFO_FIELD_MSG, String[].class);
+        if(cacheManager.exists(key)){
+            String msgs = cacheManager.hget(key, CacheKeys.USER_INFO_FIELD_MSG, String.class);
 
             String cacheMsgId = CacheKeys.getMsgKey(msgId);
             if(msgs == null){
-                msgs = new String[]{cacheMsgId};
+                msgs = cacheMsgId;
             }else{
-                ArrayUtil.addArr(msgs, cacheMsgId);
+                msgs = msgs +","+cacheMsgId;
             }
             cacheManager.hset(key, CacheKeys.USER_INFO_FIELD_MSG, msgs);
+
+            LOGGER.info("save offline, userId={}, key={} msg={}", userId, CacheKeys.USER_INFO_FIELD_MSG, Jsons.toJson(msgs));
         }
     }
 

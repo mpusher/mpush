@@ -16,6 +16,10 @@ public class ArrayUtil {
      * @return
      */
     public static String[] addArr(String[] src, String add){
+        if(src==null){
+            src = new String[]{add};
+            return src;
+        }
         boolean has = false;
         if(src != null && src.length>0){
             for(String item : src){
@@ -40,6 +44,9 @@ public class ArrayUtil {
      * @return
      */
     public static String[] removeArr(String[] src, String remove){
+        if(src==null){
+            return src;
+        }
         boolean has = false;
         int index = -1;
         if(src != null && src.length>0){
