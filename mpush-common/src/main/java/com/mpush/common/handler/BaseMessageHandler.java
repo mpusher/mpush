@@ -35,8 +35,6 @@ import com.mpush.tools.common.Profiler;
  */
 public abstract class BaseMessageHandler<T extends BaseMessage> implements MessageHandler {
 
-
-
     public abstract T decode(Packet packet, Connection connection);
 
     public abstract void handle(T message);

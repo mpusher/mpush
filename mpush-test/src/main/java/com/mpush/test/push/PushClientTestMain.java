@@ -48,7 +48,7 @@ public class PushClientTestMain {
         for (int i = 0; i < 1; i++) {
 
             PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
-            msg.setMsgId("msgId_" + i);
+            //msg.setMsgId("msgId_" + i);
 
             PushContext context = PushContext.build(msg)
                     .setAckModel(AckModel.AUTO_ACK)

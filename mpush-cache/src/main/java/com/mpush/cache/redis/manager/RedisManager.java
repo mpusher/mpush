@@ -171,6 +171,14 @@ public final class RedisManager implements CacheManager {
         call(jedis -> jedis.hdel(key, field));
     }
 
+    public boolean exists(String key) {
+        return call(jedis -> jedis.exists(key), false);
+    }
+
+    public boolean hexists(String key, String field) {
+        return call(jedis -> jedis.hexists(key, field), false);
+    }
+
     public Map<String, String> hgetAll(String key) {
         return call(jedis -> jedis.hgetAll(key), Collections.<String, String>emptyMap());
     }

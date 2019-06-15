@@ -39,6 +39,10 @@ public final class CacheKeys {
 
     // 根据用户id，存储别名、标签、在线设备列表、离线消息
     private static final String USER_INFO_KEY_PREFIX = "mp:info:";
+    public static final String USER_INFO_FIELD_ALIAS = "alias";
+    public static final String USER_INFO_FIELD_TAGS = "tags";
+    public static final String USER_INFO_FIELD_DEVICES = "devices";
+    public static final String USER_INFO_FIELD_MSG = "msg";
     // 存储 别名 对应的 用户id
     public static final String ALIAS_INFO_KEY_PREFIX = "mp:info:alias";
     // 存储 标签 对应的 用户id
@@ -51,6 +55,9 @@ public final class CacheKeys {
         return USER_INFO_KEY_PREFIX + userId;
     }
     public static String getMsgKey(String msgId) {
+        return MSG_KEY_PREFIX + msgId;
+    }
+    public static String getMsgKey(long msgId) {
         return MSG_KEY_PREFIX + msgId;
     }
 

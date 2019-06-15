@@ -20,6 +20,8 @@
 package com.mpush.api.push;
 
 
+import com.mpush.api.utils.SnowflakeIdWorker;
+
 /**
  * 内部推送信息体
  * msgId、msgType 必填
@@ -39,9 +41,11 @@ public final class PushMsg {
     private final MsgType msgType; //type 必填
     private String msgId; //返回使用 必填
     private String content; //content
+    private static final SnowflakeIdWorker snowflakeIdWorker = SnowflakeIdWorker.getInstance();
 
-    public PushMsg(MsgType msgType) {
+    private PushMsg(MsgType msgType) {
         this.msgType = msgType;
+        this.msgId = "msgId_"+snowflakeIdWorker.nextId();
     }
 
     public static PushMsg build(MsgType msgType, String content) {
@@ -58,9 +62,9 @@ public final class PushMsg {
         return msgType.getValue();
     }
 
-    public void setMsgId(String msgId) {
-        this.msgId = msgId;
-    }
+//    public void setMsgId(String msgId) {
+//        this.msgId = msgId;
+//    }
 
     public String getContent() {
         return content;

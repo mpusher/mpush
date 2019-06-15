@@ -140,6 +140,20 @@ public final class FileCacheManger implements CacheManager {
     }
 
     @Override
+    public boolean exists(String key) {
+        return cache.containsKey(key);
+    }
+
+    @Override
+    public boolean hexists(String key, String field) {
+        Object map = cache.get(key);
+        if (map != null) {
+            return ((Map) map).containsKey(field);
+        }
+        return false;
+    }
+
+    @Override
     public <T> Map<String, T> hgetAll(String key, Class<T> clazz) {
         Map<String, Object> m = (Map) cache.get(key);
         if (m == null || m.isEmpty()) return Collections.emptyMap();

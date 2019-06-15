@@ -33,12 +33,17 @@ import java.net.InetSocketAddress;
  */
 @SuppressWarnings("unchecked")
 public class Packet {
-    public static final int HEADER_LEN = 13;
-
+    // packet包头协议长度
+    public static final int HEADER_LEN = 17;
+    // packet包启用加密
     public static final byte FLAG_CRYPTO = 1;
+    // packet包启用压缩
     public static final byte FLAG_COMPRESS = 2;
+    // 由客户端业务自己确认消息是否到达 标志
     public static final byte FLAG_BIZ_ACK = 4;
+    // 客户端收到消息后自动确认消息 标志
     public static final byte FLAG_AUTO_ACK = 8;
+    // 信息体为json标志
     public static final byte FLAG_JSON_BODY = 16;
 
     public static final byte HB_PACKET_BYTE = -33;

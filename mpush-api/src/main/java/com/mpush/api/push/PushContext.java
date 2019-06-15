@@ -21,6 +21,7 @@ package com.mpush.api.push;
 
 import com.mpush.api.Constants;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -97,6 +98,8 @@ public class PushContext {
      * 广播推送的时候可以考虑生成一个ID, 便于控制任务。
      */
     private String taskId;
+
+    private Map<String, String> extras;
 
     public PushContext(byte[] context) {
         this.context = context;
@@ -213,6 +216,15 @@ public class PushContext {
 
     public PushContext setTaskId(String taskId) {
         this.taskId = taskId;
+        return this;
+    }
+
+    public Map<String, String> getExtras() {
+        return extras;
+    }
+
+    public PushContext setExtras(Map<String, String> extras) {
+        this.extras = extras;
         return this;
     }
 }

@@ -26,7 +26,6 @@ import com.mpush.api.protocol.Packet;
 import io.netty.channel.ChannelFutureListener;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.mpush.api.protocol.Command.PUSH;

@@ -23,7 +23,7 @@ import com.mpush.api.connection.Cipher;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.message.Message;
 import com.mpush.api.protocol.Packet;
-import com.mpush.common.SnowflakeIdWorker;
+import com.mpush.api.utils.SnowflakeIdWorker;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.common.IOUtils;
 import com.mpush.tools.common.Profiler;

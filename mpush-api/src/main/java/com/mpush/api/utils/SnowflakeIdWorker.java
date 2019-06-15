@@ -1,4 +1,4 @@
-package com.mpush.common;
+package com.mpush.api.utils;
 
 /**
  * ID 生成器

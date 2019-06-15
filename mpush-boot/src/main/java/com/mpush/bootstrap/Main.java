@@ -19,7 +19,7 @@
 
 package com.mpush.bootstrap;
 
-import com.mpush.common.SnowflakeIdWorker;
+import com.mpush.api.utils.SnowflakeIdWorker;
 import com.mpush.tools.config.CC.mp.snowflake;
 import com.mpush.tools.log.Logs;
 

@@ -22,11 +22,16 @@ package com.mpush.client.push;
 import com.mpush.api.Constants;
 import com.mpush.api.push.*;
 import com.mpush.api.router.ClientLocation;
+import com.mpush.api.spi.common.CacheManager;
+import com.mpush.api.spi.common.CacheManagerFactory;
+import com.mpush.api.utils.ArrayUtil;
 import com.mpush.client.MPushClient;
+import com.mpush.common.CacheKeys;
 import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.common.push.GatewayPushResult;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.tools.Jsons;
+import com.mpush.tools.common.Strings;
 import com.mpush.tools.common.TimeLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +61,7 @@ public final class PushRequest extends FutureTask<PushResult> {
     private final TimeLine timeLine = new TimeLine("Push-Time-Line");
 
     private final MPushClient mPushClient;
+    private static final CacheManager cacheManager = CacheManagerFactory.create();
 
     private AckModel ackModel;
     private Set<String> tags;
@@ -69,6 +75,7 @@ public final class PushRequest extends FutureTask<PushResult> {
     private String taskId;
     private Future<?> future;
     private PushResult result;
+    private String msgId;
 
     /**
      * 发送到连接服务器
@@ -226,12 +233,35 @@ public final class PushRequest extends FutureTask<PushResult> {
     }
 
     /**
+     * 存储离线消息
+     */
+    private void saveOfflineMsg(){
+        if(Strings.isBlank(msgId)){
+            return;
+        }
+        String key = CacheKeys.getUserInfoKey(userId);
+        if(cacheManager.exists(key)
+                && cacheManager.hexists(key, CacheKeys.USER_INFO_FIELD_MSG)){
+            String[] msgs = cacheManager.hget(key, CacheKeys.USER_INFO_FIELD_MSG, String[].class);
+
+            String cacheMsgId = CacheKeys.getMsgKey(msgId);
+            if(msgs == null){
+                msgs = new String[]{cacheMsgId};
+            }else{
+                ArrayUtil.addArr(msgs, cacheMsgId);
+            }
+            cacheManager.hset(key, CacheKeys.USER_INFO_FIELD_MSG, msgs);
+        }
+    }
+
+    /**
      * 离线
      */
     private void offline() {
         mPushClient.getCachedRemoteRouterManager().invalidateLocalCache(userId);
         submit(Status.offline);
-        // TODO 存储离线消息
+        // 存储离线消息
+        saveOfflineMsg();
     }
 
     /**
@@ -242,6 +272,8 @@ public final class PushRequest extends FutureTask<PushResult> {
         if (mPushClient.getPushRequestBus().getAndRemove(sessionId) != null) {
             submit(Status.timeout);
         }
+        // 存储离线消息
+        saveOfflineMsg();
     }
 
     /**
@@ -299,7 +331,7 @@ public final class PushRequest extends FutureTask<PushResult> {
         return timeout;
     }
 
-    public PushRequest(MPushClient mPushClient) {
+    private PushRequest(MPushClient mPushClient) {
         super(NONE);
         this.mPushClient = mPushClient;
     }
@@ -307,8 +339,19 @@ public final class PushRequest extends FutureTask<PushResult> {
     public static PushRequest build(MPushClient mPushClient, PushContext ctx) {
         byte[] content = ctx.getContext();
         PushMsg msg = ctx.getPushMsg();
+        String msgId = null;
         if (msg != null) {
             String json = Jsons.toJson(msg);
+            // 存储推送信息
+            msgId = msg.getMsgId();
+            int expireTime = Constants.EXPIRE_TIME;
+            if(ctx.getExtras()!=null){
+                if(ctx.getExtras().containsKey("extras")){
+                    expireTime = Integer.valueOf(ctx.getExtras().get("extras"));
+                }
+            }
+            String cacheMsgId = CacheKeys.getMsgKey(msgId);
+            cacheManager.set(cacheMsgId, json, expireTime);
             if (json != null) {
                 content = json.getBytes(Constants.UTF_8);
             }
@@ -324,7 +367,8 @@ public final class PushRequest extends FutureTask<PushResult> {
                 .setTaskId(ctx.getTaskId())
                 .setContent(content)
                 .setTimeout(ctx.getTimeout())
-                .setCallback(ctx.getCallback());
+                .setCallback(ctx.getCallback())
+                .setMsgId(msgId);
 
     }
 
@@ -375,6 +419,11 @@ public final class PushRequest extends FutureTask<PushResult> {
 
     public PushRequest setTaskId(String taskId) {
         this.taskId = taskId;
+        return this;
+    }
+
+    public PushRequest setMsgId(String msgId) {
+        this.msgId = msgId;
         return this;
     }
 

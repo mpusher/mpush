@@ -26,14 +26,18 @@ import com.mpush.api.push.PushResult;
 import com.mpush.api.push.PushSender;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
+import com.mpush.api.spi.common.CacheManager;
 import com.mpush.api.spi.common.CacheManagerFactory;
 import com.mpush.api.spi.common.ServiceDiscoveryFactory;
+import com.mpush.api.utils.SetUtil;
 import com.mpush.client.MPushClient;
 import com.mpush.client.gateway.connection.GatewayConnectionFactory;
+import com.mpush.common.CacheKeys;
 import com.mpush.common.router.CachedRemoteRouterManager;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.tools.StringUtil;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.FutureTask;
 
@@ -49,6 +53,8 @@ public final class PushClient extends BaseService implements PushSender {
     private CachedRemoteRouterManager cachedRemoteRouterManager;
 
     private GatewayConnectionFactory gatewayConnectionFactory;
+
+    private CacheManager cacheManager;
 
     /**
      * 发送推送请求
@@ -89,21 +95,35 @@ public final class PushClient extends BaseService implements PushSender {
             return task;
         } else if (ctx.getAliasSet() != null) {
             // 按多个别名推送
-            // TODO 通过别名查找对应的用户id
-            Set<String> userIdSet = null;
+            // 通过别名查找对应的用户id
+            Set<String> userIdSet = new HashSet<>();
+            for(String alias : ctx.getAliasSet()){
+                String userId = cacheManager.hget(CacheKeys.ALIAS_INFO_KEY_PREFIX, alias, String.class);
+                if(userId != null){
+                    userIdSet.add(userId);
+                }
+            }
             FutureTask<PushResult> task = null;
             for (String userId : userIdSet) {
                 task = send0(ctx.setUserId(userId));
             }
+            userIdSet = null;
             return task;
         } else if (ctx.getTags() != null) {
             // 按多个标签推送
-            // TODO 通过标签查找对应的用户id
-            Set<String> userIdSet = null;
+            // 通过标签查找对应的用户id
+            Set<String> userIdSet = new HashSet<>();
+            for(String tag : ctx.getTags()){
+                String[] userIds = cacheManager.hget(CacheKeys.TAGS_INFO_KEY_PREFIX, tag, String[].class);
+                if(userIds != null && userIds.length>0){
+                    userIdSet.addAll(SetUtil.toSet(userIds));
+                }
+            }
             FutureTask<PushResult> task = null;
             for (String userId : userIdSet) {
                 task = send0(ctx.setUserId(userId));
             }
+            userIdSet = null;
             return task;
         } else {
             throw new PushException("param error.");
@@ -112,7 +132,10 @@ public final class PushClient extends BaseService implements PushSender {
 
     @Override
     public FutureTask<PushResult> sendByUserId(PushContext context) {
-        if(context.getUserId() == null){
+        if(context.getUserId() == null
+                || context.getUserIds() != null
+                || context.getAliasSet() != null
+                || context.getTags() != null){
             throw new PushException("param error.");
         }
         if(!StringUtil.verifyUserId(context.getUserId())){
@@ -122,7 +145,11 @@ public final class PushClient extends BaseService implements PushSender {
     }
     @Override
     public FutureTask<PushResult> sendByUserIds(PushContext context) {
-        if(context.getUserIds() == null || context.getUserIds().isEmpty()){
+        if(context.getUserIds() == null
+                || context.getUserIds().isEmpty()
+                || context.getUserId() != null
+                || context.getAliasSet() != null
+                || context.getTags() != null){
             throw new PushException("param error.");
         }
         for(String userId : context.getUserIds()){
@@ -134,7 +161,11 @@ public final class PushClient extends BaseService implements PushSender {
     }
     @Override
     public FutureTask<PushResult> sendByAlias(PushContext context) {
-        if(context.getAliasSet() == null || context.getAliasSet().isEmpty()){
+        if(context.getAliasSet() == null
+                || context.getAliasSet().isEmpty()
+                || context.getUserId() != null
+                || context.getUserIds() != null
+                || context.getTags() != null){
             throw new PushException("param error.");
         }
         for(String alias : context.getAliasSet()){
@@ -146,7 +177,11 @@ public final class PushClient extends BaseService implements PushSender {
     }
     @Override
     public FutureTask<PushResult> sendByTags(PushContext context) {
-        if(context.getTags() == null || context.getTags().isEmpty()){
+        if(context.getTags() == null
+                || context.getTags().isEmpty()
+                || context.getUserId() != null
+                || context.getUserIds() != null
+                || context.getAliasSet() != null){
             throw new PushException("param error.");
         }
         for(String tags : context.getTags()){
@@ -156,7 +191,6 @@ public final class PushClient extends BaseService implements PushSender {
         }
         return send(context);
     }
-
 
     @Override
     protected void doStart(Listener listener) throws Throwable {
@@ -172,6 +206,7 @@ public final class PushClient extends BaseService implements PushSender {
         CacheManagerFactory.create().init();
         pushRequestBus.syncStart();
         gatewayConnectionFactory.start(listener);
+        cacheManager = CacheManagerFactory.create();
     }
 
     @Override

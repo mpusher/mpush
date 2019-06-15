@@ -45,6 +45,8 @@ public interface CacheManager {
 
     <T> T get(String key, Class<T> tClass);
 
+    boolean exists(String key);
+
     void hset(String key, String field, String value);
 
     void hset(String key, String field, Object value);
@@ -52,6 +54,8 @@ public interface CacheManager {
     <T> T hget(String key, String field, Class<T> tClass);
 
     void hdel(String key, String field);
+
+    boolean hexists(String key, String field);
 
     <T> Map<String, T> hgetAll(String key, Class<T> clazz);
 
