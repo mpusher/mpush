@@ -9,10 +9,10 @@
 * server [https://github.com/dengly/mpush](https://github.com/dengly/mpush) 服务端源码
 * alloc [https://github.com/dengly/alloc](https://github.com/dengly/alloc)  调度器源码
 * mpns [https://github.com/dengly/mpns](https://github.com/dengly/mpns)     个性化推送中心源码
-* java-client [https://github.com/mpusher/mpush-client-java](https://github.com/mpusher/mpush-client-java) 纯java客户端源码
-* android sdk&demo [https://github.com/mpusher/mpush-android](https://github.com/mpusher/mpush-android)    安卓SDK和DEMO源码
-* IOS sdk(swift) [https://github.com/mpusher/mpush-client-swift](https://github.com/mpusher/mpush-client-swift) swift版客户端源码
-* IOS sdk(OC) [https://github.com/mpusher/mpush-client-oc](https://github.com/mpusher/mpush-client-oc)  Object C 客户端源码
+* java-client [https://github.com/dengly/mpush-client-java](https://github.com/dengly/mpush-client-java) 纯java客户端源码
+* android sdk&demo [https://github.com/dengly/mpush-android](https://github.com/dengly/mpush-android)    安卓SDK和DEMO源码
+* IOS sdk(swift) [https://github.com/dengly/mpush-client-swift](https://github.com/dengly/mpush-client-swift) swift版客户端源码
+* IOS sdk(OC) [https://github.com/dengly/mpush-client-oc](https://github.com/dengly/mpush-client-oc)  Object C 客户端源码
 
 ps:由于源码分别在github和码云有两份，最新的代码以github为主
 
