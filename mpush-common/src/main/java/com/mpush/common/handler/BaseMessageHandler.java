@@ -29,11 +29,11 @@ import com.mpush.tools.common.Profiler;
 /**
  * Created by ohun on 2015/12/22.
  *
+ * 基本信息处理器
+ *
  * @author ohun@live.cn
  */
 public abstract class BaseMessageHandler<T extends BaseMessage> implements MessageHandler {
-
-
 
     public abstract T decode(Packet packet, Connection connection);
 

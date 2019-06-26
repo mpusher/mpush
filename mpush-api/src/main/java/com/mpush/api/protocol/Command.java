@@ -25,30 +25,55 @@ package com.mpush.api.protocol;
  * @author ohun@live.cn
  */
 public enum Command {
+    // 心跳
     HEARTBEAT(1),
+    // 握手
     HANDSHAKE(2),
+    // 登录
     LOGIN(3),
+    // 登出
     LOGOUT(4),
+    // 绑定
     BIND(5),
+    // 解绑
     UNBIND(6),
+    // 快速链接
     FAST_CONNECT(7),
+    // 暂停
     PAUSE(8),
+    // 恢复
     RESUME(9),
+    // 错误
     ERROR(10),
+    // 正常
     OK(11),
+    // http代理
     HTTP_PROXY(12),
+    // 踢除
     KICK(13),
+    // 网关踢除
     GATEWAY_KICK(14),
+    // 推送
     PUSH(15),
+    // 网关推送
     GATEWAY_PUSH(16),
+    // 通知
     NOTIFICATION(17),
+    // 网关通知
     GATEWAY_NOTIFICATION(18),
+    // 聊天
     CHAT(19),
+    // 网关聊天
     GATEWAY_CHAT(20),
+    // 组
     GROUP(21),
+    // 网关组
     GATEWAY_GROUP(22),
+    // 确认
     ACK(23),
+    // 不确认
     NACK(24),
+    // 未知
     UNKNOWN(-1);
 
     Command(int cmd) {
@@ -57,6 +82,11 @@ public enum Command {
 
     public final byte cmd;
 
+    /**
+     * 从数据包中获取命令
+     * @param b
+     * @return
+     */
     public static Command toCMD(byte b) {
         Command[] values = values();
         if (b > 0 && b < values.length) return values[b - 1];

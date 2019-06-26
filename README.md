@@ -6,21 +6,35 @@
 
 ## 源码
 * group [https://github.com/mpusher/](https://github.com/mpusher/) 源代码空间
-* server [https://github.com/mpusher/mpush](https://github.com/mpusher/mpush) 服务端源码
-* alloc [https://github.com/mpusher/alloc](https://github.com/mpusher/alloc)  调度器源码
-* mpns [https://github.com/mpusher/mpns](https://github.com/mpusher/mpns)     个性化推送中心源码
-* java-client [https://github.com/mpusher/mpush-client-java](https://github.com/mpusher/mpush-client-java) 纯java客户端源码
-* android sdk&demo [https://github.com/mpusher/mpush-android](https://github.com/mpusher/mpush-android)    安卓SDK和DEMO源码
-* IOS sdk(swift) [https://github.com/mpusher/mpush-client-swift](https://github.com/mpusher/mpush-client-swift) swift版客户端源码
-* IOS sdk(OC) [https://github.com/mpusher/mpush-client-oc](https://github.com/mpusher/mpush-client-oc)  Object C 客户端源码
+* server [https://github.com/dengly/mpush](https://github.com/dengly/mpush) 服务端源码
+* alloc [https://github.com/dengly/alloc](https://github.com/dengly/alloc)  调度器源码
+* mpns [https://github.com/dengly/mpns](https://github.com/dengly/mpns)     个性化推送中心源码
+* java-client [https://github.com/dengly/mpush-client-java](https://github.com/dengly/mpush-client-java) 纯java客户端源码
+* android sdk&demo [https://github.com/dengly/mpush-android](https://github.com/dengly/mpush-android)    安卓SDK和DEMO源码
+* IOS sdk(swift) [https://github.com/dengly/mpush-client-swift](https://github.com/dengly/mpush-client-swift) swift版客户端源码
+* IOS sdk(OC) [https://github.com/dengly/mpush-client-oc](https://github.com/dengly/mpush-client-oc)  Object C 客户端源码
 
 ps:由于源码分别在github和码云有两份，最新的代码以github为主
 
+## 模块说明
+* conf - 配置模块，仅仅是配置文件
+* mpush-api - api接口
+* mpush-boot - 启动模块，用于启动服务
+* mpush-cache - redis数据缓存，redis操作管理，redis订阅发布
+* mpush-client - MPush客户端
+* mpush-common - 通用模块
+* mpush-core - 核心模块
+* mpush-monitor - 监控模块
+* mpush-netty - netty连接模块
+* mpush-test - 单元测试模块
+* mpush-tools - 工具模块
+* mpush-zk - zookeeper模块
+
 ## 服务调用关系
-![](https://mpusher.github.io/docs/服务依赖关系.png)
+![服务调用关系](https://mpusher.github.io/docs/服务依赖关系.png)
 
 ## 源码测试
-1. ```git clone https://github.com/mpusher/mpush.git```
+1. ```git clone https://github.com/dengly/mpush.git```
 2. 导入到eclipse或Intellij IDEA
 3. 打开```mpush-test```模块，所有的测试代码都在该模块下
 4. 修改配置文件```src/test/resource/application.conf```文件修改方式参照 服务部署第6点
@@ -39,9 +53,9 @@ ps:由于源码分别在github和码云有两份，最新的代码以github为�
 
 3. 安装```Redis``` (安装配置步骤略)
 
-4. 下载mpush server 最新的正式包[https://github.com/mpusher/mpush/releases](https://github.com/mpusher/mpush/releases)
+4. 下载mpush server 最新的正式包[https://github.com/dengly/mpush/releases](https://github.com/dengly/mpush/releases)
 
-5. 解压下载的tar包`tar -zvxf mpush-release-0.0.2.tar.gz`到 mpush 目录, 结构如下
+5. 解压下载的tar包`tar -zvxf mpush-release-0.8.2.tar.gz`到 mpush 目录, 结构如下
 
    ><pre class="md-fences">
    >drwxrwxr-x 2 shinemo shinemo  4096 Aug 20 09:30 bin —> 启动脚本
@@ -85,7 +99,54 @@ ps:由于源码分别在github和码云有两份，最新的代码以github为�
    </dependency>
    ```
    启动入口`com.mpush.bootstrap.ServerLauncher.java` 
-   
+
+## 推送说明
+
+#### http推送接口信息体
+```json
+{
+    "userId":"",
+    "alias":"",
+    "tags":"",
+    "title":"",
+    "content":"",
+    "flags":"",
+    "msgType":"",
+    "extras":{
+        "expire":""
+    }
+}
+```
+
+参数说明
+
+参数 | 类型 | 是否必传 | 说明 
+--- | --- | ---  | --- 
+userId | String | 否 | 用户id
+alias | String | 否 | 别名
+tags | String | 否 | 标签
+title | String | 是 | 标题
+content | String | 是 | 内容
+msgType | int | 是 | 推送类型，1通知 - 会在通知栏显示，2消息 - 不会在通知栏显示,业务自定义消息，3通知+消息
+flags | int | 否 | 特性字段，0x01:声音，0x02:震动，0x03:闪灯
+extras | object | 否 | 扩展
+expire | int | 否 | 过期时间，单位为秒，默认1800，即30分钟
+
+> * `userId`、`alias`、`tags`三者必须有且只能有一种，多个用英文逗号分隔
+> * `userId`和`alias` 全局唯一
+> * `userId`、`alias`、`tags`长度都小于128，且只能是英文字符、数组和英文符号`-`或`_`
+
+#### 内部推送接口信息体
+`com.mpush.api.push.PushMsg`
+
+参数说明
+
+参数 | 类型 | 是否必传 | 说明 
+--- | --- | ---  | --- 
+msgId | String | 是 | 信息id
+content | String | 是 | 内容
+msgType | com.mpush.api.push.MsgType | 是 | 推送类型，1通知 - 会在通知栏显示，2消息 - 不会在通知栏显示,业务自定义消息，3通知+消息
+
 ## 配置文件详解
    ```java
 ##################################################################################################################
@@ -324,4 +385,12 @@ mp {
     }
 }
 ```
-11. 未完待续...
+
+## 独立部署
+1. 打包 `mvn clean package -Pzip`
+2. 打好的包位置： `mpush-boot/target/mpush-release-版本号.tar.gz`
+3. 解压 `tar -zvxf mpush-release-版本号.tar.gz`
+4. `cd mpush-版本号`
+5. `vim conf/mpush.conf`
+6. `chmod +x bin/*.sh`
+7. `bin/mp.sh start`

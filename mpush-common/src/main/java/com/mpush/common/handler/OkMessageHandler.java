@@ -26,6 +26,8 @@ import com.mpush.common.message.OkMessage;
 /**
  * Created by ohun on 2015/12/30.
  *
+ * 正常信息处理器
+ *
  * @author ohun@live.cn
  */
 public class OkMessageHandler extends BaseMessageHandler<OkMessage> {

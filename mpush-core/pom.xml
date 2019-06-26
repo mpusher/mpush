@@ -8,7 +8,7 @@
     <parent>
         <artifactId>mpush</artifactId>
         <groupId>com.github.mpusher</groupId>
-        <version>0.8.1</version>
+        <version>0.8.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -30,6 +30,10 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>mpush-monitor</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>mpush-api</artifactId>
         </dependency>
     </dependencies>
 </project>

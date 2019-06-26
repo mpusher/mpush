@@ -30,6 +30,8 @@ import com.mpush.tools.crypto.MD5Utils;
 /**
  * Created by ohun on 2015/12/25.
  *
+ * 可复用会话管理器
+ *
  * @author ohun@live.cn
  */
 public final class ReusableSessionManager {

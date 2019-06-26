@@ -21,11 +21,12 @@ package com.mpush.monitor.jmx.mxbean;
 
 import com.mpush.monitor.jmx.MBeanInfo;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by ohun on 2016/12/23.
+ *
+ * 推送中心
  *
  * @author ohun@live.cn (夜色)
  */

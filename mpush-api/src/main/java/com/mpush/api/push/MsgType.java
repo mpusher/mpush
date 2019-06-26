@@ -1,9 +1,9 @@
 package com.mpush.api.push;
 
 public enum MsgType {
-    NOTIFICATION("提醒", 1),//会在通知栏显示
+    NOTIFICATION("通知", 1),//会在通知栏显示
     MESSAGE("消息", 2),//不会在通知栏显示,业务自定义消息
-    NOTIFICATION_AND_MESSAGE("提醒+消息", 3);//1+2
+    NOTIFICATION_AND_MESSAGE("通知+消息", 3);//1+2
 
     MsgType(String desc, int value) {
         this.desc = desc;
@@ -19,5 +19,12 @@ public enum MsgType {
 
     public int getValue() {
         return value;
+    }
+
+    public static MsgType getMsgType(int value){
+        return value == 1 ? NOTIFICATION
+                : value == 2 ? MESSAGE
+                : value == 3 ? NOTIFICATION_AND_MESSAGE
+                : null;
     }
 }

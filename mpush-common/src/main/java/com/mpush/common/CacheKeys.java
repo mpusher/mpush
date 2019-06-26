@@ -19,19 +19,47 @@
 
 package com.mpush.common;
 
+/**
+ * 缓存key
+ */
 public final class CacheKeys {
-
-    private static final String USER_PREFIX = "mp:ur:";//用户路由
-
-    private static final String SESSION_PREFIX = "mp:rs:";//可复用session
+    //用户路由
+    private static final String USER_PREFIX = "mp:ur:";
+    //可复用session
+    private static final String SESSION_PREFIX = "mp:rs:";
 
     private static final String FAST_CONNECTION_DEVICE_PREFIX = "mp:fcd:";
-
-    private static final String ONLINE_USER_LIST_KEY_PREFIX = "mp:oul:";//在线用户列表
+    //在线用户列表
+    private static final String ONLINE_USER_LIST_KEY_PREFIX = "mp:oul:";
 
     public static final String SESSION_AES_KEY = "mp:sa";
     public static final String SESSION_AES_SEQ_KEY = "mp:sas";
     public static final String PUSH_TASK_PREFIX = "mp:pt";
+
+
+    // 根据用户id，存储别名、标签、在线设备列表、离线消息
+    private static final String USER_INFO_KEY_PREFIX = "mp:info:";
+    public static final String USER_INFO_FIELD_ALIAS = "alias";
+    public static final String USER_INFO_FIELD_TAGS = "tags";
+    public static final String USER_INFO_FIELD_DEVICES = "devices";
+    public static final String USER_INFO_FIELD_MSG = "msg";
+    // 存储 别名 对应的 用户id
+    public static final String ALIAS_INFO_KEY = "mp:info:alias";
+    // 存储 标签 对应的 用户id
+    public static final String TAGS_INFO_KEY = "mp:info:tags";
+    //离线消息
+    private static final String MSG_KEY_PREFIX = "mp:msg:";
+
+
+    public static String getUserInfoKey(String userId) {
+        return USER_INFO_KEY_PREFIX + userId;
+    }
+    public static String getMsgKey(String msgId) {
+        return MSG_KEY_PREFIX + msgId;
+    }
+    public static String getMsgKey(long msgId) {
+        return MSG_KEY_PREFIX + msgId;
+    }
 
     public static String getUserRouteKey(String userId) {
         return USER_PREFIX + userId;

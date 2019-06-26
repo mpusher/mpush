@@ -22,10 +22,13 @@ package com.mpush.core.ack;
 /**
  * Created by ohun on 16/9/6.
  *
+ * 确认回调
+ *
  * @author ohun@live.cn (夜色)
  */
 public interface AckCallback {
+    // 成功
     void onSuccess(AckTask context);
-
+    // 超时
     void onTimeout(AckTask context);
 }

@@ -25,6 +25,8 @@ import com.mpush.tools.config.CC.mp.net.public_ip_mapping;
 /**
  * Created by yxx on 2016/5/18.
  *
+ * 配置工具
+ *
  * @author ohun@live.cn
  */
 public final class ConfigTools {

@@ -19,6 +19,9 @@
 
 package com.mpush.tools.thread;
 
+/**
+ * 线程名称
+ */
 public final class ThreadNames {
     public static final String NS = "mp";
     public static final String THREAD_NAME_PREFIX = NS + "-t";

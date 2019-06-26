@@ -32,6 +32,8 @@ import static com.mpush.api.event.Topics.ONLINE_CHANNEL;
 /**
  * Created by ohun on 2016/1/4.
  *
+ * 用户状态变化监听器
+ *
  * @author ohun@live.cn
  */
 public class UserStatusChangeListener implements MQMessageReceiver {

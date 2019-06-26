@@ -39,6 +39,9 @@ import org.apache.zookeeper.data.ACL;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * zk客户端
+ */
 public class ZKClient extends BaseService {
     public static final ZKClient I = I();
     private ZKConfig zkConfig;

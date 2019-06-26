@@ -35,14 +35,20 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ohun on 2015/12/23.
  *
+ * 路由器中心器，用于管理需要推送设备的路由信息
+ *
  * @author ohun@live.cn
  */
 public final class RouterCenter extends BaseService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RouterCenter.class);
 
+    // 本地路由管理器
     private LocalRouterManager localRouterManager;
+    // 远程路由管理器
     private RemoteRouterManager remoteRouterManager;
+    // 用户时间消费者
     private UserEventConsumer userEventConsumer;
+    // 路由变化监听器
     private RouterChangeListener routerChangeListener;
     private MPushServer mPushServer;
 
@@ -109,6 +115,12 @@ public final class RouterCenter extends BaseService {
         return true;
     }
 
+    /**
+     * 根据用户id和客户端类型查找路由
+     * @param userId
+     * @param clientType
+     * @return
+     */
     public Router<?> lookup(String userId, int clientType) {
         LocalRouter local = localRouterManager.lookup(userId, clientType);
         if (local != null) return local;

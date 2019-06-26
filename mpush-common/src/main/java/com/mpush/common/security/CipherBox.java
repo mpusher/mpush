@@ -29,6 +29,8 @@ import java.security.interfaces.RSAPublicKey;
 /**
  * Created by ohun on 2015/12/24.
  *
+ * 加密方式盒子
+ *
  * @author ohun@live.cn
  */
 public final class CipherBox {

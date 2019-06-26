@@ -36,6 +36,8 @@ import static com.mpush.common.ErrorCode.ROUTER_CHANGE;
 /**
  * Created by ohun on 16/10/21.
  *
+ * 网关错误处理器
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class GatewayErrorHandler extends BaseMessageHandler<ErrorMessage> {

@@ -19,12 +19,10 @@
 
 package com.mpush.test.push;
 
-import com.google.common.collect.Sets;
 import com.mpush.api.push.*;
 import com.mpush.tools.log.Logs;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
@@ -50,7 +48,7 @@ public class PushClientTestMain {
         for (int i = 0; i < 1; i++) {
 
             PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
-            msg.setMsgId("msgId_" + i);
+            //msg.setMsgId("msgId_" + i);
 
             PushContext context = PushContext.build(msg)
                     .setAckModel(AckModel.AUTO_ACK)
@@ -66,7 +64,8 @@ public class PushClientTestMain {
                             System.err.println("\n\n" + result);
                         }
                     });
-            FutureTask<PushResult> future = sender.send(context);
+            //FutureTask<PushResult> future = sender.send(context);
+            FutureTask<PushResult> future = sender.sendByUserId(context);
 
             //System.err.println("\n\n" + future.get());
         }

@@ -25,6 +25,8 @@ import com.mpush.common.security.AesCipher;
 /**
  * Created by ohun on 2015/12/25.
  *
+ * 可复用会话
+ *
  * @author ohun@live.cn
  */
 public final class ReusableSession {

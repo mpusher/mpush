@@ -29,6 +29,9 @@ import io.netty.util.TimerTask;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * 请求上下文
+ */
 public class RequestContext implements TimerTask, HttpCallback {
     private static final int TIMEOUT = CC.mp.http.default_read_timeout;
     private final long startTime = System.currentTimeMillis();

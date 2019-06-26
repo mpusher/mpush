@@ -26,7 +26,6 @@ import com.mpush.api.spi.common.CacheManagerFactory;
 import com.mpush.api.spi.common.MQClient;
 import com.mpush.api.spi.common.MQClientFactory;
 import com.mpush.common.CacheKeys;
-import com.mpush.common.router.CachedRemoteRouterManager;
 import com.mpush.common.router.MQKickRemoteMsg;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.common.router.RemoteRouterManager;
@@ -38,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 用户管理器
  * 在线列表是存在redis里的，服务被kill -9的时候，无法修改redis。
  * 查询全部在线列表的时候，要通过当前ZK里可用的机器来循环查询。
  * 每台机器的在线列表是分开存的，如果都存储在一起，某台机器挂了，反而不好处理。
@@ -45,6 +45,9 @@ import java.util.Set;
 public final class UserManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
 
+    /**
+     * 在线用户列表key，缓存key
+     */
     private final String onlineUserListKey = CacheKeys.getOnlineUserListKey(ConfigTools.getPublicIp());
 
     private final CacheManager cacheManager = CacheManagerFactory.create();
@@ -57,10 +60,19 @@ public final class UserManager {
         this.remoteRouterManager = remoteRouterManager;
     }
 
+    /**
+     * 剔除用户
+     * @param userId
+     */
     public void kickUser(String userId) {
         kickUser(userId, -1);
     }
 
+    /**
+     * 剔除用户
+     * @param userId
+     * @param clientType
+     */
     public void kickUser(String userId, int clientType) {
         Set<RemoteRouter> remoteRouters = remoteRouterManager.lookupAll(userId);
         if (remoteRouters != null) {
@@ -80,34 +92,58 @@ public final class UserManager {
         }
     }
 
+    /**
+     * 清除在线用户列表
+     */
     public void clearOnlineUserList() {
         cacheManager.del(onlineUserListKey);
     }
 
+    /**
+     * 添加到在线列表
+     * @param userId
+     */
     public void addToOnlineList(String userId) {
         cacheManager.zAdd(onlineUserListKey, userId);
         LOGGER.info("user online {}", userId);
     }
 
+    /**
+     * 从在线列表删除
+     * @param userId
+     */
     public void remFormOnlineList(String userId) {
         cacheManager.zRem(onlineUserListKey, userId);
         LOGGER.info("user offline {}", userId);
     }
 
-    //在线用户数量
+    /**
+     * 在线用户数量
+     * @return
+     */
     public long getOnlineUserNum() {
         Long value = cacheManager.zCard(onlineUserListKey);
         return value == null ? 0 : value;
     }
 
-    //在线用户数量
+    /**
+     * 在线用户数量
+     * @param publicIP
+     * @return
+     */
     public long getOnlineUserNum(String publicIP) {
         String online_key = CacheKeys.getOnlineUserListKey(publicIP);
         Long value = cacheManager.zCard(online_key);
         return value == null ? 0 : value;
     }
 
-    //在线用户列表
+    /**
+     * 在线用户列表
+     * @param publicIP
+     * @param start
+     * @param end
+     * @return
+     */
     public List<String> getOnlineUserList(String publicIP, int start, int end) {
         String key = CacheKeys.getOnlineUserListKey(publicIP);
         return cacheManager.zrange(key, start, end, String.class);

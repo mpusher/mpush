@@ -30,6 +30,8 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * Created by ohun on 2016/12/27.
  *
+ * netty连接管理器
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class NettyConnectionManager implements ConnectionManager {

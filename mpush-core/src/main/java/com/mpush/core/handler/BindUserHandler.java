@@ -27,8 +27,11 @@ import com.mpush.api.event.UserOnlineEvent;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.api.spi.Spi;
+import com.mpush.api.spi.common.CacheManager;
+import com.mpush.api.spi.common.CacheManagerFactory;
 import com.mpush.api.spi.handler.BindValidator;
 import com.mpush.api.spi.handler.BindValidatorFactory;
+import com.mpush.common.CacheKeys;
 import com.mpush.common.handler.BaseMessageHandler;
 import com.mpush.common.message.BindUserMessage;
 import com.mpush.common.message.ErrorMessage;
@@ -39,11 +42,14 @@ import com.mpush.core.MPushServer;
 import com.mpush.core.router.LocalRouter;
 import com.mpush.core.router.LocalRouterManager;
 import com.mpush.core.router.RouterCenter;
+import com.mpush.tools.StringUtil;
 import com.mpush.tools.event.EventBus;
 import com.mpush.tools.log.Logs;
 
 /**
  * Created by ohun on 2015/12/23.
+ *
+ * 绑定用户处理器
  *
  * @author ohun@live.cn
  */
@@ -65,18 +71,41 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
     @Override
     public void handle(BindUserMessage message) {
         if (message.getPacket().cmd == Command.BIND.cmd) {
+            // 绑定
             bind(message);
         } else {
+            // 解绑
             unbind(message);
         }
     }
 
+    /**
+     * 绑定
+     * @param message
+     */
     private void bind(BindUserMessage message) {
         if (Strings.isNullOrEmpty(message.userId)) {
             ErrorMessage.from(message).setReason("invalid param").close();
             Logs.CONN.error("bind user failure for invalid param, conn={}", message.getConnection());
             return;
         }
+        String error = "invalid param:";
+        int errorInitLen = error.length();
+        if(!StringUtil.verifyUserId(message.userId)){
+            error = error + " userId";
+        }
+        if(message.tags!=null && !StringUtil.verifyTags(message.tags)){
+            error = error + " tags";
+        }
+        if(message.alias != null && !StringUtil.verifyAlias(message.alias)){
+            error = error + " alias";
+        }
+        if(error.length() > errorInitLen){
+            ErrorMessage.from(message).setReason(error).close();
+            Logs.CONN.error("bind user failure for invalid param, conn={}", message.getConnection());
+            return;
+        }
+
         //1.绑定用户时先看下是否握手成功
         SessionContext context = message.getConnection().getSessionContext();
         if (context.handshakeOk()) {
@@ -84,6 +113,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             if (context.userId != null) {
                 if (message.userId.equals(context.userId)) {
                     context.tags = message.tags;
+                    context.alias = message.alias;
                     OkMessage.from(message).setData("bind success").sendRaw();
                     Logs.CONN.info("rebind user success, userId={}, session={}", message.userId, context);
                     return;
@@ -93,7 +123,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             }
 
             //验证用户身份
-            boolean success = bindValidator.validate(message.userId, message.data);
+            boolean success = bindValidator.validate(message.userId, message.alias);
             if (success) {
                 //2.如果握手成功，就把用户链接信息注册到路由中心，本地和远程各一份
                 success = routerCenter.register(message.userId, message.getConnection());
@@ -102,9 +132,11 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             if (success) {
                 context.userId = message.userId;
                 context.tags = message.tags;
+                context.alias = message.alias;
                 EventBus.post(new UserOnlineEvent(message.getConnection(), message.userId));
                 OkMessage.from(message).setData("bind success").sendRaw();
                 Logs.CONN.info("bind user success, userId={}, session={}", message.userId, context);
+
             } else {
                 //3.注册失败再处理下，防止本地注册成功，远程注册失败的情况，只有都成功了才叫成功
                 routerCenter.unRegister(message.userId, context.getClientType());
@@ -118,6 +150,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
     }
 
     /**
+     * 解绑
      * 目前是以用户维度来存储路由信息的，所以在删除路由信息时要判断下是否是同一个设备
      * 后续可以修改为按设备来存储路由信息。
      *
@@ -140,7 +173,8 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             RemoteRouter remoteRouter = remoteRouterManager.lookup(userId, clientType);
             if (remoteRouter != null) {
                 String deviceId = remoteRouter.getRouteValue().getDeviceId();
-                if (context.deviceId.equals(deviceId)) {//判断是否是同一个设备
+                if (context.deviceId.equals(deviceId)) {
+                    //判断是否是同一个设备
                     unRegisterSuccess = remoteRouterManager.unRegister(userId, clientType);
                 }
             }
@@ -149,7 +183,8 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             LocalRouter localRouter = localRouterManager.lookup(userId, clientType);
             if (localRouter != null) {
                 String deviceId = localRouter.getRouteValue().getSessionContext().deviceId;
-                if (context.deviceId.equals(deviceId)) {//判断是否是同一个设备
+                if (context.deviceId.equals(deviceId)) {
+                    //判断是否是同一个设备
                     unRegisterSuccess = localRouterManager.unRegister(userId, clientType) && unRegisterSuccess;
                 }
             }
@@ -158,6 +193,7 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
             if (unRegisterSuccess) {
                 context.userId = null;
                 context.tags = null;
+                context.alias = null;
                 EventBus.post(new UserOfflineEvent(message.getConnection(), userId));
                 OkMessage.from(message).setData("unbind success").sendRaw();
                 Logs.CONN.info("unbind user success, userId={}, session={}", userId, context);
@@ -171,10 +207,23 @@ public final class BindUserHandler extends BaseMessageHandler<BindUserMessage> {
         }
     }
 
-
+    /**
+     * 默认绑定验证器
+     */
     @Spi(order = 1)
     public static class DefaultBindValidatorFactory implements BindValidatorFactory {
-        private final BindValidator validator = (userId, data) -> true;
+        private final CacheManager cacheManager = CacheManagerFactory.create();
+        private final BindValidator validator = new BindValidator() {
+            @Override
+            public boolean validate(String userId, String alias) {
+                String cachedAliasUserId = cacheManager.hget(CacheKeys.ALIAS_INFO_KEY, alias, String.class);
+                if(cachedAliasUserId!=null && !cachedAliasUserId.equals(userId)){
+                    // 该别名已存在且用户id不相等，设置失败
+                    return false;
+                }
+                return true;
+            }
+        };
 
         @Override
         public BindValidator get() {

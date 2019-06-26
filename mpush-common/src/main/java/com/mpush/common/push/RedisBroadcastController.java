@@ -29,6 +29,9 @@ import java.util.List;
 /**
  * Created by ohun on 16/10/25.
  *
+ *
+ * redis广播控制器
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class RedisBroadcastController implements BroadcastController {

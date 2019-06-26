@@ -26,6 +26,8 @@ import com.mpush.api.spi.core.RsaCipherFactory;
 /**
  * Created by yxx on 2016/5/19.
  *
+ * 默认rsa加密方式工厂
+ *
  * @author ohun@live.cn
  */
 @Spi

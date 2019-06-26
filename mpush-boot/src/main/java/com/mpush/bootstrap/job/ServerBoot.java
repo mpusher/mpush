@@ -28,6 +28,8 @@ import com.mpush.tools.log.Logs;
 /**
  * Created by yxx on 2016/5/14.
  *
+ * 服务器启动任务
+ *
  * @author ohun@live.cn
  */
 public final class ServerBoot extends BootJob {

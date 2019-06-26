@@ -24,19 +24,21 @@ import java.util.concurrent.Future;
 /**
  * Created by ohun on 16/9/5.
  *
+ * 确认任务
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class AckTask implements Runnable {
-    private final int ackMessageId;
+    private final long ackMessageId;
     private AckTaskQueue ackTaskQueue;
     private AckCallback callback;
     private Future<?> timeoutFuture;
 
-    public AckTask(int ackMessageId) {
+    public AckTask(long ackMessageId) {
         this.ackMessageId = ackMessageId;
     }
 
-    public static AckTask from(int ackMessageId) {
+    public static AckTask from(long ackMessageId) {
         return new AckTask(ackMessageId);
     }
 
@@ -54,10 +56,9 @@ public final class AckTask implements Runnable {
         return this;
     }
 
-    public int getAckMessageId() {
+    public long getAckMessageId() {
         return ackMessageId;
     }
-
 
     private boolean tryDone() {
         return timeoutFuture.cancel(true);
@@ -81,7 +82,7 @@ public final class AckTask implements Runnable {
     @Override
     public String toString() {
         return "{" +
-                ", ackMessageId=" + ackMessageId +
+                "ackMessageId=" + ackMessageId +
                 '}';
     }
 

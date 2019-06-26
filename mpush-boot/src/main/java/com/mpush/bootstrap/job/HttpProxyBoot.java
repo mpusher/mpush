@@ -25,6 +25,8 @@ import com.mpush.core.MPushServer;
 /**
  * Created by yxx on 2016/5/15.
  *
+ * http代理启动任务
+ *
  * @author ohun@live.cn
  */
 public final class HttpProxyBoot extends BootJob {

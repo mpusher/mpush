@@ -30,6 +30,8 @@ import java.util.Map;
 /**
  * Created by ohun on 2016/2/15.
  *
+ * http请求信息
+ *
  * @author ohun@live.cn
  */
 public final class HttpRequestMessage extends ByteBufMessage {

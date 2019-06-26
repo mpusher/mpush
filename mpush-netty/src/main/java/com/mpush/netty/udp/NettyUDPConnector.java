@@ -44,6 +44,8 @@ import static io.netty.channel.socket.InternetProtocolFamily.IPv4;
 /**
  * Created by ohun on 16/10/20.
  *
+ * netty udp连接器
+ *
  * @author ohun@live.cn (夜色)
  */
 public abstract class NettyUDPConnector extends BaseService implements Server {

@@ -41,6 +41,8 @@ import static com.mpush.tools.thread.ThreadNames.T_PUSH_CLIENT_TIMER;
 /**
  * Created by ohun on 2017/7/15.
  *
+ * 通用执行工厂
+ *
  * @author ohun@live.cn (夜色)
  */
 public class CommonExecutorFactory implements ExecutorFactory {

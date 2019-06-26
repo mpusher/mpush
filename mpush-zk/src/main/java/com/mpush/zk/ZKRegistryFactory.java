@@ -26,6 +26,8 @@ import com.mpush.api.srd.ServiceRegistry;
 /**
  * Created by ohun on 2016/12/27.
  *
+ * zk注册工厂
+ *
  * @author ohun@live.cn (夜色)
  */
 @Spi(order = 1)

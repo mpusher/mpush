@@ -23,6 +23,7 @@ import com.mpush.api.connection.Cipher;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.message.Message;
 import com.mpush.api.protocol.Packet;
+import com.mpush.api.utils.SnowflakeIdWorker;
 import com.mpush.tools.Jsons;
 import com.mpush.tools.common.IOUtils;
 import com.mpush.tools.common.Profiler;
@@ -32,17 +33,18 @@ import io.netty.channel.ChannelFutureListener;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by ohun on 2015/12/28.
+ *
+ * 基本信息
  *
  * @author ohun@live.cn
  */
 public abstract class BaseMessage implements Message {
     private static final byte STATUS_DECODED = 1;
     private static final byte STATUS_ENCODED = 2;
-    private static final AtomicInteger ID_SEQ = new AtomicInteger();
+    private static final SnowflakeIdWorker snowflakeIdWorker = SnowflakeIdWorker.getInstance();
     transient protected Packet packet;
     transient protected Connection connection;
     transient private byte status = 0;
@@ -208,11 +210,11 @@ public abstract class BaseMessage implements Message {
         send(ChannelFutureListener.CLOSE);
     }
 
-    protected static int genSessionId() {
-        return ID_SEQ.incrementAndGet();
+    protected static long genSessionId() {
+        return snowflakeIdWorker.nextId();
     }
 
-    public int getSessionId() {
+    public long getSessionId() {
         return packet.sessionId;
     }
 

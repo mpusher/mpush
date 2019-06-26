@@ -30,6 +30,8 @@ import java.util.function.Supplier;
 /**
  * Created by yxx on 2016/5/15.
  *
+ * 启动链
+ *
  * @author ohun@live.cn
  */
 public final class BootChain {

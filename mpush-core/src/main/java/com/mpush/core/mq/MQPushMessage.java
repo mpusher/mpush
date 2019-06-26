@@ -25,6 +25,8 @@ import com.mpush.api.spi.push.IPushMessage;
 /**
  * Created by ohun on 2016/12/24.
  *
+ * mq推送信息
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class MQPushMessage implements IPushMessage {

@@ -19,16 +19,26 @@
 
 package com.mpush.client.connect;
 
-
+/**
+ * 客户端配置
+ */
 public class ClientConfig {
     private byte[] clientKey;
     private byte[] iv;
+    // 客户端版本
     private String clientVersion;
+    // 设备id
     private String deviceId;
+    // 系统名称
     private String osName;
+    // 系统版本
     private String osVersion;
+    // 用户id
     private String userId;
-    private String cipher; //快速重连的时候使用
+    // 标签
+    private String tags;
+    // 快速重连的时候使用
+    private String cipher;
 
 
     public byte[] getClientKey() {
@@ -95,11 +105,20 @@ public class ClientConfig {
         this.userId = userId;
     }
 
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
     @Override
     public String toString() {
         return "{" +
                 "deviceId='" + deviceId + '\'' +
                 ", userId='" + userId + '\'' +
+                ", tags='" + tags + '\'' +
                 '}';
     }
 }

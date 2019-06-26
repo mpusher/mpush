@@ -27,6 +27,8 @@ import java.util.Set;
 /**
  * Created by ohun on 16/10/24.
  *
+ * 便签条件
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class TagsCondition implements Condition {

@@ -49,6 +49,8 @@ import static com.mpush.tools.thread.ThreadNames.T_TRAFFIC_SHAPING;
 /**
  * Created by yxx on 2016/5/17.
  *
+ * 网关客户端
+ *
  * @author ohun@live.cn
  */
 public class GatewayClient extends NettyTCPClient {

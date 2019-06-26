@@ -47,6 +47,9 @@ import java.util.concurrent.TimeUnit;
 import static com.mpush.api.srd.ServiceNames.DNS_MAPPING;
 import static com.mpush.tools.Utils.checkHealth;
 
+/**
+ * Http代理DNS映射管理器
+ */
 @Spi(order = 1)
 public class HttpProxyDnsMappingManager extends BaseService implements DnsMappingManager, Runnable, ServiceListener {
     private final Logger logger = LoggerFactory.getLogger(HttpProxyDnsMappingManager.class);

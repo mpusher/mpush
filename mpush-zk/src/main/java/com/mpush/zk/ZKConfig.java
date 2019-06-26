@@ -21,6 +21,9 @@ package com.mpush.zk;
 
 import com.mpush.tools.config.CC.mp.zk;
 
+/**
+ * zk配置
+ */
 public class ZKConfig {
     public static final int ZK_MAX_RETRY = 3;
     public static final int ZK_MIN_TIME = 5000;

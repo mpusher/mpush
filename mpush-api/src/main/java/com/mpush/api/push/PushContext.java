@@ -21,7 +21,7 @@ package com.mpush.api.push;
 
 import com.mpush.api.Constants;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -49,7 +49,12 @@ public class PushContext {
     /**
      * 目标用户,批量
      */
-    private List<String> userIds;
+    private Set<String> userIds;
+
+    /**
+     * 用户别名,批量
+     */
+    private Set<String> aliasSet;
 
     /**
      * 消息ack模式
@@ -80,7 +85,7 @@ public class PushContext {
 
     /**
      * 条件表达式, 满足条件的用户会被推送，目前支持的脚本语言为js
-     * 可以使用的参数为 userId,tags,clientVersion,osName,osVersion
+     * 可以使用的参数为 userId,alias,tags,clientVersion,osName,osVersion
      * 比如 :
      * 灰度：userId % 100 < 20
      * 包含test标签：tags!=null && tags.indexOf("test")!=-1
@@ -93,6 +98,8 @@ public class PushContext {
      * 广播推送的时候可以考虑生成一个ID, 便于控制任务。
      */
     private String taskId;
+
+    private Map<String, String> extras;
 
     public PushContext(byte[] context) {
         this.context = context;
@@ -127,12 +134,21 @@ public class PushContext {
         return this;
     }
 
-    public List<String> getUserIds() {
+    public Set<String> getUserIds() {
         return userIds;
     }
 
-    public PushContext setUserIds(List<String> userIds) {
+    public PushContext setUserIds(Set<String> userIds) {
         this.userIds = userIds;
+        return this;
+    }
+
+    public Set<String> getAliasSet() {
+        return aliasSet;
+    }
+
+    public PushContext setAliasSet(Set<String> aliasSet) {
+        this.aliasSet = aliasSet;
         return this;
     }
 
@@ -200,6 +216,15 @@ public class PushContext {
 
     public PushContext setTaskId(String taskId) {
         this.taskId = taskId;
+        return this;
+    }
+
+    public Map<String, String> getExtras() {
+        return extras;
+    }
+
+    public PushContext setExtras(Map<String, String> extras) {
+        this.extras = extras;
         return this;
     }
 }

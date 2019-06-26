@@ -22,11 +22,15 @@ package com.mpush.client.push;
 import com.mpush.api.Constants;
 import com.mpush.api.push.*;
 import com.mpush.api.router.ClientLocation;
+import com.mpush.api.spi.common.CacheManager;
+import com.mpush.api.spi.common.CacheManagerFactory;
 import com.mpush.client.MPushClient;
+import com.mpush.common.CacheKeys;
 import com.mpush.common.message.gateway.GatewayPushMessage;
 import com.mpush.common.push.GatewayPushResult;
 import com.mpush.common.router.RemoteRouter;
 import com.mpush.tools.Jsons;
+import com.mpush.tools.common.Strings;
 import com.mpush.tools.common.TimeLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +45,8 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Created by ohun on 2015/12/30.
  *
+ * 推送请求
+ *
  * @author ohun@live.cn
  */
 public final class PushRequest extends FutureTask<PushResult> {
@@ -54,6 +60,7 @@ public final class PushRequest extends FutureTask<PushResult> {
     private final TimeLine timeLine = new TimeLine("Push-Time-Line");
 
     private final MPushClient mPushClient;
+    private static final CacheManager cacheManager = CacheManagerFactory.create();
 
     private AckModel ackModel;
     private Set<String> tags;
@@ -63,11 +70,16 @@ public final class PushRequest extends FutureTask<PushResult> {
     private byte[] content;
     private int timeout;
     private ClientLocation location;
-    private int sessionId;
+    private long sessionId;
     private String taskId;
     private Future<?> future;
     private PushResult result;
+    private String msgId;
 
+    /**
+     * 发送到连接服务器
+     * @param remoteRouter
+     */
     private void sendToConnServer(RemoteRouter remoteRouter) {
         timeLine.addTimePoint("lookup-remote");
 
@@ -117,6 +129,10 @@ public final class PushRequest extends FutureTask<PushResult> {
         }
     }
 
+    /**
+     * 提交状态
+     * @param status
+     */
     private void submit(Status status) {
         if (this.status.compareAndSet(Status.init, status)) {//防止重复调用
             boolean isTimeoutEnd = status == Status.timeout;//任务是否超时结束
@@ -159,12 +175,21 @@ public final class PushRequest extends FutureTask<PushResult> {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * 发送消息到连接服务器
+     * @param router
+     * @return
+     */
     public FutureTask<PushResult> send(RemoteRouter router) {
         timeLine.begin();
         sendToConnServer(router);
         return this;
     }
 
+    /**
+     * 广播
+     * @return
+     */
     public FutureTask<PushResult> broadcast() {
         timeLine.begin();
 
@@ -206,30 +231,75 @@ public final class PushRequest extends FutureTask<PushResult> {
         return this;
     }
 
+    /**
+     * 存储离线消息
+     */
+    private void saveOfflineMsg(){
+        if(Strings.isBlank(msgId)){
+            return;
+        }
+        String key = CacheKeys.getUserInfoKey(userId);
+        if(cacheManager.exists(key)){
+            String msgs = cacheManager.hget(key, CacheKeys.USER_INFO_FIELD_MSG, String.class);
+
+            String cacheMsgId = CacheKeys.getMsgKey(msgId);
+            if(msgs == null){
+                msgs = cacheMsgId;
+            }else{
+                msgs = msgs +","+cacheMsgId;
+            }
+            cacheManager.hset(key, CacheKeys.USER_INFO_FIELD_MSG, msgs);
+
+            LOGGER.info("save offline, userId={}, key={} msg={}", userId, CacheKeys.USER_INFO_FIELD_MSG, Jsons.toJson(msgs));
+        }
+    }
+
+    /**
+     * 离线
+     */
     private void offline() {
         mPushClient.getCachedRemoteRouterManager().invalidateLocalCache(userId);
         submit(Status.offline);
+        // 存储离线消息
+        saveOfflineMsg();
     }
 
+    /**
+     * 超时
+     */
     private void timeout() {
         //超时要把request从队列中移除，其他情况是XXHandler中移除的
         if (mPushClient.getPushRequestBus().getAndRemove(sessionId) != null) {
             submit(Status.timeout);
         }
+        // 存储离线消息
+        saveOfflineMsg();
     }
 
+    /**
+     * 成功
+     */
     private void success() {
         submit(Status.success);
     }
 
+    /**
+     * 失败
+     */
     private void failure() {
         submit(Status.failure);
     }
 
+    /**
+     * 失败
+     */
     public void onFailure() {
         failure();
     }
 
+    /**
+     * 重定向
+     */
     public void onRedirect() {
         timeLine.addTimePoint("redirect");
         LOGGER.warn("user route has changed, userId={}, location={}", userId, location);
@@ -261,7 +331,7 @@ public final class PushRequest extends FutureTask<PushResult> {
         return timeout;
     }
 
-    public PushRequest(MPushClient mPushClient) {
+    private PushRequest(MPushClient mPushClient) {
         super(NONE);
         this.mPushClient = mPushClient;
     }
@@ -269,8 +339,19 @@ public final class PushRequest extends FutureTask<PushResult> {
     public static PushRequest build(MPushClient mPushClient, PushContext ctx) {
         byte[] content = ctx.getContext();
         PushMsg msg = ctx.getPushMsg();
+        String msgId = null;
         if (msg != null) {
             String json = Jsons.toJson(msg);
+            // 存储推送信息
+            msgId = msg.getMsgId();
+            int expireTime = Constants.EXPIRE_TIME;
+            if(ctx.getExtras()!=null){
+                if(ctx.getExtras().containsKey("extras")){
+                    expireTime = Integer.valueOf(ctx.getExtras().get("extras"));
+                }
+            }
+            String cacheMsgId = CacheKeys.getMsgKey(msgId);
+            cacheManager.set(cacheMsgId, json, expireTime);
             if (json != null) {
                 content = json.getBytes(Constants.UTF_8);
             }
@@ -286,7 +367,8 @@ public final class PushRequest extends FutureTask<PushResult> {
                 .setTaskId(ctx.getTaskId())
                 .setContent(content)
                 .setTimeout(ctx.getTimeout())
-                .setCallback(ctx.getCallback());
+                .setCallback(ctx.getCallback())
+                .setMsgId(msgId);
 
     }
 
@@ -337,6 +419,11 @@ public final class PushRequest extends FutureTask<PushResult> {
 
     public PushRequest setTaskId(String taskId) {
         this.taskId = taskId;
+        return this;
+    }
+
+    public PushRequest setMsgId(String msgId) {
+        this.msgId = msgId;
         return this;
     }
 

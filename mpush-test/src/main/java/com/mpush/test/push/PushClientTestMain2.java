@@ -66,7 +66,7 @@ public class PushClientTestMain2 {
                 while (service.getQueue().size() > 1000) Thread.sleep(1); // 防止内存溢出
 
                 PushMsg msg = PushMsg.build(MsgType.MESSAGE, "this a first push.");
-                msg.setMsgId("msgId_" + i);
+                //msg.setMsgId("msgId_" + i);
 
                 PushContext context = PushContext.build(msg)
                         .setAckModel(AckModel.NO_ACK)
@@ -108,7 +108,7 @@ public class PushClientTestMain2 {
         @Override
         public void run() {
             if (flowControl.checkQps()) {
-                FutureTask<PushResult> future = sender.send(context);
+                FutureTask<PushResult> future = sender.sendByUserId(context);
             } else {
                 executor.schedule(this, flowControl.getDelay(), TimeUnit.NANOSECONDS);
             }

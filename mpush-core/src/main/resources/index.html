@@ -86,12 +86,13 @@
             );
         }
 
-        function bindUser(userId, tags) {
+        function bindUser(userId, alias, tags) {
             if (userId && userId != session.userId) {
                 config.log.info("<<< send bindUser message, userId=" + userId);
                 session.userId = userId;
                 session.tags = tags;
-                send(Packet(Command.BIND, {userId: userId, tags: tags}));
+                session.alias = alias;
+                send(Packet(Command.BIND, {userId: userId, alias: alias, tags: tags}));
             } else {
                 config.log.error("user " + userId + " already bind");
             }
@@ -234,7 +235,7 @@
     }
 
     function bind() {
-        mpush.bindUser($("userId").value)
+        mpush.bindUser($("userId").value, $("alias").value, $("tags").value)
     }
 
 </script>
@@ -246,6 +247,12 @@
     <br>
     <label> Bind User:
         <input type="text" id="userId" value="user-0">
+    </label>
+    <label> Bind User alias:
+        <input type="text" id="alias" value="user-0">
+    </label>
+    <label> Bind User tags:
+        <input type="text" id="tags" value="user-0">
     </label>
     <input type="button" value="bind" onclick="bind()">
     <h3><label for="responseText">Output</label></h3>

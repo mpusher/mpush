@@ -26,13 +26,14 @@ import com.mpush.api.protocol.Packet;
 import io.netty.channel.ChannelFutureListener;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.mpush.api.protocol.Command.PUSH;
 
 /**
  * Created by ohun on 2015/12/30.
+ *
+ * 推送信息
  *
  * @author ohun@live.cn
  */

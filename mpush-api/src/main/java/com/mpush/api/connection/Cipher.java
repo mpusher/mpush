@@ -22,12 +22,24 @@ package com.mpush.api.connection;
 /**
  * Created by ohun on 2015/12/28.
  *
+ * 暗号、加密方式
+ *
  * @author ohun@live.cn
  */
 public interface Cipher {
 
+    /**
+     * 解码
+     * @param data
+     * @return
+     */
     byte[] decrypt(byte[] data);
 
+    /**
+     * 编码
+     * @param data
+     * @return
+     */
     byte[] encrypt(byte[] data);
 
 }

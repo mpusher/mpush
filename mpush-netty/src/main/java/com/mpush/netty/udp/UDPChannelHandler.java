@@ -38,6 +38,8 @@ import java.net.NetworkInterface;
 /**
  * Created by ohun on 16/10/21.
  *
+ * udp通道处理器
+ *
  * @author ohun@live.cn (夜色)
  */
 @ChannelHandler.Sharable

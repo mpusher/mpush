@@ -34,6 +34,8 @@ public interface Constants {
     String EMPTY_STRING = "";
     String ANY_HOST = "0.0.0.0";
     String KICK_CHANNEL_PREFIX = "/mpush/kick/";
+    // 过期时间，单位为秒，默认1800，即30分钟
+    int EXPIRE_TIME = 1800;
 
     static String getKickChannel(String hostAndPort) {
         return KICK_CHANNEL_PREFIX + hostAndPort;

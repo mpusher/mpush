@@ -74,6 +74,15 @@ public abstract class ByteBufMessage extends BaseMessage {
         body.writeLong(field);
     }
 
+    /**
+     * 编码，格式是`字段内容长度+字段内容`，一个字节表示字段内容长度，后面接着为字段内容
+     * 如果字段为空，则长度为0，没有内容，一个字节表示字段内容长度，没有字段内容
+     * 如果字段内容长度小于32767 ，则长度为字段内容长度，两个字节表示字段内容长度，后面接着为字段内容
+     * 如果字段内容长度大于等于32767 ，则长度为字段内容长度，前6个字节表示字段内容长度，后面接着为字段内容
+     *
+     * @param body
+     * @param field
+     */
     public void encodeBytes(ByteBuf body, byte[] field) {
         if (field == null || field.length == 0) {
             body.writeShort(0);

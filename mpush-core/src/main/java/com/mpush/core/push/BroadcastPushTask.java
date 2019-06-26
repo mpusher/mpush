@@ -19,6 +19,7 @@
 
 package com.mpush.core.push;
 
+import com.google.common.collect.Sets;
 import com.mpush.api.message.Message;
 import com.mpush.api.common.Condition;
 import com.mpush.api.connection.Connection;
@@ -41,6 +42,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by ohun on 16/10/24.
  *
+ * 广播推送任务，推送本地所有用户
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class BroadcastPushTask implements PushTask {
@@ -51,7 +54,7 @@ public final class BroadcastPushTask implements PushTask {
 
     private final TimeLine timeLine = new TimeLine();
 
-    private final Set<String> successUserIds = new HashSet<>(1024);
+    private final Set<String> successUserIds = Sets.newConcurrentHashSet();
 
     private final FlowControl flowControl;
 

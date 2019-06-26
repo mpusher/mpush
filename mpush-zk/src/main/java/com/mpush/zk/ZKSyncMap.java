@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 
 /**
  * Created by Stream.Liu
+ *
+ * zk同步映射
  */
 public class ZKSyncMap<K, V> implements Map<K, V> {
     static final String ZK_PATH_SYNC_MAP = "syncMap";

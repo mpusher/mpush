@@ -22,7 +22,6 @@ package com.mpush.api.protocol;
 
 import com.mpush.api.Constants;
 import com.mpush.api.spi.common.Json;
-import com.mpush.api.spi.common.JsonFactory;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -48,7 +47,7 @@ public final class JsonPacket extends Packet {
         this.addFlag(FLAG_JSON_BODY);
     }
 
-    public JsonPacket(Command cmd, int sessionId) {
+    public JsonPacket(Command cmd, long sessionId) {
         super(cmd, sessionId);
         this.addFlag(FLAG_JSON_BODY);
     }

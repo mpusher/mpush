@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Echoes uppercase content of text frames.
+ *
+ * websocket通道处理器
  */
 @ChannelHandler.Sharable
 public class WebSocketChannelHandler extends SimpleChannelInboundHandler<WebSocketFrame> {

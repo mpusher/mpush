@@ -25,6 +25,9 @@ import com.mpush.netty.client.NettyTCPClient;
 import com.mpush.tools.event.EventBus;
 import io.netty.channel.ChannelHandler;
 
+/**
+ * 链接客户端
+ */
 public class ConnectClient extends NettyTCPClient {
     private final ConnClientChannelHandler handler;
 

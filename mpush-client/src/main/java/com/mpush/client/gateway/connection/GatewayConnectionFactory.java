@@ -34,6 +34,8 @@ import java.util.function.Function;
 /**
  * Created by yxx on 2016/5/17.
  *
+ * 网关链接工厂
+ *
  * @author ohun@live.cn
  */
 public abstract class GatewayConnectionFactory extends BaseService implements ServiceListener {

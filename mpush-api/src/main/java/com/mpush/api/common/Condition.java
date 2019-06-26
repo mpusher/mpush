@@ -25,6 +25,8 @@ import java.util.function.Predicate;
 /**
  * Created by ohun on 16/10/24.
  *
+ * 条件
+ *
  * @author ohun@live.cn (夜色)
  */
 public interface Condition extends Predicate<Map<String, Object>> {

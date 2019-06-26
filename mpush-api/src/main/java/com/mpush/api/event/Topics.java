@@ -25,7 +25,13 @@ package com.mpush.api.event;
  * @author ohun@live.cn (夜色)
  */
 public interface Topics {
+    /**
+     * mq在线订阅主题
+     */
     String ONLINE_CHANNEL = "/mpush/online/";
 
+    /**
+     * mq离线订阅主题
+     */
     String OFFLINE_CHANNEL = "/mpush/offline/";
 }

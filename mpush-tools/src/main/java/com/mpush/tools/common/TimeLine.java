@@ -18,11 +18,10 @@
   */
 package com.mpush.tools.common;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
  * Created by yxx on 2016/5/26.
+ *
+ * 时间线
  *
  * @author ohun@live.cn (夜色)
  */

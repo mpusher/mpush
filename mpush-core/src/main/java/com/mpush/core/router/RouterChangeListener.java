@@ -50,6 +50,8 @@ import static com.mpush.api.Constants.KICK_CHANNEL_PREFIX;
 /**
  * Created by ohun on 2016/1/4.
  *
+ * 路由器变化监听器
+ *
  * @author ohun@live.cn
  */
 public final class RouterChangeListener extends EventConsumer implements MQMessageReceiver {

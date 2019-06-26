@@ -44,6 +44,8 @@ import static com.mpush.tools.config.CC.mp.push.flow_control.broadcast.max;
 /**
  * Created by ohun on 16/10/24.
  *
+ * 推送中心器
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class PushCenter extends BaseService implements MessagePusher {

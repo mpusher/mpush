@@ -34,6 +34,8 @@ import static org.apache.curator.utils.ZKPaths.PATH_SEPARATOR;
 /**
  * Created by ohun on 16/9/22.
  *
+ * zk服务注册与发现
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class ZKServiceRegistryAndDiscovery extends BaseService implements ServiceRegistry, ServiceDiscovery {

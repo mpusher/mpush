@@ -271,6 +271,12 @@ public interface CC {
         interface redis {
             Config cfg = mp.cfg.getObject("redis").toConfig();
 
+            // 读取数据超时时间
+            int soTimeout = cfg.getInt("soTimeout");
+            // 连接超时时间
+            int connectionTimeout = cfg.getInt("connectionTimeout");
+            // 出现异常最大重试次数
+            int maxAttempts = cfg.getInt("maxAttempts");
             String password = cfg.getString("password");
             String clusterModel = cfg.getString("cluster-model");
             String sentinelMaster = cfg.getString("sentinel-master");
@@ -350,6 +356,11 @@ public interface CC {
             Duration dump_period = cfg.getDuration("dump-period");
             boolean profile_enabled = cfg.getBoolean("profile-enabled");
             Duration profile_slowly_duration = cfg.getDuration("profile-slowly-duration");
+        }
+        interface snowflake {
+            Config cfg = mp.cfg.getObject("snowflake").toConfig();
+            int workerId = cfg.getInt("workerId") % 32;
+            int datacenterId = cfg.getInt("datacenterId") % 32;
         }
     }
 }

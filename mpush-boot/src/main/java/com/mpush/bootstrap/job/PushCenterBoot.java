@@ -24,6 +24,8 @@ import com.mpush.core.MPushServer;
 /**
  * Created by ohun on 16/10/25.
  *
+ * 推送中心启动任务
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class PushCenterBoot extends BootJob {

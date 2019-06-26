@@ -22,21 +22,25 @@ package com.mpush.client.push;
 import com.mpush.api.service.BaseService;
 import com.mpush.api.service.Listener;
 import com.mpush.client.MPushClient;
-import com.mpush.monitor.service.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ohun on 2015/12/30.
+ *
+ * 推送请求总线
  *
  * @author ohun@live.cn
  */
 public class PushRequestBus extends BaseService {
     private final Logger logger = LoggerFactory.getLogger(PushRequestBus.class);
-    private final Map<Integer, PushRequest> reqQueue = new ConcurrentHashMap<>(1024);
+    private final Map<Long, PushRequest> reqQueue = new ConcurrentHashMap<>(1024);
     private ScheduledExecutorService scheduledExecutor;
     private final MPushClient mPushClient;
 
@@ -44,12 +48,12 @@ public class PushRequestBus extends BaseService {
         this.mPushClient = mPushClient;
     }
 
-    public Future<?> put(int sessionId, PushRequest request) {
+    public Future<?> put(long sessionId, PushRequest request) {
         reqQueue.put(sessionId, request);
         return scheduledExecutor.schedule(request, request.getTimeout(), TimeUnit.MILLISECONDS);
     }
 
-    public PushRequest getAndRemove(int sessionId) {
+    public PushRequest getAndRemove(long sessionId) {
         return reqQueue.remove(sessionId);
     }
 

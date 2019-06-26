@@ -39,6 +39,8 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * Created by ohun on 16/10/24.
  *
+ * 单用户推送任务
+ *
  * @author ohun@live.cn (夜色)
  */
 public final class SingleUserPushTask implements PushTask, ChannelFutureListener {
@@ -47,7 +49,7 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
 
     private final IPushMessage message;
 
-    private int messageId;
+    private long messageId;
 
     private long start;
 
@@ -201,6 +203,11 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
 
     }
 
+    /**
+     * 操作完成
+     * @param future
+     * @throws Exception
+     */
     @Override
     public void operationComplete(ChannelFuture future) throws Exception {
         if (checkTimeout()) return;
@@ -229,7 +236,7 @@ public final class SingleUserPushTask implements PushTask, ChannelFutureListener
      *
      * @param messageId 下发到客户端待ack的消息的sessionId
      */
-    private void addAckTask(int messageId) {
+    private void addAckTask(long messageId) {
         timeLine.addTimePoint("waiting-ack");
 
         //因为要进队列，可以提前释放一些比较占用内存的字段，便于垃圾回收

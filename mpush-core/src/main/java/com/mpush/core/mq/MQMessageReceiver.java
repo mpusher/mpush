@@ -22,12 +22,13 @@ package com.mpush.core.mq;
 import com.mpush.core.push.PushCenter;
 import com.mpush.tools.Utils;
 import com.mpush.tools.config.ConfigTools;
-import com.mpush.monitor.service.ThreadPoolManager;
 
 import java.util.Collection;
 
 /**
  * Created by ohun on 2016/12/24.
+ *
+ * mq信息接收器
  *
  * @author ohun@live.cn (夜色)
  */

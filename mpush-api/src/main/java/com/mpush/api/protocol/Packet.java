@@ -27,18 +27,23 @@ import java.net.InetSocketAddress;
 
 /**
  * Created by ohun on 2015/12/19.
- * length(4)+cmd(1)+cc(2)+flags(1)+sessionId(4)+lrc(1)+body(n)
+ * length(4)+cmd(1)+cc(2)+flags(1)+sessionId(8)+lrc(1)+body(n)
  *
  * @author ohun@live.cn
  */
 @SuppressWarnings("unchecked")
 public class Packet {
-    public static final int HEADER_LEN = 13;
-
+    // packet包头协议长度
+    public static final int HEADER_LEN = 17;
+    // packet包启用加密
     public static final byte FLAG_CRYPTO = 1;
+    // packet包启用压缩
     public static final byte FLAG_COMPRESS = 2;
+    // 由客户端业务自己确认消息是否到达 标志
     public static final byte FLAG_BIZ_ACK = 4;
+    // 客户端收到消息后自动确认消息 标志
     public static final byte FLAG_AUTO_ACK = 8;
+    // 信息体为json标志
     public static final byte FLAG_JSON_BODY = 16;
 
     public static final byte HB_PACKET_BYTE = -33;
@@ -48,7 +53,7 @@ public class Packet {
     public byte cmd; //命令
     transient public short cc; //校验码 暂时没有用到
     public byte flags; //特性，如是否加密，是否压缩等
-    public int sessionId; // 会话id。客户端生成。
+    public long sessionId; // 会话id。客户端生成。
     transient public byte lrc; // 校验，纵向冗余校验。只校验head
     transient public byte[] body;
 
@@ -56,7 +61,7 @@ public class Packet {
         this.cmd = cmd;
     }
 
-    public Packet(byte cmd, int sessionId) {
+    public Packet(byte cmd, long sessionId) {
         this.cmd = cmd;
         this.sessionId = sessionId;
     }
@@ -65,7 +70,7 @@ public class Packet {
         this.cmd = cmd.cmd;
     }
 
-    public Packet(Command cmd, int sessionId) {
+    public Packet(Command cmd, long sessionId) {
         this.cmd = cmd.cmd;
         this.sessionId = sessionId;
     }
@@ -106,7 +111,7 @@ public class Packet {
                 .writeByte(cmd)
                 .writeShort(cc)
                 .writeByte(flags)
-                .writeInt(sessionId)
+                .writeLong(sessionId)
                 .array();
         byte lrc = 0;
         for (int i = 0; i < data.length; i++) {
@@ -141,7 +146,7 @@ public class Packet {
     public static Packet decodePacket(Packet packet, ByteBuf in, int bodyLength) {
         packet.cc = in.readShort();//read cc
         packet.flags = in.readByte();//read flags
-        packet.sessionId = in.readInt();//read sessionId
+        packet.sessionId = in.readLong();//read sessionId
         packet.lrc = in.readByte();//read lrc
 
         //read body
@@ -159,7 +164,7 @@ public class Packet {
             out.writeByte(packet.cmd);
             out.writeShort(packet.cc);
             out.writeByte(packet.flags);
-            out.writeInt(packet.sessionId);
+            out.writeLong(packet.sessionId);
             out.writeByte(packet.lrc);
             if (packet.getBodyLength() > 0) {
                 out.writeBytes(packet.body);

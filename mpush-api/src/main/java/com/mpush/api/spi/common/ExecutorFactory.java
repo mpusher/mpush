@@ -26,6 +26,8 @@ import java.util.concurrent.Executor;
 /**
  * Created by yxx on 2016/5/20.
  *
+ * 执行工厂
+ *
  * @author ohun@live.cn
  */
 public interface ExecutorFactory {

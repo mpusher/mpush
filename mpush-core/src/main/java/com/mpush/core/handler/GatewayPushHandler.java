@@ -28,6 +28,8 @@ import com.mpush.core.push.PushCenter;
 /**
  * Created by ohun on 2015/12/30.
  *
+ * 网关推送处理器
+ *
  * @author ohun@live.cn
  */
 public final class GatewayPushHandler extends BaseMessageHandler<GatewayPushMessage> {

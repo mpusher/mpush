@@ -15,17 +15,14 @@
  */
 package com.mpush.cache.redis.connection;
 
-import com.mpush.cache.redis.RedisServer;
 import com.mpush.tools.config.data.RedisNode;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.*;
 import redis.clients.util.Pool;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,7 +40,12 @@ public class RedisConnectionFactory {
 
     private String hostName = "localhost";
     private int port = Protocol.DEFAULT_PORT;
-    private int timeout = Protocol.DEFAULT_TIMEOUT;
+    // 出现异常最大重试次数
+    private int maxAttempts = 2;
+    // 连接超时时间
+    private int connectionTimeout = Protocol.DEFAULT_TIMEOUT;
+    // 读取数据超时时间
+    private int soTimeout = Protocol.DEFAULT_TIMEOUT;
     private String password;
 
     private String sentinelMaster;
@@ -94,8 +96,11 @@ public class RedisConnectionFactory {
                 shardInfo.setPassword(password);
             }
 
-            if (timeout > 0) {
-                shardInfo.setConnectionTimeout(timeout);
+            if (connectionTimeout > 0) {
+                shardInfo.setConnectionTimeout(connectionTimeout);
+            }
+            if(soTimeout > 0){
+                shardInfo.setSoTimeout(soTimeout);
             }
         }
 
@@ -152,10 +157,10 @@ public class RedisConnectionFactory {
 
 
         if (StringUtils.isNotEmpty(getPassword())) {
-            throw new IllegalArgumentException("Jedis does not support password protected Redis Cluster configurations!");
+            return new JedisCluster(hostAndPorts, connectionTimeout, soTimeout, maxAttempts, password, poolConfig);
+        }else{
+            return new JedisCluster(hostAndPorts, connectionTimeout, soTimeout, maxAttempts, poolConfig);
         }
-        int redirects = 5;
-        return new JedisCluster(hostAndPorts, timeout, redirects, poolConfig);
     }
 
     /*
@@ -278,20 +283,28 @@ public class RedisConnectionFactory {
         this.shardInfo = shardInfo;
     }
 
-    /**
-     * Returns the timeout.
-     *
-     * @return Returns the timeout
-     */
-    public int getTimeout() {
-        return timeout;
+    public int getMaxAttempts() {
+        return maxAttempts;
     }
 
-    /**
-     * @param timeout The timeout to set.
-     */
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
+    public void setMaxAttempts(int maxAttempts) {
+        this.maxAttempts = maxAttempts;
+    }
+
+    public int getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
+    public void setConnectionTimeout(int connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+    }
+
+    public int getSoTimeout() {
+        return soTimeout;
+    }
+
+    public void setSoTimeout(int soTimeout) {
+        this.soTimeout = soTimeout;
     }
 
     /**

@@ -19,6 +19,9 @@
 
 package com.mpush.tools.event;
 
+/**
+ * 事件消费者
+ */
 public abstract class EventConsumer {
 
     public EventConsumer() {

@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ohun on 2015/12/19.
  *
+ * 网关客户端通道处理器
+ *
  * @author ohun@live.cn
  */
 @ChannelHandler.Sharable

@@ -26,6 +26,8 @@ import com.mpush.api.spi.core.ServerEventListenerFactory;
 /**
  * Created by ohun on 16/10/19.
  *
+ * 默认服务器事件监听器
+ *
  * @author ohun@live.cn (夜色)
  */
 @Spi(order = 1)

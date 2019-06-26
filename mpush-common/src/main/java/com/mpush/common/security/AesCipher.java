@@ -31,6 +31,8 @@ import static com.mpush.tools.crypto.AESUtils.KEY_ALGORITHM;
 /**
  * Created by ohun on 2015/12/28.
  *
+ * aes加密方式
+ *
  * @author ohun@live.cn
  */
 public final class AesCipher implements Cipher {

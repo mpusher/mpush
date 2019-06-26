@@ -28,6 +28,8 @@ import com.mpush.api.srd.ServiceRegistry;
 /**
  * Created by ohun on 2017/6/21.
  *
+ * MPush上下文
+ *
  * @author ohun@live.cn (夜色)
  */
 public interface MPushContext {

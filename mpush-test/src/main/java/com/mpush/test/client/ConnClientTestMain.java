@@ -33,8 +33,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
-import static com.mpush.api.srd.ServiceNames.ATTR_PUBLIC_IP;
-
 public class ConnClientTestMain {
 
     public static void main(String[] args) throws Exception {
@@ -93,6 +91,7 @@ public class ConnClientTestMain {
             String osName = "android";
             String osVersion = "1.0.1";
             String userId = userPrefix + "user-" + i;
+            String tags = "test";
             String deviceId = userPrefix + "test-device-id-" + i;
             byte[] clientKey = CipherBox.I.randomAESKey();
             byte[] iv = CipherBox.I.randomAESIV();
@@ -105,6 +104,7 @@ public class ConnClientTestMain {
             config.setOsName(osName);
             config.setOsVersion(osVersion);
             config.setUserId(userId);
+            config.setTags(tags);
 
             int L = serverList.size();
             int index = (int) ((Math.random() % L) * L);

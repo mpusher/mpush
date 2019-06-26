@@ -24,6 +24,8 @@ import com.mpush.api.service.Service;
 /**
  * Created by ohun on 2016/2/15.
  *
+ * http客户端
+ *
  * @author ohun@live.cn
  */
 public interface HttpClient extends Service {

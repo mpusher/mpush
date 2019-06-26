@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import java.net.URL;
 import java.net.URLDecoder;
 
+/**
+ * http客户端处理器
+ */
 @ChannelHandler.Sharable
 /*package*/ class HttpClientHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyHttpClient.class);

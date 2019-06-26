@@ -40,6 +40,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by ohun on 2015/12/23.
  *
+ * 本地路由器管理器
+ *
  * @author ohun@live.cn
  */
 public final class LocalRouterManager extends EventConsumer implements RouterManager<LocalRouter> {
@@ -47,7 +49,7 @@ public final class LocalRouterManager extends EventConsumer implements RouterMan
     private static final Map<Integer, LocalRouter> EMPTY = new HashMap<>(0);
 
     /**
-     * 本地路由表
+     * 本地路由表 存放在内存中
      */
     private final Map<String, Map<Integer, LocalRouter>> routers = new ConcurrentHashMap<>();
 

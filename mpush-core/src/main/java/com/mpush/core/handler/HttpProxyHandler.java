@@ -50,6 +50,8 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 /**
  * Created by ohun on 2016/2/15.
  *
+ * http代理处理器
+ *
  * @author ohun@live.cn
  */
 public class HttpProxyHandler extends BaseMessageHandler<HttpRequestMessage> {

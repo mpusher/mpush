@@ -26,6 +26,8 @@ import com.mpush.common.message.ErrorMessage;
 /**
  * Created by ohun on 2015/12/30.
  *
+ * 错误信息处理器
+ *
  * @author ohun@live.cn
  */
 public class ErrorMessageHandler extends BaseMessageHandler<ErrorMessage> {

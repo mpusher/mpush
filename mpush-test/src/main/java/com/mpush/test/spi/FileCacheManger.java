@@ -36,6 +36,8 @@ import java.util.concurrent.*;
 /**
  * Created by ohun on 2016/12/28.
  *
+ * 文件缓存，即存放在磁盘中
+ *
  * @author ohun@live.cn (夜色)
  */
 @SuppressWarnings("unchecked")
@@ -135,6 +137,20 @@ public final class FileCacheManger implements CacheManager {
         if (map != null) {
             ((Map) map).remove(field);
         }
+    }
+
+    @Override
+    public boolean exists(String key) {
+        return cache.containsKey(key);
+    }
+
+    @Override
+    public boolean hexists(String key, String field) {
+        Object map = cache.get(key);
+        if (map != null) {
+            return ((Map) map).containsKey(field);
+        }
+        return false;
     }
 
     @Override

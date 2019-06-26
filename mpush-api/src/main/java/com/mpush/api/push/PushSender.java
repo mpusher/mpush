@@ -28,6 +28,8 @@ import java.util.concurrent.FutureTask;
 /**
  * Created by ohun on 2015/12/30.
  *
+ * 推送发送器
+ *
  * @author ohun@live.cn
  */
 public interface PushSender extends Service {
@@ -47,24 +49,29 @@ public interface PushSender extends Service {
      * @param context 推送参数
      * @return FutureTask 可用于同步调用
      */
-    FutureTask<PushResult> send(PushContext context);
+    //FutureTask<PushResult> send(PushContext context);
 
-    default FutureTask<PushResult> send(String context, String userId, PushCallback callback) {
-        return send(PushContext
-                .build(context)
-                .setUserId(userId)
-                .setCallback(callback)
-        );
-    }
+    FutureTask<PushResult> sendByUserId(PushContext context);
+    FutureTask<PushResult> sendByUserIds(PushContext context);
+    FutureTask<PushResult> sendByAlias(PushContext context);
+    FutureTask<PushResult> sendByTags(PushContext context);
 
-    default FutureTask<PushResult> send(String context, String userId, AckModel ackModel, PushCallback callback) {
-        return send(PushContext
-                .build(context)
-                .setAckModel(ackModel)
-                .setUserId(userId)
-                .setCallback(callback)
-        );
-    }
+//    default FutureTask<PushResult> send(String msg, String userId, PushCallback callback) {
+//        return send(PushContext
+//                .build(msg)
+//                .setUserId(userId)
+//                .setCallback(callback)
+//        );
+//    }
+//
+//    default FutureTask<PushResult> send(String msg, String userId, AckModel ackModel, PushCallback callback) {
+//        return send(PushContext
+//                .build(msg)
+//                .setAckModel(ackModel)
+//                .setUserId(userId)
+//                .setCallback(callback)
+//        );
+//    }
 
     default void setMPushContext(MPushContext context) {
     }

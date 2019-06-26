@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by ohun on 2015/12/22.
  *
+ * netty连接
+ *
  * @author ohun@live.cn
  */
 public final class NettyConnection implements Connection, ChannelFutureListener {

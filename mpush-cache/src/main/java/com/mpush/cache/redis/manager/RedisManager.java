@@ -26,7 +26,6 @@ import com.mpush.tools.Jsons;
 import com.mpush.tools.Utils;
 import com.mpush.tools.config.CC;
 import com.mpush.tools.log.Logs;
-import com.mpush.monitor.service.ThreadPoolManager;
 import redis.clients.jedis.*;
 
 import java.util.*;
@@ -45,6 +44,9 @@ public final class RedisManager implements CacheManager {
     public void init() {
         Logs.CACHE.info("begin init redis...");
         factory.setPassword(CC.mp.redis.password);
+        factory.setConnectionTimeout(CC.mp.redis.connectionTimeout);
+        factory.setSoTimeout(CC.mp.redis.soTimeout);
+        factory.setMaxAttempts(CC.mp.redis.maxAttempts);
         factory.setPoolConfig(CC.mp.redis.getPoolConfig(JedisPoolConfig.class));
         factory.setRedisServers(CC.mp.redis.nodes);
         factory.setCluster(CC.mp.redis.isCluster());
@@ -167,6 +169,14 @@ public final class RedisManager implements CacheManager {
 
     public void hdel(String key, String field) {
         call(jedis -> jedis.hdel(key, field));
+    }
+
+    public boolean exists(String key) {
+        return call(jedis -> jedis.exists(key), false);
+    }
+
+    public boolean hexists(String key, String field) {
+        return call(jedis -> jedis.hexists(key, field), false);
     }
 
     public Map<String, String> hgetAll(String key) {

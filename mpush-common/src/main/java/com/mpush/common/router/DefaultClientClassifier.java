@@ -26,6 +26,8 @@ import com.mpush.api.spi.router.ClientClassifierFactory;
 /**
  * Created by ohun on 16/10/26.
  *
+ * 默认客户端分类器
+ *
  * @author ohun@live.cn (夜色)
  */
 @Spi(order = 1)
