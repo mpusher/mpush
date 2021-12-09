@@ -70,7 +70,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.encoding>UTF-8</java.encoding>
         <java.version>1.8</java.version>
-        <netty.version>4.1.25.Final</netty.version>
+        <netty.version>4.1.71.Final</netty.version>
         <slf4j.version>1.7.25</slf4j.version>
         <os.detected.classifier>linux-x86_64</os.detected.classifier>
     </properties>
